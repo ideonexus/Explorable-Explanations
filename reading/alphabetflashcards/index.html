@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)http://menscher.com/teaching/woaa/examples/jsexampleapp3.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Javascript Example App - Kid's Alphabet Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<style type="text/css">
+	* {
+	     -webkit-touch-callout: none; /* prevent callout to copy image, etc when tap to hold */
+	     -webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */
+	     -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+	     -webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
+	}
+
+	body {
+		margin: 0px;
+	}
+	
+	#main {
+		position: absolute;
+		height: 100%;
+		width: 100%;
+	}
+	
+	#toggles, #footer {
+	    width: 100%;
+	    text-align: center;
+        color: #ffffff;
+        font-family: verdana, sans-serif;
+	}
+
+  #toggles a, #footer a {
+      text-decoration: none;
+      color: #9999ff;
+  }
+
+	#footer {
+	    position:fixed;
+	    bottom:0;
+	}
+
+	#alpha {
+		font-family: "Times New Roman", Georgia, Serif;
+		font-weight: bold;
+		position: absolute;
+		top: 20%;
+		width: 100%;
+		font-size: 20em;
+		text-align: center;
+		text-shadow: 3px 3px 2px #333333;
+		margin: auto;
+	}
+	
+</style>
+
+<style type="text/css"></style><script type="text/javascript">
+/***************************************************************************************************************
+This example displays a random letter of a random color with a random background color when the screen is tapped
+***************************************************************************************************************/
+
+var serifFont = true;
+
+function toggleFont() {
+    if (serifFont) {
+        serifFont = false;
+        document.getElementById("alpha").style.fontFamily = "Arial,sans-serif";
+        document.getElementById("fontToggle").innerHTML = "Serif Font";
+    } else {
+        serifFont = true;
+        document.getElementById("alpha").style.fontFamily = "Georgia, Palatino, serif";
+        document.getElementById("fontToggle").innerHTML = "Sans-Serif";
+    }
+}
+
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        document.getElementById("soundToggle").innerHTML = "Sound On";
+    } else {
+        soundOn = true;
+        document.getElementById("soundToggle").innerHTML = "Sound Off";
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+/*
+  1.  Create a "hexvals" array containing all possible "hex" chars (0-9 and A-F)
+  2.  Initialize currHexVal (a string that starts with #)
+  3.  Loop 6 times
+  4.  use the Math object's floor() function and random() function to grab a random position inside the hexvals array
+  5.  After 6 iterations, we'll have a valid hexadecimal RGB val
+  6.  Return the value
+*/
+function getHex() {
+	var hexvals = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
+	currHexVal = "#";
+	for(i = 0; i < 6; i++) {
+		idx = Math.floor(Math.random() * 14); //picks a num 0 to 14
+		currHexVal += hexvals[idx];
+	}
+	return currHexVal;
+}
+
+function getBrightHex() {
+    var hexvals = ["8", "9", "A", "B", "C", "D", "E", "F"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
+function getDarkHex() {
+    var hexvals = ["0", "1", "2", "3", "4", "5", "6", "7"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
+/*
+  1.  Create an array of all 26 letters
+  2.  Use the Math object's floor() and random() functions to grab a random position inside the alphabet array
+  3.  Set the "alpha" div's innerHTML to the value of the array item
+  4.  Use the getHex() function above to get a random hexadecimal RGB value
+  5.  Set the "color" CSS property of the "alpha" div to the random hex value
+  6.  Use the getHex() function to get another random hex RGB value
+  7.  Set the background color of the entire document to the random hex value
+  
+*/
+var alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+
+function writeLetter() {
+//The list of all letters
+	pickLetter = Math.floor(Math.random() * 25); //picks a num 0 to 25
+	document.getElementById("alpha").innerHTML = alphabet[pickLetter];
+
+	speakWord(alphabet[pickLetter]);
+
+	alphacolor = getBrightHex();
+	document.getElementById("alpha").style.color = alphacolor;
+
+	backgroundcolor = getDarkHex();
+	document.bgColor = backgroundcolor;
+}
+
+
+/*
+  We set the variable named "setup" to ben an anonymous function (or "closure").  This is the same thing as using the "function setup() {}"
+  nomenclature, but it's a little more "proper" since we'll use it for setting window.onload...which expects a reference to a function as a variable name.
+*/
+setup = function() {  //function setup() { will also work!
+  //first start an event listener for clicking on the "main" div to call writeLetter()
+  document.getElementById("main").addEventListener("click", function() { writeLetter(); });
+  
+  document.body.onkeydown = function(e){ writeLetter(); };
+
+  //now actually call writeLetter() so we'll get a random letter to start
+  writeLetter();
+}
+
+window.onload = setup;
+</script>
+</head>
+
+<body bgcolor="#A2DAC1">
+
+<div id="main">
+	<div id="alpha" style="color: rgb(137, 135, 200);">A</div>
+	<div id="toggles"><a href="javascript:void(0);" onclick="toggleFont();" id="fontToggle">Sans-Serif</a> | <a href="javascript:void(0);" onclick="toggleSound();" id="soundToggle">Sound Off</a></div>
+	<div id="footer">Built on <a href="http://menscher.com/teaching/woaa/examples/jsexampleapp3.html">this demo</a> by Corey Menscher.</div>
+</div>
+
+
+
+</body></html>

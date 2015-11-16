@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>ScrollMagic Swipes - jsFiddle demo by anthonygreco</title>
+  
+  <script type='text/javascript' src='http://code.jquery.com/jquery-1.10.1.js'></script>
+  <script type='text/javascript' src="js/TweenMax.min.js"></script>
+  <script type='text/javascript' src="js/jquery.scrollmagic.js"></script>
+  <script type='text/javascript' src="js/jquery.scrollmagic.debug.js"></script>
+  <script type='text/javascript' src="js/snap.svg.js"></script>
+  <script type='text/javascript' src="js/SnapPlugin.js"></script>
+  <script type='text/javascript' src="js/ScrollToPlugin.js"></script>
+  <script type='text/javascript' src="js/disableScroll.js"></script>
+
+<style type='text/css'>
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    #content {
+        width: 100%;
+        height: 100%;
+        padding-top: 100px;
+    }
+    #fixed-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 25px 0;
+        text-align: center;
+        font-size: 24px;
+        height: 50px;
+        z-index: 10;
+        background-color: #ccc;
+    }
+    .scene {
+        position: absolute;
+        background-size: cover;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    #markersContainer {
+        position: fixed;
+        top: 100px;
+        right: 40px;
+        z-index: 15;
+        width: 65px;
+    }
+    #labelsContainer {
+        position: fixed;
+        top: 100px;
+        right: 105px;
+        z-index: 20;
+        width: 180px;
+    }
+    #labelsContainer div {
+        position: absolute;
+        text-align: right;
+        font-size: 14px;
+        width: 100%;
+        color: #ffffff;
+        right: 25px;
+        opacity: 0;
+    }
+    #markers circle {
+        cursor: pointer;
+    }
+    #slide0 {
+        z-index: 1;
+    }
+    #slide1 {
+        z-index: 2;
+    }
+    #slide2 {
+        z-index: 3;
+    }
+    #slide3 {
+        z-index: 4;
+    }
+    #slide4 {
+        z-index: 5;
+    }
+    .scene img {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<script type='text/javascript'>//<![CDATA[ 
+$(window).load(function(){
+$(function () {
+    var scrollController = false,
+        timelines = [],
+        scenes = {
+            pins: [],
+            tweens: [],
+            markers: []
+        },
+        paper = Snap('#markers'),
+        snappingTo = false,
+        shapeDims = 26,
+        timer = {
+            i: 0
+        },
+        toggleScroll = new UserScrollDisabler(),
+        autoScrolling = false,
+        lastPosition,
+        init = function () {
+            console.clear();
+            positionElements();
+            setupScroll();
+            handleResize();
+            $(window).resize(handleResize);
+            $(window).scroll(handleScroll);
+        },
+
+        bindEvent = function (eventType, element) {
+            var index = element.attr('id').replace(/[^\d]/g, '');
+            element[eventType](function () {
+                TweenLite.to(window, 1, {
+                    scrollTo: {
+                        y: $(window).height() * index + 100
+                    },
+                    ease: Quad.easeInOut
+                });
+            });
+        },
+
+        timerComplete = function (index) {
+            var onComplete = function () {
+                toggleScroll.enable_scrolling();
+                autoScrolling = false;
+            };
+            autoScrolling = true;
+            toggleScroll.disable_scrolling();
+            TweenMax.to(window, 0.35, {
+                scrollTo: {
+                    y: $(window).height() * index
+                },
+                ease: Quad.easeOut,
+                onComplete: onComplete
+            });
+        },
+
+        handleScroll = function () {
+            if (!autoScrolling) {
+                var currentPosition = $(window).scrollTop(),
+                    currentIndex = Math.floor(currentPosition / ($(window).height() + 100));
+                console.log('currentIndex', currentIndex);
+                //console.log('currentPosition', currentPosition, 'lastPosition', lastPosition);
+                lastPosition = currentPosition;
+                TweenLite.to(timer, 0.25, {
+                    i: 1,
+                    onComplete: timerComplete,
+                    onCompleteParams: [currentIndex]
+                });
+            }
+        },
+
+        handleResize = function () {
+            $.each(scenes, function (index, sceneTypes) {
+                $.each(sceneTypes, function (index, scene) {
+                    scene.duration($(window).height());
+                });
+            });
+            $('#markersContainer, #labelsContainer').css('height', $(window).height() - 100);
+            //paper.attr({
+            //    width: '65px',
+            //    height: $(window).height() - 100 + 'px'
+            //});
+        },
+
+        getRandomInt = function (min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        },
+
+        positionElements = function () {
+            var height = 0,
+                length = $('.scene').length,
+                labels = ['Tom', 'Simba', 'Daisy', 'Tigger', 'Misty', 'Oscar'];
+            $('#markersContainer, #labelsContainer').css('height', $(window).height() - 100);
+            $('.scene').each(function (index, scene) {
+                var rand = getRandomInt(1000, 1500),
+                    multiplier = length - index - 1,
+                    marker, markerBg, label,
+                    cx = $('#markersContainer').width() / 2,
+                    cy = ($('#markersContainer').height() - shapeDims * multiplier) - shapeDims;
+                height = $(window).height() * index + 100;
+                $(scene).css({
+                    top: height + 'px',
+                        'background-image': 'url("http://placekitten.com/' + rand + '/' + rand + '")',
+                        'background-position': 'center center',
+                        'background-repeat': 'no-repeat',
+                        'background-size': 'cover'
+                });
+                marker = paper.circle(cx, cy, shapeDims / 4);
+                marker.attr({
+                    fill: '#fff',
+                    id: 'marker' + index
+                }),
+                markerBg = paper.circle(cx, cy, shapeDims / 4);
+                markerBg.attr({
+                    fill: '#fff',
+                        'fill-opacity': 0.5,
+                    id: 'markerBg' + index
+                });
+                label = $('<div id="label' + index + '" />').css({
+                    top: ($('#labelsContainer').height() - shapeDims * multiplier) - shapeDims - 8,
+                }).html(labels[index]).appendTo('#labelsContainer');
+                bindEvent('click', markerBg);
+            });
+        },
+
+        buildTimeline = function (params) {
+            var marker = paper.select('#marker' + params.index),
+                markerBg = paper.select('#markerBg' + params.index),
+                label = $('#label' + params.index);
+            if (params.type === 'leave') {
+                return new TimelineLite().to(marker, 1, {
+                    snap: {
+                        cy: (shapeDims * params.index) + shapeDims + 'px',
+                        r: shapeDims / 4
+                    }
+                }, 0).to(markerBg, 1, {
+                    snap: {
+                        cy: (shapeDims * params.index) + shapeDims + 'px',
+                        r: shapeDims / 4
+                    }
+                }, 0).to(label, 1, {
+                    top: (shapeDims * params.index) + shapeDims - 8 + 'px',
+                    opacity: 0
+                }, 0);
+            }
+            return new TimelineLite().to(marker, 1, {
+                snap: {
+                    cy: $('#markersContainer').height() / 2 + 'px',
+                    r: shapeDims / 2
+                }
+            }, 0).to(markerBg, 1, {
+                snap: {
+                    cy: $('#markersContainer').height() / 2 + 'px',
+                    r: shapeDims * 2.5 / 2
+                }
+            }, 0).to(label, 1, {
+                top: $('#labelsContainer').height() / 2 - $(label).height() / 2 + 'px',
+                opacity: 1
+            }, 0);
+        },
+
+        setupScroll = function () {
+            if (!scrollController) {
+                scrollController = new ScrollMagic();
+            }
+            $('.scene').each(function (index, scene) {
+                var pinScene = new ScrollScene({
+                    triggerElement: scene,
+                    triggerHook: 'onLeave',
+                    duration: $(window).height()
+                }).setPin(scene).addTo(scrollController);
+                scenes.pins.push(pinScene);
+                var tweenEnterScene = new ScrollScene({
+                    triggerElement: scene,
+                    triggerHook: 'onEnter',
+                    duration: $(window).height()
+                }).setTween(buildTimeline({
+                    index: index,
+                    type: 'enter'
+                })).addTo(scrollController);
+                scenes.tweens.push(tweenEnterScene);
+                var tweenLeaveScene = new ScrollScene({
+                    triggerElement: scene,
+                    triggerHook: 'onLeave',
+                    duration: $(window).height()
+                }).setTween(buildTimeline({
+                    index: index,
+                    type: 'leave'
+                })).addTo(scrollController);
+                scenes.tweens.push(tweenLeaveScene);
+            });
+        };
+    init();
+});
+});//]]>  
+
+</script>
+
+
+</head>
+<body>
+  <div id="fixed-header">It's Mommies All the Way Down</div>
+<div id="content">
+    <div id="slide0" class="scene"></div>
+    <div id="slide1" class="scene"></div>
+    <div id="slide2" class="scene"></div>
+    <div id="slide3" class="scene"></div>
+    <div id="slide4" class="scene"></div>
+    <!-- <div id="markers"></div> -->
+    <div id="markersContainer">
+        <svg id="markers" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="65px" height="100%" xml:space="preserve"></svg>
+    </div>
+    <div id="labelsContainer"></div>
+</div>
+  
+</body>
+
+
+</html>
+

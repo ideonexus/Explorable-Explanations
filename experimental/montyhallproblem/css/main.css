@@ -1,0 +1,14 @@
+body {
+	background-color:#e0fbf9;
+}
+
+#viewport {
+	width:800px;
+	height:600px;
+}
+
+#canvas {
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+}

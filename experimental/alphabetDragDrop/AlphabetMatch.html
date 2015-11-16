@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Match Alphabets</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
+    <script src="jquery.ui.touch-punch.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/drag-style.css">
+
+    <style>
+
+        .wrong {
+            position: absolute;
+            width:100%;
+            height: 100%;
+            opacity: .70;
+            -moz-opacity: 0.70;
+            filter:alpha(opacity=70);
+            color: white;
+            background: url("images/cancel.jpeg" ) no-repeat center;
+
+        }
+    </style>
+    <script type="text/javascript">
+
+        var correctCards = 0;
+        $( init );
+
+
+        function init() {
+
+            // Hide the success message
+            $('#successMessage').hide();
+            $('#successMessage').css( {
+                left: '580px',
+                top: '250px',
+                width: 0,
+                height: 0
+            } );
+
+            // Reset the game
+            correctCards = 0;
+            $('#cardPile').html( '' );
+            $('#cardSlots').html( '' );
+
+            // Create the pile of shuffled cards
+            var numbers = [ 1,2,3 ];
+            var AlphabetImages = ['A.png','B.png','C.png']
+            numbers.sort( function() { return Math.random() - .5 } );
+
+            for ( var i=0; i<3; i++ ) {
+                $('<div><img class="cardimg" src="images/Alphabets/' + AlphabetImages[numbers[i]-1]+ '"></img></div>').data( 'number', numbers[i] ).attr( 'id', 'card'+numbers[i] ).appendTo( '#cardPile' ).draggable( {
+                    containment: '#content',
+                    stack: '#cardPile div',
+                    cursor: 'move',
+                    revert: true
+                } );
+            }
+
+            // Create the card slots
+            var AlphabetGraphics = [   'A_Apple.jpg','B_Ball.jpg','C_Cat.jpg' ];
+            var AlphabetGraphicCaptions = [  'Apple','Ball','Cat'   ];
+
+            for ( var i=1; i<=3; i++ ) {
+                $('<div><img class="cardtgt" src="images/Alphabets/' + AlphabetGraphics[i-1] + '">'+AlphabetGraphicCaptions[i-1]+'</img></div>').data( 'number', i).attr( 'id', 'pile'+i ).appendTo( '#cardSlots' ).droppable( {
+                    accept: '#cardPile div',
+                    hoverClass: 'hovered',
+                    drop: handleCardDrop
+                } );
+
+
+
+            }
+
+        }
+
+        function handleCardDrop( event, ui ) {
+            var slotNumber = $(this).data( 'number' );
+            var cardNumber = ui.draggable.data( 'number' );
+
+            // If the card was dropped to the correct slot,
+            // change the card colour, position it directly
+            // on top of the slot, and prevent it being dragged
+            // again
+
+            if ( slotNumber == cardNumber ) {
+                ui.draggable.addClass( 'correct' );
+                ui.draggable.draggable( 'disable' );
+                $(this).droppable( 'disable' );
+                ui.draggable.position( { of: $(this), my: 'left top', at: 'left top' } );
+                ui.draggable.draggable( 'option', 'revert', false );
+                correctCards++;
+            }
+            else {
+                  showError(slotNumber);
+            }
+
+            // If all the cards have been placed correctly then display a message
+            // and reset the cards for another go
+
+            if ( correctCards == 3 ) {
+                $('#successMessage').show();
+                $('#successMessage').animate( {
+                    left: '380px',
+                    top: '200px',
+                    width: '400px',
+                    height: '100px',
+                    opacity: 1
+                } );
+            }
+
+        }
+
+        function showError(cardNumber) {
+
+            var currImage= $("#pile"+cardNumber+ " .cardtgt").attr('src');
+            var delayFunc =  function() { clean_wrong(cardNumber,currImage)}  ;
+            $("#pile"+cardNumber+ " .cardtgt").attr('src','images/cancel.jpeg');
+
+            clean_wrong("#pile"+cardNumber+" .cardtgt") ;
+             setTimeout(delayFunc,750)      ;
+        }
+
+        function clean_wrong(widget,currImage) {
+            $("#pile"+widget+ " .cardtgt").attr('src',currImage);
+       }
+
+    </script>
+
+</head>
+<body>
+<h3 align="center"> Match alphabets to photos by dragging and dropping</h3>
+<div id="content">
+
+    <div id="cardPile"> </div>
+    <div id="cardSlots"> </div>
+
+    <div id="successMessage">
+        <h2>You did it!</h2>
+        <button onclick="init()">Play Again</button>
+    </div>
+
+</div>
+
+</body>
+</html>

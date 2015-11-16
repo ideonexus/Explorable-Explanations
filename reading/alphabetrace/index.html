@@ -1,0 +1,202 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+*{
+	margin: 0px;
+	padding: 0px;
+}
+
+body{
+	font-size: 72pt;
+	text-align: center;
+	color: lightblue;
+	padding: 10px 0px 0px 10px;
+	font-family: lucida grande;
+	background-color: darkgreen;
+}
+
+#cont1{
+	height: 500px;
+	border: 0px solid;
+	margin: 0px auto;
+}
+
+#time{
+	font-size: 30pt;
+}
+
+#originalText{
+	display: inline;
+}
+
+.staticLetter, .currentLetter{
+	position: absolute;
+}
+
+.currentLetter{
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 1.25em;
+}
+
+#toggles, #footer {
+	font-size: 0.1em;
+    width: 100%;
+    text-align: center;
+    color: #ffffff;
+    font-family: verdana, sans-serif;
+}
+
+#toggles a, #footer a {
+  text-decoration: none;
+  color: #9999ff;
+}
+
+#footer {
+    position:fixed;
+    bottom:0;
+}
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="js/jquery.easing.1.3.js"></script>
+<script>
+
+var uppercase = true;
+
+function toggleCase() {
+    if (uppercase) {
+        uppercase = false;
+        $("#caseToggle").html("Toggle UpperCase");
+        $( "#originalText" ).html($( "#originalText" ).html().toLowerCase());
+    } else {
+        uppercase = true;
+        $("#caseToggle").html("Toggle LowerCase");
+        $( "#originalText" ).html($( "#originalText" ).html().toUpperCase());
+    }
+    if (soundOn) speakWord(baseWord);
+}
+
+var serifFont = true;
+
+function toggleFont() {
+    if (serifFont) {
+        serifFont = false;
+        document.getElementById("originalText").style.fontFamily = "Arial,sans-serif";
+        document.getElementById("fontToggle").innerHTML = "Serif Font";
+    } else {
+        serifFont = true;
+        document.getElementById("originalText").style.fontFamily = "lucida grande";
+        document.getElementById("fontToggle").innerHTML = "Sans-Serif";
+    }
+}
+
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        document.getElementById("soundToggle").innerHTML = "Sound On";
+    } else {
+        soundOn = true;
+        document.getElementById("soundToggle").innerHTML = "Sound Off";
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+
+function getBrightHex() {
+    var hexvals = ["8", "9", "A", "B", "C", "D", "E", "F"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
+function getDarkHex() {
+    var hexvals = ["0", "1", "2", "3", "4", "5", "6", "7"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
+var timeRunning = 0;
+
+var bounceCharFunction;
+var bounceChar = function() {
+    $('.currentLetter').css({'left':($('#originalText').position().left - 10) + 'px', 'top':($('#originalText').position().top - 20) + 'px'}).animate({top: '+=' + 5}, 200, 'easeOutBounce').animate({top: '-=' + 5}, 200, 'easeOutBounce');
+    setTimeout(bounceChar, 400 );
+}
+
+$(function(){
+	
+	var characterArray = $('#originalText').text().split("");
+    $('body').append('<span class="currentLetter">' + characterArray[0] + '</span>');
+    //bounceCharFunction = bounceChar();
+    bounceChar();
+
+	$(window).keydown(function(e){
+		
+		if(String.fromCharCode(e.keyCode).toUpperCase() == characterArray[0]){		
+			
+			alphacolor = getBrightHex();
+			document.getElementById("originalText").style.color = alphacolor;
+
+			backgroundcolor = getDarkHex();
+			document.body.style.background = backgroundcolor;
+
+			speakWord(characterArray[0]);
+
+			if(characterArray.length == 26){
+				var timer = setInterval(function(){
+					timeRunning += 0.01;
+					$('#time').text('Time: ' + timeRunning.toFixed(3));
+				}, 10);
+			}
+				
+			$('body').append('<span class="staticLetter">' + characterArray[0] + '</span>');
+			
+            $('.staticLetter').css({'left':$('#originalText').position().left + 'px', 'top':$('#originalText').position().top + 'px'}).animate({top: '+=' + 300}, 500, 'easeOutBounce').fadeOut('slow');
+			
+            $('.currentLetter').remove();
+
+            characterArray.shift();
+
+			$('#originalText').text(characterArray.join().replace(/,/g, ''));
+
+            //$('#originalText').text().charAt(0).animate({ top: "+=100px" }, 400, "easeOutBounce");
+            //$('#originalText').animate({ top: "+=100px" }, 400, "easeOutBounce");
+			
+			if(characterArray.length == 0) {
+				alert('You typed the alphabet in ' + timeRunning.toFixed(3) + ' seconds!!\n\nREFRESH TO PLAY AGAIN');
+            } else {
+                $('body').append('<span class="currentLetter">' + characterArray[0] + '</span>');
+                //bounceCharFunction = bounceChar();
+                bounceChar();
+            }
+		}
+	});
+});
+</script>
+</head>
+<body>
+	<div id="cont1">
+		<p id="time">Time: </p>
+		<p id="originalText">ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+	</div>
+	<div id="toggles"><a href="javascript:void(0);" onclick="toggleCase();" id="caseToggle">Toggle LowerCase</a> | <a href="javascript:void(0);" onclick="toggleFont();" id="fontToggle">Sans-Serif</a> | <a href="javascript:void(0);" onclick="toggleSound();" id="soundToggle">Sound Off</a></div>
+</body>
+</html>

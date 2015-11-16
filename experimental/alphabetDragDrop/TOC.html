@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+    <script type="text/javascript" src="/javascripts/libs/jquery/jquery-min.js"></script>
+    <script type="text/javascript" src="/javascripts/libs/jquery/jquery-ui.js"></script>
+
+
+
+     <script src="jquery.ui.touch-punch.min.js"></script>
+
+
+
+   <script type="text/javascript"  src="javascripts/libs/jquery/jquery.roundabout.js">     </script>
+    <style>
+
+
+
+        .roundabout-holder {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            height: 30em;
+            width: 40em;
+
+        }
+        .roundabout-moveable-item {
+            height: 20em;
+            width: 14em;
+            cursor: pointer;
+            background-color: #ADD8E6;
+            border: 1px solid #999;
+        }
+        .roundabout-in-focus {
+            cursor: auto;
+        }
+
+
+        .cardtxt {
+            color: #fff;
+            background: #000;
+            text-shadow: 1px 1px 6px #fff;
+            font-size: 30px;
+
+        }
+
+    </style>
+</head>
+<body  >
+           <ul  >
+
+              <li id="alphabets" >
+
+                  <a href="AlphabetMatch.html">  <div class="cardtxt">  Level 1: Alphabets  </div> </a>
+              <P></P>
+               Match alphabets to items starting with that letter.
+               This is the first level teaching tool to start the children with understanding
+               alphabet shapes.
+               <P></P>
+               Each game will teach 3 alphabets. The order can be set to be sequential from A to Z
+               or set to random, once the child has some knowledge of the alphabets.
+
+           </li>
+               <li id="words" ><a href="WordMatch.html"> <div class="cardtxt">  Level 2: Words  </div></a>
+                   <P></P>
+                   Match words to items corresponding to that word.
+                   This is the second level teaching tool to start the children with understanding
+                   full words.
+                   <P></P>
+                   Each game will teach 3 words. The order can be set to be sequential from A to Z
+                   or set to random, once the child has some knowledge of the words.
+
+               </li>
+               <li id="phrases" ><a href="PhraseMatch.html"> <div class="cardtxt">  Level 3: Phrases  </div></a>
+                   <P></P>
+                   Match multiple words to images that describe the image.
+                   This is the third level teaching tool to start the children with understanding
+                   describing of more complex images.
+                   <P></P>
+                   Each game will teach 2 phrases per graphic. The order can be set to be sequential from A to Z
+                   or set to random, once the child has some knowledge of the phrases.
+
+               </li>
+
+            </ul>
+
+
+
+           <script>
+
+               $(document).ready(function() {
+                   $('ul').roundabout();
+
+
+               });
+           </script>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.alpha-contentxxxxx
+{
+   height: 400px;
+    width: 400px;
+     }
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    width: 42em;
+    height: 24em;
+}
+li {
+    height: 20em;
+    width: 30em;
+    background-color: #ccc;
+    text-align: center;
+    cursor: pointer;
+}
+li.roundabout-in-focus {
+    cursor: default;
+}
+li span {
+    display: block;
+    padding-top: 6em;
+}
+
+.roundabout-holder {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    height: 5em;
+    width:  5em;
+}
+.roundabout-moveable-item {
+    height: 4em;
+    width: 4em;
+    cursor: pointer;
+    background-color: #ccc;
+    border: 1px solid #999;
+}
+.roundabout-in-focus {
+    cursor: auto;
+}

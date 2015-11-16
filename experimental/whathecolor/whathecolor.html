@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8" />
+<title>What the color? - A color game for web developers!</title>
+<link rel="stylesheet" href="css/style.css" />
+
+</head>
+<body>
+
+<h1>
+	whathe<span>color</span>
+</h1>
+
+<div id="colors">
+	<div id="solution" class="color" title="Color to guess"><button onclick="this.parentNode.removeChild(this); Whathecolor.play();" autofocus>Play!</button></div>
+	<div id="yourcolor" class="color" title="Your guess"></div>
+</div>
+
+<input id="attempt" placeholder="rgb(), hsl() etc" />
+
+<input id="red" value="00" class="rgbinput" />
+<input id="green" value="00" class="rgbinput" />
+<input id="blue" value="00" class="rgbinput" />
+
+<output id="proximity" title="Proximity">0%</output>
+
+<p id="timer">00:00.0</p>
+
+<p id="success" class="message">
+	Yay! You got it!
+	<a href="#">Next</a>
+</p>
+
+<p id="slow" class="message">
+	Looks like this color is taking you a bit long. Wanna skip it?
+	<a href="#">Skip</a>
+</p>
+
+<footer>Made with &hearts; by <a href="http://lea.verou.me">Lea Verou</a> &bull; <a href="https://github.com/LeaVerou/whathecolor" target="_blank">Github</a></footer>
+
+<script src="js/color.js"></script>
+<script src="js/incrementable.js" id="incrementable" async></script>
+<script src="js/whathecolor.js"></script>
+
+</body>
+</html>

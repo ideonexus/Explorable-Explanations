@@ -1,0 +1,384 @@
+<html>
+  <head>
+    <title>Binary Counting Turing Machine</title>
+<style type='text/css'>
+    
+    body {
+        background-color: midnightblue;
+        font-family: arial;
+        color: white;
+        font-size: 22px;
+    }
+
+    td {
+        font-size: 34px;
+    }
+
+    th {
+      background-color: lightblue;
+      font-weight: bold;
+      font-size: 1.5em;
+      color: black;
+    }
+
+    h1, h2 {
+        text-align: center;
+    }
+
+    input {
+        font-size:36px;
+        font-weight: bold;
+        -webkit-appearance: none;
+        margin: 5px;
+    }
+
+    div {
+      text-align: center;
+    }
+
+    .NoLink
+    {
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 60pt;
+        font-family: "Arial"
+    }
+</style>
+
+<script type="text/javascript">
+<!--
+
+function getObject(el) 
+{
+     return document.getElementById ? document.getElementById(el) : document.all[el];
+}
+
+
+function highlight(current, last)
+{
+   getObject(last).style.background    = 'midnightblue';
+   getObject(current).style.background = 'darkgoldenrod';
+}
+
+var iTotal;
+
+function total()
+{
+  iTotal = 0;
+  if(getObject("1").innerHTML == "1")
+  {
+    iTotal = iTotal + 1;
+  }
+
+  if(getObject("2").innerHTML == "1")
+  {
+    iTotal = iTotal + 2;
+  }
+
+  if(getObject("3").innerHTML == "1")
+  {
+    iTotal = iTotal + 4;
+  }
+
+  if(getObject("4").innerHTML == "1")
+  {
+    iTotal = iTotal + 8;
+  }
+
+  if(getObject("5").innerHTML == "1")
+  {
+    iTotal = iTotal + 16;
+  }
+
+  if(getObject("6").innerHTML == "1")
+  {
+    iTotal = iTotal + 32;
+  }
+
+  if(getObject("7").innerHTML == "1")
+  {
+    iTotal = iTotal + 64;
+  }
+
+  if(getObject("8").innerHTML == "1")
+  {
+    iTotal = iTotal + 128;
+  }
+
+  getObject("total").innerHTML = iTotal;
+}
+
+var currentState = 'return';
+var currentTuple = 'T5';
+var lastTuple = 'T4';
+var currentPosition = "0";
+var scannedSymbol;
+var startstop;
+var bReset = "";
+var itimeout = 1000;
+
+function binaryTuringMachine()
+{
+//alert("here0");
+
+  currentPosition = currentPosition.toString();
+
+//alert(currentPosition);
+
+  scannedSymbol = getObject(currentPosition).innerHTML;
+
+
+//alert(scannedSymbol);
+
+// Initial state is "return" scanned symbol "*".
+  if(currentState == 'write' && scannedSymbol == '1')
+  {
+//alert("here1");
+
+    getObject(currentPosition).innerHTML = '0';
+    getObject("P" + currentPosition).style.background = 'midnightblue';
+    currentPosition = parseInt(currentPosition) + 1;
+    getObject("P" + currentPosition).style.background = 'darkgoldenrod';
+  }
+  else if(currentState == 'write' && scannedSymbol == '0')
+  {
+//alert("here2");
+    getObject(currentPosition).innerHTML = '1';
+    currentState = 'return';
+    total();
+    getObject("P" + currentPosition).style.background = 'midnightblue';
+    currentPosition = parseInt(currentPosition) - 1;
+    getObject("P" + currentPosition).style.background = 'darkgoldenrod';
+  }
+  else if(currentState == 'return' && (scannedSymbol == '0' || scannedSymbol == '1'))
+  {
+//alert("here3");
+    getObject("P" + currentPosition).style.background = 'midnightblue';
+    currentPosition = parseInt(currentPosition) - 1;
+    getObject("P" + currentPosition).style.background = 'darkgoldenrod';
+  }
+  else if(currentState == "return" && scannedSymbol == "*")
+  {
+//alert("here4");
+    // output and restart
+    currentState = "write";
+    getObject("P" + currentPosition).style.background = 'midnightblue';
+    currentPosition = parseInt(currentPosition) + 1;
+    getObject("P" + currentPosition).style.background = 'darkgoldenrod';
+  }
+
+//alert("here5");
+
+  currentPosition = currentPosition.toString();
+  scannedSymbol = getObject(currentPosition).innerHTML;
+
+// DETERMINE AND HIGHLIGHT NEW STATE
+
+  if(currentState == "write" && scannedSymbol == "1")
+  {
+    lastTuple = currentTuple;
+    currentTuple = "T1";
+  }
+  else if(currentState == "write" && scannedSymbol == "0")
+  {
+    lastTuple = currentTuple;
+    currentTuple = "T2";
+  }
+  else if(currentState == "return" && scannedSymbol == "1")
+  {
+    lastTuple = currentTuple;
+    currentTuple = "T3";
+  }
+  else if(currentState == "return" && scannedSymbol == "0")
+  {
+    lastTuple = currentTuple;
+    currentTuple = "T4";
+  }
+  else if(currentState == "return" && scannedSymbol == "*")
+  {
+    lastTuple = currentTuple;
+    currentTuple = "T5";
+  }
+  
+  highlight(currentTuple, lastTuple);
+
+  if(bReset == "reset")
+  {
+    currentPosition = "0";
+    currentState = "return";
+    startstop = "stop";
+    getObject("reset").disabled == false;
+    getObject("startstop").value = "Start";
+    getObject("1").innerHTML = "0";
+    getObject("2").innerHTML = "0";
+    getObject("3").innerHTML = "0";
+    getObject("4").innerHTML = "0";
+    getObject("5").innerHTML = "0";
+    getObject("6").innerHTML = "0";
+    getObject("7").innerHTML = "0";
+    getObject("8").innerHTML = "0";
+    getObject("P1").style.background = 'midnightblue';
+    getObject("P2").style.background = 'midnightblue';
+    getObject("P3").style.background = 'midnightblue';
+    getObject("P4").style.background = 'midnightblue';
+    getObject("P5").style.background = 'midnightblue';
+    getObject("P6").style.background = 'midnightblue';
+    getObject("P7").style.background = 'midnightblue';
+    getObject("P8").style.background = 'midnightblue';
+    getObject("P0").style.background = 'darkgoldenrod';
+    getObject("T1").style.background = 'midnightblue';
+    getObject("T2").style.background = 'midnightblue';
+    getObject("T3").style.background = 'midnightblue';
+    getObject("T4").style.background = 'midnightblue';
+    getObject("T5").style.background = 'darkgoldenrod';
+    getObject("total").innerHTML = "0";
+    bReset = "";
+  }
+
+  if(startstop == "start")
+  {
+    setTimeout('binaryTuringMachine()',itimeout);
+  }
+
+}
+
+function startStop()
+{
+  if(getObject("startstop").value == "Start")
+  {
+    startstop = "start";
+    getObject("reset").disabled == true;
+    getObject("startstop").value = "Stop";
+    binaryTuringMachine();
+  }
+  else if(getObject("startstop").value == "Stop")
+  {
+    startstop = "stop";
+    getObject("reset").disabled == false;
+    getObject("startstop").value = "Start";
+  }
+}
+
+function reset()
+{
+  bReset = "reset";
+    currentPosition = "0";
+    currentState = "return";
+    startstop = "stop";
+    getObject("reset").disabled == false;
+    getObject("startstop").value = "Start";
+    getObject("1").innerHTML = "0";
+    getObject("2").innerHTML = "0";
+    getObject("3").innerHTML = "0";
+    getObject("4").innerHTML = "0";
+    getObject("5").innerHTML = "0";
+    getObject("6").innerHTML = "0";
+    getObject("7").innerHTML = "0";
+    getObject("8").innerHTML = "0";
+    getObject("P1").style.background = 'midnightblue';
+    getObject("P2").style.background = 'midnightblue';
+    getObject("P3").style.background = 'midnightblue';
+    getObject("P4").style.background = 'midnightblue';
+    getObject("P5").style.background = 'midnightblue';
+    getObject("P6").style.background = 'midnightblue';
+    getObject("P7").style.background = 'midnightblue';
+    getObject("P8").style.background = 'midnightblue';
+    getObject("P0").style.background = 'darkgoldenrod';
+    getObject("T1").style.background = 'midnightblue';
+    getObject("T2").style.background = 'midnightblue';
+    getObject("T3").style.background = 'midnightblue';
+    getObject("T4").style.background = 'midnightblue';
+    getObject("T5").style.background = 'darkgoldenrod';
+    getObject("total").innerHTML = "0";
+    itimeout = 1000;
+    bReset = "";
+}
+
+
+function speedup()
+{
+  itimeout = itimeout / 2;
+}
+
+
+function slowdown()
+{
+  itimeout = itimeout * 2;
+}
+
+
+//-->
+</script>
+</head>
+  <body>
+    <table border="1" cellpadding="3" align="center">
+      <tr>
+        <td colspan="9" align="center"><a NAME="total" id="total" class="NoLink">0</a></td>
+      </tr>
+      <tr>
+        <td id="P8"><a NAME="8" id="8" CLASS="NoLink">0</a></td>
+        <td id="P7"><a NAME="7" id="7" CLASS="NoLink">0</a></td>
+        <td id="P6"><a NAME="6" id="6" CLASS="NoLink">0</a></td>
+        <td id="P5"><a NAME="5" id="5" CLASS="NoLink">0</a></td>
+        <td id="P4"><a NAME="4" id="4" CLASS="NoLink">0</a></td>
+        <td id="P3"><a NAME="3" id="3" CLASS="NoLink">0</a></td>
+        <td id="P2"><a NAME="2" id="2" CLASS="NoLink">0</a></td>
+        <td id="P1"><a NAME="1" id="1" CLASS="NoLink">0</a></td>
+        <td id="P0" bgcolor="darkgoldenrod"><a NAME="0" id="0" CLASS="NoLink">*</a></td>
+      </tr>
+    </table>
+    
+    <table border="1" cellpadding="3" align="center">
+      <tr>
+        <th>Current<br>State</th>
+        <th>Scanned<br>Symbol</th>
+        <th>Print<br>Symbol</th>
+        <th>Move<br>Tape</th>
+        <th>Final<br>State</th>
+      </tr>
+      <tr id="T1">
+        <td>write</td>
+        <td>1</td>
+        <td>0</td>
+        <td>left</td>
+        <td>write</td>
+      </tr>
+      <tr id="T2">
+        <td>write</td>
+        <td>0</td>
+        <td>1</td>
+        <td>right</td>
+        <td>return</td>
+      </tr>
+      <tr id="T3">
+        <td>return</td>
+        <td>1</td>
+        <td>- -</td>
+        <td>right</td>
+        <td>return</td>
+      </tr>
+      <tr id="T4">
+        <td>return</td>
+        <td>0</td>
+        <td>- -</td>
+        <td>right</td>
+        <td>return</td>
+      </tr>
+      <tr id="T5"  bgcolor="darkgoldenrod"><!-- OUTPUT -->
+        <td>return</td>
+        <td>*</td>
+        <td>- -</td>
+        <td>left</td>
+        <td>write</td>
+      </tr>
+    </table>
+    <div>
+      <input type="button" name="startstop" id="startstop" value="Start" onClick="startStop();" />
+      <input type="button" name="step" id="step" value="Step" onClick="binaryTuringMachine();" />
+      <input type="button" name="reset" id="reset" value="Reset" onClick="reset();" />
+      <input type="button" name="+" id="+" value="+" onClick="speedup();" />
+      <input type="button" name="-" id="-" value="-" onClick="slowdown();" />
+    </div>
+  </body>
+</html>
+

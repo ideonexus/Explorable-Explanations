@@ -1,0 +1,624 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: darkslateblue;
+        color: white;
+    }
+
+    a {
+      color: hotpink;
+    }
+
+    #container { 
+        width: 80%;
+        height: 80%;
+        /*position: absolute;*/
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        margin: auto;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    /*ul { 
+        padding: 0;
+        margin: 0;
+    }*/
+
+    li {
+      padding: 0;
+      float: left;
+      margin: 10px;
+      list-style: none;
+      outline: solid;
+      /*width: 150px;
+      height: 150px;*/
+      width: 20%;
+      height: 20%;
+      line-height: 100%;
+      text-align: center;
+      background-color: violet;
+    }
+
+    span { 
+      font-size: 3em;
+      font-weight: bold;
+      color: black;
+      position: relative;
+      top: 50%;
+    }
+
+    @media only screen and (max-width: 500px) {
+      span {
+        font-size: 2em;
+      }
+    }
+
+    .face-up {
+        background-color: crimson;
+        color: white;
+    }
+
+    .match {
+        background-color: yellow;
+        color: black;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 300px !important;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+
+//http://www.mrsperkins.com/files/dolch_book.pdf
+
+var sentences = {};
+
+//prePrimerWords
+sentences["a"] = ["I ate a snack."];
+sentences["and"] = ["My friend and I play."];
+sentences["away"] = ["I will throw away my lunch."];
+sentences["big"] = ["That is a big truck."];
+sentences["blue"] = ["The sky is blue."];
+sentences["can"] = ["I can read."];
+sentences["come"] = ["Will you come over?"];
+sentences["down"] = ["She went down the slide."];
+sentences["find"] = ["I can't find my pencil."];
+sentences["for"] = ["This gift is for you."];
+sentences["funny"] = ["That was a funny joke."];
+sentences["go"] = ["They will go to school."];
+sentences["help"] = ["I will help you."];
+sentences["here"] = ["I sit here."];
+sentences["I"] = ["I am six years old."];
+sentences["in"] = ["The rabbit is in the hole."];
+sentences["is"] = ["She is my friend."];
+sentences["it"] = ["We like it."];
+sentences["jump"] = ["I will jump over the puddle."];
+sentences["little"] = ["My little sister is cute."];
+sentences["look"] = ["I will look in my desk."];
+sentences["make"] = ["My grandma will make a cake."];
+sentences["me"] = ["That belongs to me."];
+sentences["my"] = ["Where is my pencil?"];
+sentences["not"] = ["She is not in school today."];
+sentences["one"] = ["I have one cookie for snack."];
+sentences["play"] = ["Will you play tag with me?"];
+sentences["red"] = ["The apple is red."];
+sentences["run"] = ["I can run fast."];
+sentences["said"] = ["He said I was funny."];
+sentences["see"] = ["Did you see my hat?"];
+sentences["the"] = ["She read the book."];
+sentences["three"] = ["I have three pencils."];
+sentences["to"] = ["I will walk to your house."];
+sentences["two"] = ["There are two kids on the bus."];
+sentences["up"] = ["I ran up the hill."];
+sentences["we"] = ["We are in first grade."];
+sentences["where"] = ["Where are you going?"];
+sentences["yellow"] = ["The sun is yellow."];
+sentences["you"] = ["I will jump rope with you."];
+
+//primerWords
+sentences["all"] = ["I ate all my lunch."];
+sentences["am"] = ["I am a good student."];
+sentences["are"] = ["My friends are here."];
+sentences["at"] = ["I looked at the dog."];
+sentences["ate"] = ["He ate his snack."];
+sentences["be"] = ["I will be kind."];
+sentences["black"] = ["The car is black."];
+sentences["brown"] = ["I saw a brown bear."];
+sentences["but"] = ["I took a nap, but I am still tired."];
+sentences["came"] = ["My cousins came for a visit."];
+sentences["did"] = ["She did her homework."];
+sentences["do"] = ["I will do my chores."];
+sentences["eat"] = ["What did you eat for breakfast?"];
+sentences["four"] = ["There are four deer in the field."];
+sentences["get"] = ["They will get a gold slip."];
+sentences["good"] = ["You did a good job!"];
+sentences["have"] = ["I have a broken arm."];
+sentences["he"] = ["He is my friend."];
+sentences["into"] = ["I walked into the store."];
+sentences["like"] = ["I like my teacher."];
+sentences["must"] = ["You must finish your work."];
+sentences["new"] = ["I moved to a new town."];
+sentences["no"] = ["My mom says the answer is no."];
+sentences["now"] = ["We have Music now."];
+sentences["on"] = ["She sat on the swing."];
+sentences["our"] = ["Our family went on a trip."];
+sentences["out"] = ["I walked out of the classroom."];
+sentences["please"] = ["Can I please go to the party?"];
+sentences["pretty"] = ["My mom is pretty."];
+sentences["ran"] = ["My cat ran away."];
+sentences["ride"] = ["I went on a roller coaster ride."];
+sentences["saw"] = ["He saw a ghost."];
+sentences["say"] = ["What did you say?"];
+sentences["she"] = ["She is my friend."];
+sentences["so"] = ["I am so hungry."];
+sentences["soon"] = ["I will be done soon."];
+sentences["that"] = ["I saw that show on TV."];
+sentences["there"] = ["Put it over there."];
+sentences["they"] = ["They always walk in the hall."];
+sentences["this"] = ["I found this on the floor."];
+sentences["too"] = ["I washed my hands too."];
+sentences["under"] = ["There is a monster under my bed."];
+sentences["want"] = ["I want a cookie."];
+sentences["was"] = ["He was running down the hall."];
+sentences["well"] = ["I don't feel well."];
+sentences["went"] = ["We went to the movies."];
+sentences["what"] = ["I don't know what to do."];
+sentences["white"] = ["The snow is white."];
+sentences["who"] = ["Who will be my friend?"];
+sentences["will"] = ["She will play on the swings."];
+sentences["with"] = ["Can I play with you?"];
+sentences["yes"] = ["Yes, I like using the computer."];
+
+//firstGradeWords
+sentences["after"] = ["Read your book after school."];
+sentences["again"] = ["Did you watch the movie again?"];
+sentences["an"] = ["I saw an elephant at the zoo."];
+sentences["any"] = ["I didn't see any whales."];
+sentences["ask"] = ["Did you ask the teacher?"];
+sentences["as"] = ["I am as quiet as a mouse."];
+sentences["by"] = ["Sit by your friend."];
+sentences["could"] = ["I wish I could play outside."];
+sentences["every"] = ["I like every book on the shelf."];
+sentences["fly"] = ["The bird will fly to the nest."];
+sentences["from"] = ["I got a dime from my mom."];
+sentences["give"] = ["Give Tommy his paper."];
+sentences["going"] = ["I am going to see a movie."];
+sentences["had"] = ["I had a great time."];
+sentences["has"] = ["She has a folder on her desk."];
+sentences["her"] = ["That belongs to her."];
+sentences["him"] = ["I watched him play baseball."];
+sentences["his"] = ["He hung his coat on a hook."];
+sentences["how"] = ["How did you do that?"];
+sentences["just"] = ["I just got home."];
+sentences["know"] = ["I know how to sing."];
+sentences["let"] = ["Please let her use your crayon."];
+sentences["live"] = ["I live in Cresco."];
+sentences["may"] = ["You may go play."];
+sentences["of"] = ["I had a lot of fun."];
+sentences["old"] = ["My sneakers are old."];
+sentences["once"] = ["Stop talking at once!"];
+sentences["open"] = ["Leave the door open."];
+sentences["over"] = ["Can you come over to my house?"];
+sentences["put"] = ["I will put the book on the shelf."];
+sentences["round"] = ["The ball is round."];
+sentences["some"] = ["Can I have some?"];
+sentences["stop"] = ["It is time to stop."];
+sentences["take"] = ["I will take my folder home."];
+sentences["thank"] = ["Thank you for helping me."];
+sentences["them"] = ["That ball belongs to them."];
+sentences["then"] = ["I will eat lunch and then go play."];
+sentences["think"] = ["I think it is your turn."];
+sentences["walk"] = ["Let's go for a walk."];
+sentences["were"] = ["They were having a good time."];
+sentences["when"] = ["When are we leaving?"];
+
+//secondGradeWords
+sentences["always"] = ["I always raise my hand."];
+sentences["around"] = ["Walk around the school."];
+sentences["because"] = ["I like school because it is fun."];
+sentences["been"] = ["It has been raining for two days."];
+sentences["before"] = ["Wash your hands before you eat."];
+sentences["best"] = ["That was the best time I ever had."];
+sentences["both"] = ["We both went for a walk."];
+sentences["call"] = ["Please call me on the phone."];
+sentences["cold"] = ["It was cold last night."];
+sentences["does"] = ["She does a good job."];
+sentences["don't"] = ["Don't cut in line."];
+sentences["fast"] = ["He is fast."];
+sentences["first"] = ["First grade is great!"];
+sentences["five"] = ["A nickel is worth five cents."];
+sentences["found"] = ["I found my scissors in my desk."];
+sentences["gave"] = ["My mom gave me a snack."];
+sentences["goes"] = ["She goes to kindergarten."];
+sentences["green"] = ["The grass is green."];
+sentences["its"] = ["The skunk lifts its tail."];
+sentences["made"] = ["I made my bed."];
+sentences["many"] = ["How many pets do you have?"];
+sentences["off"] = ["Turn off the light."];
+sentences["or"] = ["Do you like chocolate or vanilla?"];
+sentences["pull"] = ["The horse will pull the carriage."];
+sentences["read"] = ["Which book shall I read?"];
+sentences["right"] = ["That is the right answer."];
+sentences["sing"] = ["Let's sing a song."];
+sentences["sit"] = ["Please sit down."];
+sentences["sleep"] = ["The baby will sleep in the crib."];
+sentences["tell"] = ["Did you tell your dad?"];
+sentences["their"] = ["The family got in their car."];
+sentences["these"] = ["Do these books belong to you?"];
+sentences["those"] = ["Put those books on the desk."];
+sentences["upon"] = ["Once upon a time there was a frog."];
+sentences["us"] = ["Read us a story."];
+sentences["use"] = ["Please use an inside voice."];
+sentences["very"] = ["I am very tired."];
+sentences["wash"] = ["I will wash the dishes."];
+sentences["which"] = ["Which one is yours?"];
+sentences["why"] = ["Why did you leave?"];
+sentences["wish"] = ["I wish it was time to go home."];
+sentences["work"] = ["Finish your work."];
+sentences["would"] = ["What would you like for dinner?"];
+sentences["write"] = ["Did you write in your journal?"];
+sentences["your"] = ["I saw your teacher in the hall."];
+
+//thirdGradeWords
+sentences["about"] = ["I learned about Thanksgiving."];
+sentences["better"] = ["Do you feel better?"];
+sentences["bring"] = ["I will bring my paper home."];
+sentences["carry"] = ["Carry the groceries to the car."];
+sentences["clean"] = ["Clean up your mess."];
+sentences["cut"] = ["I cut my finger."];
+sentences["done"] = ["I am done with my work."];
+sentences["draw"] = ["He will draw a picture."];
+sentences["drink"] = ["Get a drink from the fountain."];
+sentences["eight"] = ["She is eight years old."];
+sentences["fall"] = ["Don't fall off the jungle gym."];
+sentences["far"] = ["How far away is it?"];
+sentences["full"] = ["The basket is full of apples."];
+sentences["got"] = ["He got sick."];
+sentences["grow"] = ["The seed will grow into a plant."];
+sentences["hold"] = ["Hold onto the railing."];
+sentences["if"] = ["I will be happy if you play."];
+sentences["keep"] = ["Keep up the good work!"];
+sentences["kind"] = ["Be kind to others."];
+sentences["laugh"] = ["I heard them laugh at the joke."];
+sentences["light"] = ["Turn on the light."];
+sentences["long"] = ["Her hair is long."];
+sentences["much"] = ["How much does that cost?"];
+sentences["myself"] = ["I hurt myself."];
+sentences["never"] = ["I've never been to Disney World."];
+sentences["only"] = ["I only read two pages."];
+sentences["own"] = ["Use your own pencil."];
+sentences["pick"] = ["Pick a name from the hat."];
+sentences["seven"] = ["I am going to be seven years old."];
+sentences["shall"] = ["What shall I wear?"];
+sentences["show"] = ["I will show you the picture."];
+sentences["six"] = ["There are six kids on the swings."];
+sentences["small"] = ["My shoes are too small."];
+sentences["start"] = ["School will start soon."];
+sentences["ten"] = ["I have ten fingers."];
+sentences["today"] = ["We have gym class today."];
+sentences["together"] = ["Let's play together."];
+sentences["try"] = ["Please try to be quiet."];
+sentences["warm"] = ["The soup is warm."];
+
+var prePrimerWords = ["a","and","away","big","blue","can","come","down","find","for","funny","go","help","here","I","in","is","it","jump","little","look","make","me","my","not","one","play","red","run","said","see","the","three","to","two","up","we","where","yellow","you"];
+
+var primerWords = ["all","am","are","at","ate","be","black","brown","but","came","did","do","eat","four","get","good","have","he","into","like","must","new","no","now","on","our","out","please","pretty","ran","ride","saw","say","she","so","soon","that","there","they","this","too","under","want","was","well","went","what","white","who","will","with","yes"];
+
+var firstGradeWords = ["after","again","an","any","ask","as","by","could","every","fly","from","give","going","had","has","her","him","his","how","just","know","let","live","may","of","old","once","open","over","put","round","some","stop","take","thank","them","then","think","walk","were","when"];
+
+var secondGradeWords = ["always","around","because","been","before","best","both","buy","call","cold","does","don't","fast","first","five","found","gave","goes","green","its","made","many","off","or","pull","read","right","sing","sit","sleep","tell","their","these","those","upon","us","use","very","wash","which","why","wish","work","would","write","your"];
+
+var thirdGradeWords = ["about","better","bring","carry","clean","cut","done","draw","drink","eight","fall","far","full","got","grow","hold","hot","hurt","if","own","keep","kind","laugh","light","long","much","myself","never","only","seven","shall","show","six","small","start","ten","today","together","try","warm","pick"];
+
+var readingGameBook1 = ["all","and","can","cat","day","do","dog","fun","is","it","kind","me","not","of","out","play","run","sad","she","skunk","stay","stop","stripe","they","this","to","want","what","will","with"];
+
+var readingGameBook2 = ["agree","big","but","feel","find","for","forget","from","get","glide","go","hide","house","in","little","make","meal","mistake","mouse","no","see","shake","side","snake","the","treat","tree","up","way","you"];
+
+var readingGameBook3 = ["after","are","awake","bark","be","bear","bed","care","dark","eat","girl","gold","hair","he","her","his","honey","know","like","locks","long","nap","shock","some","steal","sweet","that","there","thing","where"];
+
+var readingGameBook4 = ["back","beak","below","by","clock","come","fish","flock","food","have","ice","if","land","look","more","now","off","one","penguins","plane","right","sea","seek","seven","sight","slide","snow","so","we","work"];
+
+var readingGameBook5 = ["about","again","ago","at","because","behind","beside","castle","did","each","flower","fly","gate","last","leave","only","people","rain","show","shower","sit","sky","such","sun","take","then","unicorn","wall","why","window"];
+
+var readingGameBook6 = ["alphabet","belong","book","chase","could","dolphin","even","fair","front","goes","goose","hen","hop","loose","my","once","over","page","rabbit","should","soon","think","toad","try","vulture","wombat","would","wrong","yak","zebra"];
+
+var wordArrays = [];
+wordArrays["prePrimerWords"] = prePrimerWords;
+wordArrays["primerWords"] = primerWords;
+wordArrays["firstGradeWords"] = firstGradeWords;
+wordArrays["secondGradeWords"] = secondGradeWords;
+wordArrays["thirdGradeWords"] = thirdGradeWords;
+wordArrays["readingGameBook1"] = readingGameBook1;
+wordArrays["readingGameBook2"] = readingGameBook2;
+wordArrays["readingGameBook3"] = readingGameBook3;
+wordArrays["readingGameBook4"] = readingGameBook4;
+wordArrays["readingGameBook5"] = readingGameBook5;
+wordArrays["readingGameBook6"] = readingGameBook6;
+
+var currentWordArray = prePrimerWords;
+
+var changeWordArray = function() {
+    currentWordArray = wordArrays[$("#wordgroup").val()];
+    buildWordBlocks();
+}
+
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+var readSentence = function(word) {
+    if(jQuery.inArray(word, sentences) !== -1)
+    {
+        var sentence = sentences[word].toString();
+        speakWord(sentence);
+        $("#sentence").html(sentence.replace(' ' + word + ' ',' <u>' + word + '</u> '));
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    //audioElement.setAttribute('autoplay', 'autoplay');
+    $.get();
+    //audioElement.addEventListener("load", function() {
+    //    audioElement.play();
+    //}, true);
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( "li" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+            $(this).children("span").css('background-color', randColor);
+            $(this).children("span").css('color', 'white');
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( "li" ).each(function( index ) {
+            $(this).css('background-color', "");
+            $(this).children("span").css('background-color', "");
+            $(this).children("span").css('color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+var buildWordBlocks = function() {
+    var words = [];
+    // get words, place them in an array & randomize the order
+    for (var i = 0; i < 6; i++) {
+      var word = currentWordArray[Math.floor(Math.random()*currentWordArray.length)];
+      //Prevent adding duplicate words to the array.
+      var notInArray = false;
+      while (!notInArray) {
+        if ($.inArray(word, words) != -1) {
+          word = currentWordArray[Math.floor(Math.random()*currentWordArray.length)];
+        }
+        else {
+          notInArray = true;
+        }
+      }
+      words.push(word);
+      words.push(word);
+    }
+    randomizeWords();
+
+    // output words then hide them
+    var output = "<ol>"; 
+    for (var i = 0; i < 12; i++) { 
+      output += "<li>";
+      output += "<span>" + words[i] + "</span>";
+      output += "</li>";
+
+    }
+    output += "</ol>";
+
+    $("#container").html(output);
+    $("span").hide();
+
+    var guess1 = "";
+    var guess2 = "";
+    var count = 0;
+
+    $("li").click(function() {
+      if ((count < 2) && ($(this).children("span").hasClass("face-up")) === false) {
+        
+        // increment guess count, show image, mark it as face up
+        count++;
+        $(this).children("span").show();
+        $(this).children("span").addClass("face-up");
+        $(this).addClass("face-up");
+        
+        //guess #1
+        if (count === 1 ) { 
+          guess1 = $(this).children("span").html(); 
+          speakWord(guess1);
+        }   
+        
+        //guess #2
+        else { 
+          guess2 = $(this).children("span").html();
+          speakWord(guess2);
+
+          // since it's the 2nd guess check for match
+          if (guess1 === guess2) {
+            readSentence(guess1);
+            $("li").children("span.face-up").addClass("match");
+            $("li").children("span.face-up").parent().addClass("match");
+            count = 0;
+            if ($("span").length == $("span.match").length) {
+                winAnimation();
+            }
+          }
+          // else it's a miss
+          else { 
+            setTimeout(function() {
+              $("span").not(".match").hide();
+              $("span").not(".match").removeClass("face-up");
+              $("span").not(".match").parent().removeClass("face-up");
+              count = 0;
+            }, 2000);
+          }
+        }
+      }
+    });
+
+    // randomize array of words
+    function randomizeWords(){
+      Array.prototype.randomize = function()
+      {
+        var i = this.length, j, temp;
+        while ( --i )
+        {
+          j = Math.floor( Math.random() * (i - 1) );
+          temp = this[i];
+          this[i] = this[j];
+          this[j] = temp;
+        }
+      };
+      
+      words.randomize();
+      winAnimation();
+    }
+}
+
+$(document).ready(function() {
+    buildWordBlocks();
+    $("#wordgroup").change(function() {
+        changeWordArray();
+    });
+});
+
+</script>
+</head>
+<body>
+<div id="container"></div>
+<div id="footer">
+    <h1 id="sentence">Site Words Memory Game</h1>
+    <form >
+      <select id="wordgroup">
+          <option value="prePrimerWords">Jill Perkins' Pre-Primer Words</option>
+          <option value="primerWords">Jill Perkins' Primer Words</option>
+          <option value="firstGradeWords">Jill Perkins' First-Grade Words</option>
+          <option value="secondGradeWords">Jill Perkins' Second-Grade Words</option>
+          <option value="thirdGradeWords">Jill Perkins' Third-Grade Words</option>
+          <option value="readingGameBook1">Kenneth Hodkinson's Reading Game Book 1 - Skunk</option>
+          <option value="readingGameBook2">Kenneth Hodkinson's Reading Game Book 2 - Snake</option>
+          <option value="readingGameBook3">Kenneth Hodkinson's Reading Game Book 3 - Bear</option>
+          <option value="readingGameBook4">Kenneth Hodkinson's Reading Game Book 4 - Penguins</option>
+          <option value="readingGameBook5">Kenneth Hodkinson's Reading Game Book 5 - Unicorn</option>
+          <option value="readingGameBook6">Kenneth Hodkinson's Reading Game Book 6 - Zebra</option>
+      </select><br/>
+      <input type="button" value="New Game" onclick="buildWordBlocks();" class="myButton" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
+      <p>Built on <a href="http://codepen.io/jamesbarnett/pen/kiGsl">LOLCatz Memory Game</a> by jamesbarnett, Dolch Site Words from <a href="http://www.mrsperkins.com/files/dolch_book.pdf">Jill Perkins' Workbook</a>, and Reading Game words from <a href="http://thereadinggame.com/">Kenneth Hodkinson</a>.</p>
+    </form>
+</div>
+</body>
+</html>

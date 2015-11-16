@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--
+  TODO:
+  1. Create a zoom-in/out feature for the fractals.
+      -- ISSUE: Scaling offset doesn't work.
+      -- Maybe add a "Scale" dropdown and scale on generate.
+  2. Mandelbrot: variables
+  3. Mandelbrot/Julia: color picker
+-->
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Fractal Explorer</title>
+<style type='text/css'>
+    body {
+        background-color: darkblue;
+        color: white;
+    }
+
+    a {
+      color: lightblue;
+    }
+
+    #container {
+        text-align: center;
+        font-size: 6em;
+        line-height: 100%;
+        letter-spacing: 5px;
+    }
+
+    #container-inner {
+        margin: auto;
+        display: inline-block;
+        padding: 5px;
+    }
+
+    #header {
+        width: 100%;
+        text-align: center;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.form-title {
+  margin-right: 10px;
+}
+
+.form-container-container {
+  margin: auto;
+}
+
+.form-container {
+   border: 5px solid #000000;
+   background: #04baab;
+   background: -webkit-gradient(linear, left top, left bottom, from(#0009ff), to(#04baab));
+   background: -webkit-linear-gradient(top, #0009ff, #04baab);
+   background: -moz-linear-gradient(top, #0009ff, #04baab);
+   background: -ms-linear-gradient(top, #0009ff, #04baab);
+   background: -o-linear-gradient(top, #0009ff, #04baab);
+   background-image: -ms-linear-gradient(top, #0009ff 0%, #04baab 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   -moz-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   font-family: 'Helvetica Neue',Helvetica,sans-serif;
+   font-size: 1.5em;
+   text-decoration: none;
+   vertical-align: middle;
+   padding:20px;
+}
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.decrement, .increment
+{
+    font-size:30px;
+    width: 40px;
+    height: 50px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+input, select
+{
+    font-size:2em;
+    font-weight: bold;
+}
+
+select {
+    -webkit-appearance: none;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+input[type="color"] {
+    width: 100px;
+    height: 50px;
+}
+
+input.number {
+  width:200px;
+  text-align: right;
+}
+
+input.numbersmall {
+  width:150px;
+  text-align: right;
+}
+
+input[type="checkbox"] {
+    width: 45px;
+    height: 45px;
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+}
+
+div.inline {
+  display: inline-block;
+}
+
+div.group {
+  display: inline-block;
+  border: solid 1px;
+  margin: 10px;
+  padding: 10px;
+}
+
+div.buttonrow {
+    width: 100%;
+}
+
+ul.tabs {
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+
+ul.tabs li {
+  color: black;
+  display: inline-block;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+ul.tabs li.current {
+  color: white;
+  font-weight: bold;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.current {
+  display: inherit;
+}
+
+.arrow {
+    display: inline-block;
+    border-right:10px solid darkblue;
+    border-bottom:10px solid darkblue;
+    width:10px;
+    height:10px;
+}
+
+.left {
+    transform: rotate(-225deg);   
+}
+
+.right {
+    transform: rotate(-45deg);   
+}
+
+.up {
+    transform: rotate(-135deg);   
+}
+
+.down {
+    transform: rotate(-315deg);   
+}
+
+a.zoom {
+  color: darkblue;
+  font-weight: bold;
+  font-size: 1.50em;
+  text-decoration: none;
+}
+
+.zoomout {
+  position:relative;
+  top: -4px;
+}
+
+table, tr, td {
+  padding: 0px;
+}
+
+table.navigation {
+  float: right;
+  position: relative;
+  top: 20px;
+}
+
+canvas {
+  z-index: -1;
+  position: relative;
+  top: -80px;
+}
+
+</style>
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type='text/javascript'>
+
+//Clears Canvas
+function clearCanvas(context) {
+  context.clearRect(0,0,context.canvas.width,context.canvas.height);
+  var w = context.canvas.width;
+  context.canvas.width = 1;
+  context.canvas.width = w;
+}
+
+//This function controls the scale of the canvas rendering.
+//var scale = 1;
+//var backupCanvas = document.createElement("canvas");
+//var backupCanvasCtx = backupCanvas.getContext('2d');
+//var backupCanvasPopulated = false;
+//var zoomCanvas = function(direction) {
+//  var canvasMain = document.getElementById("canvas");
+//  var canvasMainCtx = canvasMain.getContext('2d');
+//
+//  if (!backupCanvasPopulated)
+//  {
+//      //Capture the current canvas image as a buffer.
+//      backupCanvas.width = canvasMain.width;
+//      backupCanvas.height = canvasMain.height;
+//      backupCanvasCtx.drawImage(canvasMain, 0, 0);
+//      backupCanvasPopulated = true;
+//  }
+//
+//  switch (direction) {
+//      case "in":
+//        scale += 0.1;
+//        break;
+//      case "out":
+//        if (scale >= 0.1)
+//        {
+//          scale -= 0.1;
+//        }
+//        break;
+//      case "reset":
+//        scale = 1;
+//        backupCanvasPopulated = false;
+//        break;
+//  }
+//
+//  //Clear and reset the main canvas.
+//  clearCanvas(canvasMainCtx);
+//  canvasMainCtx.fillStyle = "white";
+//  canvasMainCtx.fillRect(0, 0, backupCanvas.width, backupCanvas.height);
+//
+//  var offset = 0;
+//  if (scale > 1)
+//    offset = scale * 25;
+//  else if (scale == 0.9)
+//    offset = scale * 25;
+//  
+//  var x = (((backupCanvas.width/2) - ((backupCanvas.width/2) * scale))) + offset;
+//  var y = (((backupCanvas.height/2) - ((backupCanvas.height/2) * scale))) + offset;
+//  //var x = ((backupCanvas.width - (backupCanvas.width * scale))/2);
+//  //var y = ((backupCanvas.height - (backupCanvas.height * scale))/2);
+//  canvasMainCtx.scale(scale, scale);
+//  canvasMainCtx.drawImage(backupCanvas, x, y);
+//
+////alert(x)
+//
+//  //DEBUGGING:
+//  canvasMainCtx.rect(x, y, backupCanvas.width/2, backupCanvas.height/2);
+//  canvasMainCtx.strokeStyle = 'blue';
+//  canvasMainCtx.stroke();
+//}
+
+//***********************************//
+//*********BINARY TREE**************//
+//***********************************//
+function BinaryTree(randomize) {
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    //Lets resize the canvas to occupy the full page
+    var W = window.innerWidth-30;
+    var H = window.innerHeight/1.5;
+    canvas.width = W;
+    canvas.height = H;
+    
+    //Some variables
+    var length, divergence, reduction, line_width, start_points = [];
+    
+    init();
+    
+    function init()
+    {
+        //filling the canvas white
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, W, H);
+        
+        if (randomize)
+        {
+            //Lets draw the trunk of the tree
+            //lets randomise the variables
+            //length of the trunk - 100-150
+            length = 100 + Math.round(Math.random()*50);
+            $("#length").val(length);
+            //angle at which branches will diverge - 10-60
+            divergence = 10 + Math.round(Math.random()*50);
+            $("#divergence").val(divergence);
+            //Every branch will be 0.75times of the previous one - 0.5-0.75
+            //with 2 decimal points
+            reduction = Math.round(50 + Math.random()*20)/100;
+            $("#reduction").val(reduction);
+        }
+        else
+        {
+            length = Number($("#length").val()); //100-150
+            divergence = Number($("#divergence").val()); //10-60
+            reduction = Number($("#reduction").val()); //0.5-0.75
+        }
+        //width of the branch/trunk
+        line_width = 10;
+        
+        //This is the end point of the trunk, from where branches will diverge
+        var trunk = {x: W/2, y: length+50, angle: 90};
+        //It becomes the start point for branches
+        start_points = []; //empty the start points on every init();
+        start_points.push(trunk);
+        
+        //Y coordinates go positive downwards, hence they are inverted by deducting it
+        //from the canvas height = H
+        ctx.beginPath();
+        ctx.moveTo(trunk.x, H-50);
+        ctx.lineTo(trunk.x, H-trunk.y);
+        ctx.strokeStyle = "brown";
+        ctx.lineWidth = line_width;
+        ctx.stroke();
+        
+        branches();
+    }
+    
+    //Lets draw the branches now
+    function branches()
+    {
+        //reducing line_width and length
+        length = length * reduction;
+        line_width = line_width * reduction;
+        ctx.lineWidth = line_width;
+        
+        var new_start_points = [];
+        ctx.beginPath();
+        for(var i = 0; i < start_points.length; i++)
+        {
+            var sp = start_points[i];
+            //2 branches will come out of every start point. Hence there will be
+            //2 end points. There is a difference in the divergence.
+            var ep1 = get_endpoint(sp.x, sp.y, sp.angle+divergence, length);
+            var ep2 = get_endpoint(sp.x, sp.y, sp.angle-divergence, length);
+            
+            //drawing the branches now
+            ctx.moveTo(sp.x, H-sp.y);
+            ctx.lineTo(ep1.x, H-ep1.y);
+            ctx.moveTo(sp.x, H-sp.y);
+            ctx.lineTo(ep2.x, H-ep2.y);
+            
+            //Time to make this function recursive to draw more branches
+            ep1.angle = sp.angle+divergence;
+            ep2.angle = sp.angle-divergence;
+            
+            new_start_points.push(ep1);
+            new_start_points.push(ep2);
+        }
+        //Lets add some more color
+        if(length < 10) ctx.strokeStyle = "green";
+        else ctx.strokeStyle = "brown";
+        ctx.stroke();
+        start_points = new_start_points;
+        //recursive call - only if length is more than 2.
+        //Else it will fall in an long loop
+        if(length > 2) setTimeout(branches, 50);
+        //else setTimeout(init, 1500);
+    }
+    
+    function get_endpoint(x, y, a, length)
+    {
+        //This function will calculate the end points based on simple vectors
+        //http://physics.about.com/od/mathematics/a/VectorMath.htm
+        //You can read about basic vectors from this link
+        var epx = x + length * Math.cos(a*Math.PI/180);
+        var epy = y + length * Math.sin(a*Math.PI/180);
+        return {x: epx, y: epy};
+    } 
+
+}
+
+//***********************************//
+//*********DRAGON CURVE**************//
+//***********************************//
+function DragonCurve(randomize)
+{
+  var flip = function(s)
+  {
+     if (s == "1")
+        return "0";
+     var t = (s.length-1)/2;
+     var c = s.charAt(t);
+     c = (c == "0")? "1": "0";
+     return s.substr(0, t)+c+s.substr(t+1);
+  }
+
+  var order, step, startx, starty;
+  if (randomize)
+  {
+      order = Math.floor(Math.random() * 14) + 1;
+      $("#order").val(order)
+      step = Math.floor(Math.random() * 6) + 1;
+      $("#step").val(step)
+      startx = Math.floor(Math.random() * 600) + 1;
+      $("#startx").val(startx)
+      starty = Math.floor(Math.random() * 300) + 1;
+      $("#starty").val(starty)
+  }
+  else
+  {
+      order = Number($("#order").val()); //100-150
+      step = Number($("#step").val()); //10-60
+      startx = Number($("#startx").val()); //0.5-0.75
+      starty = Number($("#starty").val()); //0.5-0.75
+  }
+
+  var canvas = document.getElementById("canvas");
+  var ctx = canvas.getContext("2d");
+  //Lets resize the canvas to occupy the full page
+  var W = window.innerWidth-30;
+  var H = window.innerHeight/1.5;
+  if (order > 11)
+  {
+      H = 1500;
+  }
+  if (order > 13)
+  {
+      W = 1500;
+  }
+  canvas.width = W;
+  canvas.height = H;
+  //filling the canvas white
+  ctx.fillStyle = $("#canvascolor").val();
+  ctx.strokeStyle = $("#linecolor").val();
+
+  ctx.fillRect(0, 0, W, H);
+    
+   var seq = "1";
+   var direction = 1;
+   var x = startx;   // trial and error here
+   var y = starty;
+   var left = [ 3, 0, 1, 2];
+   var right = [ 1, 2, 3, 0 ];
+   var i = 0;
+
+   for (; i < order; i++)
+      seq = seq+"1"+flip(seq);;
+
+   //var canvas = document.getElementById('canvas');
+   //var ctx = canvas.getContext('2d');
+   ctx.beginPath();
+   ctx.moveTo(x, y);
+
+   var i = 0;
+   var drawstep = function ()
+   {
+      direction = (seq.charAt(i) == "1")? left[direction]: right[direction];
+      if (direction & 1)
+         x += (direction-1)? -step: step;
+      else
+         y += direction? step: -step;
+      ctx.lineTo(x, y);
+
+      if ($('#animate').prop('checked'))
+      {
+        ctx.stroke();
+      }
+
+      if (i < seq.length)
+      {
+          i++;
+          if ($('#animate').prop('checked'))
+          {
+              setTimeout(drawstep, 1);
+          }
+          else
+          {
+              drawstep();
+          }
+      }
+   }
+
+   drawstep();
+
+   ctx.stroke();
+}
+
+//***********************************//
+//*********MANDELBROT**************//
+//***********************************//
+function Mandelbrot(randomize)
+{
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    var W = window.innerWidth-30;
+    var H = window.innerHeight*2;
+    canvas.width = W;
+    canvas.height = H;
+    var xr = context.canvas.width;
+    var yr = context.canvas.height;
+    var imgd = context.createImageData(xr, yr);
+    var pix = imgd.data;
+
+    var xmin = -2.0; 
+    var xmax = 1.0;
+    var ymin = -1.5; 
+    var ymax = 1.5;
+
+    // these are for coloring the image
+    var mr0 = 0; 
+    var mg0 = 0; 
+    var mb0 = 0;
+    while(mr0 == mg0 || mr0 == mb0 || mg0 == mb0) 
+    {
+        mr0 = Math.pow(2, Math.ceil(Math.random() * 3 + 3));
+        mg0 = Math.pow(2, Math.ceil(Math.random() * 3 + 3));
+        mb0 = Math.pow(2, Math.ceil(Math.random() * 3 + 3)); 
+    }
+
+    var mr1 = 256 / mr0; 
+    var mg1 = 256 / mg0; 
+    var mb1 = 256 / mb0;
+
+    var maxIt = 256;
+    var x = 0.0; 
+    var y = 0.0;
+    var zx = 0.0; 
+    var zx0 = 0.0; 
+    var zy = 0.0;
+    var zx2 = 0.0; 
+    var zy2 = 0.0;
+
+    for (var ky = 0; ky < yr; ky++)
+    {
+        y = ymin + (ymax - ymin) * ky / yr;
+        for(var kx = 0; kx < xr; kx++)
+        {
+            x = xmin + (xmax - xmin) * kx / xr;
+            zx = x; 
+            zy = y;
+            for(var i = 0; i < maxIt; i++)
+            {
+                zx2 = zx * zx; 
+                zy2 = zy * zy;
+                if(zx2 + zy2 > 4.0) break;
+                zx0 = zx2 - zy2 + x;
+                zy = 2.0 * zx * zy + y;
+                zx = zx0;
+            }
+            var p = (xr * ky + kx) * 4;
+            pix[p] = i % mr0 * mr1;     // red
+            pix[p + 1] = i % mg0 * mg1; // green
+            pix[p + 2] = i % mb0 * mb1; // blue
+            pix[p + 3] = 255;           // alpha
+        }
+    }
+
+    context.putImageData(imgd, 0, 0);
+}
+
+//***********************************//
+//*********JULIA**************//
+//***********************************//
+function Julia(randomize)
+{
+    function Color(r,g,b)
+    {
+      this.r = r;
+      this.g = g;
+      this.b = b;
+    }
+
+    function ImaginaryNumber(a,b)
+    {
+        this.x = a;
+        this.i = b;
+        this.getSquare = function(){
+            return new ImaginaryNumber(this.x * this.x - this.i * this.i, 2 * this.x * this.i)
+        }
+    }
+
+    if (randomize)
+    {
+        n_i = parseFloat((Math.random() * (0.000001 - 0.99999) + 0.99999).toFixed(5));
+        $("#n_i").val(n_i);
+        n_x = parseFloat((Math.random() * (0.000001 - 0.99999) + 0.99999).toFixed(5));
+        $("#n_x").val(n_x);
+    }
+    else
+    {
+        n_i = Number($("#n_i").val());
+        n_x = Number($("#n_x").val());
+    }
+
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    var W = window.innerWidth;
+    var H = window.innerHeight * 2;
+    canvas.width = W;
+    canvas.height = H;
+    var screen = ctx.createImageData(canvas.width,canvas.height);
+    var pixelColor = new Color(0, 0, 0);
+    var x;
+    var y;
+    var value;
+    for(var i = 0; i < canvas.width * canvas.height; i++){
+        pixelColor = new Color(0, 0, 0);
+        x = (i % canvas.width) / (canvas.height);
+        y = Math.floor(i / canvas.width) / canvas.height;
+        x = 3.5 * (x - .5);
+        y = 3.5 * (y - .5);
+        var n = new ImaginaryNumber(x, y);
+        var j = 0;
+        while(j < 128 && n.x < 4){
+            n = n.getSquare();
+            //n.x += x;
+            //n.i += y;
+            //n.x -= .8;
+            //n.i += .156;
+            //n.x += -.45;
+            //n.i += .6666;
+            //n.x += .2;
+            //n.i += -.575;
+            //n.x += .375;
+            //n.i -= .3;
+            //n.x += .33333;
+            //n.i += .035;
+            //n.x -= 1.19;
+            //n.i += .3;
+            n.x -= n_x;
+            n.i += n_i;
+            j++;
+        }
+        value = j * j / 12;
+        pixelColor.r += value / 3;
+        pixelColor.g += value / 2;
+        pixelColor.b += value;
+        screen.data[4*i] = pixelColor.r;
+        screen.data[4*i+1] = pixelColor.g;
+        screen.data[4*i+2] = pixelColor.b;
+        screen.data[4*i+3] = 256;
+    }
+    ctx.putImageData(screen, 0, 0);
+    //document.getElementById("print_to_me").innerHTML = SEED;
+}
+
+//***********************************//
+//*********FORM FUNCTIONS**************//
+//***********************************//
+var incrementDecrement = function(button, incdec) {
+    // Get the field name
+    var fieldName = $(button).attr('field');
+    var field = $('#'+fieldName);
+    // Get increment/decrement value
+    var precision = 0;
+    if (typeof(field.attr("data-precision")) != "undefined")
+    {
+      precision = parseFloat(field.attr("data-precision"));
+    }
+    var amt = parseFloat(field.attr("data-incdec"));
+    // Get its current value
+    var currentVal = parseFloat(field.val());
+    // If it isn't undefined
+    if (!isNaN(currentVal)) {
+        if (incdec == "-")
+        {
+          // Decrement one
+          newValue = parseFloat(currentVal - amt).toFixed(precision);
+        }
+        else
+        {
+          // Increment one
+          newValue = parseFloat(currentVal + amt).toFixed(precision);
+        }
+    } else {
+        // Otherwise put a 0 there
+        newValue = 0;
+    }
+
+    field.val(newValue);
+}
+
+var bufferCanvas = document.createElement("canvas");
+var bufferCanvasCtx = bufferCanvas.getContext('2d');
+var moveCanvas = function(direction) {
+  var canvasMain = document.getElementById("canvas");
+  var canvasMainCtx = canvasMain.getContext('2d');
+
+  //Capture the current canvas image as a buffer.
+  bufferCanvas.width = canvasMain.width;
+  bufferCanvas.height = canvasMain.height;
+  bufferCanvasCtx.drawImage(canvasMain, 0, 0);
+
+  switch (direction) {
+      case "left":
+        canvasMainCtx.drawImage(bufferCanvas, -5, 0);
+        break;
+      case "up":
+        canvasMainCtx.drawImage(bufferCanvas, 0, -5);
+        break;
+      case "right":
+        canvasMainCtx.drawImage(bufferCanvas, 5, 0);
+        break;
+      case "down":
+        canvasMainCtx.drawImage(bufferCanvas, 0, 5);
+        break;
+  }
+}
+
+var inter;
+var moveCanvasLeft = function() { moveCanvas("left"); }
+var moveCanvasUp = function() { moveCanvas("up"); }
+var moveCanvasRight = function() { moveCanvas("right"); }
+var moveCanvasDown = function() { moveCanvas("down"); }
+$(document).ready(function() {
+    $('ul.tabs li').click(function(){
+        var tab_id = $(this).attr('data-tab');
+
+        $('ul.tabs li').removeClass('current');
+        $('.tab-content').removeClass('current');
+
+        $(this).addClass('current');
+        $("#"+tab_id).addClass('current');
+    })
+
+    // This button will increment the value
+    $('.increment').click(function(e){
+        // Stop acting like a button
+        e.preventDefault();
+        incrementDecrement(this, "+");
+    });
+
+    // This button will decrement the value till 0
+    $(".decrement").click(function(e) {
+        // Stop acting like a button
+        e.preventDefault();
+        incrementDecrement(this, "-");
+    });
+
+
+    //Add Move functionality to Canvas
+    $(".left").mousedown(function(e) {
+        inter = setInterval(moveCanvasLeft, 100);
+    }).mouseup(function() {
+        clearInterval(inter);  
+    });
+    $(".up").mousedown(function(e) {
+        inter = setInterval(moveCanvasUp, 100);
+    }).mouseup(function() {
+        clearInterval(inter);  
+    });
+    $(".right").mousedown(function(e) {
+        inter = setInterval(moveCanvasRight, 100);
+    }).mouseup(function() {
+        clearInterval(inter);  
+    });
+    $(".down").mousedown(function(e) {
+        inter = setInterval(moveCanvasDown, 100);
+    }).mouseup(function() {
+        clearInterval(inter);  
+    });
+
+    //Zoom functionality
+    //$(".zoomin").click(function(e) {
+    //    e.preventDefault();
+    //    zoomCanvas("in");
+    //});
+    //$(".zoomout").click(function(e) {
+    //    e.preventDefault();
+    //    zoomCanvas("out");
+    //});
+});
+
+
+</script>
+</head>
+<body>
+<div id="header">
+    <h1 id="sentence">Fractal Explorer</h1>
+      <div class="form-container-container">
+      <form class="form-container">
+
+        <ul class="tabs">
+          <li class="tab-link current" data-tab="tab-1">Binary Tree</li>
+          <li class="tab-link" data-tab="tab-2">Dragon Curve</li>
+          <li class="tab-link" data-tab="tab-3">Mandelbrot</li>
+          <li class="tab-link" data-tab="tab-4">Julia</li>
+        </ul>
+
+        <div id="tab-1" class="tab-content current">
+          <div class="inline">
+            <div class="form-title">Length (100-150)</div>
+            <input type='button' value='-' class='decrement' field='length' />
+            <input class="form-field numbersmall" type="number" id="length" data-incdec="1" value="100"  />
+            <input type='button' value='+' class='increment' field='length' />
+          </div>
+          <div class="inline">
+            <div class="form-title">Divergence (10-60)</div>
+            <input type='button' value='-' class='decrement' field='divergence' />
+            <input class="form-field numbersmall" type="number" id="divergence" data-incdec="1" value="10"  />
+            <input type='button' value='+' class='increment' field='divergence' />
+          </div>
+          <div class="inline">
+            <div class="form-title">reduction (0.5-0.75)</div>
+            <input type='button' value='-' class='decrement' field='reduction' />
+            <input class="form-field numbersmall" type="number" id="reduction" data-incdec="0.01" data-precision="2" value="0.5"  />
+            <input type='button' value='+' class='increment' field='reduction' />
+          </div>
+          <div class="buttonrow">
+            <input class="myButton" type="button" value="Generate" onclick="BinaryTree(false);" />
+            <input class="myButton" type="button" value="Randomize" onclick="BinaryTree(true);" />
+          </div>
+          <p>Credit to <a href="http://thecodeplayer.com/walkthrough/create-binary-trees-using-javascript-and-html5-canvas">Codeplayer</a></p>
+        </div>
+
+        <div id="tab-2" class="tab-content">
+          <div class="inline">
+            <div class="form-title">Order (1-14)</div>
+            <input type='button' value='-' class='decrement' field='order' />
+            <input class="form-field numbersmall" type="number" id="order" data-incdec="1" value="11"  />
+            <input type='button' value='+' class='increment' field='order' />
+          </div>
+          <div class="inline">
+            <div class="form-title">Step (1-6)</div>
+            <input type='button' value='-' class='decrement' field='step' />
+            <input class="form-field numbersmall" type="number" id="step" data-incdec="1" value="5"  />
+            <input type='button' value='+' class='increment' field='step' />
+          </div>
+          <div class="inline">
+            <div class="form-title">Start X (1-1000)</div>
+            <input type='button' value='-' class='decrement' field='startx' />
+            <input class="form-field numbersmall" type="number" id="startx" data-incdec="1" value="600"  />
+            <input type='button' value='+' class='increment' field='startx' />
+          </div>
+          <div class="inline">
+            <div class="form-title">Start Y (1-500)</div>
+            <input type='button' value='-' class='decrement' field='starty' />
+            <input class="form-field numbersmall" type="number" id="starty" data-incdec="1" value="300"  />
+            <input type='button' value='+' class='increment' field='starty' />
+          </div>
+          <div class="inline">
+            <div class="form-title">Line Color</div>
+            <input type="color" id="linecolor" class="form-field" value="#000000" />
+          </div>
+          <div class="inline">
+            <div class="form-title">Canvas Color</div>
+            <input type="color" id="canvascolor" class="form-field" value="#ffffff" />
+          </div>
+          <div class="inline">
+            <div class="form-title">Animate</div>
+            <input type="checkbox" id="animate" class="form-field" />
+          </div>
+          <div class="buttonrow">
+            <input class="myButton" type="button" value="Generate" onclick="DragonCurve(false);" />
+            <input class="myButton" type="button" value="Randomize" onclick="DragonCurve(true);" />
+          </div>
+          <p>Credit to <a href="http://britseyeview.com/software/articles/drawing.html">britseyeview</a></p>
+        </div>
+
+        <div id="tab-3" class="tab-content">
+          <div class="buttonrow">
+            <input class="myButton" type="button" value="Generate" onclick="Mandelbrot(false);" />
+            <input class="myButton" type="button" value="Randomize" onclick="Mandelbrot(true);" />
+         </div>
+          <p>Credit to <a href="http://code.activestate.com/recipes/577277-mandelbrot-fractal-using-html5-canvas/">FB36</a></p>
+        </div>
+
+        <div id="tab-4" class="tab-content">
+          <div class="inline">
+            <div class="form-title">i (-0.99999 - 0.99999)</div>
+            <input type='button' value='-' class='decrement' field='n_i' />
+            <input class="form-field numbersmall" type="number" id="n_i" data-incdec="0.01" data-precision="5" value="0.5"  />
+            <input type='button' value='+' class='increment' field='n_i' />
+          </div>
+          <div class="inline">
+            <div class="form-title">x (-0.99999 - 0.99999)</div>
+            <input type='button' value='-' class='decrement' field='n_x' />
+            <input class="form-field numbersmall" type="number" id="n_x" data-incdec="0.01" data-precision="5" value="0.5"  />
+            <input type='button' value='+' class='increment' field='n_x' />
+          </div>
+          <div class="buttonrow">
+            <input class="myButton" type="button" value="Generate" onclick="Julia(false);" />
+            <input class="myButton" type="button" value="Randomize" onclick="Julia(true);" />
+          </div>
+          <p>Credit to <a href="https://github.com/evangambit/JavaScript-Julia-Set/blob/master/Julia%20Sets.html">evangambit</a></p>
+        </div>
+       </form>
+    </div>
+</div>
+<table class="navigation">
+  <tr>
+    <td rowspan="3">
+      <div class="arrow left"></div>
+    </td>
+    <td colspan="2">
+      <div class="arrow up"></div>
+    </td>
+    <td rowspan="3">
+      <div class="arrow right"></div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <!--a href="" class="zoom zoomin">+</a-->
+    </td>
+    <td>
+      <!--a href="" class="zoom zoomout">-</a-->
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <div class="arrow down"></div>
+    </td>
+  </tr>
+</table>
+<canvas id="canvas"></canvas>
+</body>
+</html>

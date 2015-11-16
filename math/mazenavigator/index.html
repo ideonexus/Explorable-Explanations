@@ -1,0 +1,159 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Maze HTML5 - Gosh Darn Games</title>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/browserevents.js"></script>
+    <script type="text/javascript" src="lib/layoutManager.js"></script>
+    <script type="text/javascript" src="lib/gameLoop.js"></script> 
+    <script type="text/javascript" src="lib/maze/mazerenderer.js"></script>
+    <script type="text/javascript" src="lib/maze/maze.js"></script>
+    <script type="text/javascript" src="lib/gameplay/man.js"></script>
+    
+    <script type="text/javascript">
+    
+        //define render colours here
+        var MAN_COLOUR = "#FF9020";
+        var TRAIL_COLOUR = "#AA5020";
+        var GOAL_COLOUR = "#22FF22";
+        var BACKGROUND_COLOUR = "#0085FF";
+        var WALL_COLOUR = "#440944";
+        
+        //add key controls for arrows/WASD
+        
+        $(document).on("keydown", function (e) 
+        {
+            if(e.which == 38 || e.which == 87)
+            {
+                moveMan('up');
+            }
+            if(e.which == 37 || e.which == 65)
+            {
+                moveMan('left');
+            }
+            
+            if(e.which == 39 || e.which == 68)
+            {
+                moveMan('right');
+            }
+            
+            if(e.which == 40 || e.which == 83)
+            {
+                moveMan('down');
+            }
+            
+        });
+    </script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #662299;
+            overflow : hidden;
+        }
+        
+        #gameArea
+        {
+            width : 100%;
+            height : 100%;
+        }
+        
+        #gameCanvasContainer
+        {
+
+        }
+        
+        #gameCanvas
+        {
+            background-color : #FFFFFF;
+            width: 100%;
+            height: 100%;
+            
+            position : absolute;
+            
+            /*border : solid;*/
+        }
+        
+        #controlsPanelAfter
+        {
+            position : absolute;
+            bottom: 0;      
+            right: 0;
+            background-color : #662299;
+            /*opacity : 0.8;*/
+            
+            /*overflow : auto;*/
+        }
+        
+        #controlsPanelBefore
+        {
+            position : absolute;
+            bottom: 0;      
+            left: 0;
+            background-color : #662299;
+            /*opacity : 0.8;*/
+            
+            /*overflow : auto;*/
+        }
+        
+        .controlButton
+        {
+            margin : 0px;
+            float : left;
+        }
+
+    </style>
+
+</head>
+    <body onload="pageLoaded()">
+    <!--p>Credit to <a href="https://github.com/goshdarngames/HTML5-Maze">GoshDarnGames</a>.</p-->
+        
+        <div id="gameArea">
+            
+            <div id="controlsPanelBefore">
+            
+                
+            
+            </div>
+            
+            <canvas id="gameCanvas" width="800" height="800"></canvas>
+        
+            <div id="controlsPanelAfter">
+                <img id="button-up" src="img/arrow-up.svg" class="controlButton" alt="Move Man Up" /> 
+                <img id="button-left" src="img/arrow-left.svg" class="controlButton" alt="Move Man Left" /> 
+                
+                <img id="button-down" src="img/arrow-down.svg" class="controlButton" alt="Move Man Down" /> 
+                <img id="button-right" src="img/arrow-right.svg" class="controlButton" alt="Move Man Right" /> 
+                
+            </div>
+        </div>
+        
+        <script type="text/javascript">
+        
+            //add button event listeners
+        
+            $("#button-up").click(function()
+            {
+                moveMan('up');
+            });
+            
+            $("#button-right").click(function()
+            {
+                moveMan('right');
+            });
+            
+            $("#button-down").click(function()
+            {
+                moveMan('down');
+            });
+            
+            $("#button-left").click(function()
+            {
+                moveMan('left');
+            });
+
+        </script>
+    </body>
+</html>

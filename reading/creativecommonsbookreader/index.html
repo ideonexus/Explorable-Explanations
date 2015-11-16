@@ -1,0 +1,478 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: darkslateblue;
+        color: white;
+    }
+
+    a {
+      color: hotpink;
+    }
+
+    .stage {
+        width: 900px;
+        margin: auto;
+    }
+
+    #container { 
+        text-align: center;
+    }
+
+    #navigation, #currentsentence {
+        margin: auto;
+        text-align:center;
+    }
+
+    #navigation {
+        font-size: 2em;
+    }
+
+    #currentsentence {
+        width: 100%;
+        height: 100px;
+        font-size: 2.5em;
+    }
+
+    #navigation a {
+        text-decoration: none;
+        padding-right:3px;
+        padding-left:3px;
+     }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 500px !important;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.arrow.right {
+    width: 0; 
+    height: 0; 
+    border-top: 60px solid transparent;
+    border-bottom: 60px solid transparent;
+    
+    border-left: 60px solid hotpink;
+    float: right;
+    margin-top:20%;
+}
+
+.arrow.left {
+    width: 0; 
+    height: 0; 
+    border-top: 60px solid transparent;
+    border-bottom: 60px solid transparent; 
+    
+    border-right:60px solid hotpink; 
+    float: left;
+    margin-top:20%;
+}
+
+.bold {
+    font-weight: bold;
+    border: solid 2px;
+    color: white;
+    padding: 0px 3px 0px 3px;
+}
+
+.bookpage {
+    display: none;
+    width: 700px;
+}
+
+.show {
+    display: inline;
+}
+
+.highlight {
+    color: black;
+    background: yellow;
+    font-weight: bold;
+    padding: 0px 3px 0px 3px;
+}
+
+.sentnav {
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 2em;
+}
+
+.sentnav.left {
+    float: left;
+}
+
+.sentnav.right {
+    float: right;
+}
+
+.wordnav {
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.wordnav.left {
+    float: left;
+}
+
+.wordnav.right {
+    float: right;
+}
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+
+//Book Array: [[page1,[sentence1,sentence2,sentence3]],[page2,[sentence1,sentence2]]];
+
+var sticksmasterpiece = [
+        ["page01.jpg",["Stick's Masterpiece", "by Spencer Hanson", "illustrated by Randy Hanson"]]
+        ,["page02.jpg",["Brothers Whim", "A Brothers Whim Storybook Workshop Production","First Edition","This book is licensed under a Creative Commons Attribution-Share Alike license.", "In other words, you are free to reuse, revise, remix, and redistribute it anyway you like!", "We only ask that you please mention our name, and make your derivative works similarly available to others.", "Life is better when ideas are shared."]]
+        ,["page03.jpg",["To all us little people who might be too afraid to try."]]
+        ,["page04.jpg",[""]]
+        ,["page05.jpg",["Sad little Stick gazed up in fear.", "Where could she even start?", "This huge entire page was hers,","but she could not do art."]]
+        ,["page06.jpg",["Sad Stick sat down and hung her head.","A tear began to fall."]]
+        ,["page07.jpg",["Just then a tiny bird flew near","and gave a hungry call."]]
+        ,["page08.jpg",["I'm sorry I can't help you bird.","I'm just the me you see.","I cannot paint a feast for you.","Oh! What good can I be?"]]
+        ,["page09.jpg",["The little bird,","he bumped Stick's brush and made a golden spot.","He scooped it in his beak and chomped,","and waited for more dots."]]
+        ,["page10.jpg",["A masterpiece she could not paint,","but birdseed she could try.","And so she dabbed some yellow dots beneath the empty sky."]]
+        ,["page11.jpg",["Just then a streak of blue appeared,","high on her page above.","A brilliant, vivid, joyful blue","of courage, strength, and love."]]
+        ,["page12.jpg",["She did not see her colored sky,","but Stick now had a plan.","Perhaps her work was needed here,","so off to paint she ran."]]
+        ,["page13.jpg",["A blanket for the chilly bear,"]]
+        ,["page14.jpg",["a piece of string for fox,"]]
+        ,["page15.jpg",["some cotton balls for dinosaur,"]]
+        ,["page16.jpg",["for centipede some socks."]]
+        ,["page17.jpg",["just then she saw her simple shapes","had beauty past her skill.","She did not ever want to rest.","So much to do here still."]]
+        ,["page18.jpg",["And as she ran from here to there."]]
+        ,["page19.jpg",["she brushed and stroked along."]]
+        ,["page20.jpg",["She played and learned","and made new friends."]]
+        ,["page21.jpg",["She skipped and sang her song."]]
+        ,["page22.jpg",["The more she brushed,","the more she saw."]]
+        ,["page23.jpg",["She knew what she could be."]]
+        ,["page24.jpg",["She bit her lip","and twined her tongue."]]
+        ,["page25.jpg",["and worked more thoughtfully."]]
+        ,["page26.jpg",["The sun was setting,","it was time.","She had to finish now.","But even in the twilight dim","was her best work somehow."]]
+        ,["page27.jpg",["All out of paint,","so tired too,","Stick closed her little eyes,","and fast asleep","she peacefully went,","and dreamt of rainbowed skies."]]
+        ,["page28.jpg",["When morning came","she woke and saw,","was greeted by the sun.","Her lines and shapes","where so much more.","Her masterpiece was done."]]
+        ,["page29.jpg",["The End"]]
+        ,["page30.jpg",["Brothers Whim","We hope you enjoy free digital versons of all our books","available at brotherswhim.com"]]
+        ,["page31.jpg",["About the Author","Spencer Hanson"]]
+        ,["page32.jpg",["About the Illustrator","Randy Hanson"]]
+    ];
+
+var welcometolife = [
+        ["Slide01.JPG",[""]]
+        ,["Slide02.JPG",[""]]
+        ,["Slide03.JPG",[""]]
+        ,["Slide04.JPG",[""]]
+        ,["Slide05.JPG",[""]]
+        ,["Slide06.JPG",[""]]
+        ,["Slide07.JPG",[""]]
+        ,["Slide08.JPG",[""]]
+        ,["Slide09.JPG",[""]]
+        ,["Slide10.JPG",[""]]
+        ,["Slide11.JPG",[""]]
+        ,["Slide12.JPG",[""]]
+        ,["Slide13.JPG",[""]]
+        ,["Slide14.JPG",[""]]
+        ,["Slide15.JPG",[""]]
+        ,["Slide16.JPG",[""]]
+        ,["Slide17.JPG",[""]]
+        ,["Slide18.JPG",[""]]
+        ,["Slide19.JPG",[""]]
+        ,["Slide20.JPG",[""]]
+        ,["Slide21.JPG",[""]]
+        ,["Slide22.JPG",[""]]
+        ,["Slide23.JPG",[""]]
+        ,["Slide24.JPG",[""]]
+        ,["Slide25.JPG",[""]]
+        ,["Slide26.JPG",[""]]
+     ];
+
+
+var books = [];
+books["sticksmasterpiece"] = sticksmasterpiece;
+books["welcometolife"] = welcometolife;
+
+var currentBook = sticksmasterpiece;
+var currentBookDirectory = "sticksmasterpiece";
+var currentPage = 0;
+var currentSentence = 0;
+var currentSentenceWords = [];
+var currentWord = 0;
+
+var changeBook = function() {
+    currentBookDirectory = $("#book").val();
+    currentBook = books[currentBookDirectory];
+    loadBook();
+}
+
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+var readSentence = function(word) {
+    //ToDo.
+}
+
+var previousWord = function() {
+    currentWord--;
+    loadWord();
+}
+
+var nextWord = function() {
+    currentWord++;
+    loadWord();
+}
+
+var loadWord = function() {
+    var skipWord = false;
+
+    if (currentWord > (currentSentenceWords.length - 1)) {
+        skipSentence = true;
+        nextSentence();
+    }
+    else if (currentSentence < 0) {
+        skipWord = true;
+        previousSentence();
+    }
+
+    if (!skipWord) {
+        $(".word").removeClass("highlight");
+        $("#word" + currentWord).addClass("highlight");
+        speakWord(currentSentenceWords[currentWord]);
+    }
+}
+
+var previousSentence = function() {
+    currentSentence--;
+    loadSentence();
+}
+
+var nextSentence = function() {
+    currentSentence++;
+    loadSentence();
+}
+
+var loadSentence = function() {
+    currentWord = 0;
+    var skipSentence = false;
+
+    if (currentSentence > (currentBook[currentPage][1].length - 1)) {
+        skipSentence = true;
+        nextPage();
+    }
+    else if (currentSentence < 0) {
+        skipSentence = true;
+        previousPage();
+    }
+
+    if (!skipSentence) {
+        //Convert Sentence into Array with read Onclicks
+        currentSentenceWords = currentBook[currentPage][1][currentSentence].split(" ");
+        var sentenceWords = "";
+        for (var i = 0; i < currentSentenceWords.length; i++) {
+            sentenceWords += " <span class=\"word\" id=\"word" + i + "\" data-index=\"" + i + "\">" + currentSentenceWords[i] + "</span> ";
+        }
+
+        //LoadTitle/Text
+        $("#sentence").html(sentenceWords);
+
+        $(".word").click(function() {
+            currentWord = $(this).attr("data-index");
+            loadWord();
+        });
+        
+    }
+}
+
+var previousPage = function() {
+    currentPage--;
+    loadPage();
+}
+
+var nextPage = function() {
+    currentPage++;
+    loadPage();
+}
+
+var loadPage = function() {
+    currentSentence = 0;
+
+    if (currentPage > (currentBook.length - 1)) {
+        currentPage = 0;
+    }
+    else if (currentPage < 0) {
+        currentPage = currentBook.length - 1;
+    }
+
+    //Show Current Image
+    $(".bookpage").removeClass("show");
+    $("#img" + currentPage).addClass("show");
+    
+    //Highlight Navigation
+    $(".nav").removeClass("bold");
+    $("#nav" + currentPage).addClass("bold");
+
+    //Show Current Sentence
+    loadSentence();
+}
+
+var loadBook = function() {
+    currentPage = 0;
+
+    //Preload Images
+    //http://stackoverflow.com/questions/476679/preloading-images-with-jquery
+    var imgs = "";
+    for (var i = 0; i < currentBook.length; i++) {
+        imgs += "<img src=\"books/" + currentBookDirectory + "/"  + currentBook[i][0] + "\" id=\"img" + i + "\" class=\"bookpage\" />";
+    }
+    $('#container').html(imgs);
+
+    //LoadNavigation
+    var nav = "";
+    for (var i = 0; i < currentBook.length; i++) {
+        nav += "<a href=\"javascript:void(0);\" class=\"nav\" id=\"nav" + i + "\" data-index=\"" + i + "\">" + i + "</a>"
+        if (i != (currentBook.length-1)) nav += " | ";
+    }
+    $('#navigation').html(nav);
+    $(".nav").click(function() {
+        currentPage = $(this).attr("data-index");
+        loadPage();
+    });
+
+    loadPage();
+
+}
+
+$(document).ready(function() {
+    loadBook();
+    $("#book").change(function() {
+        changeBook();
+    });
+    $("#previous").click(function() {
+        previousPage();
+    });
+    $("#next").click(function() {
+        nextPage();
+    });
+    $("#previousSentence").click(function() {
+        previousSentence();
+    });
+    $("#nextSentence").click(function() {
+        nextSentence();
+    });
+    $("#previousWord").click(function() {
+        previousWord();
+    });
+    $("#nextWord").click(function() {
+        nextWord();
+    });
+});
+
+</script>
+</head>
+<body>
+<div class="stage">
+    <div class="arrow left" id="previous"></div>
+    <div class="arrow right" id="next"></div>
+    <div id="container"></div>
+    <div id="currentsentence"><a href="javascript:void(0);" class="sentnav left" id="previousSentence">&lt;</a> <a href="javascript:void(0);" class="wordnav left" id="previousWord">&lt;</a> <a href="javascript:void(0);" class="sentnav right" id="nextSentence">&gt;</a> <a href="javascript:void(0);" class="wordnav right" id="nextWord">&gt;</a> <span id="sentence">Creative Commons Book Reader</span> </div>
+</div>
+<div id="navigation"></div>
+<div id="footer">
+    <form >
+      <select id="book">
+          <option value="sticksmasterpiece">Stick's Masterpiece (Brother's Whim)</option>
+          <option value="welcometolife">Welcome to Life (ideonexus)</option>
+      </select><br/>
+      <input type="button" value="Start Over" onclick="loadBook();" class="myButton" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
+      <p>Creative Commons books by <a href="http://brotherswhim.com/">Brothers Whim</a> and <a href="http://prathambooks.org/">Pratham Books</a> (<a href="https://www.scribd.com/collections/2300329/Creative-Commons-Originals">Pratham Scribd</a>).</p>
+    </form>
+</body>
+</html>

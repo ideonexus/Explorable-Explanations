@@ -1,0 +1,307 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: darkblue;
+        color: white;
+    }
+
+    a {
+      color: lightblue;
+    }
+
+    canvas {
+        width: 25%;
+        background-color: white;
+        border: solid 3px;
+        margin-bottom: 3%;
+        margin-right: 3%;
+    }
+
+    @media only screen and (max-width: 900px) {
+      canvas { 
+        width: 40%;
+      }
+    }
+
+    @media only screen and (max-width: 500px) {
+      canvas { 
+        width: 90%;
+      }
+    }
+
+    #container {
+        text-align: center;
+    }
+
+    #header {
+        width: 100%;
+        text-align: center;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 300px !important;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+var readSentence = function(sentence) {
+    $("#task").html(sentence);
+    speakWord(sentence);
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    $.get();
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( "canvas" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( "li" ).each(function( index ) {
+            $(this).css('background-color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+//http://www.storminthecastle.com/2013/07/24/how-you-can-draw-regular-polygons-with-the-html5-canvas-api/
+var polygon = function(ctx, x, y, radius, sides, startAngle, anticlockwise) {
+    if (sides < 3) return;
+    var a = (Math.PI * 2)/sides;
+    a = anticlockwise?-a:a;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(startAngle);
+    ctx.moveTo(radius,0);
+    for (var i = 1; i < sides; i++) {
+      ctx.lineTo(radius*Math.cos(a*i),radius*Math.sin(a*i));
+    }
+    ctx.closePath();
+    ctx.restore();
+}
+
+function clearCanvas(context) {
+  context.clearRect(0,0,context.canvas.width,context.canvas.height);
+  var w = context.canvas.width;
+  context.canvas.width = 1;
+  context.canvas.width = w;
+}
+
+//Because jQuery $.inArray can't deal with array objects.
+duplicateArrayCheck = function(newarray,checkarray) {
+  var foundInArray = false;
+  $.each(checkarray, function(){
+    if(this[0] == newarray[0] && this[1] == newarray[1]){
+      foundInArray = true;
+    }
+  });
+  return foundInArray;
+}
+
+var correctAnswer = [];
+
+var buildShapeCanvases = function() {
+    correctAnswer = [];
+    var canvas;
+    var ctx;
+    var numberOfShapes = 0;
+    var shapeArray = [[3,"triangle"],[4,"diamond"],[5,"pentagon"],[6,"hexagon"],[0,"circle"],[-1,"square"]];
+    var numberOfShapesTop = 10;
+    var selectionArray = [];
+    var duplicateArray = [];
+    for (var i = 0; i < 12; i++) {
+
+        //Prevent adding duplicates to the array.
+        var notInArray = false;
+        shape = shapeArray[Math.floor(Math.random()*shapeArray.length)];
+        numberOfShapes = Math.floor(Math.random() * numberOfShapesTop) + 1;
+        while (!notInArray) {
+          if (duplicateArrayCheck([numberOfShapes, shape[0]], duplicateArray)) {
+            numberOfShapes = Math.floor(Math.random() * numberOfShapesTop) + 1;
+            shape = shapeArray[Math.floor(Math.random()*shapeArray.length)];
+          }
+          else {
+            notInArray = true;
+          }
+        }
+        canvas = $("#canvas" + i)[0];
+        ctx = canvas.getContext("2d");
+        canvas.style.background = 'white';
+        clearCanvas(ctx);
+
+        ctx.fillStyle = getRandomColor();
+        var xoffset = 0;
+        var yoffset = 0;
+        for (var x = 1; x < numberOfShapes+1; x++) {
+            if (shape[0] > 0) {
+                polygon(ctx, 30 + xoffset, 30 + yoffset, 25, shape[0], -Math.PI/2);
+            } else if (shape[0] == -1) {
+                //Square
+                ctx.rect(5 + xoffset, 5 + yoffset, 40, 40);
+                ctx.closePath();
+                ctx.restore();
+            } else {
+                //Circle
+                ctx.arc(30 + xoffset, 30 + yoffset, 23, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.restore();
+            }
+
+            if ((x % 5) == 0) {
+                xoffset = 0;
+                yoffset += 50;
+            } else {
+                xoffset += 50;
+            }
+        }
+        ctx.fill();
+        
+        selectionArray.push([i, numberOfShapes, shape]);
+        duplicateArray.push([numberOfShapes, shape[0]]);
+    }
+
+    correctAnswer = selectionArray[Math.floor(Math.random()*selectionArray.length)];
+    var plural = ((correctAnswer[0] == 1) ? "" : "s");
+    readSentence("Find the " + correctAnswer[1] + " " + correctAnswer[2][1] + plural + ".");
+}
+
+var checkAnswer = function(element) {
+    if (element.id == ("canvas" + correctAnswer[0])) {
+        readSentence("Correct!!! Click 'New Game' to play again.")
+        winAnimation();
+    } else {
+        element.style.background = 'red';
+    }
+}
+
+$(document).ready(function() {
+    buildShapeCanvases();
+});
+
+</script>
+</head>
+<body>
+<div id="header">
+    <h1 id="sentence">Shape Hunt Cardinality Game</h1>
+    <form >
+      <input type="button" value="New Game" onclick="buildShapeCanvases();" class="myButton" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+    </form>
+    <h2 id="task"></h2>
+</div>
+<div id="container">
+    <canvas id="canvas0" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas1" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas2" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas3" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas4" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas5" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas6" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas7" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas8" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas9" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas10" onclick="checkAnswer(this);"></canvas>
+    <canvas id="canvas11" onclick="checkAnswer(this);"></canvas>
+</div>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<html>
+    <head>
+        <title>i ching</title>
+<style type='text/css'>
+    
+    body {
+        background-color: indigo;
+        font-family: arial;
+        color: white;
+        font-size: 22px;
+    }
+
+    td {
+        font-size: 26px;
+    }
+
+    h1, h2 {
+        text-align: center;
+    }
+
+    select {
+        font-size:24px;
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 800px !important;
+        margin: 5px;
+    }
+
+</style>
+
+
+<script type="text/javascript">
+
+var binaryKeys = ["111111","000000","010001","100010","010111","111010","000010","010000"
+,"110111","111011","000111","111000","111101","101111","000100","001000"
+,"011001","100110","000011","110000","101001","100101","100000","000001"
+,"111001","100111","100001","011110","010010","101101","011100","001110"
+,"111100","001111","101000","000101","110101","101011","010100","001010"
+,"100011","110001","011111","111110","011000","000110","011010","010110"
+,"011101","101110","001001","100100","110100","001011","001101","101100"
+,"110110","011011","110010","010011","110011","001100","010101","101010"];
+
+var concepts = [
+"1 The Creative - Possessing Creative Power & Skill"
+,"2 The Receptive - Do not force matters and go with the flow"
+,"3 Difficulty at the Beginning - Sprouting"
+,"4 Youthful Folly - Detained, Enveloped and Inexperienced"
+,"5 Waiting - Uninvolvement (Wait for now), Nourishment"
+,"6 Conflict - Engagement in Conflict"
+,"7 The Army - Bringing Together, Teamwork"
+,"8 Holding Together - Union"
+,"9 Small Taming Power - Accumulating Resources"
+,"10 Treading - Continuing with Alertness"
+,"11 Peace - Pervading"
+,"12 Standstill - Stagnation"
+,"13 Fellowship with Men - Fellowship, Partnership"
+,"14 Possession in Great Measure - Independence, Freedom"
+,"15 Modesty - Being Reserved, Refraining"
+,"16 Enthusiasm - Inducement, New Stimulus"
+,"17 Following - Following"
+,"18 Work on what has been spoiled - Repairing"
+,"19 Approach - Approaching Goal, Arriving"
+,"20 Contemplation - The Withholding"
+,"21 Biting Through - Deciding"
+,"22 Grace - Embellishing"
+,"23 Splitting Apart - Stripping, Flaying"
+,"24 Return - Returning"
+,"25 Innocence - Without Rashness"
+,"26 Great Taming Power - Accumulating Wisdom"
+,"27 Mouth Corners - Seeking Nourishment"
+,"28 Great Preponderance  - Great Surpassing"
+,"29 The Abysmal - Darkness, Gorge"
+,"30 The Clinging - Clinging, Attachment"
+,"31 Influence - Attraction"
+,"32 Duration - Perseverance"
+,"33 Retreat - Withdrawing"
+,"34 Great Power - Great Boldness"
+,"35 Progress - Expansion, Promotion"
+,"36 Light Darkening - Brilliance Injured"
+,"37 The Family - Family"
+,"38 Opposition - Division, Divergence"
+,"39 Obstruction - Halting, Hardship"
+,"40 Deliverance - Liberation, Solution"
+,"41 Diminishing - Decrease"
+,"42 Augmenting - Increase"
+,"43 Break-through - Separation"
+,"44 Coming to Meet - Encountering"
+,"45 Gathering Together - Association, Companionship"
+,"46 Pushing Upward - Growing Upward"
+,"47 Oppression - Exhaustion"
+,"48 The Well - Replenishing, Renewal"
+,"49 Revolution - Abolishing the Old"
+,"50 The Caldron - Establishing the New"
+,"51 The Arousing - Mobilizing"
+,"52 Keeping Still - Immobility"
+,"53 Development - Auspicious Outlook, Infiltration"
+,"54 The Marrying Maiden - Marrying"
+,"55 Abundance - Goal Reached, Ambition Achieved"
+,"56 The Wanderer - Travel"
+,"57 The Gentle - Subtle Influence"
+,"58 The Joyous - Overt Influence"
+,"59 Dispersion - Dispersal"
+,"60 Limitation - Discipline"
+,"61 Inner Truth - Staying Focused, Avoid Misrepresentation"
+,"62 Small Preponderance - Small Surpassing"
+,"63 After Completion - Completion"
+,"64 Before Completion - Incompletion"
+];
+
+var explanations = [
+"Since there is only one heaven, the doubling of the trigram Ch'ien, of which heaven is the image, indicates the movement of heaven. One complete revolution of heaven makes a day, and the repetition of the trigram means that each day is followed by another. This creates the idea of time. Since it is the same heaven moving with untiring power, there is also created the idea of duration both in and beyond time, a movement that never stops nor slackens, just as one day follows another in an unending course. This duration in time is the image of the power inherent in the Creative. With this image as a model, the sage learns how best to develop himself so that his influence may endure. He must make himself strong in every way, by consciously casting out all that is inferior and degrading. Thus he attains that tirelessness which depends upon consciously limiting the fields of his activity."
+,"Just as there is only one heaven, so too there is only one earth. In the hexagram of heaven the doubling of the trigram implies duration in time, but in the hexagram of earth the doubling connotes the solidity and extension in space by virtue of which the earth is able to carry and preserve all things that live and move upon it. The earth in its devotion carries all things, good and evil,, without exception. In the same way the superior man gives to his character breadth, purity, and sustaining power, so that he is able both to support and to bear with people and things."
+,"Clouds and thunder are represented by definite decorative lines; this means that in the chaos of difficulty at the beginning, order is already implicit. So too the superior man has to arrange and organize the inchoate profusion of such times of beginning, just as one sorts out silk threads from a knotted tangle and binds them into skeins. In order to find one's place in the infinity of being, one must be able both to separate and to unite."
+,"A spring succeeds in flowing on and escapes stagnation by filling up all the hollow places in its path. In the same way character is developed by thoroughness that skips nothing but, like water, gradually and steadily fills up all gaps and so flows onward."
+,"When clouds rise in the sky, it is a sign that it will rain. There is nothing to do but to wait until after the rain falls. It is the same in life when destiny is at work. We should not worry and seek to shape the future by interfering in things before the time is ripe. We should quietly fortify the body with food and drink and the mind with gladness and good cheer. Fate comes when it will, and thus we are ready."
+,"The image indicates that the causes of conflict are latent in the opposing tendencies of the two trig rams. Once these opposing tendencies appear, conflict is inevitable. To avoid it, therefore, everything must be taken carefully into consideration in the very beginning. If rights and duties are exactly defined, or if, in a group, the spiritual trends of the individuals harmonize, the cause of conflict is removed in advance."
+,"Ground water is invisibly present within the earth. In the same way the military power of a people is invisibly present in the masses. When danger threatens, every peasant becomes present in the masses. When danger threatens, every peasant becomes a soldier; when the war ends, he goes back to his plow. He who is generous toward the people wins their love, and a people living under a mild rule becomes strong and powerful. Only a people economically strong can be important in military power. Such power must therefore be cultivated by improving the economic condition of the people and by humane government. Only when there is this invisible bond between government and people, so that the people are sheltered by their government as ground water is sheltered by the earth, is it possible to wage a victorious war."
+,"Water fills up all the empty places on the earth and clings fast to it. The social organization of ancient China was based on this principle of the holding together of dependents and rulers. Water flows to unite with water, because all parts of it are subject to the same laws. So too should human society hold together through a community of interests that allows each individual to feel himself a member of a whole. The central power of a social organization must see to it that every member finds that his true interest lies in holding together with it, as was the case in the paternal relationship between king and vassals in ancient China."
+,"The wind can indeed drive the clouds together in the sky; yet, being nothing but air, without solid body, it does not produce great or lasting effects. So also an individual, in times when he can produce no great effect in the outer world, can do nothing except refine the expression of his nature in small ways."
+,"Heaven and the lake show a difference of elevation that inheres in the natures of the two, hence no envy arises. Among mankind also there are necessarily differences of elevation; it is impossible to bring about universal equality. But it is important that differences in social rank should not be arbitrary and unjust, for if this occurs, envy and class struggle are the inevitable consequences. If, on the other hand, external differences in rank correspond with differences in inner worth, and if inner worth forms the criterion of external rank, people acquiesce and order reigns in society."
+,"Heaven and earth are in contact and combine their influences, producing a time of universal flowering and prosperity. This stream of energy must be regulated by the ruler of men. It is done by a process of division. Thus men divide the uniform flow of time into the seasons, according to the succession of natural phenomena, and mark off infinite space by the points of the compass. In this way nature in its overwhelming profusion of phenomena is bounded and controlled. One the other hand, nature must be furthered in her productiveness. This is done by adjusting the products to the right time and the right place, which increases the natural yield. This controlling and furthering activity of man in his relation to nature is the work on nature that rewards him."
+,"When, owing to the influence of inferior men, mutual mistrust prevails in public life, fruitful activity is rendered impossible, because the fundaments are wrong. Therefore the superior man knows what he must do under such circumstances; he does not allow himself to be tempted by dazzling offers to take part in public activities. This would only expose him to danger, since he cannot assent to the meanness of the others. He therefore hides his worth and withdraws into seclusion."
+,"Heaven has the same direction of movement as fire, yet it is different from fire. Just as the luminaries in the sky serve for the systematic division and arrangement of time, so human society and all things that really belong together must be organically arranged. Fellowship should not be a mere mingling of individuals or of things--that would be chaos, not fellowship. If fellowship is to lead to order, there must be organization within diversity."
+,"The sun in heaven above, shedding light over everything one earth, is the image of possession on a grand scale. But a possession of this sort must be administered properly. The sun brings both evil and good into the light of day. Man must combat and curb the evil, and must favor and promote the good. Only in this way does he fulfill the benevolent will of God, who desires only good and not evil."
+,"The wealth of the earth in which a mountain is hidden is not visible to the eye, because the depths are offset by the height of the mountain. Thus high and low competent each other and the result is the plain. Here an effect that it took a long time to achieve, but that in the end seems easy of accomplishment and self-evident, is used as the image of modesty. The superior man does the same thing when he establishes order in the world; he equalizes the extremes that are the source of social discontent and thereby creates just and equable conditions."
+,"When, at the beginning of summer, thunder--electrical energy--comes rushing forth from the earth again, and the first thunderstorm refreshes nature, a prolonged state of tension is resolved. Joy and relief make themselves felt. So too, music has power to ease tension within the heart and to loosen the grip of obscure emotions. The enthusiasm of the heart expresses itself involuntarily in a burst of song, in dance and rhythmic movement of the body. From immemorial times the inspiring effect of the invisible sound that moves all hearts, and draws them together, has mystified mankind. Rulers have made use of this natural taste for music; they elevated and regulated it. Music was looked upon as something serious and holy, designed to purify the feelings of men. It fell to music to glorify the virtues of heroes and thus to construct a bridge to the world of the unseen. In the temple men drew near to God with music and pantomimes (out of this later the theater developed). Religious feeling for the Creator of the world was united with the most sacred of human feelings, that of reverence for the ancestors. The ancestors were invited to these divine services as guests of the Ruler of Heaven and as representatives of humanity in the higher regions. This uniting of the human past with the Divinity in solemn moments of religious inspiration established the bond between God and man. The ruler who revered the Divinity in revering his ancestors became thereby the Son of Heaven, in whom the heavenly and the earthly world met in mystical contact. These ideas are the final summation of Chinese culture. Confucius has said of the great sacrifice at which these rites were performed: 'He who could wholly comprehend this sacrifice could rule the world as though it were spinning on his hand.'"
+,"In the autumn electricity withdraws into the earth again and rests. Here it is the thunder in the middle of the lake that serves as the image--thunder in its winter rest, not thunder in motion. The idea of following in the sense of adaptation to the demands of the time grows out of this image. Thunder in the middle of the lake indicates times of darkness and rest. Similarly, a superior man, after being tirelessly active all day, allows himself rest and recuperation at night. No situation can become favorable until one is able to adapt to it and does not wear himself out with mistaken resistance."
+,"When the wind blow s slow on the mountain, it is thrown back and spoils the vegetation. This contains a challenge to improvement. It is the same with debasing attitudes and fashions; they corrupt human society. His methods likewise must be derived from the two trigrams, but in such a way that their effects unfold in orderly sequence. The superior must first remove stagnation by stirring up public opinion, as the wind stirs up everything, and must strengthen and tranquilize the character of the people, as the mountain gives tranquillity and nourishment to all that grows in its vicinity."
+,"The earth borders upon the lake from above. This symbolizes the approach and condescension of the man of higher position to those beneath him. The two parts of the image indicate what his attitude toward these people will be. Just as the lake is inexhaustible in depth, so the sage is inexhaustible in his readiness to teach mankind, and just as the earth is boundlessly wide, sustaining and caring for all creatures on it, so the sage sustains and cares for all people and excludes no part of humanity."
+,"When the wind blows over the earth it goes far and wide, and the grass must bend to its power. These two occurrences find confirmation in the hexagram. The two images are used to symbolize a practice of the kings of old; in making regular journeys the ruler could, in the first place, survey his realm and make certain that none of the existing usages of the people escaped notice; in the second, he could exert influence through which such customs as were unsuitable could be changed. All of this points to the power possessed by a superior personality. On the one hand, such a man will have a view of the real sentiments of the great mass of humanity and therefore cannot be deceived; on the other, he will impress the people so profoundly, by his mere existence and by the impact of his personality, that they will be swayed by him as the grass by the wind."
+,"Penalties are the individual applications of the law. The lawsspecify the penalties. Clarity prevails when mild and severe penalties are differentiated, according to the nature of the crimes. This is symbolized by the clarity of lighting. The law is strengthened by a just application of penalties. This is symbolized by the terror of thunder. This clarity and severity have the effect of instilling respect; it is not that the penalties are ends in themselves. The obstructions in the social life of man increase when there is a lack of clarity in the penal codes and slackness in executing them. The only to strengthen the law is to make it clear and make penalties certain and swift."
+,"The fire, whose light illuminates the mountain and makes it pleasing, does not shine far; in the same way, beautiful form suffices to brighten and to throw light upon matters of lesser moment, but important questions cannot be decided in this way. They require greater earnestness."
+,"The mountain rests on the earth. When it is steep and narrow, lacking a broad base, it must topple over. Its position is strong only when it rises out of the earth broad and great, not proud and steep. So likewise those who rule rest on the broad foundation of the people. They too should be generous and benevolent, like the earth that carries all. Then they will make their position as secure as a mountain is in its tranquillity."
+,"The winter solstice has always been celebrated in China as the resting time of the year--a custom that survives in the time of rest observed at the new year. In winter the life energy, symbolized by thunder, the Arousing, is still underground. Movement is just at its beginning; therefore it must be strengthened by rest so that it will not be dissipated by being used prematurely. This principle, i.e., of allowing energy that is renewing itself to be reinforced by rest, applies to all similar situations. The return of health after illness, the return of understanding after an estrangement: everything must be treated tenderly and with care at the beginning, so that the return may lead to a flowering."
+,"In springtime when thunder, life energy, begins to move again under the heavens, everything sprouts and grows, and all beings receive for the creative activity of nature the childlike innocence of their original state. So it is with the good rulers of mankind: drawing on the spiritual wealth at their command, they take care of all forms of life and all forms of culture and do everything to further them, and at the proper time."
+,"Heaven within the mountain points to hidden treasures. In the words and deeds of the past there lies hidden a treasure that men may use to strengthen and elevate their own characters. The way to study the past is not to confine oneself to mere knowledge of history but, through application of this knowledge, to give actuality to the past."
+,"'God comes forth in the sign of the Arousing': when in the spring the life forces stir again, all things comes into being anew. 'He brings to perfection in the sign of Keeping Still': thus in the early spring, when the seeds fall to earth, all things are made ready. This is an image of providing nourishment through movement and tranquillity. The superior man takes it as a pattern for the nourishment and cultivation of his character. Words are a movement going form within outward. Eating and drinking are movements from without inward. Both kinds of movement can be modified by tranquillity. For tranquillity keeps the words that come out of the mouth from exceeding proper measure, and keeps the food that goes into the mouth from exceeding its proper measure. Thus character is cultivated."
+,"Extraordinary times when the great preponderates are like flood times when the lake rises over the treetops. But such conditions are temporary. The two trigrams indicate the attitude proper to such exceptional times: the symbol of the trigram Sun is the tree, which stands firm even though it stands alone, and the attribute of Tui is joyousness, which remains undaunted even if it must renounce the world."
+,"Water reaches its goal by flowing continually. It fills up every depression before it flows on. The superior man follows its example; he is concerned that goodness should be an established attribute of character rather than an accidental and isolated occurrence. So likewise in teaching others everything depends on consistency, for it is only through repetition that the pupil makes the material his own."
+,"Each of the two trigrams represents the sun in the course of a day. The two together represent the repeated movement of the sun, the function of light with respect to time. The great man continues the work of nature in the human world. Through the clarity of his nature he causes the light to spread farther and farther and to penetrate the nature of man ever more deeply."
+,"A mountain with a lake on its summit is stimulated by the moisture from the lake. It has this advantage because its summit does not jut out as a peak but is sunken. The image counsels that the mind should be kept humble and free, so that it may remain receptive to good advice. People soon give up counseling a man who thinks that he knows everything better than anyone else."
+,"Thunder rolls, and the wind blows; both are examples of extreme mobility and so are seemingly the very opposite of duration, but the laws governing their appearance and subsidence, their coming and going, endure. In the same way the independence of the superior man is not based on rigidity and immobility of character. He always keeps abreast of the time and changes with it. What endures is the unswerving directive, the inner law of his being, which determines all his actions."
+,"The mountain rises up under heaven, but owing to its nature it finally comes to a stop. Heaven on the other hand retreats upward before it into the distance and remains out of reach. This symbolizes the behavior of the superior man toward a climbing inferior; he retreats into his own thoughts as the inferior man comes forward. He does not hate him, for hatred is a form of subjective involvement by which we are bound to the hated object. The superior man shows strength (heaven) in that he brings the inferior man to a standstill (mountain) by his dignified reserve."
+,"Thunder--electrical energy--mounts upward in the spring. The direction of this movement is in harmony with that of the movement of heaven. It is therefore a movement in accord with heaven, producing great power. However, true greatness depends on being in harmony with what is right. Therefore in times of great power the superior man avoids doing anything that is not in harmony with the established order."
+,"The light of the sun rises over the earth is by nature clear. The higher the sun rises, the more it emerges from the dark mists, spreading the pristine purity of its rays over an ever widening area. The real nature of man is likewise originally good, but it becomes clouded by contact with earthly things and therefore needs purification before it can shine forth in its native clarity."
+,"In a time of darkness it is essential to be cautious and reserved. One should not needlessly awaken overwhelming enmity by inconsiderate behavior. In such times one ought not to fall in with the practices of others; neither should one drag them censoriously into the light. In social intercourse one should not try to be all-knowing. One should let many things pass, without being duped."
+,"Heat creates energy: this is signified by the wind stirred up by the fire and issuing forth form it. This represents influence working from within outward. The same thing is needed in the regulation of the family. Here too the influence on others must proceed form one's own person. In order to be capable of producing such an influence, one's words must have power, and this they can have only if they are based on something real, just as flame depends on its fuel Words have influence only when they are pertinent and clearly related to definite circumstances. General discourses and admonitions have no effect whatsoever. Furthermore, the words must be supported by one's entire conduct, just as the wind is made effective by am impression on others that they can adapt and conform to it. If words and conduct are not in accord and consistent, they will have no effect."
+,"The two elements, fire and water, never mingle but even when in contact retain their own natures. So the sutured man is never led into baseness or vulgarity through intercourse or community of interests with persons of another sort; regardless of all commingling, he will always preserve his individuality."
+,"Difficulties and obstructions throw a man back upon himself. While the inferior man seeks to put the blame on other persons, bewailing his fate, the superior man seeks the error within himself, and through this introspection the external obstacle becomes for him an occasion for inner enrichment and education."
+,"A thunderstorm has the effect of clearing the air; the superior man produces a similar effect when dealing with mistakes and sins of men that induce a condition of tension. Through clarity he brings deliverance. However, when failings come to light, he does not dwell on them; he simply passes over mistakes, the unintentional transgressions, just as thunder dies away. He forgives misdeeds, the intentional transgressions, just as water washes everything clean."
+,"The lake at the foot of the mountain evaporates. In this way it decreases to the benefit of the mountain, which is enriched by its moisture. The mountain stands as the symbol of stubborn strength that can harden into anger. The lake is the symbol of unchecked gaiety that can develop into passionate drives at the expense of the life forces. Therefore decrease is necessary; anger must be decreased by keeping still, the instincts must be curbed by restriction. By this decrease of the lower powers of the psyche, the higher aspects of the soul are enriched."
+,"While observing how thunder and wind increase and strengthen each other, a man can not the way to self-increase and self-improvement. When he discovers good in others, he should imitate it and thus make everything on earth his own. If he perceives something bad in himself, let him rid himself of it. In this way he becomes free of evil. This ethical change represents the most important increase of personality."
+,"When the water of a lake has risen up to heaven, there is reason to fear a cloudburst. Taking this as a warning, the superior man forestalls a violent collapse. If a man were to pile up riches for himself alone, without considering others, he would certainly experience a collapse. If a man were to pile up riches for himself alone, without considering others, he would certainly experience a collapse. For all gathering is followed by dispersion. Therefore the superior man begins to distribute while he is accumulating. In the same way, in developing his character he takes care not to become hardened in obstinacy but to remain receptive to impressions by help of strict and continuous self-examination."
+,"The situation here resembles that in hexagram 20, Kuan, Contemplation (View). In the latter the wind blows over the earth, here it blows under heaven; in both cases it goes everywhere. There the wind is on the earth and symbolizes the ruler taking note of the conditions in his kingdom; here the wind blows from above and symbolizes the influence exercised by the ruler through his commands. Heaven is far from the things of earth, but it sets them in motion by means of the wind. The ruler is far form his people, but he sets them in motion by means of his commands and decrees."
+,"If the water in the lake gathers until it rises above the earth, there is danger of a break-through. Precautions must be taken to prevent this. Similarly where men gather together in great numbers, strife is likely to arise; where possessions are collected, robbery is likely to occur. Thus in the time of Gathering Together we must arm promptly to ward off the unexpected. Human woes usually come as a result of unexpected events against which we are not forearmed. If we are prepared, they can be prevented."
+,"Adapting itself to obstacles and bending around them, wood in the earth grows upward without haste and without rest. Thus too the superior man is devoted in character and never pauses in his progress."
+,"When the water has flowed out below, the lake must dry up and become exhausted. That is fate. This symbolizes an adverse fate in human life. In such times there is nothing a man can do but acquiesce in his fate and remain true to himself. This concerns the deepest stratum of his being, for this alone is superior to all external fate."
+,"The trigram Sun, wood, is below, and the trigram K'an, water, is above it. Wood sucks water upward. Just as wood as an organism imitates the action of the well, which benefits all parts of the plant, the superior man organizes human society, so that, as in a plant organism, its parts co-operate for the benefit of the whole."
+,"Fire below and the lake above combat and destroy each other. So too in the course of the year a combat takes place between the forces of light and the forces of darkness, eventuating in the revolution of the seasons, and man is able to adjust himself in advance to the demands of the different times."
+,"The fate of fire depends on wood; as long as there is wood below, the fire burns above. It is the same in human life; there is in man likewise a fate that lends power to his life. And if he succeeds in assigning the right place to life and to fate, thus bringing the two into harmony, he puts his fate on a firm footing. These words contain hints about fostering of life as handed on by oral tradition in the secret teachings of Chinese yoga."
+,"The shock of continuing thunder brings fear and trembling. The superior man is always filled with reverence at the manifestation of God; he sets his life in order and searches his heart, lest it harbor any secret opposition to the will of God. Thus reverence is the foundation of true culture."
+,"The heart thinks constantly. This cannot be changed, but the movements of the heart-that is, a man's thoughts-should restrict themselves to the immediate situation. All thinking that goes beyond this only makes the heart sore."
+,"The tree on the mountain is visible from afar, and its development influences the landscape of the entire region. It does not shoot up like a swamp plant; its growth proceeds gradually. Thus also the work of influencing people can be only gradual. No sudden influence or awakening is of lasting effect. Progress must be quite gradual, and in order to obtain such progress in public opinion and in the mores of the people, it is necessary for the personality to acquire influence and weight. This comes about through careful and constant work on one's own moral development."
+,"Thunder stirs the water of the lake, which follows it in shimmering waves. This symbolizes the girl who follows the man of her choice. But every relationship between individuals bears within it the danger that wrong turns may be taken, leading to endless misunderstandings and disagreements. Therefore it is necessary constantly to remain mindful of the end. If we permit ourselves to drift along, we come together and are parted again as the day may determine. If on the other hand a man fixes his mind on an end that endures, he will succeed in avoiding the reefs that confront the closer relationships of people."
+,"This hexagram has a certain connection with Shih Ho, Biting Through(21), in which thunder and lightning similarly appear together, but in the reverse order. In Biting Through, laws are laid down; here they are applied and enforced. Clarity [Li] within makes it possible to investigate the facts exactly, and shock [Chen] without ensures a strict and precise carrying out of punishments."
+,"When grass on a mountain takes fire, there is bright light. However, the fire does not linger in one place, but travels on to new fuel. It is a phenomenon of short duration. This is what penalties and lawsuits should be like. They should be a quickly passing matter, and must not be dragged out indefinitely. Prisons ought to be places where people are lodged only temporarily, as guests are. They must not become dwelling places."
+,"The penetrating quality of the wind depends upon its ceaselessness. This is what makes it so powerful; time is its instrument. In the same way the ruler's thought should penetrate the soul of the people. This too requires a lasting influence brought about by enlightenment and command. Only when the command has been assimilated by the people is action in accordance with it possible. Action without preparation of the ground only frightens and repels."
+,"A lake evaporates upward and thus gradually dries up; but when two lakes are joined they do not dry up so readily, for one replenishes the other. It is the same in the field of knowledge. Knowledge should be a refreshing and vitalizing force. It becomes so only through stimulating intercourse with congenial friends with whom one holds discussion and practices application of the truths of life. In this way learning becomes many-sided and takes on a cheerful lightness, whereas there is always something ponderous and one-sided about the learning of the self-taught."
+,"In the autumn and winter, water begins to freeze into ice. When the warm breezes of spring come, the rigidity is dissolved, and the elements that have been dispersed in ice floes are reunited. It is the same with the minds of the people. Through hardness and selfishness the heart grows rigid, and this rigidity leads to separation from all others. Egotism and cupidity isolate men. Therefore the hearts of men must be seized by a devout emotion. They must be shaken by a religious awe in face of eternity-stirred with an intuition of the One Creator of all living beings, and united through the strong feeling of fellowship experienced in the ritual of divine worship."
+,"A lake is something limited. Water is inexhaustible. A lake can contain only a definite amount of the infinite quantity of water; this is its peculiarity. In human life too the individual achieves significance through discrimination and the setting of limits. Therefore what concerns us here is the problem of clearly defining these discriminations, which are, so to speak, the backbone of morality. Unlimited possibilities are not suited to man; if they existed, his life would only dissolve in the boundless. To become strong, a man's life needs the limitations ordained by duty and voluntarily accepted. The individual attains significance as a free spirit only by surrounding himself with these limitations and by determining for himself what his duty is."
+,"Wind stirs water by penetrating it. Thus the superior man, when obliged to judge the mistakes of men, tries to penetrate their minds with understanding, in order to gain a sympathetic appreciation of the circumstances. In ancient China, the entire administration of justice was guided by this principle. A deep understanding that knows how to pardon was considered the highest form of justice. This system was not without success, for its aim was to make so strong a moral impression that there was no reason to fear abuse of such mildness. For it sprang not from weakness but from a superior clarity."
+,"Thunder on the mountain is different from thunder on the plain. In the mountains, thunder seems much nearer; outside the mountains, it is less audible than the thunder of an ordinary storm. Thus the superior man derives an imperative from this image: he must always fix his eyes more closely and more directly on duty than does the ordinary man, even though this might make his behavior seem petty to the outside world. He is exceptionally conscientious in his actions. In bereavement emotion means more to him than ceremoniousness. In all his personal expenditures he is extremely simple and unpretentious. In comparison with the man of the masses, all this makes him stand out as exceptional. But the essential significance of his attitude lies in the fact that in external matters he is on the side of the lowly."
+,"When water in a kettle hangs over fire, the two elements stand in relation and thus generate energy (cf. the production of steam). But the resulting tension demands caution. If the water boils over, the fire is extinguished an its energy is lost. If the heat is too great, the water evaporates into the air. These elements here brought in to relation and thus generating energy are by nature hostile to each other. Only the most extreme caution can prevent damage. In life too there are junctures when all forces are in balance and work in harmony, so that everything seems to be in the best of order. In such times only the sage recognizes the moments that bode danger and knows how to banish it by means of timely precautions."
+,"When fire, which by nature flames upward, is above, and water, which flows downward, is below, their effects take opposite directions and remain unrelated. If we wish to achieve an effect, we must first investigate the nature of the forces in question and ascertain their proper place. If we can bring these forces to bear in the right place, they will have the desired effect and completion will be achieved. But in order to handle external forces properly, we must above all arrive at the correct standpoint ourselves, for only from this vantage can we work correctly."
+];
+
+function populateSelectors() {
+	var a = document.getElementById("a");
+	var b = document.getElementById("b");
+	var c = document.getElementById("c");
+	for(var i = 0; i < binaryKeys.length; i++) {
+	  a.options.add(new Option("(" + binaryKeys[i] + ") " + concepts[i],binaryKeys[i]));
+	  b.options.add(new Option("(" + binaryKeys[i] + ") " + concepts[i],binaryKeys[i]));
+	  c.options.add(new Option("(" + binaryKeys[i] + ") " + concepts[i],binaryKeys[i]));
+	}
+}	
+
+function andFunction(a,b){
+    return (a=="1" && b=="1") ? "1" : "0";
+}
+function xorFunction(a,b){
+    return (a!=b) ? "1" : "0";
+}
+function orFunction(a,b){
+    return (a=="1" || b=="1") ? "1" : "0";
+}
+function norFunction(a,b){
+    return (a!="1" && b!="1") ? "1": "0";
+}
+function xnorFunction(a,b){
+    return (a==b) ? "1" : "0";
+}
+function nandFunction(a,b){
+    return (a=="0" || b=="0") ? "1" : "0";
+}
+function calculateIChing(){
+    logicOperation = "XOR";
+    logicGate = document.iching.logicGate;
+    for(var i = 0; i < logicGate.length; i++) {
+        if(logicGate[i].checked) {
+            logicOperation = logicGate[i].value;
+            break;
+        }
+    }
+
+    elementA = document.getElementById("a").value;
+    elementB = document.getElementById("b").value;
+    answer = '';
+    for (i = 0; i < elementA.length; i++) {
+        a = elementA.charAt(i);
+        b = elementB.charAt(i);
+        if (logicOperation  == "AND") {
+            answer = answer + andFunction(a,b);
+        }else if (logicOperation  == "XOR"){
+            answer = answer + xorFunction(a,b);
+        }else if (logicOperation == "OR"){
+            answer = answer + orFunction(a,b);
+        }else if (logicOperation == "NOR"){
+            answer = answer + norFunction(a,b);
+        }else if (logicOperation == "XNOR"){
+            answer = answer + xnorFunction(a,b);
+        }else if (logicOperation == "NAND"){
+            answer = answer + nandFunction(a,b);
+        }
+    }
+    document.getElementById("c").value = answer;
+    document.getElementById("logicOp").innerHTML = logicOperation;
+    document.getElementById("aTitle").innerHTML = "<b>" + concepts[binaryKeys.indexOf(elementA)] + "</b>";
+    document.getElementById("bTitle").innerHTML = "<b>" + concepts[binaryKeys.indexOf(elementB)] + "</b>";
+    document.getElementById("cTitle").innerHTML = "<b>" + concepts[binaryKeys.indexOf(answer)] + "</b>";
+    document.getElementById("aSummary").innerHTML = explanations[binaryKeys.indexOf(elementA)];
+    document.getElementById("bSummary").innerHTML = explanations[binaryKeys.indexOf(elementB)];
+    document.getElementById("cSummary").innerHTML = explanations[binaryKeys.indexOf(answer)];
+}
+</script>
+</head>
+<body onload="populateSelectors();">
+<div align="center">
+<form name="iching" id="iching">
+    <h1 id="logicOp">XOR</h1>
+	<select id="a" onchange="calculateIChing();"></select>
+	<select id="b" onchange="calculateIChing();"></select>
+	<select id="c">
+        <option value=""></option>
+    </select>
+	<table border="0">
+    <tbody>
+		<tr>
+			<td>
+                <input type="radio" id="logicGate" name="logicGate" value="AND" onclick="calculateIChing();" /> AND
+            </td>
+			<td>
+                <input type="radio" id="logicGate" name="logicGate" value="XOR" onclick="calculateIChing();" checked /> XOR
+            </td>
+			<td>
+                <input type="radio" id="logicGate" name="logicGate" value="OR" onclick="calculateIChing();" /> OR
+            </td>
+		</tr>
+		<tr>
+			<td>
+                <input type="radio" id="logicGate" name="logicGate" value="NAND" onclick="calculateIChing();" /> NAND
+            </td>
+            <td>
+                <input type="radio" id="logicGate" name="logicGate" value="XNOR" onclick="calculateIChing();" /> XNOR
+            </td>
+			<td>
+                <input type="radio" id="logicGate" name="logicGate" value="NOR" onclick="calculateIChing();" /> NOR
+            </td>
+		</tr>
+	</tbody>
+	</table>
+	<h2 id="aTitle"></h2>
+	<div id="aSummary"></div>
+	<h2 id="bTitle"></h2>
+	<div id="bSummary"></div>
+	<h2 id="cTitle"></h2>
+	<div id="cSummary"></div>
+</form>
+</div>
+</body>
+</html>

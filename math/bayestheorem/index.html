@@ -1,0 +1,528 @@
+<!doctype html>
+<html>
+<head>
+	<!--https://ludios.org/bayes/-->
+	<!--TODO: Request permission from: https://ludios.org/ -->
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<title>Bayes' Theorem Calculator | ludios.org</title>
+	<style>
+		body, p, td {
+			font-family: Verdana, Arial, sans-serif;
+		}
+
+		h1, h2, h3 {
+			font-family: Georgia, Times, serif;
+			color: #333;
+			font-weight: normal;
+		}
+
+		h3 {
+			margin-top: 2em;
+		}
+
+		h3.first {
+			margin-top: 0;
+		}
+
+		ul li {
+			margin-bottom: 1em;
+		}
+
+		abbr {
+			border-bottom: none;
+		}
+
+		.left-cell {
+			min-width: 160px;
+		}
+
+		.hint {
+			color: #aaa;
+		}
+
+		.spacer {
+			height: 16px;
+		}
+
+		.middle-cell {
+			text-align: right;
+		}
+
+		#calculator {
+			border-width: 0;
+			border-spacing: 0;
+			border-collapse: collapse;
+		}
+
+		#calculator tr td {
+			padding: 3px;
+		}
+
+		.invalid {
+			background-color: #FFE3F0;
+		}
+
+		.target {
+			background-color: #FFEC5C;
+			/* No pretty border due to bug in Chrome 14 (it's not repainting the lack of border) */
+			/*
+			border-left: 1px solid #F2DC33;
+			border-right: 1px solid #F2DC33;
+			*/
+		}
+
+		.target td .hint {
+			color: #999;
+		}
+
+		.tall-button {
+			height: 3.75em;
+			/* height: 100% works in Chrome 14 but not FF7) */
+		}
+
+		.jsproblem {
+			color: darkred;
+		}
+	</style>
+</head>
+<body>
+
+<h3 class="first">Bayes' Theorem Calculator</h3>
+
+<noscript><strong class="jsproblem">This calculator requires JavaScript!</strong><br><br></noscript>
+
+<table id="calculator">
+	<tr>
+		<td class="left-cell">Update probability of</td>
+		<td class="middle-cell"></td>
+		<td><input type="text" size=26 id="name-event-A" class="human" placeholder="A" tabindex=1></td>
+		<td></td>
+		<td><span class="hint">(name of event A)</span></td>
+	</tr>
+	<tr>
+		<td>based on</td>
+		<td class="middle-cell"></td>
+		<td><input type="text" size=26 id="name-event-B" class="human" placeholder="B" tabindex=2></td>
+		<td></td>
+		<td><span class="hint">(name of event B)</span></td>
+	</tr>
+	<tr>
+		<td colspan=5 class="spacer"></td>
+	</tr>
+	<tr class="row-prior">
+		<td>P(<span class="name-event-A"></span>)</td>
+		<td class="middle-cell">=</td>
+		<td><input type="text" size=26 id="prior-value" class="human" tabindex=3></span></td>
+		<td></td>
+		<td><span class="hint">(prior probability of <span class="name-event-A"></span>)</span></td>
+	</tr>
+	<tr class="row-c1">
+		<td>P(<span class="name-event-B"></span>|<span class="name-event-A"></span>)</td>
+		<td class="middle-cell">=</td>
+		<td><input type="text" size=26 id="c1-value" class="human" tabindex=4></td>
+		<td></td>
+		<td><span class="hint">(probability of <span class="name-event-B"></span> given <span class="name-event-A"></span>)</span></td>
+	</tr>
+	<tr class="row-c2">
+		<td>P(<span class="name-event-B"></span>|<abbr title="not">¬</abbr><span class="name-event-A"></span>)</td>
+		<td class="middle-cell">=</td>
+		<td><input type="text" size=26 id="c2-value" class="human" tabindex=5></td>
+		<td></td>
+		<td><span class="hint">(probability of <span class="name-event-B"></span> given <abbr title="not">¬</abbr><span class="name-event-A"></span>)</span></td>
+	</tr>
+	<tr class="row-posterior">
+		<td>P(<span class="name-event-A"></span>|<span class="name-event-B"></span>)</td>
+		<td class="middle-cell">=</td>
+		<td><input type="text" size=26 id="posteriorP-value" class="human" tabindex=6></td>
+		<td rowspan=2></td>
+		<td><span class="hint">(posterior probability of <span class="name-event-A"></span> given <span class="name-event-B"></span>)</span></td>
+	</tr>
+	<tr class="row-posterior">
+		<td>P(<span class="name-event-A"></span>|<abbr title="not">¬</abbr><span class="name-event-B"></span>)</td>
+		<td class="middle-cell">=</td>
+		<td><input type="text" size=26 id="posteriorN-value" class="human" tabindex=7></td>
+		<!-- skip a td due to being rowspanned from above -->
+		<td><span class="hint">(posterior probability of <span class="name-event-A"></span> given <abbr title="not">¬</abbr><span class="name-event-B"></span>)</span></td>
+	</tr>
+</table>
+
+<p>
+<input type="button" value="Copy data to URL" onclick="setHash()">
+</p>
+
+<h3>Load example</h3>
+
+<input type="button" class="example-button" value="mammography">
+<input type="button" class="example-button" value="mammography+">
+<input type="button" class="example-button" value="mammography@">
+<input type="button" class="example-button" value="blue eggs">
+
+<h3>Usage notes</h3>
+
+<p>
+Both decimal and % probabilities are supported.
+</p>
+
+<p>
+This uses <code><a href="https://github.com/jhs/bigdecimal.js">BigDecimal</a></code>, not floating point math.  It still loses bits with non-terminating decimals, though.
+</p>
+
+<p>
+If you rely on this, save a local copy of this page with <code>ctrl+s</code> or <code>⌘+s</code>.  The JavaScript will probably work fine in your local copy.
+</p>
+
+<p>
+No warranty of any kind; see this fearsome <a href="http://www.opensource.org/licenses/mit-license.php">no-warranty clause</a>.
+</p>
+
+<h3>Bugs?</h3>
+
+<p>
+<a href="mailto:ivan@ludios.org?subject=Bayes+calculator">mailto:ivan@ludios.org</a> and please mention your browser version.
+</p>
+
+<h3>Reading</h3>
+
+<ul>
+<li><a href="http://yudkowsky.net/rational/bayes">An Intuitive Explanation of Bayes' Theorem</a>
+<li><a href="http://commonsenseatheism.com/?p=13156">An Intuitive Explanation of Eliezer Yudkowsky’s Intuitive Explanation of Bayes’ Theorem</a>
+<li><a href="http://en.wikipedia.org/wiki/Bayes%27_theorem">Bayes' theorem @ Wikipedia</a>
+</ul>
+
+<script src="js/jquery-1.6.4.min.js"></script>
+<script>
+var exports = window;
+</script>
+<script src="js/bigdecimal-0.5.js"></script>
+<script src="js/underscore-min.js"></script>
+
+<script>
+var underscore = _;
+delete _;
+
+function log(obj) {
+	if(window.console && console.log) {
+		console.log(obj);
+	}
+}
+
+function isNull(v) { // (null or undefined)
+	return v == null;
+}
+
+function assert(cond, msg) {
+	if(!cond) {
+		throw Error("assert failed" + (msg ? ": " + msg : ""));
+	}
+}
+
+function sub(num, v) {
+	assert(arguments.length == 2, arguments.length);
+	return num.subtract(v);
+}
+
+function add(num, v) {
+	assert(arguments.length == 2, arguments.length);
+	return num.add(v);
+}
+
+function mul(num, v) {
+	assert(arguments.length == 2, arguments.length);
+	return num.multiply(v);
+}
+
+var halfUp = RoundingMode.HALF_UP();
+function div(num, v) {
+	assert(arguments.length == 2, arguments.length);
+	return num.divide(v, 22/*precision*/, halfUp);
+}
+
+/*
+p = prior
+r = posterior given B
+rn = posterior given NOT B
+c1 = conditional #1
+c2 = conditional #2
+
+See equations.png
+*/
+
+var calculate = {
+	/*
+	prior: function(c1, c2, r) {
+		// (c2*r) / (c1 - c1*r + c2*r)
+		return div(
+			mul(c2, r),
+			add(sub(c1, mul(c1, r)), mul(c2, r)));
+	},
+
+	priorn: function(c1, c2, rn) {
+		// (-rn + c2*rn) / (-1 + c1 - c1*rn + c2*rn)
+		return div(
+			add(rn.negate(), mul(c2, rn)),
+			add(sub(add(bigneg1, c1), mul(c1, rn)), mul(c2, rn)));
+	},
+
+	c1: function(p, c2, r) {
+		// (c2*(-1 + p)*r) / (p*(-1 + r))
+		return div(
+			mul(mul(c2, add(bigneg1, p)), r),
+			mul(p, add(bigneg1, r)));
+	},
+
+	c1n: function(p, c2, rn) {
+		// (-p + rn - c2*rn + c2*p*rn) / (p*(-1 + rn))
+		return div(
+			add(sub(add(p.negate(), rn), mul(c2, rn)), mul(mul(c2, p), rn)),
+			mul(p, add(bigneg1, rn)));
+	},
+
+	c2: function(p, c1, r) {
+		// (c1*p*(-1 + r)) / ((-1 + p)*r)
+		return div(
+			mul(mul(c1, p), add(bigneg1, r)),
+			mul(add(bigneg1, p), r));
+	},
+
+	c2n: function(p, c1, rn) {
+		// (p - c1*p - rn + c1*p*rn) / ((-1 + p)*rn)
+		return div(
+			add(sub(sub(p, mul(c1, p)), rn), mul(mul(c1, p), rn)),
+			mul(add(bigneg1, p), rn));
+	},
+	*/
+	posteriorP: function(p, c1, c2) {
+		// (c1*p) / (c1*p + c2*(1 - p))
+		return div(
+			mul(c1, p),
+			add(mul(c1, p), mul(c2, sub(big1, p))));
+	},
+
+	posteriorN: function(p, c1, c2) {
+		// calculate.posterior(p, 1 - c1, 1 - c2)
+		return calculate.posteriorP(p, big1.subtract(c1), big1.subtract(c2));
+	}
+}
+
+var big0 = BigDecimal("0");
+var bigneg1 = BigDecimal("-1");
+var big1 = BigDecimal("1");
+
+function rtrim0(s) {
+	return s.replace(/0+$/g, "");
+};
+
+function rtrimdot(s) {
+	return s.replace(/\.$/g, "");
+};
+
+function propertyGetter(name) {
+	return function(o) {
+		return o[name];
+	}
+}
+
+function isValidProbability(num) {
+	return num.compareTo(big0) != -1 && num.compareTo(big1) != 1;
+}
+
+function getProbability(s) {
+	var wasPercent = false;
+	if(!s) {
+		return {num: null, wasPercent: wasPercent};
+	}
+	if(s.indexOf("%") != -1) {
+		s = s.replace("%", "");
+		wasPercent = true;
+	}
+	try {
+		var n = BigDecimal(s);
+	} catch(e) {
+		return {num: null, wasPercent: wasPercent};
+	}
+	if(wasPercent) {
+		n = n.movePointLeft(2);
+	}
+	if(n < 0 || n > 1) {
+		return {num: null, wasPercent: wasPercent};
+	}
+	return {num: n, wasPercent: wasPercent};
+}
+
+function probabilityToString(p, percentStyle) {
+	if(percentStyle) {
+		return rtrimdot(rtrim0(p.movePointRight(2).toPlainString())) + "%";
+	} else {
+		return rtrimdot(rtrim0(p.toPlainString()));
+	}
+}
+
+//	var obj = $("#" + which + "-value");
+function setProbability(obj, num, percentStyle) {
+	if(isValidProbability(num)) {
+		obj.removeClass("invalid");
+		obj.val(probabilityToString(num, percentStyle));
+	} else {
+		log("setProbability: invalid num " + num);
+		obj.addClass("invalid");
+		obj.val("NaN")
+	}
+}
+
+var lastNumbers;
+
+function updateLabels() {
+	var priorName = $('#name-event-A').val();
+	var testName = $('#name-event-B').val();
+	$('.name-event-A').text(priorName ? priorName : "A");
+	$('.name-event-B').text(testName ? testName : "B");
+}
+
+function inputFor(name) {
+	return $('#' + name + '-value');
+}
+
+/**
+ * Checks that field `what` is valid, highlights red (or unhighlights)
+ * if necessary, and returns `true` if valid.
+ */
+function checkAndMaybeMark(what) {
+	var obj = inputFor(what);
+	var num = getProbability(obj.val());
+	if(isNull(num.num)) {
+		obj.addClass('invalid');
+		return false;
+	}
+	obj.removeClass('invalid');
+	return true; 
+}
+
+function all(iterable) {
+	return underscore.all(iterable, underscore.identity);
+}
+
+function somethingChanged(what) {
+	updateLabels();
+
+	var ok;
+
+	var prior_ = getProbability(inputFor('prior').val());
+	var c1_ = getProbability(inputFor('c1').val());
+	var c2_ = getProbability(inputFor('c2').val());
+	//var posteriorP_ = getProbability(inputFor('posteriorP').val());
+	//var posteriorN_ = getProbability(inputFor('posteriorN').val());
+
+	var prior = prior_.num;
+	var c1 = c1_.num;
+	var c2 = c2_.num;
+	//var posteriorP = posteriorP_.num;
+	//var posteriorN = posteriorN_.num;
+
+	log("somethingChanged: target is " + currentTarget +
+		"; nums are " + [prior, c1, c2/*, posteriorP, posteriorN*/].toString());
+
+	var percentStyle = underscore.any([
+		prior_, c1_, c2_/*, posteriorP_, posteriorN_*/
+	], propertyGetter('wasPercent'));
+
+	// Must map() before all() because all() stops at first falsy value
+	ok = all(underscore.map(['prior', 'c1', 'c2'], checkAndMaybeMark));
+	if(ok) {
+		posteriorP = calculate.posteriorP(prior, c1, c2);
+		posteriorN = calculate.posteriorN(prior, c1, c2);
+		setProbability(inputFor('posteriorP'), posteriorP, percentStyle);
+		setProbability(inputFor('posteriorN'), posteriorN, percentStyle);
+	}
+}
+
+function setHash() {
+	var priorName = $('#name-event-A').val();
+	var testName = $('#name-event-B').val();
+
+	var priorText = inputFor('prior').val();
+	var c1Text = inputFor('c1').val();
+	var c2Text = inputFor('c2').val();
+
+	// encodeURIComponent so that the URL doesn't have spaces
+	// in it when people paste it somewhere.
+	window.location.hash = encodeURIComponent(JSON.stringify(
+		[priorName, testName, priorText, c1Text, c2Text]));
+}
+
+var currentTarget;
+function setTarget(newTarget) {
+	currentTarget = newTarget;
+	$("[class^=row-]").removeClass("target");
+	$(".row-" + currentTarget).addClass("target");
+
+	somethingChanged(window);
+}
+
+var examples = {
+	"mammography": ["cancer", "positive test", "1%", "80%", "9.6%"],
+	"mammography+": ["cancer", "positive test", "1%", "80%", "0.0001%"],
+	"mammography@": ["cancer", "\"positive\" test", "1%", "0%", "9.6%"],
+	"blue eggs": ["pearl", "blue", "40%", "30%", "10%"]
+}
+
+function setFields(arr) {
+	$("#name-event-A").val(arr[0]);
+	$("#name-event-B").val(arr[1]);
+	inputFor('prior').val(arr[2]);
+	inputFor('c1').val(arr[3]);
+	inputFor('c2').val(arr[4]);
+
+	somethingChanged(window);
+}
+
+function loadExample(button) {
+	var exampleName = $(button).prop("value");
+	setFields(examples[exampleName]);
+}
+
+function tryLoadDataFromURL() {
+	var hashStr = window.location.hash.toString();
+	try {
+		setFields(JSON.parse(decodeURIComponent(hashStr).replace("#", "")));
+	} catch(e) {
+		// Firefox seems to get an unescaped URI hash?!  I think its
+		// URL-to-clipboard code is broken.
+		try {
+			setFields(JSON.parse(hashStr.replace("#", "")));
+		} catch(e) {
+			log("Could not load data from hash " + hashStr + ": " + e.toString());
+		}
+	}
+}
+
+setTarget("posterior");
+
+$('.human').attr("onchange", "somethingChanged(this)");
+$('.human').attr("onkeyup", "somethingChanged(this)");
+
+somethingChanged(window);
+
+$(".example-button").attr("onclick", "loadExample(this)");
+
+$(document).ready(function() {
+	tryLoadDataFromURL();
+});
+
+</script>
+
+<!-- 
+
+TODO:
+allow conversion from any ~3 probabilities to all of the other probabilities.  This will probably involve generating hundreds of equations in Mathematica.
+?minimal mode
+basic calculation inside fields (1-x), etc
+
+Testing:
+reload page in Firefox, make sure form values stay the same
+Close/reopen Chrome with this page open in a tab (and Chrome session restore on), make sure labels and numbers aren't mixed up
+
+-->
+
+<script src="/_shared/lycomp.js" async defer></script><script src="https://ssl.google-analytics.com/ga.js"></script><script>try{_gat._getTracker("UA-4446506-2")._trackPageview()}catch(e){}</script>
+</body>
+</html>

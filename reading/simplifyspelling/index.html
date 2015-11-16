@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Simplify Spelling Bookmarklet</title>
+</head>
+<body>
+<p>This is a bookmarklet that will simplify the spelling of web pages when clicked. To try it out, drag and drop the link below to you bookmark bar:</p>
+
+<p><a href="javascript:(function() {function s(a, b, element) {if (!element) element = document.body;var nodes = element.childNodes;var r = new RegExp(a, 'gi');for (var n=0; n<nodes.length; n++) {if (nodes[n].nodeType == Node.TEXT_NODE) {nodes[n].textContent = nodes[n].textContent.replace(r, b);} else {s(a, b, nodes[n]);}}}s('ache','ake');s('anarchy','anarky');s('archaic','arkaic');s('archipelago','arkipelago');s('anchor','ankor');s('archeology','arkeology');s('architect','arkitect');s('archive','arkive');s('bronchitis','bronkitis');s('chameleon','kameleon');s('chaos','kaos');s('character','karacter');s('charisma','karisma');s('charismatic','karismatic');s('chasm','kasm');s('chemical','kemical');s('chemistry','kemistry');s('chemotherapy','kemotherapy');s('choral','koral');s('chlorine','klorine');s('choir','koir');s('chord','kord');s('choreography','koreography');s('chorus','korus');s('chrysanthemum','krysanthemum');s('chrome','krome');s('chronic','kronic');s('chronological','kronological');s('echo','eko');s('epoch','epok');s('hierarchy','hierarky');s('lichen','liken');s('matriarch','matriark');s('mechanic','mekanic');s('monarchy','monarky');s('oligarch','oligark');s('orchestra','orkestra');s('orchid','orkid');s('patriarch','patriark');s('psychedelic','psykedelic');s('psychiatrist','psykiatrist');s('psychiatry','psykiatry');s('psycho','psyko');s('psychologist','psykologist');s('psychology','psykology');s('schedule','skedule');s('scheme','skeme');s('schizophrenic','skizophrenic');s('scholar','skolar');s('school','skool');s('stomach','stomak');s('synchronize','synkronize');s('technician','teknician');s('technique','teknique');s('technology','teknology');s('zucchini','zuckini');s('through','thru');s(' gu',' g');s(' sc',' s');s(' psy',' si');s(' rh',' r');s('ey ','y ');s('gh ','f ');s('gm ','m ');s('gue ','g ');s('ise ','ize ');s('yse ','ize ');s('oe ','o ');s('our ','or ');s('re ','er ');s('sque ','sk ');s('ae','e');s('oe','e');s('ei','ie');s('ght','ht');s('gh','g');s('oul','ol');s('ph','f');s('rrh','r');s('isl','il');s('you','yu');s('bb','b');s('dd','d');s('ff','f');s('gg','g');s('ii','i');s('ll','l');s('mm','m');s('nn','n');s('pp','p');s('rr','r');s('ss','s');s('tt','t');s('zz','z');s('cc','ks');s('shool','skool');s('weer','were');s('aer','are');})();">Simplify Spelling</a></p>
+
+</body>
+</html>

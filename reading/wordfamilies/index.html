@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Word Families</title>
+  
+  <script type='text/javascript' src='http://code.jquery.com/jquery-2.1.3.js'></script>
+    <script src="js/wordfamilies.js"></script>
+
+<style type='text/css'>
+    body {
+        background-color: darkgreen;
+        font-family: arial;
+        color: white;
+    }
+
+    h1, h2, h3, h4 {
+        text-align: center;
+        line-height: .40em;
+    }
+
+    #stage { 
+        
+        width: 100%;
+        height: 250px;
+        background-color: lightgreen;
+
+        /*position: absolute;
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;*/
+
+        margin: auto;
+       
+        font-size: 10em;
+        color: darkblue;
+        text-align: center;
+        line-height: 250px;
+    }
+
+    #wordmod {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: normal;
+        text-decoration: none;
+    }
+
+    #wordmod a:link, a:active, a:hover {
+        color: blue;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    #wordFamilies {
+        font-size: 2em;
+        height: 100px;
+        line-height: 100px;
+        text-align: center;
+    }
+
+    #wordFamilies a {
+        padding: 15px;
+        text-decoration: none;
+        margin: 5px;
+        color: white;
+    }
+</style>
+  
+<script type='text/javascript'>
+
+var currentFamily = "ack";
+var currentIndex = 0;
+var uppercase = true;
+var soundOn = true;
+var baseWord;
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+function toggleCase() {
+    if (uppercase) {
+        uppercase = false;
+        $("#caseToggle").html("Toggle UpperCase");
+        $( "#wordmod" ).html($( "#wordmod" ).html().toLowerCase());
+    } else {
+        uppercase = true;
+        $("#caseToggle").html("Toggle LowerCase");
+        $( "#wordmod" ).html($( "#wordmod" ).html().toUpperCase());
+    }
+    speakWord(baseWord);
+}
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").html("Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").html("Sound Off");
+    }
+}
+
+
+function setWord() {
+    baseWord = families[currentFamily][currentIndex];
+    var modWord = baseWord;
+    if (uppercase) {
+        $("#wordmod").html(modWord.replace(currentFamily,'<u>'+currentFamily+'</u>').toUpperCase());
+    } else {
+        $("#wordmod").html(modWord.replace(currentFamily,'<u>'+currentFamily+'</u>').toLowerCase());
+    }
+    speakWord(baseWord);
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+function switchFamily(index) {
+    currentFamily = index;
+    currentIndex = 0;
+    setWord();
+}
+
+$(window).load(function(){
+    $.each(families, function( index, value ) {
+        $("#wordFamilies").append( "<a href=\"javascript:void(0);\" onclick=\"switchFamily('" + index + "');\" class=\"familyMenu\" style=\"background: " + getRandomColor() + "\">" + index + "</a> " );
+    });
+
+    $("#wordmod").click(function() {
+        currentIndex++;
+        if (currentIndex == families[currentFamily].length) {
+            currentIndex = 0;
+        }
+        setWord();    
+    });
+});
+
+</script>
+
+
+</head>
+<body>
+    <div id="stage">
+        <a href="javascript:void(0);" id="wordmod"></span>
+    </div>
+    <div id="toggle"><a href="javascript:void(0);" onclick="toggleCase();" id="caseToggle">Toggle LowerCase</a> | <a href="javascript:void(0);" onclick="toggleSound();" id="soundToggle">Sound Off</a></div>
+    <h2>Word Families: Click Below and Above to Cycle Through Variants</h2>
+    <h4>Thanks to <a href="http://www.enchantedlearning.com/rhymes/wordfamilies/">Enchanted Learning</a> for the list of Word Families.</h4>
+    <div id="wordFamilies"></div>
+</body>
+</html>

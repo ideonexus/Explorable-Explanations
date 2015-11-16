@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Word Find</title>
+  <link rel="stylesheet" type="text/css" href="styles/style.css">
+<script language="javascript" type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
+<script type="text/javascript" src="scripts/wordfind.js"></script> 
+<script type="text/javascript" src="scripts/wordfindgame.js"></script> 
+<script type="text/javascript" src="scripts/dolchsitewords.js"></script> 
+<script>
+
+
+var currentWordArray = prePrimerWords;
+
+var changeWordArray = function() {
+    currentWordArray = wordArrays[$("#wordgroup").val()];
+    newPuzzleGame();
+}
+
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+var readSentence = function(word) {
+    var sentence = sentences[word].toString();
+    speakWord(sentence);
+    $("#sentence").html(sentence.replace(' ' + word + ' ',' <u>' + word + '</u> '));
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    //audioElement.setAttribute('autoplay', 'autoplay');
+    $.get();
+    //audioElement.addEventListener("load", function() {
+    //    audioElement.play();
+    //}, true);
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( "li" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+            $(this).children("span").css('background-color', randColor);
+            $(this).children("span").css('color', 'white');
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( "li" ).each(function( index ) {
+            $(this).css('background-color', "");
+            $(this).children("span").css('background-color', "");
+            $(this).children("span").css('color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+var newPuzzleGame = function() {
+  // start a word find game
+  var gamePuzzle = wordfindgame.create(currentWordArray
+    , '#puzzle'
+    , '#words'
+    ,{ 
+      height: 18
+      , width: 18
+      , orientations: ['horizontal', 'vertical'] 
+      , fillBlanks: true
+      , preferOverlap: false
+    }
+    );
+
+  $('#solve').click( function() {
+    wordfindgame.solve(gamePuzzle, currentWordArray);
+  });
+
+  // create just a puzzle, without filling in the blanks and print to console
+  // This is used when the "Solve" button is clicked.
+  var puzzle = wordfind.newPuzzle(
+    currentWordArray, 
+    { 
+      height: 18
+      , width: 18
+      , orientations: ['horizontal', 'vertical'] 
+      , fillBlanks: false
+      , preferOverlap: false
+    }
+  );
+  wordfind.print(puzzle);
+}
+
+$(document).ready(function() {
+    newPuzzleGame();
+    $("#wordgroup").change(function() {
+        changeWordArray();
+    });
+});
+
+</script>
+
+</head>
+<body>
+
+<div id="container">
+  <div id='puzzle'></div>
+  <div id='words'></div>
+</div>
+
+<div id="footer">
+    <h1 id="sentence">Word Search Game</h1>
+    <form >
+      <select id="wordgroup">
+          <option value="prePrimerWords">Pre-Primer Words</option>
+          <option value="primerWords">Primer Words</option>
+          <option value="firstGradeWords">First-Grade Words</option>
+          <option value="secondGradeWords">Second-Grade Words</option>
+          <option value="thirdGradeWords">Third-Grade Words</option>
+      </select><br/>
+      <input type="button" value="New Game" onclick="newPuzzleGame();" class="myButton" />
+      <input type="button" value="Solve Puzzle" onclick="toggleSound();" class="myButton" id='solve' />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
+      <p>Credit to wordfind.js by <a href="https://github.com/bunkat/wordfind">bunkat</a> and Dolch Site Words from <a href="http://www.mrsperkins.com/files/dolch_book.pdf">Jill Perkins' Workbook</a>.</p>
+</body>
+</html>

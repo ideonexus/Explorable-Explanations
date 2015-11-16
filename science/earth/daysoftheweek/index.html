@@ -1,0 +1,161 @@
+<html>
+  <head>
+  <title>Days of the Week</title>
+  <!-- Built on Ken Wheeler's Slick.js Carousel
+  http://kenwheeler.github.io/slick/ -->
+  <link rel="stylesheet" type="text/css" href="slick/slick.css"/>
+  <link rel="stylesheet" type="text/css" href="slick/slick-theme.css"/>
+<style>
+body {
+  background-color: midnightblue;
+  font-size: 1em;
+  background: -webkit-linear-gradient(left, goldenrod , midnightblue); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(right, goldenrod, midnightblue); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(right, goldenrod, midnightblue); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(to right, goldenrod , midnightblue); /* Standard syntax */
+}
+.weekdays {
+    margin: auto;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    width: 75%;
+    height: 90%;
+    padding: 0px;
+    background-color: black;
+    text-align: center;
+    color: white;
+    font-family: arial, sans-serif;
+    font-size: 3em;
+    text-shadow: 6px 6px 6px darkblue;
+}
+.weekday {
+    background-repeat: no-repeat;
+    background-position: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+.planet {
+  text-align: center;
+  position: absolute;
+  bottom: 0px;
+  width: 11%;
+}
+@media (max-width: 700px) {
+  .weekdays {
+    width: 95%;
+  }
+  .sunday {
+    background-image: url("img/sunday.jpg");
+  }
+  .monday {
+    background-image: url("img/monday.jpg");
+  }
+  .tuesday {
+    background-image: url("img/tuesday.jpg");
+  }
+  .wednesday {
+    background-image: url("img/wednesday.jpg");
+  }
+  .thursday {
+    background-image: url("img/thursday.jpg");
+  }
+  .friday {
+    background-image: url("img/friday.jpg");
+  }
+  .saturday {
+    background-image: url("img/saturday.jpg");
+  }
+}
+@media (min-width: 701px) {
+  .sunday {
+    background-image: url("img/sunday_hr.jpg");
+  }
+  .monday {
+    background-image: url("img/monday_hr.jpg");
+  }
+  .tuesday {
+    background-image: url("img/tuesday_hr.jpg");
+  }
+  .wednesday {
+    background-image: url("img/wednesday_hr.jpg");
+  }
+  .thursday {
+    background-image: url("img/thursday_hr.jpg");
+  }
+  .friday {
+    background-image: url("img/friday_hr.jpg");
+  }
+  .saturday {
+    background-image: url("img/saturday_hr.jpg");
+  }
+}
+</style>
+  </head>
+  <body>
+
+  <div class="weekdays">
+    <div class="sunday weekday">
+      <h2>Sunday</h2>
+      <div class="planet">
+        <p>Sun</p>
+      </div>
+    </div>
+    <div class="monday weekday">
+      <h2>Monday</h2>
+      <div class="planet">
+        <p>Moon</p>
+      </div>
+    </div>
+    <div class="tuesday weekday">
+      <h2>Tuesday</h2>
+      <div class="planet">
+        <p>Mars</p>
+      </div>
+    </div>
+    <div class="wednesday weekday">
+      <h2>Wednesday</h2>
+      <div class="planet">
+        <p>Mercury</p>
+      </div>
+    </div>
+    <div class="thursday weekday">
+      <h2>Thursday</h2>
+      <div class="planet">
+        <p>Jupiter</p>
+      </div>
+    </div>
+    <div class="friday weekday">
+      <h2>Friday</h2>
+      <div class="planet">
+        <p>Venus</p>
+      </div>
+    </div>
+    <div class="saturday weekday">
+      <h2>Saturday</h2>
+      <div class="planet">
+        <p>Saturn</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <script type="text/javascript" src="slick/slick.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('.weekdays').slick({
+        arrows: true,
+        dots: true,
+        infinite: true,
+        speed: 300,
+        slidesToShow: 1
+      });
+    });
+  </script>
+
+  </body>
+</html>
+                

@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Noosphere</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+            body {
+                font-family: Monospace;
+                background-color: #f0f0f0;
+                margin: 0px;
+                overflow: hidden;
+            }
+        </style>
+        <script src="js/three.min.js"></script>
+        <script src="js/TrackballControls.js"></script>
+        <script src="js/helvetiker_regular.typeface.js"></script>
+        <script src="js/BendModifier.js"></script>
+    </head>
+    <body>
+
+        <div id="container"></div>
+        
+        <script>
+
+            var container, stats;
+            var camera, controls, scene, renderer;
+            var pickingData = [], pickingTexture, pickingScene;
+            var objects = [];
+            var highlightBox;
+
+            var mouse = new THREE.Vector2();
+            var offset = new THREE.Vector3( 10, 10, 10 );
+
+            var memedata = [
+                { title: "Prejudice Against Transhumanism in Star Trek", link: "http://mxplx.com/meme/3778/" }
+                ,{ title: "What is Transhumanism", link: "http://mxplx.com/meme/3646/" }
+                ,{ title: "Nietzsche's Ubermensch as a Precursor to Transhumanism", link: "http://mxplx.com/meme/3621/" }
+                ,{ title: "Factions in the Artilect War", link: "http://mxplx.com/meme/3622/" }
+                ,{ title: "Extropian Principles", link: "http://mxplx.com/meme/3614/" }
+                ,{ title: "Extropist Philosophy", link: "http://mxplx.com/meme/3615/" }
+                ,{ title: "The Proactionary Principle", link: "http://mxplx.com/meme/3616/" }
+                ,{ title: "Mormonism as Transhumanism", link: "http://mxplx.com/meme/3576/" }
+                ,{ title: "NBIC: Nano-Bio-Info-Cogno", link: "http://mxplx.com/meme/3577/" }
+                ,{ title: "The Dilemma of Human Diversity Across the Cosmos", link: "http://mxplx.com/meme/3518/" }
+                ,{ title: "When Politics Gives Way to Physics", link: "http://mxplx.com/meme/3501/" }
+                ,{ title: "Fractal Minds Inside Stories", link: "http://mxplx.com/meme/3481/" }
+                ,{ title: "Borganism in Nature", link: "http://mxplx.com/meme/3465/" }
+                ,{ title: "Science is the \"Crucible\" for Extending Life", link: "http://mxplx.com/meme/3007/" }
+                ,{ title: "Longevity Leads to \"Balkanized\" Relationships", link: "http://mxplx.com/meme/2720/" }
+                ,{ title: "Death is Not Assured", link: "http://mxplx.com/meme/2656/" }
+                ,{ title: "Eclipse Phase References List", link: "http://mxplx.com/meme/2625/" }
+                ,{ title: "Carl Sagan's Vision of the Human Race's Future", link: "http://mxplx.com/meme/320/" }
+                ,{ title: "Technology is Preserving Our Ghosts", link: "http://mxplx.com/meme/3571/" }
+            ];
+
+            init();
+            animate();
+
+            function init() {
+
+                container = document.getElementById( "container" );
+
+                camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+                camera.position.z = 1000;
+
+                controls = new THREE.TrackballControls( camera );
+                controls.rotateSpeed = 1.0;
+                controls.zoomSpeed = 2;
+                controls.panSpeed = 0.8;
+                controls.noZoom = false;
+                controls.noPan = false;
+                controls.staticMoving = true;
+                controls.dynamicDampingFactor = 0.3;
+
+                scene = new THREE.Scene();
+
+                pickingScene = new THREE.Scene();
+                pickingTexture = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight );
+                pickingTexture.minFilter = THREE.LinearFilter;
+                pickingTexture.generateMipmaps = false;
+
+                scene.add( new THREE.AmbientLight( 0x555555 ) );
+
+                var light = new THREE.SpotLight( 0xffffff, 1.5 );
+                light.position.set( 0, 500, 2000 );
+                scene.add( light );
+
+                var materialargs = {
+                    color: 0xffffff,
+                    specular: 0xffaa00,
+                    shininess: 50,
+                    shading: THREE.SmoothShading,
+                    emissive: 0x000000
+                };
+
+                var geomtransform = new THREE.Matrix4();
+                var tmpvec = new THREE.Vector3();
+                var meshes = [];
+                var coloroffset = 0;
+                var colorskip = ['black', 'antiquewhite', 'bisque', 'beige', 'blanchedalmond', 'darkblue', 'darkcyan'];
+                var colorkeys = Object.keys( THREE.ColorKeywords );
+
+                var geometry = new THREE.Geometry(),
+                pickingGeometry = new THREE.Geometry(),
+                pickingMaterial = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } ),
+                defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
+
+                function applyVertexColors( g, c ) {
+                    g.faces.forEach( function( f ) {
+                        var n = ( f instanceof THREE.Face3 ) ? 3 : 4;
+                        for( var j = 0; j < n; j ++ ) {
+                            f.vertexColors[ j ] = c;
+                        }
+                    } );
+                }
+
+                //Build the points
+                for ( var i = 0; i < memedata.length; i ++ ) {
+
+                    var scale = 1;
+                    var labelgeo = new THREE.TextGeometry( memedata[i].title, {
+                        size: 0.2,
+                        height: 0.1,
+                        font: 'helvetiker'
+                    });
+                    labelgeo.computeBoundingSphere();
+
+                    // center text
+                    geomtransform.setPosition( tmpvec.set( -labelgeo.boundingSphere.radius, 0, 0 ) );
+                    labelgeo.applyMatrix( geomtransform );
+
+                    // Pick a color at "random".  Exclude black, because it looks bad.
+                    while ( colorskip.indexOf( colorkeys[ i + coloroffset ] ) != -1 ) {
+                        coloroffset++;
+                    }
+                    materialargs.color = THREE.ColorKeywords[ colorkeys[ i + coloroffset ] ];
+
+                    var material = new THREE.MeshPhongMaterial( materialargs );
+
+                    var textmesh = new THREE.Mesh( labelgeo, material );
+                    textmesh.scale.set(scale, scale, scale);
+                    textmesh.updateMatrix();
+
+                    //Wrap Text to Sphere
+                    var direction = new THREE.Vector3(0, 0, -1);
+                    var axis = new THREE.Vector3(0, 1, 0);
+                    var angle = Math.PI / 3;
+                    var modifier = new THREE.BendModifier();
+                    modifier.set(direction, axis, angle).modify( textmesh.geometry );
+
+                    //Add the sphere.
+                    var dotmesh = new THREE.Mesh(new THREE.SphereGeometry(0.75, 24, 12), material);
+                    dotmesh.position.z = -1;
+                    dotmesh.updateMatrix();
+
+                    var merged = new THREE.Geometry();
+                    merged.merge( textmesh.geometry, textmesh.matrix );
+                    merged.merge( dotmesh.geometry, dotmesh.matrix );
+
+                    var mesh = new THREE.Mesh(merged, material);
+                    mesh.position.x = Math.random() * 2000 - 1000;
+                    mesh.position.y = Math.random() * 2000 - 1000;
+                    mesh.position.z = Math.random() * 2000 - 1000;
+                    mesh.scale.x = 300;
+                    mesh.scale.y = 300;
+                    mesh.scale.z = 300;
+
+                    scene.add(mesh);
+
+                    pickingData[ i ] = {
+                        position: mesh.position,
+                        rotation: mesh.rotation,
+                        scale: mesh.scale,
+                        link: memedata[i].link
+                    };
+                }
+
+                var drawnObject = new THREE.Mesh( geometry, defaultMaterial );
+                scene.add( drawnObject );
+
+                pickingScene.add( new THREE.Mesh( pickingGeometry, pickingMaterial ) );
+
+                highlightBox = new THREE.Mesh(
+                    new THREE.SphereGeometry( 0.75, 24, 12 ),
+                    new THREE.MeshLambertMaterial( { color: 0xffff00 }
+                ) );
+                scene.add( highlightBox );
+
+                renderer = new THREE.WebGLRenderer( { antialias: true } );
+                renderer.setClearColor( 0xffffff );
+                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.sortObjects = false;
+                container.appendChild( renderer.domElement );
+
+                renderer.domElement.addEventListener( 'mousemove', onMouseMove );
+            }
+
+            function onMouseMove( e ) {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            }
+
+            function animate() {
+                requestAnimationFrame( animate );
+                render();
+                stats.update();
+            }
+
+            function pick() {
+                //render the picking scene off-screen
+                renderer.render( pickingScene, camera, pickingTexture );
+
+                //create buffer for reading single pixel
+                var pixelBuffer = new Uint8Array( 4 );
+
+                //read the pixel under the mouse from the texture
+                renderer.readRenderTargetPixels(pickingTexture, mouse.x, pickingTexture.height - mouse.y, 1, 1, pixelBuffer);
+
+                //interpret the pixel as an ID
+                var id = ( pixelBuffer[0] << 16 ) | ( pixelBuffer[1] << 8 ) | ( pixelBuffer[2] );
+                var data = pickingData[ id ];
+
+                if ( data) {
+                    //move our highlightBox so that it surrounds the picked object
+                    if ( data.position && data.rotation && data.scale ){
+                        highlightBox.position.copy( data.position );
+                        highlightBox.rotation.copy( data.rotation );
+                        highlightBox.scale.copy( data.scale ).add( offset );
+                        highlightBox.visible = true;
+                    }
+                } else {
+                    highlightBox.visible = false;
+                }
+            }
+
+            function render() {
+                controls.update();
+                pick();
+                renderer.render( scene, camera );
+            }
+
+        </script>
+
+    </body>
+</html>

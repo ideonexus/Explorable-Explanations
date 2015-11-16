@@ -1,0 +1,219 @@
+<html>
+<head>
+<title>Cranky's Alphabet Board</title>
+<style>
+body{
+    font-family:helvetica,arial;
+}
+td{
+	width:60px;
+	height:60px;
+	line-height:60px;
+	text-align:center;
+}
+
+td,tr {
+	backgronud: #ffffff;
+}
+td.selected {
+	background: #ff3300;
+}
+tr.selected {
+	background: #cecece;
+}
+</style>
+<script>
+// delcare all our vars and functions in our own scope/closure so it doesn't
+// interfere with the outside world and vice versa
+!function() {
+
+// time to wait before moving to the next row/column, in ms
+var shift_delay_ms = 700;
+
+// the amount of time to let pass before resetting the selection, in seconds
+// this allows the user to 'back out' of a selection if he/she made
+// a mistake
+var resetTimeout_s = 12;
+
+// text to display for each grid
+// note the last row is reserved for special functions and text shortcuts
+var celldata = [];
+celldata[0] = 'ABCDEF'.split('');
+celldata[1] = 'GHIJKL'.split('');
+celldata[2] = 'MNOPQR'.split('');
+celldata[3] = 'STUVWX'.split('');
+celldata[4] = 'YZ0123'.split('');
+celldata[5] = '456789'.split('');
+celldata[6] = 'Space,Yes,No,Clear,Done,Mode'.split(',');
+
+// name of the selected css class
+var selClassName = 'selected';
+
+var rows = [];
+var cells = [];
+var out;
+var currentrow = 0;
+var currentcolumn = 0;
+var currentmode = 0;
+var currentstring = "";
+var selectanimation;
+// a cell selection time out.  what if the user made a mistake and needs to
+// 'undo'?  when the reset counter rolls over, the grid selection starts over
+var resetcounter = 0;
+
+function MouseClick() {nextSelectMode();}
+
+function KeyCheck(e) {
+	var KeyID = (window.event) ? event.keyCode : e.keyCode;
+	if(KeyID>0) {nextSelectMode();}
+}
+
+function shiftrow() {
+	rows[currentrow].classList.remove(selClassName);
+	currentrow = ++currentrow % rows.length;
+	rows[currentrow].classList.add(selClassName);
+}
+
+function shiftcolumn() {
+	// back out of the selection mode if the user waits
+	if (++resetcounter >= resetTimeout_s) {startRowSelect();}
+	//  otherwise, business as usual, select cells
+	else {
+		cells[currentrow][currentcolumn].classList.remove(selClassName);
+		currentcolumn = ++currentcolumn % cells[currentrow].length;
+		cells[currentrow][currentcolumn].classList.add(selClassName);
+	}
+}
+
+function nextSelectMode() {
+	// selected row, now start selecting cell
+	if(currentmode==0){startCellSelect();}
+	// selected cell, process output
+	// then move back to selecting rows
+	else{
+		clearInterval(selectanimation);
+		// the last row has special behavior
+		if(currentrow == (rows.length - 1)) {
+			switch(currentcolumn){
+				// add a space button
+				case 0:
+					out.value += " ";
+					break;
+				// quick 'yes' button
+				case 1:
+					out.value = "yes";
+					tts();
+					break;
+				// quick 'no' button
+				case 2:
+					out.value = "no";
+					tts();
+					break;
+				// clear output button
+				case 3:
+					out.value = "";
+					break;
+				// process output to google tts
+				case 4:
+					// if the option value is empty, don't tts
+					if (out.value.length > 0) tts();
+					break;
+				default:
+			}
+		}
+		// all other rows are just normal letter/number additions
+		else {
+			out.value += celldata[currentrow][currentcolumn].toLowerCase();
+		}
+		
+		// clear selections
+		rows[currentrow].classList.remove(selClassName);
+		cells[currentrow][currentcolumn].classList.remove(selClassName);
+		// set mode back to row selection
+		currentmode = 0;
+		// start up row selection again
+		startRowSelect();
+	}
+}
+
+function startCellSelect() {
+	if (selectanimation) clearInterval(selectanimation);
+	
+	currentmode = 1; // column selection mode
+	
+	currentcolumn = 0;
+	cells[currentrow][currentcolumn].classList.add(selClassName);
+	
+	selectanimation = setInterval(shiftcolumn, shift_delay_ms);
+}
+
+function startRowSelect() {
+	if (selectanimation) clearInterval(selectanimation);
+	
+	resetcounter = 0;
+	currentmode = 0; // row selection mode
+	
+	cells[currentrow][currentcolumn].classList.remove(selClassName);
+	rows[currentrow].classList.add(selClassName);
+	
+	selectanimation = setInterval(shiftrow, shift_delay_ms);
+}
+
+// send the output value to google tts and load in invisible iframe
+// to play text audio
+function tts(){
+	var ttsurl = "http://translate.google.com/translate_tts?tl=en&q=" + out.value;
+	var userAgent = window.navigator.userAgent;
+	if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i) || userAgent.match(/iPod/i)) {
+		window.location = ttsurl;
+	}
+	else{
+		document.getElementById("voiceframe").src = ttsurl;
+	}
+	out.value="";
+}
+
+// init setup function
+window.addEventListener('load', function() {
+	// setup and create the rows and columns
+	var tbl = document.getElementById('grid');
+	for (var i = 0; i < celldata.length; ++i) {
+		rows[i] = document.createElement('tr');
+		cells[i] = [];
+		tbl.appendChild(rows[i]);
+		
+		for (var j = 0; j < celldata[i].length; ++j) {
+			cells[i][j] = document.createElement('td');
+			cells[i][j].innerHTML = celldata[i][j];
+			rows[i].appendChild(cells[i][j]);
+		}
+	}
+	
+	// output box
+	out = document.getElementById('output');
+	
+	// setup event listeners
+	document.addEventListener('keyup', KeyCheck);
+	document.addEventListener('mouseup', MouseClick);
+	//document.onclick = MouseClick;
+	document.addEventListener('touchend', MouseClick);
+	
+	// start the grid selection
+	startRowSelect();
+});
+
+}();
+</script>
+</head>
+
+<body>
+	<h2 align="center">Cranky's Alphabet Board</h2>
+	<table id ='grid' align="center" border=1 cellspacing=0 cellpadding=0>
+	</table>
+	<br />
+	<p align="center"><input type="text" name="output" id="output" value="" style="font-size:25px; width:700px;" READONLY /></p>
+	<iframe width="1px" height="1px" style="border:0px;" src="about:none" name="voiceframe" id="voiceframe"></iframe>
+	<p align="center">Click or press any key when the correct row is selected... then click or press any key again when the correct letter is selected.  If you are on an iphone or ipad, just touch anywhere on the screen to select the current row or column.  When you are finished, select "DONE" and it will speak it for you.</p>
+</body>
+
+</html>
