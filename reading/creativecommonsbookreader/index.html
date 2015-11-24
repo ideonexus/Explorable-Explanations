@@ -1,9 +1,12 @@
 <html>
 <head>
+<title>Creative Commons Book Reader</title>
 <style>
     body {
         background-color: darkslateblue;
         color: white;
+        margin: 0px;
+        padding: 0px;
     }
 
     a {
@@ -11,12 +14,17 @@
     }
 
     .stage {
-        width: 900px;
+        width: 100%;
+        height: 100%;
         margin: auto;
+        display: none;
+        padding: 0px;    
     }
 
     #container { 
+        width:100%;
         text-align: center;
+        padding: 0px;    
     }
 
     #navigation, #currentsentence {
@@ -24,14 +32,14 @@
         text-align:center;
     }
 
-    #navigation {
-        font-size: 2em;
-    }
-
     #currentsentence {
         width: 100%;
         height: 100px;
         font-size: 2.5em;
+    }
+
+    #navigation {
+        font-size: 1.5em;
     }
 
     #navigation a {
@@ -48,6 +56,8 @@
         left: 0;
         right: 0;
         margin: auto;
+        padding: 20px;
+        background-color: purple;
     }
 
     select
@@ -55,7 +65,7 @@
         font-size:2em;
         font-weight: bold;
         -webkit-appearance: none;
-        width: 500px !important;
+        width: 90% !important;
     }
 
     #toggle {
@@ -118,10 +128,11 @@
     height: 0; 
     border-top: 60px solid transparent;
     border-bottom: 60px solid transparent;
-    
     border-left: 60px solid hotpink;
-    float: right;
-    margin-top:20%;
+    z-index: 10;
+    position: absolute;
+    right: 0;
+    top: 25%;
 }
 
 .arrow.left {
@@ -129,10 +140,11 @@
     height: 0; 
     border-top: 60px solid transparent;
     border-bottom: 60px solid transparent; 
-    
     border-right:60px solid hotpink; 
-    float: left;
-    margin-top:20%;
+    z-index: 10;
+    position: absolute;
+    left: 0;
+    top: 25%;
 }
 
 .bold {
@@ -144,7 +156,8 @@
 
 .bookpage {
     display: none;
-    width: 700px;
+    height: 80%;
+    max-width: 100%;
 }
 
 .show {
@@ -176,6 +189,8 @@
     text-decoration: none;
     font-weight: bold;
     font-size: 1.5em;
+    position: relative;
+    top: 8px;
 }
 
 .wordnav.left {
@@ -184,6 +199,47 @@
 
 .wordnav.right {
     float: right;
+}
+
+#optionscontainer {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    background-color: lightblue;
+}
+
+#showfooter {
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+@media only screen and (max-width: 800px) {
+    #currentsentence {
+        font-size: 1.5em;
+        height: 75px;
+    }
+    #navigation {
+        font-size: 1em;
+    }
+    .arrow.right {
+        width: 0; 
+        height: 0; 
+        border-top: 30px solid transparent;
+        border-bottom: 30px solid transparent;
+        border-left: 30px solid hotpink;
+    }
+
+    .arrow.left {
+        width: 0; 
+        height: 0; 
+        border-top: 30px solid transparent;
+        border-bottom: 30px solid transparent; 
+        border-right:30px solid hotpink;
+    }
+
 }
 
 </style>
@@ -221,7 +277,7 @@ var sticksmasterpiece = [
         ,["page25.jpg",["and worked more thoughtfully."]]
         ,["page26.jpg",["The sun was setting,","it was time.","She had to finish now.","But even in the twilight dim","was her best work somehow."]]
         ,["page27.jpg",["All out of paint,","so tired too,","Stick closed her little eyes,","and fast asleep","she peacefully went,","and dreamt of rainbowed skies."]]
-        ,["page28.jpg",["When morning came","she woke and saw,","was greeted by the sun.","Her lines and shapes","where so much more.","Her masterpiece was done."]]
+        ,["page28.jpg",["When morning came","she woke and saw,","was greeted by the sun.","Her lines and shapes","were so much more.","Her masterpiece was done."]]
         ,["page29.jpg",["The End"]]
         ,["page30.jpg",["Brothers Whim","We hope you enjoy free digital versons of all our books","available at brotherswhim.com"]]
         ,["page31.jpg",["About the Author","Spencer Hanson"]]
@@ -229,38 +285,73 @@ var sticksmasterpiece = [
     ];
 
 var welcometolife = [
-        ["Slide01.JPG",[""]]
-        ,["Slide02.JPG",[""]]
-        ,["Slide03.JPG",[""]]
-        ,["Slide04.JPG",[""]]
-        ,["Slide05.JPG",[""]]
-        ,["Slide06.JPG",[""]]
-        ,["Slide07.JPG",[""]]
-        ,["Slide08.JPG",[""]]
-        ,["Slide09.JPG",[""]]
-        ,["Slide10.JPG",[""]]
-        ,["Slide11.JPG",[""]]
-        ,["Slide12.JPG",[""]]
-        ,["Slide13.JPG",[""]]
-        ,["Slide14.JPG",[""]]
-        ,["Slide15.JPG",[""]]
-        ,["Slide16.JPG",[""]]
-        ,["Slide17.JPG",[""]]
-        ,["Slide18.JPG",[""]]
-        ,["Slide19.JPG",[""]]
-        ,["Slide20.JPG",[""]]
-        ,["Slide21.JPG",[""]]
-        ,["Slide22.JPG",[""]]
-        ,["Slide23.JPG",[""]]
-        ,["Slide24.JPG",[""]]
+        ["Slide01.JPG",["WELCOME TO LIFE","A GUIDE FOR NEW MEMBERS OF THE HUMAN RACE","by ryan somma"]]
+        ,["Slide02.JPG",["The Universe is full of Magical things","Patiently waiting for our wits to Grow Sharper","This work is licensed under the Creative Commons License."]]
+        ,["Slide03.JPG",["SO HERE YOU ARE,","LIVING ON A PLANET WE CALL EARTH","EVERYTHING AROUND YOU","ALL THE WAY UP TO THE TOP OF THE CLOUDS","IS PART OF EARTH."]]
+        ,["Slide04.JPG",["THAT BIG BRIGHT HOT BALL IN THE SKY DURING THE DAY","IS THE SUN","OUR EARTH GOES AROUND THE SUN.","EVERY TIME YOU HAVE A BIRTHDAY,","THE EARTH HAS GONE ALL THE WAY AROUND THE SUN SINCE YOUR LAST BIRTHDAY!","THE SUN IS A STAR.","SO ARE THE OTHER TWINKLING DOTS OF LIGHT IN THE SKY AT NIGHT."]]
+        ,["Slide05.JPG",["THE BIG GLOWING CIRCLE IN THE SKY AT NIGHT?","THAT IS THE MOON","THE MOON IS LIKE A PLANET,","BUT IT GOES AROUND THE EARTH.","THE SUN SHINES ON IT TO MAKE IT BRIGHT.","SOME OF US HAVE WALKED ON THE MOON!"]]
+        ,["Slide06.JPG",["SOME OF THE BRIGHT SPOTS IN THE NIGHT SKY ARE PLANETS TOO.","THEY DON’T TWINKLE, BUT THEY DO GO AROUND THE SUN","THE SUN AND OTHER STARS GO AROUND THE MILKY WAY.","THE MILKY WAY IS A GALAXY.","GALAXIES HAVE HUNDREDS OF BILLIONS OF STARS IN THEM."]]
+        ,["Slide07.JPG",["THE SKY IS FILLED WITH GALAXIES.","THERE ARE OVER 10,000 GALAXIES ON THIS PAGE","AND IT WOULD TAKE 23,700,000 PAGES TO COVER THE NIGHT SKY.","ALL OF THESE GALAXIES","FILLED WITH STARS","CIRCLED BY PLANETS","CIRCLED BY MOONS ARE PART OF THE UNIVERSE","THE UNIVERSE IS EVERYTHING THERE IS."]]
+        ,["Slide08.JPG",["SO HOW DID YOU GET HERE?","ON A PLANET...","GOING AROUND A STAR...","GOING AROUND A GALAXY...","...IN A UNIVERSE FULL OF GALAXIES?"]]
+        ,["Slide09.JPG",["YOU CAME FROM INSIDE YOUR MOMMY.","YOUR MOMMY CAME FROM INSIDE YOUR GRANDMOMMY.","YOUR GRANDMOMMY CAME FROM INSIDE YOUR GREAT GRANDMOMMY.","ON AND ON, BACK THROUGH TIME...","100 Birthdays Ago","200 Birthdays Ago","1700 Birthdays Ago","2200 Birthdays Ago","3300 Birthdays Ago","25,000 Birthdays Ago","…GREAT GREAT GREAT GREAT GREAT GREAT GREAT GREAT GREAT GREAT GREAT GREAT...","OVER 100,000 GREAT-GRANDMOMMIES AGO","TO A MOMMY WHO LOOKED SOMETHING LIKE THIS:","3,000,000 Birthdays Ago"]]
+        ,["Slide10.JPG",["BUT IT DOESN’T STOP THERE!","SHE CAME FROM INSIDE HER MOMMY,","WHO CAME FROM INSIDE HER GRANDMOMMY,","WHO CAME FROM INSIDE HER GREAT-GRANDMOMMY...","20,000,000 Birthdays Ago","60,000,000 Birthdays Ago","210,000,000 Birthdays Ago","295,000,000 Birthdays Ago","375,000,000 Birthdays Ago","480,000,000 Birthdays Ago"]]
+        ,["Slide11.JPG",["GETTING MORE AND MORE SIMPLE","OVER HUNDREDS OF MILLIONS OF YEARS","530,000,000 BA","550,000,00 BA","1,500,000,000 BA","ALL THE WAY BACK TO THIS","A SINGLE CELL","3,500,000,000 BA"]]
+        ,["Slide12.JPG",["HOW DID A SINGLE CELL BECOME HOMO SAPIENS?","FOR 2,000,000,000 BIRTHDAYS ON EARTH,","ALL LIVING THINGS WERE SINGLE CELLS.","THEN SOME CELLS STARTED WORKING TOGETHER.","THIS MADE THEM STRONGER THAN THE SINGLE CELLS,","SO THEY MULTIPLIED"]]
+        ,["Slide13.JPG",["SOME TEAMS OF CELLS FORMED PLANTS THAT EAT SUNLIGHT","OTHERS FORMED ANIMALS,","THAT EAT PLANTS.","DIFFERENT THINGS WORKED FOR","DIFFERENT KINDS OF LIFE."]]
+        ,["Slide14.JPG",["ANIMALS AND PLANTS KEPT ON CHANGING,","TRYING OUT DIFFERENT THINGS.","SOME ANIMALS, LIKE CRABS,","WORE THEIR SKELETONS","ON THE OUTSIDE.","OTHER ANIMALS, LIKE FISH,","WORE THEIR SKELETONS","ON THE INSIDE.","DIFFERENT THINGS WORKED FOR DIFFERENT KINDS OF LIFE."]]
+        ,["Slide15.JPG",["ALL OF THIS WAS HAPPENING IN THE EARTH’S OCEANS,","WHICH WERE GETTING PRETTY CROWDED...","SO SOME PLANTS AND ANIMALS GREW TO LIVE ON THE LAND."]]
+        ,["Slide16.JPG",["CRABS AND OTHER ANIMALS WITH OUTSIDE SKELETONS","BECAME BUGS AND INSECTS.","FISH AND OTHER ANIMALS WITH INSIDE SKELETONS","BECAME AMPHIBIANS AND REPTILES"]]
+        ,["Slide17.JPG",["SOME LIZARDS BECAME DINOSAURS AND BIRDS AND TINY MAMMALS.","SOME TINY MAMMALS BECAME ELEPHANTS, DOGS, CATS, WHALES, AND MONKEYS.","SOME MONKEYS EVENTUALLY BECAME HOMO SAPIENS!"]]
+        ,["Slide18.JPG",["THIS WAS YOU YOUR NUMBER OF BIRTHDAYS AGO","(PLUS NINE MONTHS INSIDE YOUR MOMMY.)","A FEW HOURS LATER YOU GREW UP TO BE THIS","YOU HAD A TAIL LIKE A LIZARD ONCE!","YOU HAD GILLS LIKE A FISH ONCE TOO!","AND EYES ON THE SIDE OF YOUR HEAD LIKE A MOUSE!","YOU GREW","AND GREW","AND GREW","AND GREW","AND GREW","AND GREW"]]
+        ,["Slide19.JPG",["YOU ARE HOMO SAPIENS!","BIG BRAIN!","LOTS OF TEAMS OF CELLS!","OPPOSABLE THUMBS!","WARM BLOODED!","SKELETON ON THE INSIDE!","WALKS ON TWO FEET!"]]
+        ,["Slide20.JPG",["THERE ARE OVER 7,000,000,000 HOMO SAPIENS ON PLANET EARTH","(PLUS A FEW OUT IN SPACE)","AND ANOTHER FOUR ARE BORN EVERY SECOND!"]]
+        ,["Slide21.JPG",["EVERY HOMO SAPIENS IS UNIQUE."]]
+        ,["Slide22.JPG",["BUT WE ARE ALL PART OF A TEAM CALLED CIVILIZATION"]]
+        ,["Slide23.JPG",["OUR CIVILIZATION ISN’T PERFECT","BUT WE ARE ALWAYS WORKING TO MAKE IT BETTER","MEDICINE","TECHNOLOGY","SCHOOLS","EXPLORATION"]]
+        ,["Slide24.JPG",["EVERY BIRTHDAY WE ARE SMARTER THAN WE WERE ON THE LAST BIRTHDAY,","JUST LIKE YOU GET SMARTER TOO","AS YOUR GUARDIAN","MY PURPOSE IS TO HELP YOU GROW UP","TO BE AS GOOD AS ME AT LIFE AND CONTRIBUTING TO CIVILIZATION.","YOUR PURPOSE IS TO GROW UP TO BE","EVEN BETTER THAN ME!"]]
         ,["Slide25.JPG",[""]]
         ,["Slide26.JPG",[""]]
      ];
 
+var weareallanimals = [
+        ["01.jpg",["We Are All Animals"]]
+        ,["02.jpg",["Creative Commons Attribution License"]]
+        ,["03.jpg",["We Are All Animals","Written by Madhav Chavan","Meera Tendolkar","Illustrated by Santosh Pujari","Translated by Rohini Nilekani"]]
+        ,["04.jpg",["Act One"]]
+        ,["05.jpg",["Look at me, animals!","I am a human being!","I know everything!"]]
+        ,["06.jpg",["Look, these are my eyes.","I can see everything with them"]]
+        ,["07.jpg",["So what? We have eyes too.","And we can see in the dark!"]]
+        ,["08.jpg",["Fine, but look at my nose.","I breathe through my nose."]]
+        ,["09.jpg",["So what?","We also have noses and ours are prettier than yours!"]]
+        ,["10.jpg",["And yes, my teeth.","I use my teeth to chew and bite."]]
+        ,["11.jpg",["Teeth?","Ha! Ha!","Have you seen our teeth?","You can chew.","But WE CAN BITE!","Hiee.. Hiee... Hiee..."]]
+        ,["12.jpg",["Yes, but listen!","I can hear a lot with my ears!"]]
+        ,["13.jpg",["Little one!","We can hear sounds which you cannot imagine at all!"]]
+        ,["14.jpg",["And I can walk, run and even dance with my feet."]]
+        ,["15.jpg",["Oh! We have four feet!","We can jump, we can dance and we can parade too!"]]
+        ,["16.jpg",["I can plait my hair."]]
+        ,["17.jpg",["Uh! Our hair is pretty too.","We could plait it if we wanted to.","Maybe!"]]
+        ,["18.jpg",["Look!","I can work with my hands!"]]
+        ,["19.jpg",["Hands!","Keep your hands to yourself!"]]
+        ,["20.jpg",["Act Two"]]
+        ,["21.jpg",["Aha! I told you! I am the best!","I know it all!"]]
+        ,["22.jpg",["Really?","Have you seen our sharp claws?"]]
+        ,["23.jpg",["Yes!","But your nails will pick up dirt!"]]
+        ,["24.jpg",["Now see, these are our lovely tails."]]
+        ,["25.jpg",["Tails!","We gave them up long ago!","How else could we wear our shorts?"]]
+        ,["26.jpg",["And we can roar!"]]
+        ,["27.jpg",["Roar? Have you heard my mother!"]]
+        ,["28.jpg",["So then!","You are only animals.","I know that!"]]
+        ,["29.jpg",["Humans are animals too.","We know that!"]]
+        ,["30.jpg",["You may be right.","Look at my brother!","Mother says he is wild.","He is definitely and animal."]]
+        ,["31.jpg",["Yes! And so are you!","Believe us!","We are all animals.","We all belong here.","Just like you."]]
+        ,["32.jpg",[""]]
+    ];
 
 var books = [];
 books["sticksmasterpiece"] = sticksmasterpiece;
 books["welcometolife"] = welcometolife;
+books["weareallanimals"] = weareallanimals;
 
 var currentBook = sticksmasterpiece;
 var currentBookDirectory = "sticksmasterpiece";
@@ -277,13 +368,25 @@ var changeBook = function() {
 
 var soundOn = true;
 
-function toggleSound() {
+var toggleSound = function() {
     if (soundOn) {
         soundOn = false;
         $("#soundToggle").prop('value', "Sound On");
     } else {
         soundOn = true;
         $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+var showHideFooter = function(showhide) {
+    if (showhide == 'hide') {
+        $('#footer').hide(1000);
+        $('.stage').show(1000);
+        $('#optionscontainer').show(1000);
+    } else {
+        $('#footer').show(1000);
+        $('.stage').hide(1000);
+        $('#optionscontainer').hide(1000);
     }
 }
 
@@ -316,7 +419,7 @@ var loadWord = function() {
         skipSentence = true;
         nextSentence();
     }
-    else if (currentSentence < 0) {
+    else if (currentWord < -1) {
         skipWord = true;
         previousSentence();
     }
@@ -339,7 +442,7 @@ var nextSentence = function() {
 }
 
 var loadSentence = function() {
-    currentWord = 0;
+    currentWord = -1;
     var skipSentence = false;
 
     if (currentSentence > (currentBook[currentPage][1].length - 1)) {
@@ -426,11 +529,11 @@ var loadBook = function() {
     });
 
     loadPage();
-
+    showHideFooter('hide');
 }
 
 $(document).ready(function() {
-    loadBook();
+    //loadBook();
     $("#book").change(function() {
         changeBook();
     });
@@ -452,6 +555,9 @@ $(document).ready(function() {
     $("#nextWord").click(function() {
         nextWord();
     });
+    $("#showfooter").click(function() {
+        showHideFooter('show');
+    });
 });
 
 </script>
@@ -462,17 +568,31 @@ $(document).ready(function() {
     <div class="arrow right" id="next"></div>
     <div id="container"></div>
     <div id="currentsentence"><a href="javascript:void(0);" class="sentnav left" id="previousSentence">&lt;</a> <a href="javascript:void(0);" class="wordnav left" id="previousWord">&lt;</a> <a href="javascript:void(0);" class="sentnav right" id="nextSentence">&gt;</a> <a href="javascript:void(0);" class="wordnav right" id="nextWord">&gt;</a> <span id="sentence">Creative Commons Book Reader</span> </div>
+    <div id="navigation"></div>
 </div>
-<div id="navigation"></div>
 <div id="footer">
     <form >
       <select id="book">
           <option value="sticksmasterpiece">Stick's Masterpiece (Brother's Whim)</option>
+          <option value="weareallanimals">We Are All Animals (Pratham Books)</option>
           <option value="welcometolife">Welcome to Life (ideonexus)</option>
       </select><br/>
-      <input type="button" value="Start Over" onclick="loadBook();" class="myButton" />
+      <input type="button" value="Load Book" onclick="loadBook();" class="myButton" />
       <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
       <p>Creative Commons books by <a href="http://brotherswhim.com/">Brothers Whim</a> and <a href="http://prathambooks.org/">Pratham Books</a> (<a href="https://www.scribd.com/collections/2300329/Creative-Commons-Originals">Pratham Scribd</a>).</p>
     </form>
+</div>
+<div id="optionscontainer"><a href="javascript:void(0);" id="showfooter">options</a></div>
 </body>
+<!--
+http://www.scribd.com/doc/76768351/We-Are-All-Animals-English
+http://www.scribd.com/doc/20421109/Listen-to-My-Body-English
+http://www.scribd.com/doc/262818085/Under-My-Bed-English-Hindi
+http://www.scribd.com/doc/267993135/The-Elephant-Bird-English
+http://www.scribd.com/doc/266236102/Wildlife-in-a-City-Pond-English
+http://www.scribd.com/doc/265403746/Goodnight-Tinku-English
+http://www.scribd.com/doc/264922008/Anaya-s-Thumb-English
+http://www.scribd.com/doc/8057729/Happy-Maths-1-English
+http://www.scribd.com/doc/76364291/Our-Wonderful-World-English
+-->
 </html>
