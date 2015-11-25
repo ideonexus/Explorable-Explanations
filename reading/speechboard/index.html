@@ -1,26 +1,65 @@
 <html>
 <head>
-<title>Cranky's Alphabet Board</title>
+<title>Speechboard</title>
 <style>
 body{
     font-family:helvetica,arial;
-}
-td{
-	width:60px;
-	height:60px;
-	line-height:60px;
-	text-align:center;
+    background-color: black;
+    color: lightgreen;
 }
 
-td,tr {
-	backgronud: #ffffff;
+table {
+	border: solid 3px green;
 }
+
+td{
+	width:100px;
+	height:100px;
+	line-height:100px;
+	text-align:center;
+	border: solid 2px green;
+	font-size: 2em;
+}
+
 td.selected {
-	background: #ff3300;
+	background-color: darkblue !important;
+	color: black;
 }
+
 tr.selected {
-	background: #cecece;
+	background-color: lightblue !important;
+	color: black;
 }
+
+.textinput
+{
+    font-size:50px;
+    width: 600px;
+    height: 70px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.credit {
+	text-align: center;
+}
+
+@media only screen and (max-width: 500px) {
+	td{
+		width:50px;
+		height:50px;
+		line-height:50px;
+		font-size: 1em;
+	}
+
+	.textinput
+	{
+	    width: 300px;
+	}
+}
+
+
 </style>
 <script>
 // delcare all our vars and functions in our own scope/closure so it doesn't
@@ -123,7 +162,7 @@ function nextSelectMode() {
 		}
 		// all other rows are just normal letter/number additions
 		else {
-			out.value += celldata[currentrow][currentcolumn].toLowerCase();
+			out.value += celldata[currentrow][currentcolumn].toUpperCase();
 		}
 		
 		// clear selections
@@ -159,17 +198,18 @@ function startRowSelect() {
 	selectanimation = setInterval(shiftrow, shift_delay_ms);
 }
 
-// send the output value to google tts and load in invisible iframe
-// to play text audio
+soundOn = true;
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
 function tts(){
-	var ttsurl = "http://translate.google.com/translate_tts?tl=en&q=" + out.value;
-	var userAgent = window.navigator.userAgent;
-	if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i) || userAgent.match(/iPod/i)) {
-		window.location = ttsurl;
-	}
-	else{
-		document.getElementById("voiceframe").src = ttsurl;
-	}
+	speakWord(out.value);
 	out.value="";
 }
 
@@ -207,13 +247,13 @@ window.addEventListener('load', function() {
 </head>
 
 <body>
-	<h2 align="center">Cranky's Alphabet Board</h2>
 	<table id ='grid' align="center" border=1 cellspacing=0 cellpadding=0>
 	</table>
-	<br />
-	<p align="center"><input type="text" name="output" id="output" value="" style="font-size:25px; width:700px;" READONLY /></p>
-	<iframe width="1px" height="1px" style="border:0px;" src="about:none" name="voiceframe" id="voiceframe"></iframe>
-	<p align="center">Click or press any key when the correct row is selected... then click or press any key again when the correct letter is selected.  If you are on an iphone or ipad, just touch anywhere on the screen to select the current row or column.  When you are finished, select "DONE" and it will speak it for you.</p>
+	<div class="credit">
+	<p><input type="text" name="output" id="output" value="" class="textinput" /></p>
+	<p>Press any key to select the highlighted row or character. Select "Done" to speak the word.<p>
+	<p>Credit to <a href="http://www.cranklin.com/alphabetboard/">Cranky's Alphabet Board</a>.</p>
+	</div>
 </body>
 
 </html>
