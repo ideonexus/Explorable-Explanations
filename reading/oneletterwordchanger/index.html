@@ -1,4 +1,307 @@
+<html>
+<head>
+<title>One Letter Word Changer</title>
+<style>
+    body {
+        background-color: darkgreen;
+        color: white;
+        margin: 0px;
+        padding: 0px;
+        font-family:helvetica,arial;
+    }
+
+    a {
+      color: lightgreen;
+      text-decoration: none;
+    }
+
+    select {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+    }
+
+    .letter {
+        width: 150px;
+        height: 150px;
+        font-size: 7em;
+        text-indent: 20%;
+    }
+
+    .invalid {
+        background-color: tomato;
+    }
+
+    #stage {
+        width: 100%;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+        top: 20%;
+    }
+
+    .footer {
+        width: 100%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        padding: 20px;
+        background-color: seagreen;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.arrow-up {
+    margin-bottom: 5px;
+    width: 0; 
+    height: 0; 
+    border-left: 75px solid transparent;
+    border-right: 75px solid transparent;
+    
+    border-bottom: 75px solid lightgreen;
+}
+
+.arrow-down {
+    margin-top: 5px;
+    width: 0; 
+    height: 0; 
+    border-left: 75px solid transparent;
+    border-right: 75px solid transparent;
+    
+    border-top: 75px solid lightgreen;
+}
+
+.inline {
+    display: inline-block;
+}
 
 
-http://www.montessorimom.com/phonetic-word-list/
+@media only screen and (max-height: 700px) {
+    #stage {
+        top: 5%;
+    }
+}
 
+</style>
+<script type='text/javascript' src='http://code.jquery.com/jquery-2.1.3.js'></script>
+<script>
+shortA = ["pan","bag","cat","man","bat","hat","pat","van","tap","fan","rat","mat","jam","map","can","fat","ham","mad","had","bad","pad","lad","rag","sat","ran","tax","has","lad","gap","wag","gap","gag","lap","rap","yap","gas","lag","dad","cab"," an"," as"," at","ban","tan","wax","was","yam","dam"," ax", " am","cam","cad","vat","tab","tag","fad","fax","ram","jab","lab","lax","sag","sap","sad","gab"];
+shortE = ["hen","ten","bed","net","pen","peg","men","leg","red","web","beg","fed","led","wet","let","pet","set","bet","get","yes","hem","yet","met","vet","wed","vex","den","keg","jet","gem","hex","jem"];
+shortI = ["tin","pig","kid","lid","nib","pin","pip","bib","wig","vim","win","dig","hid","hit","sit"," it","gig","bit","big","hit","bin","din","jig","nip","sip","lit","rid","tip","rim"," if"," in","rip"," is","did","dim","fit","him","his","kin","wit","dip","fin","lip","bid","fib","fig","hip","kit","nit","pit","rib","rig","sim","sin"];
+shortO = ["pot","top","mop","rot","dog","log","rod","pog","tog","cot","dot","hod","cod","rod","bog","hog","lot","not","nod","sob","hot","rob","hop","don"," on","got","pop","sod","sop","jog","jot","job","bot","cob","cog","cop","mob","pod","son","ton","tot"];
+shortU = ["jug","gun","hut","nut","mug","tub","bud","sun","cup","rug","bus","sum","bug","pup","tug","cub","nun","hug","rut","sup","pun","bun","fun","dug","run","gum","but"," up"," us","rub","mud","hum","cut","gut","hub","put","pub","pug","sub","sud"];
+
+var wordgroups = [];
+wordgroups["-a-(short a)"] = shortA;
+wordgroups["-e-(short e)"] = shortE;
+wordgroups["-i-(short i)"] = shortI;
+wordgroups["-o-(short o)"] = shortO;
+wordgroups["-u-(short u)"] = shortU;
+
+var currentWordGroup = shortA;
+
+var soundOn = true;
+
+var toggleSound = function() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+var changeWord = function() {
+    var word = $('#letterone').val() + $('#lettertwo').val() + $('#letterthree').val();
+    //If Word is not valid, highlight red
+    if ($.inArray(word, currentWordGroup) == -1) {
+        $(".letter").addClass("invalid");
+    } else {
+        $(".letter").removeClass("invalid");
+        speakWord(word);
+    }
+}
+
+
+var changeWordGroup = function() {
+    currentWordGroup = wordgroups[$('#wordgroup').val()];
+    var letterOneOptions = [];
+    var letterTwoOptions = [];
+    var letterThreeOptions = [];
+    //foreach word, split into letter array and push to options
+    for (var i = 0; i < currentWordGroup.length; i++) {
+        var letters = currentWordGroup[i].split('');
+        //Check if in array to prevent duplicates.
+        if ($.inArray(letters[0], letterOneOptions) == -1) {
+            letterOneOptions.push(letters[0]);
+        }
+        if ($.inArray(letters[1], letterTwoOptions) == -1) {
+            letterTwoOptions.push(letters[1]);
+        }
+        if ($.inArray(letters[2], letterThreeOptions) == -1) {        
+            letterThreeOptions.push(letters[2]);
+        }
+    }
+
+    //Sort Letters into Alphabetical Order
+    letterOneOptions.sort();
+    letterTwoOptions.sort();
+    letterThreeOptions.sort();
+
+    var option = '';
+    var selected = ' selected';
+    for (var i = 0; i < letterOneOptions.length; i++) {
+        option += '<option value="'+ letterOneOptions[i] + '"' + selected + '>' + letterOneOptions[i].toUpperCase() + '</option>';
+        selected = '';
+    }
+    $('#letterone').find('option').remove().end().append(option);
+
+    option = '';
+    selected = ' selected';
+    for (var i = 0; i < letterTwoOptions.length; i++) {
+        option += '<option value="'+ letterTwoOptions[i] + '"' + selected + '>' + letterTwoOptions[i].toUpperCase() + '</option>';
+        selected = '';
+    }
+    $('#lettertwo').find('option').remove().end().append(option);
+
+    option = '';
+    selected = ' selected';
+    for (var i = 0; i < letterThreeOptions.length; i++) {
+        option += '<option value="'+ letterThreeOptions[i] + '"' + selected + '>' + letterThreeOptions[i].toUpperCase() + '</option>';
+        selected = '';
+    }
+    $('#letterthree').find('option').remove().end().append(option);
+}
+
+var populateWordgroupSelector = function() {
+    var option = '';
+    for (var key in wordgroups) {
+       option += '<option value="'+ key + '">' + key + '</option>';
+    }
+    $('#wordgroup').append(option);
+    $('#wordgroup').change(function() {
+        changeWordGroup();
+    });
+}
+
+var previousLetter = function (element) {
+    var nextElement = $('#' + element + ' > option:selected').prev('option');
+    if (nextElement.length > 0) {
+        $('#' + element + ' > option:selected').removeAttr('selected').prev('option').attr('selected', 'selected');
+    } else { //Select last option
+        $('#' + element + ' > option:selected').removeAttr('selected');
+        $('#' + element + ' option:last').attr('selected', 'selected');
+    }
+    changeWord();
+}
+
+var nextLetter = function (element) {
+    var nextElement = $('#' + element + ' > option:selected').next('option');
+    if (nextElement.length > 0) {
+        $('#' + element + ' > option:selected').removeAttr('selected').next('option').attr('selected', 'selected');
+    } else { //Select first option.
+        $('#' + element + ' > option:selected').removeAttr('selected');
+        $('#' + element + ' option:first').attr('selected', 'selected');
+    }
+    changeWord();
+}
+
+$( document ).ready(function() {
+    populateWordgroupSelector();
+    changeWordGroup();
+    $(".letter").change(function() {
+        changeWord();
+    });
+    $("#letteroneup").click(function() {
+        previousLetter("letterone");
+    });
+    $("#letteronedown").click(function() {
+        nextLetter("letterone");
+    });
+    $("#letterthreeup").click(function() {
+        previousLetter("letterthree");
+    });
+    $("#letterthreedown").click(function() {
+        nextLetter("letterthree");
+    });
+});
+
+</script>
+
+</head>
+<body>
+<div id="stage">
+    <div class="inline">
+        <div class="arrow-up" id="letteroneup"></div>
+        <select id="letterone" class="letter"></select>
+        <div class="arrow-down" id="letteronedown"></div>
+    </div>
+    <select id="lettertwo" class="letter"></select>
+    <div class="inline">
+        <div class="arrow-up" id="letterthreeup"></div>
+        <select id="letterthree" class="letter"></select>
+        <div class="arrow-down" id="letterthreedown"></div>
+    </div>
+</div>
+
+<div class="footer">
+<form>
+    <p><select id="wordgroup"></select></p>
+    <p><input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /></p>
+    <p>Word Groups from <a href="http://www.montessorimom.com/phonetic-word-list/">Montessori Mom Phonentic Word List</a></p>
+</form>
+</div>
+
+</body>
+</html>
