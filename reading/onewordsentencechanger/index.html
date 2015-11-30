@@ -1,0 +1,359 @@
+<html>
+<head>
+<title>One Letter Word Changer</title>
+<style>
+    body {
+        background-color: darkgreen;
+        color: white;
+        margin: 0px;
+        padding: 0px;
+        font-family:helvetica,arial;
+    }
+
+    a {
+      color: lightgreen;
+      text-decoration: none;
+    }
+
+    select {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+    }
+
+    .letter {
+        width: 150px;
+        height: 150px;
+        font-size: 7em;
+        text-indent: 20%;
+    }
+
+    .invalid {
+        background-color: tomato;
+    }
+
+    .container {
+        width: 100%;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+        top: 10%;
+        font-size: 4em;
+    }
+
+    #stage {
+    }
+
+    .footer {
+        width: 100%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        padding: 20px;
+        background-color: seagreen;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.arrow-up {
+    margin: auto;
+    margin-bottom: 15px;
+    width: 0; 
+    height: 0; 
+    border-left: 175px solid transparent;
+    border-right: 175px solid transparent;
+    
+    border-bottom: 50px solid lightgreen;
+}
+
+.arrow-down {
+    margin: auto;
+    margin-top: 25px;
+    width: 0; 
+    height: 0; 
+    border-left: 175px solid transparent;
+    border-right: 175px solid transparent;
+    
+    border-top: 50px solid lightgreen;
+}
+
+.inline {
+    display: inline-block;
+}
+
+.center {
+    text-align: center;
+}   
+
+.imageselector, .imagemenu {
+    display: none;
+}
+
+.imageselector {
+    text-align: center;
+    z-index: 10;
+    background-color: purple;
+    width: 90%;
+    height: 90%;
+    top: 5%;
+    left: 5%;
+    position: absolute;
+    margin: auto;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+#wordgroupmenu {
+    font-size: 2em;
+}
+
+#currentimage {
+    margin-top: 15px
+}
+
+.wordimage {
+    margin: 5px;
+}
+
+.show {
+    display: inline-block;
+}
+
+@media only screen and (max-height: 700px) {
+    #stage {
+        top: 5%;
+    }
+}
+
+</style>
+<script type='text/javascript' src='http://code.jquery.com/jquery-2.1.3.js'></script>
+<script>
+var animals = ["beetle","bird","cat","chick","cow","crab","dog","dolphin","elephant","fish","fox","frog","giraffe","goat","horse","jellyfish","lion","lobster","mole","mouse","octopus","orca","owl","pig","rabbit","rat","seahorse","seal","shark","sheep","snail","snake","squid","starfish","tiger","whale","wolf","worm","zebra"];
+
+var body = ["ear","eyes","foot","hand","head","heart","leg","mouth","nose","toes"];
+
+var clothes = ["blouse","boots","coat","dress","gloves","hat","jacket","jeans","jewelry","mittens","pants","raincoat","scarf","shirt","shoes","shorts","skirt","socks","sweater","sweat shirt","tie","underwear"];
+
+var colors = ["beige","black","blue","brown","colors","green","grey","light blue","light green","lilac","maroon","orange","pink","purple","red","white","yellow"];
+
+var concepts = ["above","around","behind","below","beside","big","count","different","down","empty","fast","few","front","full","in","many","middle","no","off","on","out","same","slow","small","to","under","up","yes"];
+
+var foods = ["apples","bananas","bread","burger","cake","carrot","cheese","chicken","cookie","corn","dates","eggs","fish","fries","fruit","fruit salad","grapes","ham","honey","icecream","jam","kiwi","lemon","mango","milk","nuts","olive","orange","pineapple","pizza","raspberry","rice","salad","sandwich","sausage","soda","strawberries","tangerine","tomato","vegetables","watermelon","yogurt","zucchini"];
+
+var instruments = ["bells","castanet","cymbal","drum","guitar","piano","shaker","tambourine","triangle","trumpet","violin"];
+
+var nouns = ["baby","ball","ballon","bike","boat","book","box","boy","brush","can","car","chair","children","circletime","cup","door","flower","game","girl","house","key","knife","pan","plate","potty","puzzle","ring","sand","scissors","spoon","story","sun","table","teddy","tree","umbrella","van"];
+
+var occupations = ["actor","architect","artist","athlete","baker","barista","builder","bus driver","butcher","carer","chef","computer technician","dentist","doctor","dressmaker","fireman","florist","garbage collector","gardener","hairdresser","jeweller","mechanic","musician","nurse","pilot","police officer","singer","soldier","teacher"];
+
+var verbs = ["brush","clean","dance","drink","eat","hop","jump","listen","paint","play","puton","read","run","sing","skip","sleep","speak","swim","takeoff","walk","wash","watch","work","write","zip"];
+
+var wordgroups = [];
+wordgroups["animals"] = animals;
+wordgroups["body"] = body;
+wordgroups["clothes"] = clothes;
+wordgroups["colors"] = colors;
+wordgroups["concepts"] = concepts;
+wordgroups["foods"] = foods;
+wordgroups["instruments"] = instruments;
+wordgroups["nouns"] = nouns;
+wordgroups["occupations"] = occupations;
+wordgroups["verbs"] = verbs;
+
+var sentences = [
+    "I saw a [animals] at the zoo."
+    ,"The [occupations] helps us."
+    ,"We ate [foods] for lunch."
+    ,"The person put on [clothes]."
+    ,"A [color] balloon floats in the air."
+    ,"I listened to the [instruments] play."
+    ,"There is the [nouns]."
+    ,"I like to [verbs]."
+    ,"Here is my [body]."
+];
+
+var currentSentence = sentences[0];
+var currentWordGroupKey = "animals";
+var currentWord = wordgroups[currentWordGroupKey][0];
+
+var soundOn = true;
+
+var toggleSound = function() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+var changeWord = function(key, wordstring) {
+    currentSentence = $('#sentence').val().replace('[' + key + ']', wordstring);
+    $('#stage').html(currentSentence);
+    var currentimage = '<img src="words/' + key + '/' + wordstring.replace(" ","") + '.png" />'
+    $('#currentimage').html(currentimage);
+
+    speakWord(currentSentence);
+}
+
+var selectWord = function (that) {
+    $('.imageselector').removeClass("show");
+    var key = $(that).attr('data-key');
+    currentWord = $(that).attr('data-word');
+    changeWord(key,currentWord);
+}
+
+var showImageSelector = function (that) {
+    $('.imageselector').removeClass("show");
+    var key = $(that).attr('data-divid');
+    $('#selector_' + key).addClass("show");
+}
+
+var changeSentence = function() {
+    $('.imagemenu').removeClass("show");
+    currentSentence = $('#sentence').val();
+    var wordArray = currentSentence.replace(".","").split(' ');
+    for (var i = 0; i < wordArray.length; i++) {
+        if (wordArray[i].substring(0, 1) == '[') {
+            currentWordGroupKey = wordArray[i].replace("[","").replace("]","");
+            $('#menu_' + currentWordGroupKey).addClass("show");
+            currentWord = wordgroups[currentWordGroupKey][0];
+        }
+    }
+    changeWord(currentWordGroupKey,currentWord);
+}
+
+var populateSentenceSelector = function() {
+    var option = '';
+    for (var i = 0; i < sentences.length; i++) {
+       option += '<option value="'+ sentences[i] + '">' + sentences[i] + '</option>';
+    }
+    $('#sentence').append(option);
+    $('#sentence').change(function() {
+        changeSentence();
+    });
+}
+
+var populateImageDivs = function () {
+    var imagedivs = '';
+    var menudivs = '';
+    for (var key in wordgroups) {
+        imagedivs += '<div id="selector_' + key + '" class="imageselector">';
+        menudivs += '<a id="menu_' + key + '" href="javascript:void(0);" data-divid="' + key + '" class="imagemenu">' + key + '</a> ';
+        for (var i = 0; i < wordgroups[key].length; i++) {
+            var wordstring = wordgroups[key][i];
+            imagedivs += '<div class="inline center wordimage" data-key="' + key + '" data-word="' + wordstring + '"><img src="words/' + key + '/' + wordstring.replace(" ","") + '.png" /><br />' + wordstring + '</div>';
+        }
+        imagedivs += '</div>';
+    }
+    $('#wordgroups').html(imagedivs);
+    $('#wordgroupmenu').html(menudivs);
+
+    $('.imagemenu').click(function() {
+        showImageSelector(this);
+    });
+    $('.wordimage').click(function() {
+        selectWord(this);
+    });
+}
+
+var previousWord = function (element) {
+    wordarray = wordgroups[currentWordGroupKey];
+    currentWord = wordarray[($.inArray(currentWord, wordarray) - 1 + wordarray.length) % wordarray.length];
+    changeWord(currentWordGroupKey, currentWord);
+}
+
+var nextWord = function (element) {
+    wordarray = wordgroups[currentWordGroupKey];
+    currentWord = wordarray[($.inArray(currentWord, wordarray) + 1) % wordarray.length];
+    changeWord(currentWordGroupKey, currentWord);
+}
+
+$( document ).ready(function() {
+    populateSentenceSelector();
+    populateImageDivs();
+    changeSentence();
+    $(".sentence").change(function() {
+        changeSentence();
+    });
+    $("#wordup").click(function() {
+        previousWord();
+    });
+    $("#worddown").click(function() {
+        nextWord();
+    });
+});
+
+</script>
+
+</head>
+<body>
+<div class="container">
+    <div class="arrow-up" id="wordup"></div>
+    <div id="stage"></div>
+    <div class="arrow-down" id="worddown"></div>
+    <div id="currentimage"></div>
+</div>
+
+<div class="footer">
+<form>
+    <div id="wordgroupmenu"></div>
+    <p><select id="sentence"></select></p>
+    <p><input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /></p>
+    <p>BY-NC-SA Creative Commons pictures by <a href="http://www.senteacher.org/worksheet/118/PictureLottoBingoCreator.html">SEN Teacher</a>.</p>
+</form>
+</div>
+<div id="wordgroups"></div>
+</body>
+</html>
