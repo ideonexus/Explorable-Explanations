@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Simon Says</title>
+<style>
+html {
+	height: 100%;
+}
+body {
+	font-family: Arial, serif;
+	color: #333;
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	-o-user-select: none;
+	user-select: none;
+}
+
+h1 {
+	margin: 1em 0 2em;
+	text-align: center;
+}
+
+p[data-action="lose"] {
+	display: none;
+}
+
+.active {
+	opacity: 1 !important;
+}
+
+.clearfix {
+	width: 100%;
+	clear: both;
+}
+
+.container {
+	width: 305px;
+}
+
+.simon {
+	position: absolute; 
+	top: 0; 
+	left: 0;
+	background: #fff;
+	width: 100%;
+	height: 100%;
+}
+
+.tile {
+	opacity: 0.6;
+	-webkit-transition: opacity 250ms ease;
+	-moz-transition: opacity 250ms ease;
+	-ms-transition: opacity 250ms ease;
+	-o-transition: opacity 250ms ease;
+	transition: opacity 250ms ease;
+}
+
+.tile.lit {
+	opacity: 1;
+}
+
+/*
+.red, .blue, .yellow, .green {
+	height: 290px;
+	position: absolute;
+	text-indent: 10000px;
+}
+*/
+
+.red:hover, .blue:hover, .yellow:hover, .green:hover {
+
+}
+
+.red:hover {
+	border-left: 2px solid black;
+	border-bottom: 2px solid black;
+}
+.blue:hover {
+	border-right: 2px solid black;
+	border-bottom: 2px solid black;
+}
+.yellow:hover {
+	border-right: 2px solid black;
+	border-top: 2px solid black;
+}
+.green:hover {
+	border-left: 2px solid black;
+	border-top: 2px solid black;
+}
+
+.red, .blue, .yellow, .green {
+	width: 50%;
+	height: 49.5%;
+}
+
+.red {
+	background: #FF5643;
+	float: right;
+}
+
+.blue {
+	background: dodgerblue;
+}
+
+.yellow {
+	background: #FEEF33;
+}
+
+.green {
+	background: #BEDE15;
+	float: right;
+}
+
+.game-info button, .game-start button {
+	width: 5em;
+	box-sizing: border-box;
+	font-size: 1.4em;
+	-webkit-border-radius: 10px 10px 10px 10px;
+	border-radius: 10px 10px 10px 10px;
+	background: #6DABE8;
+	border: none;
+	padding: 0.3em 0.6em;
+}
+
+.game-start {
+	float: right;
+}
+
+.game-info button:hover, .game-start button:hover {
+	background: #78BCFF;
+}
+
+.optionradios {
+	text-align: left;
+}
+
+.game-options h3 {
+	margin-bottom: 0px;
+}
+
+.game-options input[type="radio"] {
+	margin-right: 10px;
+}
+
+#attribution { 
+	width: 100%;
+}
+
+.hoverable:hover {
+	cursor: pointer;
+}
+
+.footercontainer {
+	width:300px;
+	margin: 0 auto;
+}
+
+.fullwidth {
+	width: 100%;
+}
+
+#footer {
+	background-color: lightblue;
+	padding: 10px;
+	position: absolute;
+	bottom: 5px;
+	width: 320px;
+	clear: both;
+	text-align: center;
+    border-radius: 50px;
+}
+
+#optionscontainer {
+    display: none;
+    position: relative;
+    margin: 0 auto;
+    width: 170px;
+    z-index: 30;
+    padding: 10px;
+    background-color: lightblue;
+    border: 5px solid white;
+    text-align:center;
+    border-radius: 125px;
+}
+
+#showfooter {
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+</style>
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+var simon = {
+	sequence: [],
+	copy: [],
+	round: 0,
+	active: true,
+	mode: 'normal',
+
+	init: function() {
+		var that = this;
+		$('[data-action=start]').on('click', function() {
+			that.startGame();
+		});
+		$('input[name=mode]').on('change', function(e) {
+			that.changeMode(e);
+		});
+	},
+
+	startGame: function() {
+		showHideFooter('hide');
+		this.sequence = [];
+		this.copy = [];
+		this.round = 0;
+		this.active = true;
+		$('p[data-action="lose"]').hide();
+		this.newRound();
+	},
+
+	// add a new color to the sequence and animate it to the user
+	newRound: function() {
+		$('[data-round]').text(++this.round);
+		this.sequence.push(this.randomNumber());
+		this.copy = this.sequence.slice(0);
+		this.animate(this.sequence);
+	},
+
+	// the game is controlled primarily through this function, along with checkLose().
+	// Since the player can never actually "win", we just listen for clicks as the user 
+	// plays the sequence and each time, check if they lost
+	registerClick: function(e) {
+		var desiredResponse = this.copy.shift();
+		var actualResponse = $(e.target).data('tile');
+		this.active = (desiredResponse === actualResponse);
+		this.checkLose();
+	},
+
+	// three possible situations:
+	// 1. The user clicked the wrong color (end the game)
+	// 2. The user entered the right color, but is not finished with the sequence (do nothing)
+	// 3. The user entered the right color and just completed the sequence (start a new round)
+	checkLose: function() {
+		// copy array will be empty when user has successfully completed sequence
+		if (this.copy.length === 0 && this.active) {
+			this.deactivateSimonBoard();
+			this.newRound();
+
+		} else if (!this.active) { // user lost
+			this.deactivateSimonBoard();
+			this.endGame();
+		}
+	},
+
+	endGame: function() {
+		// notify the user that they lost and change the "round" text to zero
+		$('p[data-action=lose]').show();
+		$($('[data-round]').get(0)).text('0');
+	},
+
+	changeMode: function(e) {
+		this.mode = e.target.value;
+	},
+
+	/*----------------- Helper functions -------------------*/
+
+	// allow user to interact with the game
+	activateSimonBoard: function() {
+		var that = this;
+		$('.simon')
+			.on('click', '[data-tile]', function(e) {
+				that.registerClick(e);
+			})
+
+			.on('mousedown', '[data-tile]', function(){
+				$(this).addClass('active');
+				that.playSound($(this).data('tile'));
+			})
+
+			.on('mouseup', '[data-tile]', function(){
+				$(this).removeClass('active');
+			});
+
+		$('[data-tile]').addClass('hoverable');
+	},
+
+	// prevent user from interacting until sequence is done animating
+	deactivateSimonBoard: function() {
+		if (this.mode !== 'free-board') {
+			$('.simon')
+				.off('click', '[data-tile]')
+				.off('mousedown', '[data-tile]')
+				.off('mouseup', '[data-tile]');
+
+			$('[data-tile]').removeClass('hoverable');
+		}
+	},
+
+	animate: function(sequence) {
+		var i = 0;
+		var that = this;
+		var interval = setInterval(function() {
+			that.playSound(sequence[i]);
+			that.lightUp(sequence[i]);
+
+			i++;
+			if (i >= sequence.length) {
+				clearInterval(interval);
+				that.activateSimonBoard();
+			}
+		}, 600);
+	},
+
+	lightUp: function(tile) {
+		if (this.mode !== 'sound-only') {
+			var $tile = $('[data-tile=' + tile + ']').addClass('lit');
+			window.setTimeout(function() {
+				$tile.removeClass('lit');
+			}, 300);
+		}
+
+	},
+
+	// we are embedding the sound file on the fly for the following benefits:
+	// 1. ability to play multiple sounds in a row without waiting for the first to complete,
+	// 2. <audio> tag provides our fallbacks (ogg, mp3).
+	playSound: function(tile) {
+		if (this.mode !== 'light-only') {
+			var audio = $('<audio autoplay></audio>');
+			audio.append('<source src="sounds/' + tile + '.ogg" type="audio/ogg" />');
+			audio.append('<source src="sounds/' + tile + '.mp3" type="audio/mp3" />');
+			$('[data-action=sound]').html(audio);
+		}
+	},
+
+	randomNumber: function() {
+		// between 1 and 4
+		return Math.floor((Math.random()*4)+1);
+	}
+};
+
+var showHideFooter = function(showhide) {
+    if (showhide == 'hide') {
+        $('#footer').hide(500);
+        $("#optionscontainer").css('top', ($(window).height()/2.5) + "px");
+        $('#optionscontainer').show(500);
+    } else {
+        $('#footer').show(500);
+        $('#optionscontainer').hide(500);
+    }
+}
+
+$(document).ready(function() {
+	simon.init();
+    $("#showfooter").click(function() {
+        showHideFooter('show');
+    });
+});
+</script>
+</head>
+<body>
+<div class="simon">
+	<div class="tile red" data-tile="1"></div>
+	<div class="tile blue" data-tile="2"></div>
+	<div class="tile green" data-tile="4"></div>
+	<div class="tile yellow" data-tile="3"></div>
+</div>
+<div data-action="sound"></div>
+<div id="footer">
+	<div class="footercontainer">
+		<div class="game-start">
+			<button data-action="start" >Start</button>
+		</div>
+		<div class="game-options" id="gameoptions">
+			<h3>Game Options:</h3>
+			<div class="optionradios">
+				<input type="radio" name="mode" value="normal" checked>Normal<br>
+				<input type="radio" name="mode" value="sound-only">Sound Only<br>
+				<input type="radio" name="mode" value="light-only">Light Only<br>
+				<input type="radio" name="mode" value="free-board">Free board
+			</div>
+		</div>
+	</div>
+	<div id="attribution">
+		Built on <a href="https://github.com/kellyk/javascript-simon">Javascript Simon</a> by <a href="http://kellyking.me">Kelly King</a>
+	</div>
+</div>
+<div id="optionscontainer">
+	<div class="game-info">
+		<h2>Round: <span data-round="0">0</span></h2>
+		<button data-action="start" >Restart</button>
+		<p data-action="lose">Sorry, you lost after <span data-round="0"></span> rounds!</p>
+	</div>
+	<a href="javascript:void(0);" id="showfooter">options</a>
+</div>
+</body>
+</html>
