@@ -191,6 +191,31 @@ p[data-action="lose"] {
     font-size: 1.5em;
 }
 
+.numberinput {
+	display: none;
+	width: 100%;
+	text-align: center;
+	position: relative;
+	top: 100px;
+}
+
+.number-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:90%;
+   font-size:50px;
+   font-weight: bold;
+}
+
 </style>
 <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script>
@@ -212,6 +237,11 @@ var simon = {
 	},
 
 	startGame: function() {
+		if (this.mode !== 'numbers') {
+			$('.numberinput').hide();
+		} else {
+			$('.numberinput').show();
+		}
 		showHideFooter('hide');
 		this.sequence = [];
 		this.copy = [];
@@ -234,7 +264,12 @@ var simon = {
 	// plays the sequence and each time, check if they lost
 	registerClick: function(e) {
 		var desiredResponse = this.copy.shift();
-		var actualResponse = $(e.target).data('tile');
+		var actualResponse;
+		if (this.mode !== 'numbers') {
+			actualResponse = $(e.target).data('tile');
+		} else {
+			actualResponse = parseInt($('#numbersequence').val().split('').pop());
+		}
 		this.active = (desiredResponse === actualResponse);
 		this.checkLose();
 	},
@@ -248,7 +283,6 @@ var simon = {
 		if (this.copy.length === 0 && this.active) {
 			this.deactivateSimonBoard();
 			this.newRound();
-
 		} else if (!this.active) { // user lost
 			this.deactivateSimonBoard();
 			this.endGame();
@@ -284,6 +318,10 @@ var simon = {
 				$(this).removeClass('active');
 			});
 
+		$('#numbersequence').off('keyup').on('keyup', function(e){
+			that.registerClick(e);
+		});
+
 		$('[data-tile]').addClass('hoverable');
 	},
 
@@ -302,16 +340,34 @@ var simon = {
 	animate: function(sequence) {
 		var i = 0;
 		var that = this;
-		var interval = setInterval(function() {
-			that.playSound(sequence[i]);
-			that.lightUp(sequence[i]);
+		if (this.mode !== 'numbers') {
+			var interval = setInterval(function() {
+				that.playSound(sequence[i]);
+				that.lightUp(sequence[i]);
 
-			i++;
-			if (i >= sequence.length) {
-				clearInterval(interval);
-				that.activateSimonBoard();
-			}
-		}, 600);
+				i++;
+				if (i >= sequence.length) {
+					clearInterval(interval);
+					that.activateSimonBoard();
+				}
+			}, 600);
+		} else {
+			$('#numbersequence').val('');
+			var interval = setInterval(function() {
+				$('#numbersequence').val($('#numbersequence').val() + sequence[i]);
+
+				i++;
+				if (i >= sequence.length) {
+					clearInterval(interval);
+
+					setTimeout(function() {
+						$('#numbersequence').val('');
+						$('#numbersequence').focus();
+						that.activateSimonBoard();
+					}, 600);
+				}
+			}, 600);			
+		}
 	},
 
 	lightUp: function(tile) {
@@ -337,8 +393,13 @@ var simon = {
 	},
 
 	randomNumber: function() {
-		// between 1 and 4
-		return Math.floor((Math.random()*4)+1);
+		if (this.mode !== 'numbers') {
+			// between 1 and 4
+			return Math.floor((Math.random()*4)+1);
+		} else {
+			// between 0 and 9
+			return Math.floor((Math.random()*10));			
+		}
 	}
 };
 
@@ -380,13 +441,17 @@ $(document).ready(function() {
 				<input type="radio" name="mode" value="normal" checked>Normal<br>
 				<input type="radio" name="mode" value="sound-only">Sound Only<br>
 				<input type="radio" name="mode" value="light-only">Light Only<br>
-				<input type="radio" name="mode" value="free-board">Free board
+				<input type="radio" name="mode" value="free-board">Free board<br>
+				<input type="radio" name="mode" value="numbers">numbers
 			</div>
 		</div>
 	</div>
 	<div id="attribution">
-		Built on <a href="https://github.com/kellyk/javascript-simon">Javascript Simon</a> by <a href="http://kellyking.me">Kelly King</a>
+		Built on <a href="https://github.com/kellyk/javascript-simon">Javascript Simon</a> by <a href="http://kellyking.me">Kelly King</a>.
 	</div>
+</div>
+<div class="numberinput">
+	<input class="number-field" type="number" id="numbersequence"  />
 </div>
 <div id="optionscontainer">
 	<div class="game-info">
