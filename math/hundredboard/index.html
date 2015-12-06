@@ -4,6 +4,7 @@
     body {
         background-color: darkgreen;
         color: black;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     }
 
     a {
@@ -55,7 +56,6 @@
     span { 
       font-size: 1.5em;
       font-weight: bold;
-      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
       color: black;
       position: relative;
       top: 25%;
@@ -164,6 +164,52 @@
   top:1px;
 }
 
+.formelements {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+input, select
+{
+    font-size:28px;
+    font-weight: bold;
+}
+
+#factor {
+    width: 100px;
+}
+
+select {
+    -webkit-appearance: none;
+    width: 300px !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:30px;
+}
+
+#factorfields {
+    display: none;
+    font-size: 28px;
+}
 </style>
 
 <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
@@ -229,10 +275,119 @@ var winAnimation = function() {
     }, 5000);
 }
 
+// Make top +1 greater than what you want
+// to avoid having to add +1 to all the loops
+// and random number calls below.
+var currentGame = "wolffence";
+var numberRangeBottom = 1;
+var numberRangeTop = 101;
+var numbersToGuess = [];
+var numbersGuessed = []
+
+var getFactors = function(factor) {
+  if (factor != 1) {
+    for (var i = numberRangeBottom; i < numberRangeTop; i++) {
+      if ((i % factor) == 0) {
+          numbersToGuess.push(i);
+      }
+    }
+  } else {
+    for (var i = numberRangeBottom; i < numberRangeTop; i++) {
+      if ((i % 2) == 1) {
+          numbersToGuess.push(i);
+      }
+    }
+  }
+}
+
+var changeGame = function() {
+    currentGame = $('#game').val();
+    numbersToGuess = [];
+    if (currentGame == "factors") {
+      $('#factorfields').show();
+    } else {
+      $('#factorfields').hide();
+    }
+
+    switch(currentGame) {
+        case "wolffence":
+            numbersToGuess.push(Math.floor(Math.random()*numberRangeTop));
+            break;
+        case "even":
+            getFactors(2);
+            break;
+        case "odd":
+            getFactors(1);
+            break;
+        case "factors":
+            getFactors(parseInt($("#factor").val()));
+            break;
+        default:
+            alert("You should never see this message.");
+    }
+
+    buildNumberBlocks();
+}
+
+var checkForWinConditions = function(guess) {
+  if ($.inArray(guess,numbersToGuess) != -1) {
+    numbersGuessed.push(guess);
+    switch(currentGame) {
+        case "wolffence":
+            readSentence(guess + " is the right number!");
+            break;
+        case "even":
+            readSentence(guess + " is an even number!");
+            break;
+        case "odd":
+            readSentence(guess + " is an odd number!");
+            break;
+        default:
+            readSentence(guess + " is a factor of " + $("#factor").val() + "!");
+    }
+    
+    if (numbersGuessed.length == numbersToGuess.length) {
+      if (currentGame != "wolffence") {
+          readSentence("You found all the numbers!");
+      }
+      winAnimation();
+    }
+    
+  } else { // else it's a miss
+    if (currentGame == "wolffence") {
+      if (numbersToGuess[0] > guess) {
+        readSentence("The number is greater than " + guess);
+        for (var i = numberRangeBottom; i < guess; i++) { 
+          //Loop through all numbers less-than and eliminate
+          $("#" + i).children("span").addClass("eliminated");
+          $("#" + i).addClass("eliminated");
+          $("#" + i).parents("li").addClass("eliminated");
+        }
+      } 
+      else {
+        readSentence("The number is less than " + guess);
+        for (var i = (guess + 1); i < numberRangeTop; i++) { 
+          //Loop through all numbers greater-than and eliminate
+          $("#" + i).children("span").addClass("eliminated");
+          $("#" + i).addClass("eliminated");
+          $("#" + i).parents("li").addClass("eliminated");
+        }
+      }
+    } else {
+      $("#" + guess).children("span").removeClass("guessed");
+      $("#" + guess).removeClass("guessed");
+      $("#" + guess).parents("li").removeClass("guessed");
+
+      $("#" + guess).children("span").addClass("eliminated");
+      $("#" + guess).addClass("eliminated");
+      $("#" + guess).parents("li").addClass("eliminated");
+    }
+  }
+}
+
 var buildNumberBlocks = function() {
+    numbersGuessed = [];
     var numbers = [];
-    var numberRangeBottom = 1;
-    var numberRangeTop = 101;
     var squareRoot = Math.floor(Math.sqrt(numberRangeTop - numberRangeBottom));
 
     var output = "<ol>";
@@ -249,10 +404,10 @@ var buildNumberBlocks = function() {
     $("#container").html(output);
 
     var guess = "";
-    var numberToGuess = Math.floor(Math.random()*numberRangeTop);
+    //var numberToGuess = Math.floor(Math.random()*numberRangeTop);
 
     $("li").click(function() {
-      if ($(this).children("span").hasClass("eliminated") === false) {        
+      if ($(this).children("span").hasClass("eliminated") === false && $(this).children("span").hasClass("guessed") === false) {        
         guess = parseInt($(this).children("span").html());
         speakWord(guess);
 
@@ -260,42 +415,23 @@ var buildNumberBlocks = function() {
         $(this).children("span").addClass("guessed");
         $(this).addClass("guessed");
         
-        if (guess === numberToGuess) {
-          readSentence("!!! " + guess + " !!!");
-          winAnimation();
-        }
-        // else it's a miss
-        else { 
-          if (numberToGuess > guess) {
-            readSentence("The number is greater than > " + guess);
-            for (var i = numberRangeBottom; i < guess; i++) { 
-              //Loop through all numbers less-than and eliminate
-              $("#" + i).children("span").addClass("eliminated");
-              $("#" + i).addClass("eliminated");
-              $("#" + i).parents("li").addClass("eliminated");
-            }
-          } 
-          else {
-            readSentence("The number is less than < " + guess);
-            for (var i = (guess + 1); i < numberRangeTop; i++) { 
-              //Loop through all numbers greater-than and eliminate
-              $("#" + i).children("span").addClass("eliminated");
-              $("#" + i).addClass("eliminated");
-              $("#" + i).parents("li").addClass("eliminated");
-            }
-          }
-        }
+        checkForWinConditions(guess);
       }
     });
 
-    winAnimation();
+    //winAnimation();
 }
 
 $(document).ready(function() {
-    buildNumberBlocks();
-    $("#wordgroup").change(function() {
-        changeWordArray();
+    $("#game").change(function() {
+        changeGame();
     });
+
+    $("#factor").change(function() {
+        changeGame();
+    });
+
+    changeGame();
 });
 
 </script>
@@ -303,9 +439,22 @@ $(document).ready(function() {
 <body>
 <div id="container"></div>
 <div id="footer">
-    <h1 id="sentence">Wolf Fence Number-Guessing Game</h1>
-    <form >
-      <input type="button" value="New Game" onclick="buildNumberBlocks();" class="myButton" />
+    <h1 id="sentence">Hundred Board</h1>
+    <form>
+      <div class="formelements">
+        Game:
+        <select id="game" class="form-field">
+          <option value="wolffence">Wolf-Fence Number-Guessing Game</option>
+          <option value="even">Find Even Numbers</option>
+          <option value="odd">Find Odd Numbers</option>
+          <option value="factors">Find Factors of:</option>
+        </select>
+        <span id="factorfields">
+          <input type="number" id="factor" value="10" class="form-field" />
+        </span>
+      </div>
+      <input type="button" value="New Game" onclick="changeGame();" class="myButton" />
+      <input type="button" value="Show Answers" onclick="showAnswers();" class="myButton" />
       <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
     </form>
 </div>
