@@ -40,6 +40,10 @@
         width: 15%;
     }
 
+    .baseCount {
+        font-size: 2em;
+    }
+
     .numberImage, .numberAdjustor {
         width: 24.75%;
         text-align: center;
@@ -200,6 +204,10 @@ var clearBlocks = function() {
     $('#c100').html('');
     $('#c10').html('');
     $('#c1').html('');    
+    $('#v1000').html('0000');
+    $('#v100').html('000');
+    $('#v10').html('00');
+    $('#v1').html('0');    
 }
 
 var generateNumber = function() {
@@ -225,6 +233,7 @@ var buildBlockString = function() {
                 //tempNumber -= val;
             }
             $('#c' + val).html(htmlString);
+            $('#v' + val).html(valDecrement);
             tempNumber -= valDecrement;
         }
     }
@@ -273,18 +282,22 @@ $(document).ready(function() {
 <div>
     <div id="thousands" class="numberAdjustor">
         <input type='button' value='-' class='decrement' onclick="decrement(1000);" />
+        <span id="v1000" class="baseCount"></span>
         <input type='button' value='+' class='increment' onclick="increment(1000);" />
     </div>
     <div id="hundreds" class="numberAdjustor">
         <input type='button' value='-' class='decrement' onclick="decrement(100);" />
+        <span id="v100" class="baseCount"></span>
         <input type='button' value='+' class='increment' onclick="increment(100);" />
     </div>
     <div id="tens" class="numberAdjustor">
         <input type='button' value='-' class='decrement' onclick="decrement(10);" />
+        <span id="v10" class="baseCount"></span>
         <input type='button' value='+' class='increment' onclick="increment(10);" />
     </div>
     <div id="ones" class="numberAdjustor">
         <input type='button' value='-' class='decrement' onclick="decrement(1);" />
+        <span id="v1" class="baseCount"></span>
         <input type='button' value='+' class='increment' onclick="increment(1);" />
     </div>
 </div>
