@@ -1,0 +1,133 @@
+
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Simple Music Syntheziser Toy</title>
+    <meta charset="utf-8" />
+    <style>
+        html, body { margin: 0; padding: 0; border: 0; }
+        #c { display: block; }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="jQuery.js"></script>
+<label for="song">Math Music Magik Input Field</label>
+<input id="song" style="width: 100%; height: 40px; font-size: 200%">
+<a
+        style="font-size: 300%; text-decoration: none; padding: 20px; background: #adff2f; margin: 30px; display: inline-block; font-family: sans-serif"
+        href="javascript:play()">
+    PLAY >>
+</a>
+<label for="len">Song Length in Samples (10s = 80000) </label> <input id="len" style="" value="10000"><br/>
+
+&nbsp; <a href="javascript:sample(0)"> [ Glitch Pop] </a>
+&nbsp; <a href="javascript:sample(1)"> [ Glitch Step ] </a>
+&nbsp; <a href="javascript:sample(2)"> [ Glitch Dub ] </a>
+&nbsp; <a href="javascript:sample(3)"> [ Sample: Snare ] </a>
+&nbsp; <a href="javascript:sample(4)"> [ Sample: Outer Space Radio] </a>
+&nbsp; <a href="javascript:sample(5)"> [ Imperial Math] </a>
+
+<canvas id="c"></canvas>
+
+
+<br/>
+<br/>
+<br/>
+
+<pre style="font-size: 200%">
+// p01 140 byte synthesizer
+// usage: synth('127 * Math.sin(t / 1000)')
+
+function synth(sFunction) {
+    var waveData ='RIFF_oO_WAVEfmt '+atob('EAAAAAEAAQBAHwAAQB8AAAEACAA')+'data'
+    for(var t= 0; ++t<(1<<17);) {
+        waveData +=String.fromCharCode(eval(sFunction)&255);
+    }
+    new Audio( 'data:audio/wav;base64,'+btoa( waveData  ) ).play();
+    oAudio.play();
+}
+</pre>
+
+
+
+<script>
+
+    var aAudioElements = [];
+    var $song = $('#song');
+    var $songLen = $('#len');
+
+    function synth(sFunction, iLen) {
+        c.beginPath();
+        c.fillStyle = '#000';
+        c.fillRect(0,0, a.width, a.height);
+        c.fillStyle = '#F00';
+        for(var t= 0,S='RIFF_oO_WAVEfmt '+atob('EAAAAAEAAQBAHwAAQB8AAAEACAA')+'data';++t<iLen;) {
+            var iValue = (sFunction(t))&255;
+            S+=String.fromCharCode(iValue);
+            if (t<innerWidth*10) {
+                var x = t/10;
+                var y = 256-iValue;
+                c.beginPath();
+                c.fillRect(x,y,1,1);
+            }
+
+
+        }
+        var oAudio = new Audio( 'data:audio/wav;base64,'+btoa( S ) );
+        oAudio.play();
+        return oAudio;
+    }
+
+    function play() {
+        var sFunction =  '';
+        eval('sFunction = function (t) { return ' + $song.val() + '}');
+        for (var i in aAudioElements) {
+            if (aAudioElements.hasOwnProperty(i)) {
+                aAudioElements[i].pause();
+            }
+        }
+        aAudioElements = [];
+        aAudioElements.push(synth(sFunction, $songLen.val()));
+
+    }
+
+    function sample(iId) {
+        switch (iId) {
+            case 0: $song.val("(('1111553322441221'[15&t>>14]*t*(1+'0100002'[7&t>>13]*(Math.cos((t%6800)/12000))))&(63 + 24*Math.sin(t/1500)))|((t*(1&t>>10))>>4)");
+                    $songLen.val(640000);
+                    break;
+            case 1: $song.val("1|(('1212323533221232'[15&t>>12]*t*0.5*(1-('01001110'[7&t>>10])*Math.sin((t%121)/3900)))&64)|(t>>'5559555555593455'[15&t>>10])");
+                    $songLen.val(320000);
+                    break;
+            case 2: $song.val("(((4 + (3&t>>12) + ([0,0,0,1][3&t>>13]*(3&t>>8)*Math.tan(t/400)))*[1.2,1.4,1.3,0.85][3&t>>13]*t%100)&63)|(t>>([6,6,4,4,12,4,4,2,6,6,12,6,12,2][15&t>>11]))");
+                    $songLen.val(320000);
+                    break;
+            case 3: $song.val("iSnare=1<<13,127 + (iSnare/(12*((t+iSnare)%iSnare)))*(0.5-Math.random())*127");
+                    $songLen.val(4000);
+                    break;
+            case 4: $song.val("128+32*Math.cos(t/(4+2*Math.cos(t/9e3)+Math.tan(t/9e6*Math.sin(t/9e2)))) + 16*Math.tan(t/3e4)*Math.random()");
+                    $songLen.val(80000);
+                    break;
+            case 5: $song.val("'6666665766576   77777798665766'[(t>>11)%32]*t|(t>>5)");
+                    $songLen.val.val(1<<16);
+        }
+    }
+
+
+    var a = document.getElementsByTagName('canvas')[0];
+    var b = document.body;
+    var d = function(e){ return function(){ e.parentNode.removeChild(e); }; }(a);
+    var c = a.getContext('2d');
+    a.style.width = (a.width = innerWidth) + 'px';
+    a.style.height = '255px';
+    a.width = innerWidth;
+    a.height = 255;
+
+
+</script>
+<label for="scratchpad">Scratch Pad</label><br/>
+<textarea id="scratchpad" cols="200" rows="40"></textarea>
+
+</body>
+</html>
+

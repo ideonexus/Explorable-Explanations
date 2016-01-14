@@ -1,0 +1,106 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: 'VT323', sans-serif;
+    background-color: #dafac8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.screen {
+    width: 600px;
+    margin: 20px;
+    float: left;
+}
+
+input[type=button] {
+    padding: 0 5px;
+}
+
+.block {
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 20px;
+}
+
+pre {
+    font-size: 12px;
+    margin: 10px 0;
+}
+
+textarea {
+    width: 575px;
+}
+
+.center {
+    text-align: center;
+}
+
+.screen .block:last-child {
+    margin-bottom: 0;
+}
+
+/* synthesizer */
+.synthesizer {
+    padding: 20px;
+    background-color: #866c4b;
+    color: #f1f2dc;
+    border: 5px solid #2a2015;
+}
+
+.synthesizer .block {
+    background-color: #f1f2dc;
+    color: #2a2015;
+}
+
+/* pattern editor */
+.pattern-editor {
+    width: 1200px;
+    padding: 20px;
+    background-color: #406170;
+    color: #f1f2dc;
+    border: 5px solid #101b21;
+}
+
+.pattern-editor .block {
+    background-color: #cbdfee;
+    color: #2a2015;
+}
+
+.pattern-editor .track {
+    background-color: #aacce7;
+    display: inline-block;
+}
+
+.pattern-editor .track.selected {
+    background-color: #94adc6;
+}
+
+.pattern-editor .track-data {
+    margin-top: 10px;
+}
+
+.pattern-editor .number {
+    margin-right: 10px;
+}
+
+.pattern-editor .track-line {
+    padding: 0 10px;
+}
+
+.pattern-editor .track-line.selected {
+    background-color: #dafac8;
+}
+
+/* song editor */
+.song-editor {
+    width: 600px;
+    padding: 20px;
+    background-color: #4c7040;
+    color: #f1f2dc;
+    border: 5px solid #101b21;
+}

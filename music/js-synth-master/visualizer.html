@@ -1,0 +1,163 @@
+
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Simple Music Syntheziser Toy</title>
+    <meta charset="utf-8" />
+    <style>
+        html, body { margin: 0; padding: 15px; border: 0; }
+        #c { display: block; }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="jQuery.js"></script>
+<label for="song">Math Music Magik Input Field</label>
+<input id="song" style="width: 100%; height: 40px; font-size: 200%">
+<a
+    style="font-size: 300%; text-decoration: none; padding: 20px; background: #adff2f; margin: 30px; display: inline-block; font-family: sans-serif"
+    href="javascript:draw2()">
+    draw >>
+</a>
+<label for="markers">Markers at:</label> <input id="markers" style="" value="1024">
+<label for="pixelResolution">Horizontal Resolution:</label> <input id="pixelResolution" style="" value="16">
+<label for="blockSize">BlockSize:</label> <input id="blockSize" style="" value="128">
+<br/>
+<canvas id="c"></canvas>
+
+
+<br/>
+<br/>
+<br/>
+
+
+<script>
+
+var aAudioElements = [];
+var $song = $('#song');
+var $songLen = $('#len');
+var a = document.getElementsByTagName('canvas')[0];
+var b = document.body;
+var d = function(e){ return function(){ e.parentNode.removeChild(e); }; }(a);
+var c = a.getContext('2d');
+var width = (innerWidth>>4)<<4;
+
+a.style.width = (a.width = width) + 'px';
+var iCanvasWidth = innerWidth;
+var iHeightFactor = 4;
+var iCanvasHeight = 255 * iHeightFactor;
+a.width = iCanvasWidth;
+a.height = iCanvasHeight;
+a.style.height = iCanvasHeight + 'px';
+
+function draw2() {
+
+    var sFunction =  '';
+    eval('sFunction = function (t) { return ' + $song.val() + '}');
+
+    c.beginPath();
+    c.fillStyle = '#eee';
+    c.fillRect(0,0, a.width, a.height);
+
+    c.fillStyle = '#D99';
+    c.beginPath();
+    c.fillRect(0, 128 * iHeightFactor, iCanvasWidth, 1);
+
+
+    var iSampleResolution = $('#pixelResolution').val();
+    var iMarkerDistance = eval($('#markers').val());
+
+    for (var i = 0; i < a.width * iSampleResolution; i++) {
+        if (i % iMarkerDistance == 0) {
+            // vertical line
+            c.fillStyle = '#D99';
+            c.fillRect(~~(i/iSampleResolution), 0, 1, iCanvasHeight);
+
+        }
+    }
+
+    c.fillStyle = 'rgba(0,0,0,1)';
+    c.beginPath();
+    var iValue = sFunction.call({}, 0) & 255;
+    c.moveTo(0, iCanvasHeight-iValue * iHeightFactor)
+    for (var i = 1; i < a.width * iSampleResolution; i++) {
+        iValue = sFunction.call({}, i) & 255;
+        c.lineTo(i/iSampleResolution, iCanvasHeight-iValue * iHeightFactor);
+    }
+    c.stroke();
+}
+
+function draw() {
+
+    var sFunction =  '';
+    eval('sFunction = function (t) { return ' + $song.val() + '}');
+
+    c.beginPath();
+    c.fillStyle = '#000';
+    c.fillRect(0,0, a.width, a.height);
+
+    var iSampleResolution = $('#pixelResolution').val();
+    var iBlockSize = $('#blockSize').val();
+    var iBlocksPerLine = Math.floor(a.width / iBlockSize);
+    var iBlockIndezesPerLine = iBlocksPerLine * iBlockSize * iBlockSize;
+
+
+    c.beginPath();
+
+
+    var iValue = sFunction.call({}, 0) & 255;
+    /*
+    for (var x = 0; x < a.width; x++) {
+        for (var y = 0; y < a.height;y++){
+            var iBlockX = Math.floor(x / iBlockSize);
+            var iBlockY = Math.floor(y / iBlockSize);
+            var iBlockStartIndex = iBlockX * iBlockSize * iBlockSize + iBlockY*iBlockIndezesPerLine;
+            var iIndex = iBlockStartIndex + x%iBlockSize + (y%iBlockSize)*iBlockSize;
+            iValue = sFunction.call({}, iIndex) & 255;
+            var iValue2 = 0;
+
+            c.fillStyle = 'rgba('+(iValue2)+','+(iValue2)+','+(iValue)+',.7)';
+            c.fillRect(x,y,iHeightFactor,iHeightFactor);
+        }
+    }*/
+
+    var iTransparency = 0.1;
+    var iLineWidth = 20;
+    c.lineCap = 'round';
+
+    for (var j = iLineWidth; j > 0; j-=8) {
+        c.lineWidth = iLineWidth - j;
+        iTransparency = c.lineWidth/(iLineWidth*8);
+        c.beginPath();
+        c.strokeStyle = 'rgba(0,233,254,'+iTransparency+')';
+
+        var iValue = sFunction.call({}, 0) & 255;
+        c.moveTo(0, iValue*(iHeightFactor/2) + (a.height / 2 - (256 * (iHeightFactor/2)) / 2));
+        for (var i = 1; i < a.width * iSampleResolution; i+=iSampleResolution/2) {
+            iValue = sFunction.call({}, i*iSampleResolution) & 255;
+            c.lineTo(i, iValue*(iHeightFactor/2) + (a.height / 2 - (256 * (iHeightFactor/2)) / 2));
+        }
+        c.stroke();
+    }
+
+    iTransparency = 1;
+    c.lineWidth = 1;
+    c.beginPath();
+    c.strokeStyle = 'rgba(0,233,254,'+iTransparency+')';
+
+    var iValue = sFunction.call({}, 0) & 255;
+    c.moveTo(0, iValue*(iHeightFactor/2) + (a.height / 2 - (256 * (iHeightFactor/2)) / 2));
+    for (var i = 1; i < a.width * iSampleResolution; i++) {
+        iValue = sFunction.call({}, i*iSampleResolution) & 255;
+        c.lineTo(i, iValue*(iHeightFactor/2) + (a.height / 2 - (256 * (iHeightFactor/2)) / 2));
+    }
+    c.stroke();
+
+}
+
+
+</script>
+
+
+</body>
+</html>
+

@@ -1,0 +1,242 @@
+
+<!-- saved from url=(0042)http://wurstcaptures.untergrund.net/music/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+		<script src="./music_files/magic.js"></script><style type="text/css"></style>
+		<style>
+			#oneliner, #oneliner2 {
+				font-size:22px;
+				padding:5px;
+				width: 100%;
+				font-family: monospace;
+				color:#99ff99;
+				background:black;
+				text-shadow: 0px 0px 2px #ffffff;
+			}
+			#t0, #tmod, #duration, #separation {
+				font-size:16px;
+				padding:5px;
+				font-family: monospace;
+				color:#99ff99;
+				background:black;
+				text-shadow: 0px 0px 2px #ffffff;
+				text-align: left;
+			}
+			.centered_table {
+    			margin-left: auto;
+                margin-right: auto;
+    			font-family: monospace;
+				width: 90%;
+			}
+			.link_table {
+    			margin-left: auto;
+                margin-right: auto;
+				width: 90%;
+			}
+			.leftaligned {
+				text-align: left;
+			}
+			.rightaligned {
+				text-align: right;
+				width : 5%;
+			}
+			#link, #bbcode {
+			    text-align: left;
+			    width: 70%;
+			}
+			#gen {
+				font-family: monospace;
+				font-size: 30px;
+				padding: 10px;
+				width: 100%;
+			}
+			#player {
+				text-align: center;
+				width: 90%;
+			}
+		</style>
+	</head>
+	<body>
+			<br>
+			<form onsubmit="return false;">
+			<table class="centered_table">
+			<tbody><tr>
+			<td class="rightaligned">Left</td>
+			<td><input type="text" id="oneliner" value="t * ((t&gt;&gt;12|t&gt;&gt;8)&amp;63&amp;t&gt;&gt;4)"></td>
+			</tr>
+			<tr>
+			<td class="rightaligned">Right</td>
+			<td><input type="text" id="oneliner2" value=""></td>
+			</tr>
+			</tbody></table>
+			<table class="centered_table">
+			<tbody><tr>
+			<td class="rightaligned">t<sub>0</sub></td>
+			<td><input type="text" id="t0" value="0"> (start value of sequence)</td>
+			<td rowspan="3">
+            Sample rate<br>
+            <input type="radio" name="samplerate" value="44100">44,100<br>
+			<input type="radio" name="samplerate" value="22050">22,050<br>
+			<input type="radio" name="samplerate" value="11025">11,025<br>
+			<input type="radio" name="samplerate" value="8000" checked="">8,000
+			</td>
+			</tr>
+			<tr>
+			<td class="rightaligned">t<sub>mod</sub></td>
+            <td><input type="text" id="tmod" value="0"> (% running t with this value, 0 to turn off)</td>
+			</tr>
+			<tr>
+			<td class="rightaligned">duration</td>
+			<td><input type="text" id="duration" value="30">seconds</td>
+			</tr>
+			<tr>
+			<td class="rightaligned">Stereo separation</td>
+			<td><input type="range" id="separation" min="0" max="100" value="100" step="5">%</td>
+			</tr>
+			<tr><td colspan="3"><input type="submit" value="Generate Sound" id="gen"></td></tr>
+			<tr><td colspan="3"><canvas id="canvas" width="1024" height="128"></canvas></td></tr>
+			</tbody></table>
+			</form>
+			<span id="error"></span>
+			<div id="player"></div>
+			<br>
+			<table class="link_table">
+			<tbody><tr>
+			<td>
+			For example: (t*(t&gt;&gt;8+t&gt;&gt;9)*100)+sin(t)<br>
+			Or try some from <a href="http://www.youtube.com/watch?v=GtQdIYUtAHg" target="_new">viznut's video</a> or <a href="http://www.youtube.com/watch?v=qlrs2Vorw2Y" target="_new">viznut's other video</a>.<br><br>
+			PLEASE NOTE THAT IS MOSTLY NOT MY CREATION. I just added some stuff. <a href="http://www.bemmu.com/music/index.html" target="_new">The original</a> is from Bemmu &amp; viznut. Some improvements came from mjau. Thanks!
+			</td>
+			</tr>
+			</tbody></table>
+			<br><br><br>
+			<table class="link_table">
+			<tbody><tr>
+			<td class="rightaligned">"Perma"link</td>
+            <td><input type="text" id="link" value=""> (hinthint: use this as an URL)</td>
+            </tr>
+            <tr>
+			<td class="rightaligned">BBcode</td>
+            <td><input type="text" id="bbcode" value=""> (for them lazy ones)</td>
+            </tr>
+            </tbody></table>
+		<script>
+			function play() {
+				//check if oneliner one is empty, but two filled
+				if (document.getElementById("oneliner").value == "" && document.getElementById("oneliner2").value != "") {
+				    //copy string over
+				    document.getElementById("oneliner").value = document.getElementById("oneliner2").value;
+				    document.getElementById("oneliner2").value = "";
+				}
+				//create links
+				document.getElementById("link").value = makeLink();
+				document.getElementById("bbcode").value = makeBbcode();
+				try {
+					playDataURI(makeURL());
+					document.getElementById('error').innerText = "";
+				} catch (err) {
+					document.getElementById('error').innerText = ""+err;
+				}
+			}
+
+			function getParams() {
+				var idx = document.URL.indexOf('?');
+				if (idx != -1) {
+					var tempParams = new Object();
+					var pairs = document.URL.substring(idx+1, document.URL.length).split('&');
+					for (var i=0; i< pairs.length; i++) {
+						nameVal = pairs[i].split('=');
+						tempParams[nameVal[0]] = nameVal[1];
+					}
+					return tempParams;
+				}
+			}
+			
+			function makeLink() {
+				var link;
+				var idx = document.URL.indexOf('?');
+				if (idx != -1) {
+					link = document.URL.substring(0, idx);
+				}
+				else {
+					link = document.URL;
+				}
+				link += "?oneliner=" + encodeURIComponent(document.getElementById('oneliner').value);
+				link += "&oneliner2=" + encodeURIComponent(document.getElementById('oneliner2').value);
+				link += "&t0=" + document.getElementById('t0').value;
+				link += "&tmod=" + document.getElementById('tmod').value;
+				link += "&duration=" + document.getElementById('duration').value;
+				link += "&separation=" + document.getElementById('separation').value;
+                link += "&rate=" + getFrequency();
+				return link;
+			}
+			
+			function makeBbcode() {
+				var bbcode = "[url=" + makeLink() + "]";
+				//do we have a stereo tune?
+				if (document.getElementById('oneliner2').value != "") {
+                    bbcode += "[b]L:[/b] " + document.getElementById('oneliner').value;
+					bbcode += " [b]| R:[/b] " + document.getElementById('oneliner2').value;
+				}
+				else {
+				    bbcode += document.getElementById('oneliner').value;
+				}
+                bbcode += "[/url]";
+				return bbcode;
+			}
+			
+			var x = document.createElement('audio');
+			var hasAudio = typeof(x.play) !== 'undefined';
+			if (!hasAudio) {
+				alert("You don't seem to have a browser that supports audio. It's ok, you're not a bad person. But this app will now fail.");
+			}
+
+			document.getElementById("oneliner").focus();
+			document.getElementById("gen").onclick = function () {
+				play();
+			};
+			
+			params = getParams();
+			if (params) {
+                var shouldPlay = false;
+				if (params["rate"]) {
+					if (params["rate"] >= 44100) {
+						document.forms[0].samplerate[0].checked = true;
+					}
+					else if (params["rate"] == 22050) {
+						document.forms[0].samplerate[1].checked = true;
+					}
+					else if (params["rate"] == 11025) {
+						document.forms[0].samplerate[2].checked = true;
+					}
+					else {
+						document.forms[0].samplerate[3].checked = true;
+					}
+				}
+				if (params["t0"]) {
+				    document.getElementById("t0").value = params["t0"];
+                }
+   				if (params["tmod"]) {
+				    document.getElementById("tmod").value = params["tmod"];
+                }
+				if (params["duration"]) {
+				    document.getElementById("duration").value = params["duration"];
+                }
+				if (params["separation"]) {
+				    document.getElementById("separation").value = params["separation"];
+                }
+				if (params["oneliner"]) {
+					document.getElementById("oneliner").value = decodeURIComponent(params["oneliner"]);
+					shouldPlay = true;
+				}
+				if (params["oneliner2"]) {
+					document.getElementById("oneliner2").value = decodeURIComponent(params["oneliner2"]);
+					shouldPlay = true;
+				}
+				if (shouldPlay) {
+				    play();
+				}
+			}
+		</script>
+	
+
+</body></html>
