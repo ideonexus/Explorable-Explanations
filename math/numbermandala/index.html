@@ -2,7 +2,243 @@
 <html>
 <title>Mandella Number Spirals</title>
 <head>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<style type='text/css'>
+body {
+    background-color: lightblue;
+    font-family: arial;
+    color: white;
+}
+
+.form-container-container {
+  margin: auto;
+  width:850px;
+}
+
+.form-container {
+   border: 5px solid #000000;
+   background: #04baab;
+   background: -webkit-gradient(linear, left top, left bottom, from(#0009ff), to(#04baab));
+   background: -webkit-linear-gradient(top, #0009ff, #04baab);
+   background: -moz-linear-gradient(top, #0009ff, #04baab);
+   background: -ms-linear-gradient(top, #0009ff, #04baab);
+   background: -o-linear-gradient(top, #0009ff, #04baab);
+   background-image: -ms-linear-gradient(top, #0009ff 0%, #04baab 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   -moz-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   font-family: 'Helvetica Neue',Helvetica,sans-serif;
+   font-size: 1.5em;
+   text-decoration: none;
+   vertical-align: middle;
+   padding:20px;
+   width:850px;
+}
+
+.form-container div {
+    margin-right: 30px;
+}
+
+.decrement, .increment
+{
+    font-size:30px;
+    width: 40px;
+    height: 50px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+input, select
+{
+    font-size:28px;
+    font-weight: bold;
+}
+
+select {
+    -webkit-appearance: none;
+    width: 175px !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.right {
+    float: right;
+}
+
+.left {
+    float: left;
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:30px;
+}
+
+.form-field:focus {
+   background: #c4f0ff;
+   color: #ff00e1;
+}
+
+.form-container h2 {
+   text-shadow: #595959 0 1px 0;
+   font-size:18px;
+   margin: 0 0 10px 0;
+   font-weight:bold;
+   text-align:center;
+}
+
+.form-title {
+   margin-bottom:10px;
+   color: #ffffff;
+   text-shadow: #595959 0 1px 0;
+}
+
+.submit-container {
+  padding-top: 30px;
+   margin:8px 0;
+   text-align:right;
+}
+
+.submit-button {
+   border: 5px solid #000000;
+   background: #4f024f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#bf5abc), to(#4f024f));
+   background: -webkit-linear-gradient(top, #bf5abc, #4f024f);
+   background: -moz-linear-gradient(top, #bf5abc, #4f024f);
+   background: -ms-linear-gradient(top, #bf5abc, #4f024f);
+   background: -o-linear-gradient(top, #bf5abc, #4f024f);
+   background-image: -ms-linear-gradient(top, #bf5abc 0%, #4f024f 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   text-shadow: #000000 0 1px 0;
+   color: #000000;
+   font-family: helvetica, serif;
+   padding: 8.5px 18px;
+   font-size: 20px;
+   text-decoration: none;
+   vertical-align: middle;
+}
+
+.submit-button:hover {
+   border: 5px solid #ffffff;
+   text-shadow: #ffffff 0 1px 0;
+   background: #1a011f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#4d0448), to(#1a011f));
+   background: -webkit-linear-gradient(top, #4d0448, #1a011f);
+   background: -moz-linear-gradient(top, #4d0448, #1a011f);
+   background: -ms-linear-gradient(top, #4d0448, #1a011f);
+   background: -o-linear-gradient(top, #4d0448, #1a011f);
+   background-image: -ms-linear-gradient(top, #4d0448 0%, #1a011f 100%);
+   color: #fff;
+}
+
+.submit-button:active {
+   text-shadow: #ffffff 0 1px 0;
+   border: 5px solid #ffffff;
+   background: #190121;
+   background: -webkit-gradient(linear, left top, left bottom, from(#41024d), to(#1a011f));
+   background: -webkit-linear-gradient(top, #41024d, #190121);
+   background: -moz-linear-gradient(top, #41024d, #190121);
+   background: -ms-linear-gradient(top, #41024d, #190121);
+   background: -o-linear-gradient(top, #41024d, #190121);
+   background-image: -ms-linear-gradient(top, #41024d 0%, #190121 100%);
+   color: #fff;
+}
+
+
+/**
+ * Start by hiding the checkboxes
+ */
+input[type=checkbox] {
+  visibility: hidden;
+}
+/**
+ * Checkbox Three
+ */
+.checkboxThree {
+  width: 120px;
+  height: 40px;
+  background: #333;
+  margin: 20px 60px;
+
+  border-radius: 50px;
+  position: relative;
+}
+/**
+ * Create the text for the On position
+ */
+.checkboxThree:before {
+  content: 'On';
+  position: absolute;
+  top: 12px;
+  left: 13px;
+  height: 2px;
+  color: #26ca28;
+  font-size: 16px;
+}
+/**
+ * Create the label for the off position
+ */
+.checkboxThree:after {
+  content: 'Off';
+  position: absolute;
+  top: 12px;
+  left: 84px;
+  height: 2px;
+  color: #111;
+  font-size: 16px;
+}
+/**
+ * Create the pill to click
+ */
+.checkboxThree label {
+  display: block;
+  width: 52px;
+  height: 22px;
+  border-radius: 50px;
+
+  transition: all .5s ease;
+  cursor: pointer;
+  position: absolute;
+  top: 9px;
+  z-index: 1;
+  left: 12px;
+  background: #ddd;
+}
+
+/**
+ * Create the checkbox event for the label
+ */
+.checkboxThree input[type=checkbox]:checked + label {
+  left: 60px;
+  background: #26ca28;
+}
+
+</style>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 
 <script type="text/javascript">
 //*********************************************************************
@@ -35,15 +271,36 @@
 // http://www.geocities.com/spunk1111/aquatic.htm#octopus
 //*********************************************************************
 
-// The following three lines tell the browser to
-// run the drawCanvas() function when the page finishes loading.
-$().ready(function() {
-  drawCanvas();
-});
-
 // And this is the drawCanvas() function that calls all the
 // other functions to put the image together.
-function drawCanvas() {
+var w, h, context, spiraling, ticksPerRevolution, numberOfRevolutions, radius, radiusIncrement;
+var canvasColor, drawColor, numberColor, primeColor, numberFont, primeFont, connectFactors;
+var renderCanvas = function() {
+
+      spiraling = false;
+      ticksPerRevolution = parseFloat($("#ticksPerRevolution").val());
+      numberOfRevolutions = parseFloat($("#numberOfRevolutions").val());
+      connectFactors = parseFloat($("#connectFactors").val());
+
+      // What color do you want things to be?
+      // These # plus six-digit numbers are hexidecimal (Base-16) values for colors.
+      // They define levels of red, green, and blue (RGB) (#RRGGBB), which mix
+      // to form all the colors of the visible spectrum.
+      // Here's a great primer on hexidecimal color values:
+      // http://www.smashingmagazine.com/2012/10/04/the-code-side-of-color/
+      canvasColor = $("#canvascolor").val();
+      drawColor = $('#drawcolor').val(); // 0-Red, 121-Green, 0-Blue = Light Green
+      numberColor = $("#numbercolor").val(); // 0-Red, 0-Green, 0-Blue = Black
+      primeColor = $("#primecolor").val(); // 256-Red, 0-Green, 0-Blue = Red
+
+      // Font to write our numbers in.
+      numberFont = $('#numberSize').val() + 'px Arial';
+      if ($("#boldPrimes").is(':checked')) {
+          primeFont = 'bold ' + $('#primeSize').val() + 'px Arial';
+      } else {
+          primeFont = $('#primeSize').val() + 'px Arial';
+      }
+
 
       // This gets the <canvas class="cframe" id="canvas" /> element out of the HTML
       // This is where all of our drawing will take place.
@@ -52,8 +309,8 @@ function drawCanvas() {
       // Define the width and height of our canvas.
       // This is in pixels. For a larger space to draw on
       // simply increase the width and height here.
-      canvas.width = window.innerWidth - 40;
-      canvas.height = window.innerHeight - 40;
+      canvas.width = w = window.innerWidth - 40;
+      canvas.height = h = window.innerHeight - 40;
 
       // The context is the thingy we're going to use to 
       // do all our drawing with.
@@ -63,65 +320,49 @@ function drawCanvas() {
       // programming language or web technology. They have the
       // best introductions for everything!!!
       // http://www.w3schools.com/tags/ref_canvas.asp
-      var context = canvas.getContext('2d');
+      context = canvas.getContext('2d');
+
+      //Fill the canvas with our background color
+      context.fillStyle = canvasColor;
+      context.fillRect(0, 0, w, h);
+      context.fill();
 
       // Put our drawing focus at the center of the canvas
-      context.translate(canvas.width/2,canvas.height/2);
+      //context.translate(w/2,h/2);
+      context.translate(w/2,h/2);
   
-     //************** ARGUMENTS/INPUTS!!! **************
-     // Here we define our arguments and inputs (duh),
-     // modify things here starting out to play with and
-     // just have fun.
-     //
-     // Once this section gets boring, check out the functions
-     // themselves and fall down the rabbit hole of programming wonder!!!
-     // BWA-HA-HA-HA-HA!!!
-     //************** ARGUMENTS/INPUTS!!! **************
+      //************** ARGUMENTS/INPUTS!!! **************
+      // Here we define our arguments and inputs (duh),
+      // modify things here starting out to play with and
+      // just have fun.
+      //
+      // Once this section gets boring, check out the functions
+      // themselves and fall down the rabbit hole of programming wonder!!!
+      // BWA-HA-HA-HA-HA!!!
+      //************** ARGUMENTS/INPUTS!!! **************
 
-			// How many sides do you want on your polygon?
-      var numberOfSidesOnThePolygons = 12;
-      // How many polygons do you want to draw?
-      var numberOfPolgonsToGenerate = 50;
-      
-      // How many lines do you want to draw?
-      var numberOfLinesToGenerate = 12;
-      
-      // How many numbers in your clock?
-      var numberOfNumbersToGenerate = 12;
       // How many times to spiral out those numbers?
-      var numberOfNumbersSpirals = 40;
-
-      // What color do you want things to be?
-      // These # plus six-digit numbers are hexidecimal (Base-16) values for colors.
-      // They define levels of red, green, and blue (RGB) (#RRGGBB), which mix
-      // to form all the colors of the visible spectrum.
-      // Here's a great primer on hexidecimal color values:
-      // http://www.smashingmagazine.com/2012/10/04/the-code-side-of-color/
-      var polygonColor = '#00AA00'; // 0-Red, 121-Green, 0-Blue = Light Green
-      var lineColor = '#736AFF'; // Purple!!! Yay!!!
-      var numberColor = '#000000'; // 0-Red, 0-Green, 0-Blue = Black
-      var primeColor = '#ff0000'; // 256-Red, 0-Green, 0-Blue = Red
-
-			// Font to write our numbers in.
-      var numberFont = '12px Arial';
-      var primeFont = 'bold 16px Arial';
+      var numberOfNumbersSpirals = numberOfRevolutions;
+      // How many polygons do you want to draw?
+      var numberOfPolgonsToGenerate = numberOfRevolutions + 10;
 
       // These variables rotate the context, because all of these functions
       // use the same context, rotating the polygon turns the numbers upside down
       // So I defined different rotations to correct it.
-      var polygonRotateAngle = -Math.PI/2;
-      var lineRotateAngle = 0; // Not used right now, but could be fun.
-      var numberRotateAngle = polygonRotateAngle * 2;
+      //var lineRotateAngle = 0; // Not used right now, but could be fun.
+      //var numberRotateAngle = polygonRotateAngle * 2;
 
 			// Two kinds of radii being defined here for polygons and numbers,
 			// the Radius is the circle defining the initial size, while the
 			// RadiusIncrement defines how much to extend out each subsequent
 			// circle or spiral.
-      var polygonRadius = 50;
-      var polygoneRadiusIncrement = 20;
+      radius = parseFloat($("#radius").val());
+      var numberRadius = radius;//25;
+      var polygonRadius = radius;//50;
 
-      var numberRadius = 25;
-      var numberRadiusIncrement = 40;
+      radiusIncrement = parseFloat($("#radiusIncrement").val());
+      var polygoneRadiusIncrement = radiusIncrement/2;//20;
+      var numberRadiusIncrement = radiusIncrement;//40;
 
       //************** FUNCTIONS!!! **************
       // These are the three functions that draw the shapes
@@ -133,14 +374,34 @@ function drawCanvas() {
       // are used by the function.
       //************** FUNCTIONS!!! **************
 
-      // function multiPolygon(context, radius, sides, rotateAngle, numberOfPolygons, color)
-      multiPolygon(context, polygonRadius, polygoneRadiusIncrement, numberOfSidesOnThePolygons, polygonRotateAngle, numberOfPolgonsToGenerate, polygonColor);
+      context.save();
 
-      // function multiLine(context, numberOfLines, color)
-      multiLine(context, numberOfLinesToGenerate, lineColor);
+      switch($("#decoration").val()) {
+          case "polygons":
+            // function multiPolygon(radius, sides, rotateAngle, numberOfPolygons)
+            multiPolygon(polygonRadius, polygoneRadiusIncrement, numberOfPolgonsToGenerate);
+              break;
+          case "circles":
+              drawCircles(numberOfPolgonsToGenerate);
+              break;
+          case "spiral":
+              drawSpiral();
+              spiraling = true;
+              break;
+          default:
+              //none;
+      }
+      context.restore();
 
-      // function drawNumbers(context, radius, numberOfNumbers, numberOfSpirals, numberFont, numberColor, primeFont, primeColor)
-      drawNumbers(context, numberRadius, numberRadiusIncrement, numberOfNumbersToGenerate, numberOfNumbersSpirals, numberFont, numberColor, primeFont, primeColor, numberRotateAngle);
+      if ($("#showLines").is(':checked')) {
+        // function multiLine(context, numberOfLines)
+        multiLine();
+        context.restore();
+      }
+
+      // function drawNumbers(context, radius, numberOfNumbers, numberOfSpirals, numberFont, primeFont)
+      drawNumbers(numberRadius, numberRadiusIncrement, numberOfNumbersSpirals);
+      context.restore();
 
 }
 
@@ -152,21 +413,27 @@ function drawCanvas() {
 // You can waste incredible amounts of time playing with and learning from his examples,
 // and remember what John Lennon said, "Time you enjoyed wasting was not wasted."
 //**************************************************************************************************
-function multiPolygon(context, radius, radiusIncrement, sides, rotateAngle, numberOfPolygons, color) {
+var multiPolygon = function(radius, radiusIncrement, numberOfPolygons) {
+  
+  // If even number of sides, rotate polgon.
+  var rotateAngle = 0;
+  if (ticksPerRevolution % 2 == 0) {
+    rotateAngle= -Math.PI/2;
+  }
 
   //Set the color of our polygons.
-  context.strokeStyle = color;
+  context.strokeStyle = drawColor;
 
   // If you're trying to draw a polygon with fewer than
   // three sides, then you don't deserve a polygon.
-  if (sides < 3) return;
+  if (ticksPerRevolution < 3) return;
 
   // Defining the a variable... looks complicated.
   // I *think* PI times 2 gives us the radians for a 
   // complete circle, which is then divided by the
   // number of sides we are going to draw around inside it.
   // (See the KrazyDad.com link above)
-  var a = (Math.PI * 2)/sides;
+  var a = (Math.PI * 2)/ticksPerRevolution;
 
   // Loop through the number of polygons requested and generate
   // increasingly larger ones.
@@ -176,7 +443,7 @@ function multiPolygon(context, radius, radiusIncrement, sides, rotateAngle, numb
       context.rotate(rotateAngle);
       context.moveTo(radius,0);
 
-      for (var i = 1; i < sides; i++) {
+      for (var i = 1; i < ticksPerRevolution; i++) {
           // Here's that a variable again.
           // I don't remember my cosine, sin, tangent stuff aside
           // from "Some old horse came a'hopping through our alley"
@@ -193,6 +460,43 @@ function multiPolygon(context, radius, radiusIncrement, sides, rotateAngle, numb
 
   }
 
+  // Rotate Canvas back to upright
+  //context.rotate(rotateAngle * 2);
+}
+
+var drawCircles = function(numberOfPolgonsToGenerate) {
+    context.strokeStyle = drawColor;
+    for (var k = 1; k <= numberOfPolgonsToGenerate; k++) {
+        context.beginPath();
+        context.arc(0,0,radius,0,2*Math.PI);
+        context.stroke();
+        radius += radiusIncrement;
+    }    
+}
+
+
+var drawSpiral = function() {
+    // http://jsfiddle.net/jingshaochen/xJc7M/
+    //var theta = (n - 3) * (Math.PI * 2) / numberOfNumbers;
+    //var a = radius * 0.7 * Math.cos(theta);
+    //var b = radius * 0.7 * Math.sin(theta);
+    var a = 1; //parseFloat($('#a').val());
+    var b = radiusIncrement/10; //parseFloat($('#b').val());
+    var centerx = (0);
+    var centery = (0);
+    //context.moveTo(1, 0, 0, 1, 0, 0);
+    //context.translate(centerx,centery);
+    context.moveTo(centerx, centery);
+    context.beginPath();
+    for (i = 0; i < 10000; i++) {
+        angle = 0.1 * i;
+        x = centerx + (a + b * angle) * Math.cos(angle);
+        y = centery + (a + b * angle) * Math.sin(angle);
+
+        context.lineTo(x, y);
+    }
+    context.strokeStyle = drawColor;
+    context.stroke();
 }
 
 //**************************************************************************************************
@@ -201,10 +505,10 @@ function multiPolygon(context, radius, radiusIncrement, sides, rotateAngle, numb
 // on a clock.
 // http://www.dhtmlgoodies.com/tutorials/canvas-clock/
 //**************************************************************************************************
-function multiLine(context, numberOfLines, color) {
+var multiLine = function() {
 
     // Set the color of our lines
-    context.strokeStyle = color;
+    context.strokeStyle = drawColor;
 
     // Canvas and mathematicians use radians,
     // while humans were taught degrees, so we
@@ -212,14 +516,13 @@ function multiLine(context, numberOfLines, color) {
     // 360 degrees divided by the number of lines will
     // bring us full-circle, while PI divided by 180
     // gets us 0.0174532925 radians, which equals 1 degree
-    radians = (Math.PI / 180) * (360 / numberOfLines);
+    radians = ((Math.PI / 180) * (360 / ticksPerRevolution));
 
     // For each line, draw a 1000 pixel line,
     // then rotate the context the number of 
     // radians, and draw another line on the
     // next loop.
-    for (var i = 1; i <= numberOfLines; i++) {
-        
+    for (var i = 1; i <= ticksPerRevolution; i++) {
         context.beginPath();
         context.moveTo(0,0);
         context.lineTo(0,-1000);
@@ -232,7 +535,6 @@ function multiLine(context, numberOfLines, color) {
 				// to this function and offset the lines
 				// a bit for fun.
         context.rotate(radians);
-        
    }
 
 }
@@ -243,33 +545,32 @@ function multiLine(context, numberOfLines, color) {
 // on a clock (a different clock from the one above).
 // http://www.script-tutorials.com/html5-clocks/
 //**************************************************************************************************
-function drawNumbers(context, radius, radiusIncrement, numberOfNumbers, numberOfSpirals, numberFont, numberColor, primeFont, primeColor, rotateAngle) {
-
-    // Used to correct for rotation performed by
-    // that greedy polygon function.
-    context.rotate(rotateAngle);
+var drawNumbers = function(radius, radiusIncrement, numberOfSpirals) {
 
     // Define the font alignment
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     
+    var factorX = 0;
+    var factorY = 0;
+
     // Outer loop, number of spirals
-    // How many times we want to loop through the numberOfNumbers
+    // How many times we want to loop through the ticksPerRevolution
     for (var i = 0; i <= numberOfSpirals; i++) {
       
       // How many increments in each circle/spiral
-      for (var n = 1; n <= numberOfNumbers; n++) {
+      for (var n = 1; n <= ticksPerRevolution; n++) {
 
 					// More math stuff.
 					// Looks like more radians and cosines and sines
 					// and stuff to define the x/y coordinates of 
 					// where to place the number.
-          var theta = (n - 3) * (Math.PI * 2) / numberOfNumbers;
+          var theta = (n - 3) * (Math.PI * 2) / ticksPerRevolution;
           var x = radius * 0.7 * Math.cos(theta);
           var y = radius * 0.7 * Math.sin(theta);
           
           // The number we are going to write.
-          var numberToWrite = n+(i*numberOfNumbers);
+          var numberToWrite = n+(i*ticksPerRevolution);
 
           // Primality check, calls the isPrime()
           // function further below.
@@ -286,17 +587,33 @@ function drawNumbers(context, radius, radiusIncrement, numberOfNumbers, numberOf
           //Write the number at the x and y coordinate.
           context.fillText(numberToWrite, x, y);
           
+          if (connectFactors > 0 && (numberToWrite % connectFactors) == 0) {
+              if (factorX != 0) {
+                  context.strokeStyle = drawColor;
+                  context.beginPath();
+                  context.moveTo(factorX,factorY);
+                  context.lineTo(x,y);
+                  context.stroke();
+              }
+
+              factorX = x;
+              factorY = y;
+          }
+
           // By increasing the radius slightly with each loop
           // Each number gets pushed out a little more, 
           // producing the spiral
-          radius += (radiusIncrement / numberOfNumbers);
+          if (spiraling) {
+              radius += (radiusIncrement / ticksPerRevolution);
+          }
       
       }
       
-      // Commented Out, but alternatively, you can do
       // larger and larger circles instead of spirals by
       // removing the above radius increase and adding this one
-      //radius += radiusIncrement;
+      if (!spiraling) {
+          radius += radiusIncrement;
+      }
     
     }
 
@@ -340,6 +657,108 @@ function isPrime(n) {
     return true;
 }
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var renderPreset = function() {
+    $('#ticksPerRevolution').val('12');
+    $('#numberOfRevolutions').val('99');
+    $('#radius').val('40');
+    $('#radiusIncrement').val('40');
+    $('#numberSize').val('12');
+    $('#primeSize').val('16');
+    $('#boldPrimes').prop('checked', true);
+    $('#connectFactors').val('0');
+    $('#canvascolor').val('#ffffff');
+    $('#drawcolor').val('#aaaaaa');
+    $('#numbercolor').val('#000000');
+    $('#primecolor').val('#ff0000');
+    $('#showLines').prop('checked', false);
+    $('#decoration').val('');
+
+    switch($("#preset").val()) {
+        case "inverse":
+          $('#canvascolor').val('#000000');
+          $('#drawcolor').val('#55ffff');
+          $('#numbercolor').val('#55ff55');
+          $('#primecolor').val('#5555ff');
+          break;
+        case "random":
+        //String(Math.floor(Math.random() * 99) + 1)
+          $('#ticksPerRevolution').val(String(Math.floor(Math.random() * 36) + 1));
+          $('#numberOfRevolutions').val(String(Math.floor(Math.random() * 99) + 1));
+          $('#radius').val(String(Math.floor(Math.random() * 99) + 1));
+          $('#radiusIncrement').val(String(Math.floor(Math.random() * 99) + 1));
+          $('#numberSize').val(String(Math.floor(Math.random() * 18) + 8));
+          $('#primeSize').val(String(Math.floor(Math.random() * 18) + 8));
+          $('#connectFactors').val(String(Math.floor(Math.random() * 12) + 1));
+          $('#decoration :nth-child(' + String(Math.floor(Math.random() * 3) + 1) + ')').prop('selected', true);
+          $('#canvascolor').val(getRandomColor());
+          $('#drawcolor').val(getRandomColor());
+          $('#numbercolor').val(getRandomColor());
+          $('#primecolor').val(getRandomColor());
+          break;
+        case "default":
+          break;
+        default:
+            //none;
+    }
+
+    renderCanvas();
+}
+
+// The following three lines tell the browser to
+// run the drawCanvas() function when the page finishes loading.
+$(window).load(function(){
+    renderCanvas();
+
+    // This button will increment the value
+    $('.increment').click(function(e){
+        // Stop acting like a button
+        e.preventDefault();
+        // Get the field name
+        fieldName = $(this).attr('field');
+        // Get its current value
+        var currentVal = parseInt($('#'+fieldName).val());
+        // If is not undefined
+        if (!isNaN(currentVal)) {
+            // Increment
+            $('#'+fieldName).val(currentVal + 1);
+        } else {
+            // Otherwise put a 0 there
+            $('#'+fieldName).val(0);
+        }
+    });
+    // This button will decrement the value till 0
+    $(".decrement").click(function(e) {
+        // Stop acting like a button
+        e.preventDefault();
+        // Get the field name
+        fieldName = $(this).attr('field');
+        // Get its current value
+        var currentVal = parseInt($('#'+fieldName).val());
+        // If it isn't undefined
+        if (!isNaN(currentVal) && (currentVal - 1) >= 0) {-
+            // Decrement one
+            $('#'+fieldName).val(currentVal - 1);
+        } else {
+            // Otherwise put a 0 there
+            $('#'+fieldName).val(0);
+        }
+    });
+
+    $("#preset").change(function() {
+        renderPreset();
+    });
+});
+
+
 </script>
 
 <style>
@@ -351,10 +770,116 @@ function isPrime(n) {
 
 </head>
 <body>
+<div>
+<canvas class="cframe" id="canvas" /></div>
+<div class="form-container-container">
+  <form class="form-container">
 
-<div class="ex">
-<canvas class="cframe" id="canvas" />
+      <div>
+        <div class="left">
+            <div class="form-title" class="left">Ticks</div>
+            <input type='button' value='-' class='decrement' field='ticksPerRevolution' />
+            <input class="form-field" type="number" id="ticksPerRevolution" value="12"  />
+            <input type='button' value='+' class='increment' field='ticksPerRevolution' />
+        </div>
+        <div class="left">
+            <div class="form-title">Revolutions</div>
+            <input type='button' value='-' class='decrement' field='numberOfRevolutions' />
+            <input class="form-field" type="number" id="numberOfRevolutions" value="99"  />
+            <input type='button' value='+' class='increment' field='numberOfRevolutions' />
+        </div>
+        <div class="left">
+            <div class="form-title">Radius</div>
+            <input type='button' value='-' class='decrement' field='radius' />
+            <input class="form-field" type="number" id="radius" value="40"  />
+            <input type='button' value='+' class='increment' field='radius' />
+        </div>
+        <div>
+            <div class="form-title">Radius Increment</div>
+            <input type='button' value='-' class='decrement' field='radiusIncrement' />
+            <input class="form-field" type="number" id="radiusIncrement" value="40"  />
+            <input type='button' value='+' class='increment' field='radiusIncrement' />
+        </div>
+      </div>
+
+      <div>
+        <div class="left">
+            <div class="form-title" class="left">Number Size</div>
+            <input type='button' value='-' class='decrement' field='numberSize' />
+            <input class="form-field" type="number" id="numberSize" value="12"  />
+            <input type='button' value='+' class='increment' field='numberSize' />
+        </div>
+        <div class="left">
+            <div class="form-title">Prime Size</div>
+            <input type='button' value='-' class='decrement' field='primeSize' />
+            <input class="form-field" type="number" id="primeSize" value="16"  />
+            <input type='button' value='+' class='increment' field='primeSize' />
+        </div>
+        <div class="left">
+          <div class="form-title" class="left">Bold Primes</div>
+          <div class="checkboxThree">
+              <input type="checkbox" value="1" id="boldPrimes" name="" checked />
+              <label for="boldPrimes"></label>
+          </div>
+        </div>
+        <div>
+            <div class="form-title" class="left">Connect</div>
+            <input type='button' value='-' class='decrement' field='connectFactors' />
+            <input class="form-field" type="number" id="connectFactors" value="0"  />
+            <input type='button' value='+' class='increment' field='connectFactors' />
+        </div>
+      </div>
+
+      <div>
+        <div class="left">
+          <div class="form-title">Canvas Color</div>
+          <input type="color" id="canvascolor" class="form-field" value="#ffffff" />
+        </div>
+        <div class="left">
+          <div class="form-title">Draw Color</div>
+          <input type="color" id="drawcolor" class="form-field" value="#aaaaaa" />
+        </div>
+        <div class="left">
+          <div class="form-title">Number Color</div>
+          <input type="color" id="numbercolor" class="form-field" value="#000000" />
+        </div>
+        <div>
+          <div class="form-title">Prime Color</div>
+          <input type="color" id="primecolor" class="form-field" value="#ff0000" />
+        </div>
+      </div>
+
+      <div>
+        <div class="submit-container right">
+          <input class="submit-button" type="button" value="Render" onclick="renderCanvas();" />
+        </div>
+        <div class="left">
+            <div class="form-title">Dividing Lines</div>
+            <div class="checkboxThree">
+                <input type="checkbox" value="1" id="showLines" name="" />
+                <label for="showLines"></label>
+            </div>
+        </div>
+        <div class="left">
+            <div class="form-title">Decoration</div>
+            <select class="form-field" id="decoration" />
+                <option value="">None</option>
+                <option value="polygons">Concentric Polygons</option>
+                <option value="circles">Concentric Circles</option>
+                <option value="spiral">Spiral</option>
+            </select>
+        </div>
+        <div>
+            <div class="form-title">Preset</div>
+            <select class="form-field" id="preset" />
+                <option value="">None</option>
+                <option value="inverse">Inverse Colors</option>
+                <option value="random">Randomized</option>
+            </select>
+        </div>
+      </div>
+  </form>
 </div>
-
+</div>
 </body>
 </html>
