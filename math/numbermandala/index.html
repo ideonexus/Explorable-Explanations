@@ -11,7 +11,7 @@ body {
 
 .form-container-container {
   margin: auto;
-  width:850px;
+  width:1100px;
 }
 
 .form-container {
@@ -34,7 +34,7 @@ body {
    text-decoration: none;
    vertical-align: middle;
    padding:20px;
-   width:850px;
+   width:1100px;
 }
 
 .form-container div {
@@ -89,7 +89,7 @@ input::-webkit-inner-spin-button {
    box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
    padding:8px;
    margin-bottom:20px;
-   width:30px;
+   width:50px;
 }
 
 .form-field:focus {
@@ -273,7 +273,7 @@ input[type=checkbox] {
 
 // And this is the drawCanvas() function that calls all the
 // other functions to put the image together.
-var w, h, context, spiraling, ticksPerRevolution, numberOfRevolutions, radius, radiusIncrement;
+var w, h, context, spiraling, ticksPerRevolution, numberOfRevolutions, radius, radiusIncrement, incrementIncrease;
 var canvasColor, drawColor, numberColor, primeColor, numberFont, primeFont, connectFactors;
 var renderCanvas = function() {
 
@@ -364,6 +364,8 @@ var renderCanvas = function() {
       var polygoneRadiusIncrement = radiusIncrement/2;//20;
       var numberRadiusIncrement = radiusIncrement;//40;
 
+      incrementIncrease = parseFloat($("#incrementIncrease").val());
+
       //************** FUNCTIONS!!! **************
       // These are the three functions that draw the shapes
       // The comma-separated stuff in parentheses are the 
@@ -415,6 +417,8 @@ var renderCanvas = function() {
 //**************************************************************************************************
 var multiPolygon = function(radius, radiusIncrement, numberOfPolygons) {
   
+  var internalIncrement = radiusIncrement;
+
   // If even number of sides, rotate polgon.
   var rotateAngle = 0;
   if (ticksPerRevolution % 2 == 0) {
@@ -456,7 +460,8 @@ var multiPolygon = function(radius, radiusIncrement, numberOfPolygons) {
       context.stroke()
 
       //With each polygon drawn, we make it a little larger.
-      radius += radiusIncrement;
+      radius += internalIncrement;
+      internalIncrement += incrementIncrease;
 
   }
 
@@ -465,23 +470,28 @@ var multiPolygon = function(radius, radiusIncrement, numberOfPolygons) {
 }
 
 var drawCircles = function(numberOfPolgonsToGenerate) {
+    var internalIncrement = radiusIncrement;
     context.strokeStyle = drawColor;
     for (var k = 1; k <= numberOfPolgonsToGenerate; k++) {
         context.beginPath();
         context.arc(0,0,radius,0,2*Math.PI);
         context.stroke();
-        radius += radiusIncrement;
+
+        radius += internalIncrement;
+        internalIncrement += incrementIncrease;
     }    
 }
 
 
 var drawSpiral = function() {
+    var internalIncrement = radiusIncrement;
+
     // http://jsfiddle.net/jingshaochen/xJc7M/
     //var theta = (n - 3) * (Math.PI * 2) / numberOfNumbers;
     //var a = radius * 0.7 * Math.cos(theta);
     //var b = radius * 0.7 * Math.sin(theta);
     var a = 1; //parseFloat($('#a').val());
-    var b = radiusIncrement/10; //parseFloat($('#b').val());
+    var b = internalIncrement/10; //parseFloat($('#b').val());
     var centerx = (0);
     var centery = (0);
     //context.moveTo(1, 0, 0, 1, 0, 0);
@@ -547,6 +557,8 @@ var multiLine = function() {
 //**************************************************************************************************
 var drawNumbers = function(radius, radiusIncrement, numberOfSpirals) {
 
+    var internalIncrement = radiusIncrement;
+
     // Define the font alignment
     context.textAlign = 'center';
     context.textBaseline = 'middle';
@@ -604,7 +616,7 @@ var drawNumbers = function(radius, radiusIncrement, numberOfSpirals) {
           // Each number gets pushed out a little more, 
           // producing the spiral
           if (spiraling) {
-              radius += (radiusIncrement / ticksPerRevolution);
+              radius += (internalIncrement / ticksPerRevolution);
           }
       
       }
@@ -612,7 +624,8 @@ var drawNumbers = function(radius, radiusIncrement, numberOfSpirals) {
       // larger and larger circles instead of spirals by
       // removing the above radius increase and adding this one
       if (!spiraling) {
-          radius += radiusIncrement;
+          radius += internalIncrement;
+          internalIncrement += incrementIncrease;
       }
     
     }
@@ -671,6 +684,7 @@ var renderPreset = function() {
     $('#numberOfRevolutions').val('99');
     $('#radius').val('40');
     $('#radiusIncrement').val('40');
+    $('#incrementIncrease').val('0');
     $('#numberSize').val('12');
     $('#primeSize').val('16');
     $('#boldPrimes').prop('checked', true);
@@ -695,6 +709,7 @@ var renderPreset = function() {
           $('#numberOfRevolutions').val(String(Math.floor(Math.random() * 99) + 1));
           $('#radius').val(String(Math.floor(Math.random() * 99) + 1));
           $('#radiusIncrement').val(String(Math.floor(Math.random() * 99) + 1));
+          $('#incrementIncrease').val(String(Math.floor(Math.random() * 5) + 1));
           $('#numberSize').val(String(Math.floor(Math.random() * 18) + 8));
           $('#primeSize').val(String(Math.floor(Math.random() * 18) + 8));
           $('#connectFactors').val(String(Math.floor(Math.random() * 12) + 1));
@@ -703,6 +718,16 @@ var renderPreset = function() {
           $('#drawcolor').val(getRandomColor());
           $('#numbercolor').val(getRandomColor());
           $('#primecolor').val(getRandomColor());
+          if (String(Math.floor(Math.random() * 2) + 1) == 2) {
+              $('#boldPrimes').prop('checked', true);
+          } else {
+              $('#boldPrimes').prop('checked', false);
+          }
+          if (String(Math.floor(Math.random() * 2) + 1) == 2) {
+              $('#showLines').prop('checked', true);
+          } else {
+              $('#showLines').prop('checked', false);
+          }
           break;
         case "default":
           break;
@@ -711,6 +736,42 @@ var renderPreset = function() {
     }
 
     renderCanvas();
+}
+
+var incrementDecrement = function(button, incdec) {
+    // Get the field name
+    var fieldName = $(button).attr('field');
+    var field = $('#'+fieldName);
+    // Get increment/decrement value
+    var precision = 0;
+    if (typeof(field.attr("data-precision")) != "undefined")
+    {
+      precision = parseFloat(field.attr("data-precision"));
+    }
+    var amt = parseFloat(field.attr("data-incdec"));
+    // Get its current value
+    var currentVal = parseFloat(field.val());
+    // If it isn't undefined
+    if (!isNaN(currentVal)) {
+        if (incdec == "-")
+        {
+          // Decrement one
+          newValue = parseFloat(currentVal - amt).toFixed(precision);
+          if (newValue < 0) {
+              newValue = 0;
+          }
+        }
+        else
+        {
+          // Increment one
+          newValue = parseFloat(currentVal + amt).toFixed(precision);
+        }
+    } else {
+        // Otherwise put a 0 there
+        newValue = 0;
+    }
+
+    field.val(newValue);
 }
 
 // The following three lines tell the browser to
@@ -722,36 +783,16 @@ $(window).load(function(){
     $('.increment').click(function(e){
         // Stop acting like a button
         e.preventDefault();
-        // Get the field name
-        fieldName = $(this).attr('field');
-        // Get its current value
-        var currentVal = parseInt($('#'+fieldName).val());
-        // If is not undefined
-        if (!isNaN(currentVal)) {
-            // Increment
-            $('#'+fieldName).val(currentVal + 1);
-        } else {
-            // Otherwise put a 0 there
-            $('#'+fieldName).val(0);
-        }
+        incrementDecrement(this, "+");
     });
+
     // This button will decrement the value till 0
     $(".decrement").click(function(e) {
         // Stop acting like a button
         e.preventDefault();
-        // Get the field name
-        fieldName = $(this).attr('field');
-        // Get its current value
-        var currentVal = parseInt($('#'+fieldName).val());
-        // If it isn't undefined
-        if (!isNaN(currentVal) && (currentVal - 1) >= 0) {-
-            // Decrement one
-            $('#'+fieldName).val(currentVal - 1);
-        } else {
-            // Otherwise put a 0 there
-            $('#'+fieldName).val(0);
-        }
+        incrementDecrement(this, "-");
     });
+
 
     $("#preset").change(function() {
         renderPreset();
@@ -779,26 +820,32 @@ $(window).load(function(){
         <div class="left">
             <div class="form-title" class="left">Ticks</div>
             <input type='button' value='-' class='decrement' field='ticksPerRevolution' />
-            <input class="form-field" type="number" id="ticksPerRevolution" value="12"  />
+            <input class="form-field" type="number" id="ticksPerRevolution" data-incdec="1" value="12"  />
             <input type='button' value='+' class='increment' field='ticksPerRevolution' />
         </div>
         <div class="left">
             <div class="form-title">Revolutions</div>
             <input type='button' value='-' class='decrement' field='numberOfRevolutions' />
-            <input class="form-field" type="number" id="numberOfRevolutions" value="99"  />
+            <input class="form-field" type="number" id="numberOfRevolutions" data-incdec="1" value="99"  />
             <input type='button' value='+' class='increment' field='numberOfRevolutions' />
         </div>
         <div class="left">
             <div class="form-title">Radius</div>
             <input type='button' value='-' class='decrement' field='radius' />
-            <input class="form-field" type="number" id="radius" value="40"  />
+            <input class="form-field" type="number" id="radius" data-incdec="1" value="40"  />
             <input type='button' value='+' class='increment' field='radius' />
         </div>
-        <div>
+        <div class="left">
             <div class="form-title">Radius Increment</div>
             <input type='button' value='-' class='decrement' field='radiusIncrement' />
-            <input class="form-field" type="number" id="radiusIncrement" value="40"  />
+            <input class="form-field" type="number" id="radiusIncrement" data-incdec="1" value="40"  />
             <input type='button' value='+' class='increment' field='radiusIncrement' />
+        </div>
+        <div>
+            <div class="form-title">Incr. Increase</div>
+            <input type='button' value='-' class='decrement' field='incrementIncrease' />
+            <input class="form-field" type="number" id="incrementIncrease" data-incdec="0.1" data-precision="1" value="0.0"  />
+            <input type='button' value='+' class='increment' field='incrementIncrease' />
         </div>
       </div>
 
@@ -806,13 +853,13 @@ $(window).load(function(){
         <div class="left">
             <div class="form-title" class="left">Number Size</div>
             <input type='button' value='-' class='decrement' field='numberSize' />
-            <input class="form-field" type="number" id="numberSize" value="12"  />
+            <input class="form-field" type="number" id="numberSize" data-incdec="1" value="12"  />
             <input type='button' value='+' class='increment' field='numberSize' />
         </div>
         <div class="left">
             <div class="form-title">Prime Size</div>
             <input type='button' value='-' class='decrement' field='primeSize' />
-            <input class="form-field" type="number" id="primeSize" value="16"  />
+            <input class="form-field" type="number" id="primeSize" data-incdec="1" value="16"  />
             <input type='button' value='+' class='increment' field='primeSize' />
         </div>
         <div class="left">
@@ -825,7 +872,7 @@ $(window).load(function(){
         <div>
             <div class="form-title" class="left">Connect</div>
             <input type='button' value='-' class='decrement' field='connectFactors' />
-            <input class="form-field" type="number" id="connectFactors" value="0"  />
+            <input class="form-field" type="number" id="connectFactors" data-incdec="1" value="0"  />
             <input type='button' value='+' class='increment' field='connectFactors' />
         </div>
       </div>
@@ -852,6 +899,9 @@ $(window).load(function(){
       <div>
         <div class="submit-container right">
           <input class="submit-button" type="button" value="Render" onclick="renderCanvas();" />
+        </div>
+        <div class="submit-container right">
+          <input class="submit-button" type="button" value="Preset" onclick="renderPreset();" />
         </div>
         <div class="left">
             <div class="form-title">Dividing Lines</div>
