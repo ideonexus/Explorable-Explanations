@@ -37,6 +37,10 @@ body {
    width:1100px;
 }
 
+a {
+  text-decoration: none;
+}
+
 .form-container div {
     margin-right: 30px;
 }
@@ -59,7 +63,7 @@ input, select
 
 select {
     -webkit-appearance: none;
-    width: 175px !important;
+    width: 250px !important;
 }
 
 input::-webkit-outer-spin-button,
@@ -112,7 +116,6 @@ input::-webkit-inner-spin-button {
 }
 
 .submit-container {
-  padding-top: 30px;
    margin:8px 0;
    text-align:right;
 }
@@ -167,6 +170,10 @@ input::-webkit-inner-spin-button {
    color: #fff;
 }
 
+
+div.inline {
+  display: inline-block;
+}
 
 /**
  * Start by hiding the checkboxes
@@ -275,10 +282,30 @@ input[type=checkbox] {
 // other functions to put the image together.
 var w, h, context, spiraling, ticksPerRevolution, numberOfRevolutions, radius, radiusIncrement, incrementIncrease;
 var canvasColor, drawColor, numberColor, primeColor, numberFont, primeFont, connectFactors;
+
+//Clears Canvas
+var clearCanvas = function(context) {
+  context.clearRect(0,0,context.canvas.width,context.canvas.height);
+  var w = context.canvas.width;
+  context.canvas.width = 1;
+  context.canvas.width = w;
+}
+
+
 var renderCanvas = function() {
 
+      //************** ARGUMENTS/INPUTS!!! **************
+      // Here we define our arguments and inputs (duh),
+      // modify things here starting out to play with and
+      // just have fun.
+      //
+      // Once this section gets boring, check out the functions
+      // themselves and fall down the rabbit hole of programming wonder!!!
+      // BWA-HA-HA-HA-HA!!!
+      //************** ARGUMENTS/INPUTS!!! **************
       spiraling = false;
       ticksPerRevolution = parseFloat($("#ticksPerRevolution").val());
+      // How many times to spiral out those numbers?
       numberOfRevolutions = parseFloat($("#numberOfRevolutions").val());
       connectFactors = parseFloat($("#connectFactors").val());
 
@@ -301,6 +328,12 @@ var renderCanvas = function() {
           primeFont = $('#primeSize').val() + 'px Arial';
       }
 
+      // the Radius is the circle defining the initial size, while the
+      // RadiusIncrement defines how much to extend out each subsequent
+      // circle or spiral.
+      radius = parseFloat($("#radius").val());
+      radiusIncrement = parseFloat($("#radiusIncrement").val());
+      incrementIncrease = parseFloat($("#incrementIncrease").val());
 
       // This gets the <canvas class="cframe" id="canvas" /> element out of the HTML
       // This is where all of our drawing will take place.
@@ -331,41 +364,6 @@ var renderCanvas = function() {
       //context.translate(w/2,h/2);
       context.translate(w/2,h/2);
   
-      //************** ARGUMENTS/INPUTS!!! **************
-      // Here we define our arguments and inputs (duh),
-      // modify things here starting out to play with and
-      // just have fun.
-      //
-      // Once this section gets boring, check out the functions
-      // themselves and fall down the rabbit hole of programming wonder!!!
-      // BWA-HA-HA-HA-HA!!!
-      //************** ARGUMENTS/INPUTS!!! **************
-
-      // How many times to spiral out those numbers?
-      var numberOfNumbersSpirals = numberOfRevolutions;
-      // How many polygons do you want to draw?
-      var numberOfPolgonsToGenerate = numberOfRevolutions + 10;
-
-      // These variables rotate the context, because all of these functions
-      // use the same context, rotating the polygon turns the numbers upside down
-      // So I defined different rotations to correct it.
-      //var lineRotateAngle = 0; // Not used right now, but could be fun.
-      //var numberRotateAngle = polygonRotateAngle * 2;
-
-			// Two kinds of radii being defined here for polygons and numbers,
-			// the Radius is the circle defining the initial size, while the
-			// RadiusIncrement defines how much to extend out each subsequent
-			// circle or spiral.
-      radius = parseFloat($("#radius").val());
-      var numberRadius = radius;//25;
-      var polygonRadius = radius;//50;
-
-      radiusIncrement = parseFloat($("#radiusIncrement").val());
-      var polygoneRadiusIncrement = radiusIncrement/2;//20;
-      var numberRadiusIncrement = radiusIncrement;//40;
-
-      incrementIncrease = parseFloat($("#incrementIncrease").val());
-
       //************** FUNCTIONS!!! **************
       // These are the three functions that draw the shapes
       // The comma-separated stuff in parentheses are the 
@@ -381,10 +379,10 @@ var renderCanvas = function() {
       switch($("#decoration").val()) {
           case "polygons":
             // function multiPolygon(radius, sides, rotateAngle, numberOfPolygons)
-            multiPolygon(polygonRadius, polygoneRadiusIncrement, numberOfPolgonsToGenerate);
+            multiPolygon();
               break;
           case "circles":
-              drawCircles(numberOfPolgonsToGenerate);
+              drawCircles();
               break;
           case "spiral":
               drawSpiral();
@@ -402,7 +400,7 @@ var renderCanvas = function() {
       }
 
       // function drawNumbers(context, radius, numberOfNumbers, numberOfSpirals, numberFont, primeFont)
-      drawNumbers(numberRadius, numberRadiusIncrement, numberOfNumbersSpirals);
+      drawNumbers();
       context.restore();
 
 }
@@ -415,15 +413,10 @@ var renderCanvas = function() {
 // You can waste incredible amounts of time playing with and learning from his examples,
 // and remember what John Lennon said, "Time you enjoyed wasting was not wasted."
 //**************************************************************************************************
-var multiPolygon = function(radius, radiusIncrement, numberOfPolygons) {
+var multiPolygon = function() {
   
+  var internalRadius = radius;
   var internalIncrement = radiusIncrement;
-
-  // If even number of sides, rotate polgon.
-  var rotateAngle = 0;
-  if (ticksPerRevolution % 2 == 0) {
-    rotateAngle= -Math.PI/2;
-  }
 
   //Set the color of our polygons.
   context.strokeStyle = drawColor;
@@ -441,44 +434,44 @@ var multiPolygon = function(radius, radiusIncrement, numberOfPolygons) {
 
   // Loop through the number of polygons requested and generate
   // increasingly larger ones.
-  for (var k = 1; k <= numberOfPolygons; k++) {
+  for (var k = 1; k <= numberOfRevolutions; k++) {
 
       context.beginPath();
-      context.rotate(rotateAngle);
-      context.moveTo(radius,0);
+      context.moveTo(internalRadius,0);
 
       for (var i = 1; i < ticksPerRevolution; i++) {
           // Here's that a variable again.
           // I don't remember my cosine, sin, tangent stuff aside
           // from "Some old horse came a'hopping through our alley"
           // but I don't know how that applies here.
-  				// (See the KrazyDad.com link above)
-          context.lineTo(radius*Math.cos(a*i),radius*Math.sin(a*i));
+          // (See the KrazyDad.com link above)
+          var x = internalRadius*Math.cos(a*i);
+          var y = internalRadius*Math.sin(a*i);
+          context.lineTo(x,y);
       }
 
       context.closePath();
       context.stroke()
 
       //With each polygon drawn, we make it a little larger.
-      radius += internalIncrement;
+      internalRadius += internalIncrement;
       internalIncrement += incrementIncrease;
-
   }
-
-  // Rotate Canvas back to upright
-  //context.rotate(rotateAngle * 2);
 }
 
-var drawCircles = function(numberOfPolgonsToGenerate) {
+var drawCircles = function() {
+    var internalRadius = radius;
     var internalIncrement = radiusIncrement;
+    var internalIncrementIncrease = incrementIncrease;
+    
     context.strokeStyle = drawColor;
-    for (var k = 1; k <= numberOfPolgonsToGenerate; k++) {
+    for (var k = 1; k <= numberOfRevolutions; k++) {
         context.beginPath();
-        context.arc(0,0,radius,0,2*Math.PI);
+        context.arc(0,0,internalRadius,0,2*Math.PI);
         context.stroke();
 
-        radius += internalIncrement;
-        internalIncrement += incrementIncrease;
+        internalRadius += internalIncrement;
+        internalIncrement += internalIncrementIncrease;
     }    
 }
 
@@ -555,9 +548,10 @@ var multiLine = function() {
 // on a clock (a different clock from the one above).
 // http://www.script-tutorials.com/html5-clocks/
 //**************************************************************************************************
-var drawNumbers = function(radius, radiusIncrement, numberOfSpirals) {
+var drawNumbers = function() {
 
     var internalIncrement = radiusIncrement;
+    var internalRadius = radius;
 
     // Define the font alignment
     context.textAlign = 'center';
@@ -568,7 +562,7 @@ var drawNumbers = function(radius, radiusIncrement, numberOfSpirals) {
 
     // Outer loop, number of spirals
     // How many times we want to loop through the ticksPerRevolution
-    for (var i = 0; i <= numberOfSpirals; i++) {
+    for (var i = 0; i <= numberOfRevolutions; i++) {
       
       // How many increments in each circle/spiral
       for (var n = 1; n <= ticksPerRevolution; n++) {
@@ -578,8 +572,8 @@ var drawNumbers = function(radius, radiusIncrement, numberOfSpirals) {
 					// and stuff to define the x/y coordinates of 
 					// where to place the number.
           var theta = (n - 3) * (Math.PI * 2) / ticksPerRevolution;
-          var x = radius * 0.7 * Math.cos(theta);
-          var y = radius * 0.7 * Math.sin(theta);
+          var x = internalRadius * 0.7 * Math.cos(theta);
+          var y = internalRadius * 0.7 * Math.sin(theta);
           
           // The number we are going to write.
           var numberToWrite = n+(i*ticksPerRevolution);
@@ -616,7 +610,7 @@ var drawNumbers = function(radius, radiusIncrement, numberOfSpirals) {
           // Each number gets pushed out a little more, 
           // producing the spiral
           if (spiraling) {
-              radius += (internalIncrement / ticksPerRevolution);
+              internalRadius += (internalIncrement / ticksPerRevolution);
           }
       
       }
@@ -624,7 +618,7 @@ var drawNumbers = function(radius, radiusIncrement, numberOfSpirals) {
       // larger and larger circles instead of spirals by
       // removing the above radius increase and adding this one
       if (!spiraling) {
-          radius += internalIncrement;
+          internalRadius += internalIncrement;
           internalIncrement += incrementIncrease;
       }
     
@@ -674,7 +668,7 @@ function getRandomColor() {
     var letters = '0123456789ABCDEF'.split('');
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * 13)];
+        color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
 }
@@ -729,6 +723,54 @@ var renderPreset = function() {
               $('#showLines').prop('checked', false);
           }
           break;
+        case "21ticks11connect":
+          $('#ticksPerRevolution').val('21');
+          $('#numberOfRevolutions').val('45');
+          $('#radius').val('41');
+          $('#radiusIncrement').val('30');
+          $('#incrementIncrease').val('0');
+          $('#numberSize').val('8');
+          $('#primeSize').val('8');
+          $('#boldPrimes').prop('checked', false);
+          $('#connectFactors').val('11');
+          $('#canvascolor').val('#000000');
+          $('#drawcolor').val('#00ff00');
+          $('#numbercolor').val('#ffff00');
+          $('#primecolor').val('#ffff00');
+          $('#showLines').prop('checked', false);
+          $('#decoration').val('circles');
+        case "35ticks9connect":
+          $('#ticksPerRevolution').val('35');
+          $('#numberOfRevolutions').val('64');
+          $('#radius').val('51');
+          $('#radiusIncrement').val('40');
+          $('#incrementIncrease').val('1');
+          $('#numberSize').val('10');
+          $('#primeSize').val('10');
+          $('#boldPrimes').prop('checked', false);
+          $('#connectFactors').val('9');
+          $('#canvascolor').val('#000080');
+          $('#drawcolor').val('#add8e6');
+          $('#numbercolor').val('#ffff00');
+          $('#primecolor').val('#ffff00');
+          $('#showLines').prop('checked', false);
+          $('#decoration').val('circles');
+        case "30ticks6connect":
+          $('#ticksPerRevolution').val('30');
+          $('#numberOfRevolutions').val('65');
+          $('#radius').val('9');
+          $('#radiusIncrement').val('44');
+          $('#incrementIncrease').val('2');
+          $('#numberSize').val('14');
+          $('#primeSize').val('14');
+          $('#boldPrimes').prop('checked', false);
+          $('#connectFactors').val('6');
+          $('#canvascolor').val('#770000');
+          $('#drawcolor').val('#000000');
+          $('#numbercolor').val('#aaaa00');
+          $('#primecolor').val('#ffff00');
+          $('#showLines').prop('checked', true);
+          $('#decoration').val('');
         case "default":
           break;
         default:
@@ -793,28 +835,42 @@ $(window).load(function(){
         incrementDecrement(this, "-");
     });
 
-
     $("#preset").change(function() {
         renderPreset();
     });
+
 });
 
 
 </script>
 
-<style>
-    body,div,p { font-family: futura,gotham,arial,helvetica,sans-serif; }
-    h1 { text-align: center; } 
-    canvas.cframe { border: 1px solid #444; }
-    div.ex { text-align: center; }
-</style>
-
 </head>
 <body>
 <div>
-<canvas class="cframe" id="canvas" /></div>
+  <canvas class="cframe" id="canvas" />
+</div>
 <div class="form-container-container">
   <form class="form-container">
+
+      <div>
+        <div class="submit-container left">
+          <input class="submit-button" type="button" value="Render Settings" onclick="renderCanvas();" />
+        </div>
+        <div class="submit-container left">
+          <input class="submit-button" type="button" value="Render Preset" onclick="renderPreset();" />
+        </div>
+        <div>
+            <div class="form-title inline">Preset</div>
+            <select class="form-field" id="preset" />
+                <option value="">None</option>
+                <option value="inverse">Inverse Colors</option>
+                <option value="random">Randomized</option>
+                <option value="21ticks11connect">21 Ticks - 11 Connect</option>
+                <option value="35ticks9connect">35 Ticks - 9 Connect</option>
+                <option value="30ticks6connect">30 Ticks - 6 Connect</option>
+            </select>
+        </div>
+      </div>
 
       <div>
         <div class="left">
@@ -830,7 +886,7 @@ $(window).load(function(){
             <input type='button' value='+' class='increment' field='numberOfRevolutions' />
         </div>
         <div class="left">
-            <div class="form-title">Radius</div>
+            <div class="form-title">Initial Radius</div>
             <input type='button' value='-' class='decrement' field='radius' />
             <input class="form-field" type="number" id="radius" data-incdec="1" value="40"  />
             <input type='button' value='+' class='increment' field='radius' />
@@ -846,6 +902,25 @@ $(window).load(function(){
             <input type='button' value='-' class='decrement' field='incrementIncrease' />
             <input class="form-field" type="number" id="incrementIncrease" data-incdec="0.1" data-precision="1" value="0.0"  />
             <input type='button' value='+' class='increment' field='incrementIncrease' />
+        </div>
+      </div>
+
+      <div>
+        <div class="left">
+            <div class="form-title">Dividing Lines</div>
+            <div class="checkboxThree">
+                <input type="checkbox" value="1" id="showLines" name="" />
+                <label for="showLines"></label>
+            </div>
+        </div>
+        <div>
+            <div class="form-title">Decoration</div>
+            <select class="form-field" id="decoration" />
+                <option value="">None</option>
+                <option value="polygons">Concentric Polygons</option>
+                <option value="circles">Concentric Circles</option>
+                <option value="spiral">Spiral</option>
+            </select>
         </div>
       </div>
 
@@ -870,7 +945,7 @@ $(window).load(function(){
           </div>
         </div>
         <div>
-            <div class="form-title" class="left">Connect</div>
+            <div class="form-title" class="left">Fact. Connect</div>
             <input type='button' value='-' class='decrement' field='connectFactors' />
             <input class="form-field" type="number" id="connectFactors" data-incdec="1" value="0"  />
             <input type='button' value='+' class='increment' field='connectFactors' />
@@ -883,7 +958,7 @@ $(window).load(function(){
           <input type="color" id="canvascolor" class="form-field" value="#ffffff" />
         </div>
         <div class="left">
-          <div class="form-title">Draw Color</div>
+          <div class="form-title">Line Color</div>
           <input type="color" id="drawcolor" class="form-field" value="#aaaaaa" />
         </div>
         <div class="left">
@@ -896,40 +971,9 @@ $(window).load(function(){
         </div>
       </div>
 
-      <div>
-        <div class="submit-container right">
-          <input class="submit-button" type="button" value="Render" onclick="renderCanvas();" />
-        </div>
-        <div class="submit-container right">
-          <input class="submit-button" type="button" value="Preset" onclick="renderPreset();" />
-        </div>
-        <div class="left">
-            <div class="form-title">Dividing Lines</div>
-            <div class="checkboxThree">
-                <input type="checkbox" value="1" id="showLines" name="" />
-                <label for="showLines"></label>
-            </div>
-        </div>
-        <div class="left">
-            <div class="form-title">Decoration</div>
-            <select class="form-field" id="decoration" />
-                <option value="">None</option>
-                <option value="polygons">Concentric Polygons</option>
-                <option value="circles">Concentric Circles</option>
-                <option value="spiral">Spiral</option>
-            </select>
-        </div>
-        <div>
-            <div class="form-title">Preset</div>
-            <select class="form-field" id="preset" />
-                <option value="">None</option>
-                <option value="inverse">Inverse Colors</option>
-                <option value="random">Randomized</option>
-            </select>
-        </div>
-      </div>
   </form>
 </div>
 </div>
+<h5 style="color: #000000;">Combines memes from <a href="http://12xspiral.com/">Joey Grether</a>, <a href="http://krazydad.com/tutorials/circles/">KrazyDad</a>, <a href="http://jsfiddle.net/jingshaochen/xJc7M/">jingshaochen</a>, <a href="http://www.dhtmlgoodies.com/tutorials/canvas-clock/">dhtmlgoodies</a>, <a href="http://www.script-tutorials.com/html5-clocks/">script-tutorials</a>, and <a href="http://www.javascripter.net/faq/numberisprime.htm">javascripter</a>.</h5>
 </body>
 </html>
