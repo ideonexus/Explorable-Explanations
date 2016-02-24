@@ -1,0 +1,61 @@
+=== Explorable Explanations ===
+
+Javascript Oscilloscope
+https://academo.org/demos/virtual-oscilloscope/
+
+bl.ocks.org:
+http://bl.ocks.org/mbostock
+
+http://rossmckelvie.github.io/string-theory/
+
+Zip Code Visualizer:
+http://bl.ocks.org/mbostock/5180185
+http://www.somebits.com/zipdecode-js/
+
+Solar Oscillator
+http://bl.ocks.org/mbostock/9658291
+
+Tree of Life
+http://bl.ocks.org/mbostock/c034d66572fd6bd6815a
+
+Make a Custom Clock for Toddler's Day
+http://lifehacker.com/make-a-custom-clock-for-your-toddlers-daily-routine-1743119699
+http://www.instructables.com/id/Toddlers-Illustrated-Clock/
+
+Congressional District Paint-by-Numbers
+http://bl.ocks.org/mbostock/9918809
+States:
+http://bl.ocks.org/mbostock/9907392
+Virginia Counties
+http://bl.ocks.org/mbostock/7061976
+World
+http://bl.ocks.org/mbostock/4180634
+
+Pixymaps (Dragging)
+http://bl.ocks.org/mbostock/1177827
+
+Voronoi Tessellation
+http://bl.ocks.org/mbostock/4060366
+
+=================================================
+
+Educational Gifs
+https://www.reddit.com/r/educationalgifs
+
+Explained Visually
+http://setosa.io/ev/
+
+Inchworm Song
+https://en.wikipedia.org/wiki/Inchworm_%28song%29
+
+CS Field Guide
+http://www.csfieldguide.org.nz/
+
+http://larrysanger.org/wp-content/uploads/2010/12/How-and-Why-I-Taught-My-Toddler-to-Read.htm
+
+http://betterexplained.com/
+
+http://www.starfall.com/n/level-k/index/play.htm?f
+
+https://faculty.washington.edu/chudler/chmemory.html
+
