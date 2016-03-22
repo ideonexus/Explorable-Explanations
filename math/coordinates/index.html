@@ -2,8 +2,8 @@
 <head>
 <style>
     body {
-        background-color: darkgreen;
-        color: black;
+        background-color: darkblue;
+        color: white;
         font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     }
 
@@ -12,7 +12,7 @@
     }
 
     #container { 
-        width: 80%;
+        width: 90%;
         height: 70%;
         /*position: absolute;*/
         top:0;
@@ -46,17 +46,17 @@
       outline: solid;
       /*width: 150px;
       height: 150px;*/
-      width: 6.5%;
+      width: 6%;
       height: 6.5%;
       line-height: 100%;
       text-align: center;
-      background-color: lemonchiffon;
+      background-color: white;
     }
 
     span { 
       font-size: 1.5em;
       font-weight: bold;
-      color: black;
+      color: white;
       position: relative;
       top: 25%;
     }
@@ -85,6 +85,23 @@
         height: 5%;
         line-height: 80%;
       }
+    }
+
+    .hint {
+        background-color: lightblue;
+    }
+
+    .coordhint {
+        background-color: goldenrod;
+    }
+
+    .coordinate {
+        background-color: purple;
+        color: white;
+    }
+
+    .coordinate > span {
+        color: white;
     }
 
     .eliminated {
@@ -275,159 +292,165 @@ var winAnimation = function() {
     }, 5000);
 }
 
-// Make top +1 greater than what you want
-// to avoid having to add +1 to all the loops
-// and random number calls below.
-var currentGame = "wolffence";
 var numberRangeBottom = 1;
-var numberRangeTop = 101;
-var numbersToGuess = [];
-var numbersGuessed = []
+var numberRangeTop = 100;
+var coordinateToGuess = [];
+var xAlpha = false;
+var yAlpha = true;
+var showLabels = false;
+var alpha = ["A","B","C","D","E","F","G","H","I","J"];
+var squareRoot = Math.floor(Math.sqrt((numberRangeTop + 1) - numberRangeBottom));
 
-var getFactors = function(factor) {
-  if (factor != 1) {
-    for (var i = numberRangeBottom; i < numberRangeTop; i++) {
-      if ((i % factor) == 0) {
-          numbersToGuess.push(i);
-      }
-    }
-  } else {
-    for (var i = numberRangeBottom; i < numberRangeTop; i++) {
-      if ((i % 2) == 1) {
-          numbersToGuess.push(i);
-      }
-    }
-  }
-}
-
-var toggleZeroBase = function() {
-    if (numberRangeBottom == 1)
+var toggleAlphaNumeric = function(xy) {
+    if (xy == 'x')
     {
-        numberRangeBottom = 0;
-        numberRangeTop = 100;
-        $("#zeroToggle").prop('value', "One Base");
+        xAlpha = !xAlpha;
     } else {
-        numberRangeBottom = 1;
-        numberRangeTop = 101;
-        $("#zeroToggle").prop('value', "Zero Base");
+        yAlpha = !yAlpha;
     }
-
-    changeGame();
-}
-
-var changeGame = function() {
-    currentGame = $('#game').val();
-    numbersToGuess = [];
-    if (currentGame == "factors") {
-      $('#factorfields').show();
-    } else {
-      $('#factorfields').hide();
-    }
-
-    switch(currentGame) {
-        case "wolffence":
-            numbersToGuess.push(Math.floor(Math.random()*numberRangeTop));
-            break;
-        case "even":
-            getFactors(2);
-            break;
-        case "odd":
-            getFactors(1);
-            break;
-        case "factors":
-            getFactors(parseInt($("#factor").val()));
-            break;
-        default:
-            alert("You should never see this message.");
-    }
-
     buildNumberBlocks();
 }
 
-var checkForWinConditions = function(guess) {
-  if ($.inArray(guess,numbersToGuess) != -1) {
-    numbersGuessed.push(guess);
-    switch(currentGame) {
-        case "wolffence":
-            readSentence(guess + " is the right number!");
-            break;
-        case "even":
-            readSentence(guess + " is an even number!");
-            break;
-        case "odd":
-            readSentence(guess + " is an odd number!");
-            break;
-        default:
-            readSentence(guess + " is a factor of " + $("#factor").val() + "!");
-    }
-    
-    if (numbersGuessed.length == numbersToGuess.length) {
-      if (currentGame != "wolffence") {
-          readSentence("You found all the numbers!");
-      }
-      winAnimation();
-    }
-    
-  } else { // else it's a miss
-    if (currentGame == "wolffence") {
-      if (numbersToGuess[0] > guess) {
-        readSentence("The number is greater than " + guess);
-        for (var i = numberRangeBottom; i < guess; i++) { 
-          //Loop through all numbers less-than and eliminate
-          $("#" + i).children("span").addClass("eliminated");
-          $("#" + i).addClass("eliminated");
-          $("#" + i).parents("li").addClass("eliminated");
-        }
-      } 
-      else {
-        readSentence("The number is less than " + guess);
-        for (var i = (guess + 1); i < numberRangeTop; i++) { 
-          //Loop through all numbers greater-than and eliminate
-          $("#" + i).children("span").addClass("eliminated");
-          $("#" + i).addClass("eliminated");
-          $("#" + i).parents("li").addClass("eliminated");
-        }
-      }
+var toggleLabels = function() {
+    showLabels = !showLabels;
+    if (showLabels)
+    {
+        $("span").css( "color", "black" );
     } else {
-      $("#" + guess).children("span").removeClass("guessed");
-      $("#" + guess).removeClass("guessed");
-      $("#" + guess).parents("li").removeClass("guessed");
-
-      $("#" + guess).children("span").addClass("eliminated");
-      $("#" + guess).addClass("eliminated");
-      $("#" + guess).parents("li").addClass("eliminated");
+        $("span").css( "color", "white" );
     }
+    $(".coordinate > span").css( "color", "white" );
+}
+
+var hint = function() {
+    var x = coordinateToGuess.split(":")[0];
+    var y = coordinateToGuess.split(":")[1];
+
+    $('#x' + x).children("span").removeClass("coordinate");
+    $('#x' + x).removeClass("coordinate");
+    $('#x' + x).parents("li").removeClass("coordinate");
+
+    $('#x' + x).children("span").addClass("coordhint");
+    $('#x' + x).addClass("coordhint");
+    $('#x' + x).parents("li").addClass("coordhint");
+
+    $('#y' + y).children("span").removeClass("coordinate");
+    $('#y' + y).removeClass("coordinate");
+    $('#y' + y).parents("li").removeClass("coordinate");
+
+    $('#y' + y).children("span").addClass("coordhint");
+    $('#y' + y).addClass("coordhint");
+    $('#y' + y).parents("li").addClass("coordhint");
+
+    var it;
+    for (var i = 0; i < squareRoot; i++)
+    {
+        it = i + 1;
+        if (yAlpha) it = alpha[i];
+        $('[id="' + x + ":" + it + '"]').children("span").addClass("hint");
+        $('[id="' + x + ":" + it + '"]').addClass("hint");
+        $('[id="' + x + ":" + it + '"]').parents("li").addClass("hint");
+
+        it = i + 1;
+        if (xAlpha) it = alpha[i];
+        $('[id="' + it + ":" + y + '"]').children("span").addClass("hint");
+        $('[id="' + it + ":" + y + '"]').addClass("hint");
+        $('[id="' + it + ":" + y + '"]').parents("li").addClass("hint");
+    }
+}
+
+var checkForWinConditions = function(guess) {
+  if (coordinateToGuess != guess)
+  {
+      //Using id= to select because jquery can't select when ":" in id.
+      $('[id="' + guess + '"]').children("span").removeClass("guessed");
+      $('[id="' + guess + '"]').removeClass("guessed");
+      $('[id="' + guess + '"]').parents("li").removeClass("guessed");
+
+      $('[id="' + guess + '"]').children("span").addClass("eliminated");
+      $('[id="' + guess + '"]').addClass("eliminated");
+      $('[id="' + guess + '"]').parents("li").addClass("eliminated");
+
+      readSentence(guess + " is not the coordinate " + coordinateToGuess);
+  } else {
+      readSentence("You found the coordinate!");
+      winAnimation();
   }
 }
 
 var buildNumberBlocks = function() {
     numbersGuessed = [];
     var numbers = [];
-    var squareRoot = Math.floor(Math.sqrt(numberRangeTop - numberRangeBottom));
+    var yLabel, xLabel, coord;
 
-    var output = "<ol>";
-    for (var i = numberRangeBottom; i < numberRangeTop; i++) { 
-      output += "<li>";
-      output += "<span id=\"" + i + "\">" + i + "</span>";
+    var output = "";
+
+    var xHeaders =  "<ol><li class=\"coordinate\">&nbsp;</li>";
+
+    for (var i = 0; i < squareRoot; i++)
+    {
+        if (xAlpha)
+        {
+            xHeaders += "<li class=\"coordinate\"><span id=\"x" + alpha[i] + "\">" + alpha[i] + "</span></li>";
+        } else {
+            xHeaders += "<li class=\"coordinate\"><span id=\"x" + (i + 1) + "\">" + (i + 1) + "</span></li>";
+        }
+    }
+
+    xHeaders += "<li class=\"coordinate\"><span>&nbsp;</span></li></ol>";
+
+    output += xHeaders + "<br/><ol class=\"clear\">";
+
+    if (yAlpha)
+    {
+        yLabel = alpha[0];
+    } else {
+        yLabel = "1";
+    }
+    output += "<li class=\"coordinate\"><span id=\"y" + yLabel + "\">" + yLabel + "</span></li>";
+
+    for (var i = numberRangeBottom; i <= numberRangeTop; i++) { 
+      output += "<li class=\"numberBlock\">";
+      x = (i % squareRoot);
+      if (x == 0) x = 10;
+      if (xAlpha)
+      {
+          coord = alpha[x-1] + ":" + yLabel;
+          output += "<span id=\"" + coord + "\">" + coord + "</span>";
+      } else {
+          coord = x + ":" + yLabel;
+          output += "<span id=\"" + coord + "\">" + coord + "</span>";
+      }
       output += "</li>";
-      if ((numberRangeBottom == 1 && (i % squareRoot) == 0)
-        || (numberRangeBottom == 0 && ((i+1) % squareRoot) == 0)) {
-        output += "</ol><br/><ol class=\"clear\">";
+      
+      if ((i % squareRoot) == 0) {
+        if (i != numberRangeTop)
+        {
+          var y = i/squareRoot;
+          output += "<li class=\"coordinate\"><span id=\"y" + yLabel + "\">" + yLabel + "</span></li></ol><br/><ol class=\"clear\">";
+          if (yAlpha)
+          {
+              yLabel = alpha[y];
+          } else {
+              yLabel = y+1;
+          }
+        }
+        output += "<li class=\"coordinate\"><span id=\"y" + yLabel + "\">" + yLabel + "</span></li>";
       }
     }
+
     output += "</ol>";
+    output += xHeaders;
 
     $("#container").html(output);
 
     var guess = "";
     //var numberToGuess = Math.floor(Math.random()*numberRangeTop);
 
-    $("li").click(function() {
+    $("li.numberBlock").click(function() {
       if ($(this).children("span").hasClass("eliminated") === false && $(this).children("span").hasClass("guessed") === false) {        
-        guess = parseInt($(this).children("span").html());
-        speakWord(guess);
+        guess = $(this).children("span").html();
 
-        // increment guess count, show image, mark it as face up
         $(this).children("span").addClass("guessed");
         $(this).addClass("guessed");
         
@@ -435,19 +458,19 @@ var buildNumberBlocks = function() {
       }
     });
 
-    //winAnimation();
+    var xRand = (Math.floor(Math.random()*squareRoot)+1);
+    if (xAlpha) xRand = alpha[xRand - 1];
+    var yRand = (Math.floor(Math.random()*squareRoot)+1);
+    if (yAlpha) yRand = alpha[yRand - 1];
+    coordinateToGuess = xRand + ":" + yRand;
+    
+    var find = "Find " + coordinateToGuess;
+    $("#coordinateToFind").html(find);
+    speakWord(find);
 }
 
 $(document).ready(function() {
-    $("#game").change(function() {
-        changeGame();
-    });
-
-    $("#factor").change(function() {
-        changeGame();
-    });
-
-    changeGame();
+    buildNumberBlocks();
 });
 
 </script>
@@ -455,23 +478,14 @@ $(document).ready(function() {
 <body>
 <div id="container"></div>
 <div id="footer">
-    <h1 id="sentence">Hundred Board</h1>
+    <h1 id="sentence">Coordinates</h1>
     <form>
-      <div class="formelements">
-        Game:
-        <select id="game" class="form-field">
-          <option value="wolffence">Wolf-Fence Number-Guessing Game</option>
-          <option value="even">Find Even Numbers</option>
-          <option value="odd">Find Odd Numbers</option>
-          <option value="factors">Find Factors of:</option>
-        </select>
-        <span id="factorfields">
-          <input type="number" id="factor" value="10" class="form-field" />
-        </span>
-      </div>
-      <input type="button" value="New Game" onclick="changeGame();" class="myButton" />
-      <input type="button" value="Zero Base" onclick="toggleZeroBase();" class="myButton" id="zeroToggle" />
-      <input type="button" value="Show Answers" onclick="showAnswers();" class="myButton" />
+      <div class="formelements" id="coordinateToFind"></div>
+      <input type="button" value="New Game" onclick="buildNumberBlocks();" class="myButton" />
+      <input type="button" value="Hint" onclick="hint();" class="myButton" />
+      <input type="button" value="Show Labels" onclick="toggleLabels();" class="myButton" />
+      <input type="button" value="X ABC/123" onclick="toggleAlphaNumeric('x');" class="myButton" />
+      <input type="button" value="Y ABC/123" onclick="toggleAlphaNumeric('y');" class="myButton" />
       <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
     </form>
 </div>
