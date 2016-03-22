@@ -12,7 +12,7 @@
     }
 
     #container { 
-        width: 80%;
+        width: 90%;
         height: 70%;
         /*position: absolute;*/
         top:0;
@@ -46,7 +46,7 @@
       outline: solid;
       /*width: 150px;
       height: 150px;*/
-      width: 6.5%;
+      width: 6%;
       height: 6.5%;
       line-height: 100%;
       text-align: center;
@@ -89,6 +89,10 @@
 
     .hint {
         background-color: lightblue;
+    }
+
+    .coordhint {
+        background-color: goldenrod;
     }
 
     .coordinate {
@@ -322,6 +326,22 @@ var hint = function() {
     var x = coordinateToGuess.split(":")[0];
     var y = coordinateToGuess.split(":")[1];
 
+    $('#x' + x).children("span").removeClass("coordinate");
+    $('#x' + x).removeClass("coordinate");
+    $('#x' + x).parents("li").removeClass("coordinate");
+
+    $('#x' + x).children("span").addClass("coordhint");
+    $('#x' + x).addClass("coordhint");
+    $('#x' + x).parents("li").addClass("coordhint");
+
+    $('#y' + y).children("span").removeClass("coordinate");
+    $('#y' + y).removeClass("coordinate");
+    $('#y' + y).parents("li").removeClass("coordinate");
+
+    $('#y' + y).children("span").addClass("coordhint");
+    $('#y' + y).addClass("coordhint");
+    $('#y' + y).parents("li").addClass("coordhint");
+
     var it;
     for (var i = 0; i < squareRoot; i++)
     {
@@ -363,55 +383,64 @@ var buildNumberBlocks = function() {
     var numbers = [];
     var yLabel, xLabel, coord;
 
-    var output = "<ol><li class=\"coordinate\">&nbsp;</li>";
+    var output = "";
+
+    var xHeaders =  "<ol><li class=\"coordinate\">&nbsp;</li>";
 
     for (var i = 0; i < squareRoot; i++)
     {
         if (xAlpha)
         {
-            output += "<li class=\"coordinate\"><span>" + alpha[i] + "</span></li>";
+            xHeaders += "<li class=\"coordinate\"><span id=\"x" + alpha[i] + "\">" + alpha[i] + "</span></li>";
         } else {
-            output += "<li class=\"coordinate\"><span>" + (i + 1) + "</span></li>";
+            xHeaders += "<li class=\"coordinate\"><span id=\"x" + (i + 1) + "\">" + (i + 1) + "</span></li>";
         }
     }
 
-    output += "</ol><br/><ol class=\"clear\">";
+    xHeaders += "<li class=\"coordinate\"><span>&nbsp;</span></li></ol>";
+
+    output += xHeaders + "<br/><ol class=\"clear\">";
+
     if (yAlpha)
     {
         yLabel = alpha[0];
     } else {
         yLabel = "1";
     }
-    output += "<li class=\"coordinate\"><span>" + yLabel + "</span></li>";
+    output += "<li class=\"coordinate\"><span id=\"y" + yLabel + "\">" + yLabel + "</span></li>";
 
     for (var i = numberRangeBottom; i <= numberRangeTop; i++) { 
       output += "<li class=\"numberBlock\">";
       x = (i % squareRoot);
+      if (x == 0) x = 10;
       if (xAlpha)
       {
-          coord = alpha[x] + ":" + yLabel;
+          coord = alpha[x-1] + ":" + yLabel;
           output += "<span id=\"" + coord + "\">" + coord + "</span>";
       } else {
-          if (x ==0) x = "10";
           coord = x + ":" + yLabel;
           output += "<span id=\"" + coord + "\">" + coord + "</span>";
       }
       output += "</li>";
       
-      if ((i % squareRoot) == 0 && i != numberRangeTop) {
-        output += "</ol><br/><ol class=\"clear\">";
-        var y = i/squareRoot;
-        if (yAlpha)
+      if ((i % squareRoot) == 0) {
+        if (i != numberRangeTop)
         {
-            yLabel = alpha[y];
-        } else {
-            yLabel = y+1;
+          var y = i/squareRoot;
+          output += "<li class=\"coordinate\"><span id=\"y" + yLabel + "\">" + yLabel + "</span></li></ol><br/><ol class=\"clear\">";
+          if (yAlpha)
+          {
+              yLabel = alpha[y];
+          } else {
+              yLabel = y+1;
+          }
         }
-        output += "<li class=\"coordinate\"><span>" + yLabel + "</span></li>";
+        output += "<li class=\"coordinate\"><span id=\"y" + yLabel + "\">" + yLabel + "</span></li>";
       }
     }
 
     output += "</ol>";
+    output += xHeaders;
 
     $("#container").html(output);
 
@@ -452,6 +481,7 @@ $(document).ready(function() {
     <h1 id="sentence">Coordinates</h1>
     <form>
       <div class="formelements" id="coordinateToFind"></div>
+      <input type="button" value="New Game" onclick="buildNumberBlocks();" class="myButton" />
       <input type="button" value="Hint" onclick="hint();" class="myButton" />
       <input type="button" value="Show Labels" onclick="toggleLabels();" class="myButton" />
       <input type="button" value="X ABC/123" onclick="toggleAlphaNumeric('x');" class="myButton" />
