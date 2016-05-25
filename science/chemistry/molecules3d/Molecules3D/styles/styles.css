@@ -1,0 +1,30 @@
+﻿body {
+	background: #050505;
+	margin: 0;
+	overflow: hidden;
+	color: #f2f2f2;
+    font-family: 'Lucida Grande', 'Calibri', Helvetica, Arial, sans-serif;
+}
+
+#loading {
+	text-align: center;
+	font-size: 80px;
+	font-weight: bold;
+	margin-top: 60px;
+}
+
+#nowebgl {
+	display: none;
+	text-align: center;
+	margin-top: 60px;
+}
+
+a {
+	color: #43adff;
+	text-decoration:none;
+}
+
+a:hover, a:active {
+	color: #43adff;
+	text-decoration:underline;
+}

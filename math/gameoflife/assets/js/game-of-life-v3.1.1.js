@@ -8,19 +8,6 @@
 
 (function () {
 
-  var stats = new Stats();
-  stats.setMode( 0 ); // 0 FPS, 1 MS
-
-  // align top-left
-  stats.domElement.style.position = 'absolute';
-  stats.domElement.style.right = '0px';
-  stats.domElement.style.bottom = '0px';
-  stats.domElement.style.zIndex = '999999';
-
-  document.addEventListener("DOMContentLoaded", function() {
-    document.body.appendChild( stats.domElement );
-  });
-
   var GOL = {
 
     columns : 0,
@@ -317,7 +304,7 @@
     
       algorithmTime = (new Date());
 
-      liveCellNumber = GOL.listLife.nextGeneration();
+      liveCellNumber = this.listLife.nextGeneration();
 
       algorithmTime = (new Date()) - algorithmTime;
 
@@ -326,16 +313,16 @@
 
       guiTime = (new Date());
 
-      for (i = 0; i < GOL.listLife.redrawList.length; i++) {
-        x = GOL.listLife.redrawList[i][0];
-        y = GOL.listLife.redrawList[i][1];
+      for (i = 0; i < this.listLife.redrawList.length; i++) {
+        x = this.listLife.redrawList[i][0];
+        y = this.listLife.redrawList[i][1];
 
-        if (GOL.listLife.redrawList[i][2] === 1) {
-          GOL.canvas.changeCelltoAlive(x, y);
-        } else if (GOL.listLife.redrawList[i][2] === 2) {
-          GOL.canvas.keepCellAlive(x, y);
+        if (this.listLife.redrawList[i][2] === 1) {
+          this.canvas.changeCelltoAlive(x, y);
+        } else if (this.listLife.redrawList[i][2] === 2) {
+          this.canvas.keepCellAlive(x, y);
         } else {
-          GOL.canvas.changeCelltoDead(x, y);
+          this.canvas.changeCelltoDead(x, y);
         }
       }
 
@@ -344,54 +331,48 @@
       // Pos-run updates
 
       // Clear Trail
-      if (GOL.trail.schedule) {
-        GOL.trail.schedule = false;
-        GOL.canvas.drawWorld();
+      if (this.trail.schedule) {
+        this.trail.schedule = false;
+        this.canvas.drawWorld();
       }
 
       // Change Grid
-      if (GOL.grid.schedule) {
-        GOL.grid.schedule = false;
-        GOL.canvas.drawWorld();
+      if (this.grid.schedule) {
+        this.grid.schedule = false;
+        this.canvas.drawWorld();
       }
 
       // Change Colors
-      if (GOL.colors.schedule) {
-        GOL.colors.schedule = false;
-        GOL.canvas.drawWorld();
+      if (this.colors.schedule) {
+        this.colors.schedule = false;
+        this.canvas.drawWorld();
       }
 
       // Running Information
-      GOL.generation++;
-      GOL.element.generation.innerHTML = GOL.generation;
-      GOL.element.livecells.innerHTML = liveCellNumber;
+      this.generation++;
+      this.element.generation.innerHTML = this.generation;
+      this.element.livecells.innerHTML = liveCellNumber;
 
-      r = 1.0/GOL.generation;
-      GOL.times.algorithm = (GOL.times.algorithm * (1 - r)) + (algorithmTime * r);
-      GOL.times.gui = (GOL.times.gui * (1 - r)) + (guiTime * r);
-      GOL.element.steptime.innerHTML = algorithmTime + ' / '+guiTime+' ('+Math.round(GOL.times.algorithm) + ' / '+Math.round(GOL.times.gui)+')';
+      r = 1.0/this.generation;
+      this.times.algorithm = (this.times.algorithm * (1 - r)) + (algorithmTime * r);
+      this.times.gui = (this.times.gui * (1 - r)) + (guiTime * r);
+      this.element.steptime.innerHTML = algorithmTime + ' / '+guiTime+' ('+Math.round(this.times.algorithm) + ' / '+Math.round(this.times.gui)+')';
 
       // Flow Control
-      if (GOL.running) {
-        stats.begin();
-        window.requestAnimationFrame(GOL.nextStep);
-        stats.end();
-        // TODO honour a waitTime ?
-        //setTimeout(function() {
-        //  stats.begin();
-        //  GOL.nextStep();
-        //  stats.end();
-        //}, GOL.waitTime);
+      if (this.running) {
+        setTimeout(function() {
+          GOL.nextStep();
+        }, this.waitTime);
       } else {
-        if (GOL.clear.schedule) {
-          GOL.cleanUp();
+        if (this.clear.schedule) {
+          this.cleanUp();
         }
       }
     },
 
 
     /** ****************************************************************************************************************************
-     * Event Handlers
+     * Event Handerls
      */
     handlers : {
 
@@ -645,7 +626,7 @@
         this.canvas.setAttribute('width', this.width);
 
         this.height = this.height + (this.cellSpace * GOL.rows) + (this.cellSize * GOL.rows);
-        this.canvas.setAttribute('height', this.height);
+        this.canvas.getAttribute('height', this.height);
 
         // Fill background
         this.context.fillStyle = GOL.grid.schemes[GOL.grid.current].color;

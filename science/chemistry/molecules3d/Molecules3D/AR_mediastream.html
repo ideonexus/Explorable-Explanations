@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+   	<link rel="stylesheet" type="text/css" href="styles/AR_styles.css"/>
+</head>
+<body>
+		
+	<div id="loading">Loading...</div>
+		
+	<div id="nowebgl">
+		<p>I'm sorry, but there seems to be a problem with WebGL which this demo relies on.<br />
+		Please check <a href="http://get.webgl.org/troubleshooting/">here for some troubleshooting information</a>.</p>
+	</div>
+
+    <video id="inputStream" width="320" height="240" autoplay="autoplay" style="display: none"></video>
+    <img id="inputImage" width="320" height="240" src="images/static.png" style="display: none"/>
+    <canvas id="inputCapture" width="320" height="240" style="display: none"></canvas>
+    <canvas id="debugCanvas" width="320" height="240" style="display: none"></canvas>
+
+    <div id="result"></div>
+
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/jsFrames.min.js"></script>
+    <script src="scripts/JSARToolKit.min.js"></script>
+    <script src="scripts/three.min.js"></script>
+    <script src="scripts/THREE.Molecule.js"></script>
+	<script src="scripts/THREE.JsArExtensions.js"></script>
+	<script src="scripts/Detector.js"></script>
+	<script src="scripts/AR_mediastream.js"></script>
+	
+	<script type="text/javascript">
+
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-36275300-2']);
+		_gaq.push(['_trackPageview']);
+
+		(function () {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+
+</body>
+</html>
