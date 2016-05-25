@@ -1,0 +1,434 @@
+
+<!-- saved from url=(0028)http://matt.krutar.org/LMC4/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><style>
+.blk {border:1px}
+.blu {border:0px}
+.console {color:#FFFF00; font-family:"courier"; background-color:#000000}
+</style>
+
+<style type="text/css"></style></head><body><table border="2"><tbody><tr><td>
+<fieldset>
+<legend><b>Little Man Computer (JavaScript Emulator)<br> </b>Implementation by Matthew Krutar ~ Nov 2009</legend>
+<table border="0">
+<tbody><tr><td>&nbsp;</td><td><fieldset>
+<legend>
+CALC
+
+</legend>
+<input size="3" maxlength="3" id="calc"><font color="red"><b><span id="message_id"></span></b></font>
+</fieldset></td><td rowspan="3"><fieldset>
+<legend>
+RAM
+</legend>
+<table border="0">
+<tbody><tr><td>00-04</td><td style="background-color: rgb(0, 0, 255);"><input size="3" maxlength="3" value="" id="rr_0"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_1"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_2"></td>  <td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_3"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_4"></td></tr>
+<tr><td>05-09</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_5"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_6"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_7"></td>  <td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_8"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_9"></td></tr>
+<tr><td>10-14</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_10"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_11"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_12"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_13"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_14"></td></tr>
+<tr><td>15-19</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_15"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_16"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_17"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_18"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_19"></td></tr>
+<tr><td>20-24</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_20"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_21"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_22"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_23"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_24"></td></tr>
+<tr><td>25-29</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_25"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_26"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_27"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_28"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_29"></td></tr>
+<tr><td>30-34</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_30"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_31"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_32"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_33"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_34"></td></tr>
+<tr><td>35-39</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_35"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_36"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_37"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_38"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_39"></td></tr>
+<tr><td>40-44</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_40"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_41"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_42"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_43"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_44"></td></tr>
+<tr><td>45-49</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_45"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_46"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_47"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_48"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_49"></td></tr>
+<tr><td>50-54</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_50"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_51"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_52"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_53"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_54"></td></tr>
+<tr><td>55-59</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_55"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_56"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_57"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_58"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_59"></td></tr>
+<tr><td>60-64</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_60"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_61"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_62"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_63"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_64"></td></tr>
+<tr><td>65-69</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_65"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_66"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_67"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_68"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_69"></td></tr>
+<tr><td>70-74</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_70"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_71"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_72"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_73"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_74"></td></tr>
+<tr><td>75-79</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_75"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_76"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_77"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_78"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_79"></td></tr>
+<tr><td>80-84</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_80"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_81"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_82"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_83"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_84"></td></tr>
+<tr><td>85-89</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_85"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_86"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_87"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_88"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_89"></td></tr>
+<tr><td>90-94</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_90"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_91"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_92"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_93"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_94"></td></tr>
+<tr><td>95-99</td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_95"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_96"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_97"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_98"></td><td style="background-color: rgb(255, 255, 255);"><input size="3" maxlength="3" value="" id="rr_99"></td></tr>
+</tbody></table>
+</fieldset></td></tr>
+<tr><td><fieldset>
+<legend>
+Input
+
+</legend>
+<input size="3" maxlength="3" id="inpt" disabled="">
+</fieldset><fieldset>
+<legend>
+Output
+</legend>
+<input id="output_disp" maxlength="3" size="3" disabled="">
+</fieldset></td><td><fieldset><legend>Instruction Set QuickReference</legend><font face="courier">
+5xx Load<br>
+3xx Store<br>
+1xx Add<br>
+2xx Subtract<br>
+
+901 Input<br>
+902 Output<br>
+000 Halt<br>
+7xx Branch if 0<br>
+8xx Branch if  &gt;= 0 <br>
+6xx Branch unconditional<br>
+</font></fieldset></td></tr>
+<tr><td>&nbsp;</td><td><fieldset>
+<legend>
+Instruction Location Counter
+</legend>
+
+<input size="3" value="0" maxlength="3" id="pc">
+</fieldset></td></tr>
+<tr><td colspan="3" align="center"><input onclick="reset();" type="button" value="Reset"><input onclick="step();" type="button" value="Step"><input id="run_id" onclick="handleRun();" type="button" value="Run"><input onclick="handleHalt();" id="halt_id" type="button" value="Halt" disabled=""><input onclick="coreDump();" type="button" value="Core Dump"></td></tr>
+</tbody></table>
+</fieldset>
+</td></tr>
+<tr><td colspan="3"><fieldset><legend>Input Buffer</legend><input id="in_buff" type="text" size="102"></fieldset></td></tr>
+<tr><td colspan="3"><fieldset><legend>Output Buffer</legend><span id="out_buff">&nbsp;</span></fieldset></td></tr>
+</tbody></table>
+<hr>
+<div class="console" id="console_id"></div>
+
+<script>
+
+//--------------Get Object Handles---------
+   pc_obj = document.getElementById("pc");
+ calc_obj = document.getElementById("calc");
+input_obj = document.getElementById("inpt");
+output_obj  = document.getElementById("out_buff");
+console_obj = document.getElementById("console_id");
+run_obj     = document.getElementById("run_id");
+halt_obj    = document.getElementById("halt_id");
+in_obj      = document.getElementById("in_buff");
+out_obj     = document.getElementById("out_buff");
+message_obj     = document.getElementById("message_id");
+output_disp_obj = document.getElementById("output_disp");
+
+//------------------------------------------------------
+//---------------LMC State Machine------------------
+//------------------------------------------------------
+lmc = new Object
+(
+{
+accumulator:0,//aka "CALC"
+program_counter:0,  //aka "Instruction Location Register"
+instruction_reg:0,  //Instruction Register
+ram:new Array(100), //AKA Mailboxes
+in_buff	:0, //Input Buffer
+in_flag	:false,//Input Flag
+out_buff:0,  //Output Buffer
+out_flag:false//Flag Designating New Output Is Present
+
+}
+);
+//------------------------------------------------------
+//------------------------------------------------------
+//------------------------------------------------------
+
+//Current Insruction:
+curr_timer=0;
+//Init Computer
+coldStart();
+loadState();
+
+
+//----------------------------------[Button Handlers]---------------------------------------------------
+
+//Cold Boot Clear Ram
+function coldStart()
+{
+
+output_obj.innerHTML='&nbsp;';
+//Init Ram
+for(var c=0;c<lmc.ram.length;c++){lmc.ram[c]=0;}
+reset();
+}
+
+
+//Soft Boot
+function reset()
+{
+//Clear All highlighting
+for(var c=0;c<100;c++)
+{
+document.getElementById('rr_' + c).parentNode.style.backgroundColor="#FFFFFF";
+}
+pc_obj.value='0';
+calc_obj.value='0';
+lmc.program_counter=0;
+lmc.accumulator=0;
+document.getElementById('rr_' + 0).parentNode.style.backgroundColor="#0000FF";
+run_obj.disabled=false;
+halt_obj.disabled=true;
+clearInterval(curr_timer);
+in_obj.value = in_obj.value.replace(/(^[\s]+)/g,'');
+output_obj.innerHTML='&nbsp;';
+input_obj.value='';
+message_obj.innerHTML="";
+}
+
+function step()
+{
+loadState();  //Grab input from page...
+clockCycle(); 
+showState();
+}
+
+function runStep() //Run state ignores the page until execution is complete
+{
+clockCycle(); 
+showState();
+}
+
+function handleRun()
+{
+loadState(); 
+run_obj.disabled=true;
+halt_obj.disabled=false;
+curr_timer = setInterval(step,200);
+}
+
+function handleHalt()
+{
+run_obj.disabled=false;
+halt_obj.disabled=true;
+clearInterval(curr_timer);
+}
+//--------------------------------------------------------------------------------------------------------
+
+
+
+
+//--------------------------------------[Util Funcitons]---------------------------------------------
+
+
+
+function zeroPadOne(str)
+{
+
+n_val = parseInt(str);
+if(n_val<0)return str;
+if(n_val<10) n_val = '00' + n_val;
+else if(n_val<100 && n_val >=10) n_val = '0'  + n_val;
+return n_val;
+}
+
+
+//Internal Representation
+
+//Add some syntax highlighting to the memory cells
+function printMemCell(num,pc)
+{
+var b_str='';
+if(lmc.program_counter==pc)
+{
+b_str ='font-weight:bold';
+}
+
+if(num==0)
+{
+return '<font color=#FFFFFF style="'+b_str+'">' +zeroPadOne(num)+ '</font>';
+}
+else if(num>=100 && num < 1000)
+{
+return '<font color=#FF0000 style="'+b_str+'">' +zeroPadOne(num)+ '</font>';
+}
+else
+{
+return '<font color=#00FF00 style="'+b_str+'">' +zeroPadOne(num)+ '</font>';
+}
+}
+
+function coreDump()
+{
+rval = '';
+rval += '------------------------[CORE DUMP]------------------------<BR>';
+rval += 'Accumulator: <font color=#FFFFFF>'      +  zeroPadOne(lmc.accumulator)+  '</font><BR>';
+rval += 'Program Counter: <font color=#FFFFFF>'  +  zeroPadOne(lmc.program_counter) +  '</font><BR>';
+rval += 'Last Instruction: <font color=#FFFFFF>' +  zeroPadOne(lmc.instruction_reg) +  '</font><BR>';
+rval += 'Last Input: <font color=#FFFFFF>' +  zeroPadOne(lmc.in_buff)	+  '</font><BR>';
+rval += 'Last Output: <font color=#FFFFFF>'    +  zeroPadOne(lmc.out_buff)  + '</font><BR>';
+rval += '<BR>RAM:<BR>';
+rval += '<table class="console" border=0 cellspacing=0 cellpadding=0>';
+for(var c=0;c<lmc.ram.length;c+=5)
+{
+c_str = c+'';
+col_str='';
+rval += '<tr><td>'+zeroPadOne(c_str);
+rval += ':</td>';
+rval += '<td>['+printMemCell(lmc.ram[c+0],(c+0))+']</td>';
+rval += '<td>['+printMemCell(lmc.ram[c+1],(c+1))+']</td>';
+rval += '<td>['+printMemCell(lmc.ram[c+2],(c+2))+']</td>';
+rval += '<td>['+printMemCell(lmc.ram[c+3],(c+3))+']</td>';
+rval += '<td>['+printMemCell(lmc.ram[c+4],(c+4))+']</td></tr>';
+}
+rval +='</table>';
+rval += '------------------------[END CORE DUMP]--------------------<BR>';
+console_obj.innerHTML = rval;
+}
+
+
+
+
+//Grabs the next number off the buffer and loads it onto the input pins
+//If the buffer is empty, 0 is loaded onto the input pins
+function getInputFromBuffer()
+{
+//Trim White front whitespace
+  in_obj.value = in_obj.value.replace(/(^[\s]+)/g,'');
+    
+    //Tokenize Input
+      var split_str = in_obj.value.split(/[,\s]+/g)
+	
+	//Grab next input off of array
+	  if(split_str[0].search(/[0-9]+/g)!=-1)
+	    input_obj.value = split_str[0];
+	      else
+		input_obj.value = '0';
+		  
+		   //Take the last element off of the input array
+		     //Chop first value off of queue
+		       var rval='';
+			 for(var c=1;c<split_str.length;c++)
+			   {
+			    rval += split_str[c] + ' ';
+			        }
+				 in_obj.value = rval;
+}
+
+function printOutput()
+{
+output_disp_obj.value = lmc.out_buff; // Update Output Cell
+output_obj.innerHTML += lmc.out_buff +' '; //Update Output Console
+}
+
+function loadState()
+{
+
+ lmc.accumulator     = parseInt(calc_obj.value);
+  lmc.program_counter = parseInt(pc_obj.value);
+   for(var c=0;c<lmc.ram.length;c++)
+    { 
+      var num=0;
+       if(document.getElementById('rr_'+c).value==undefined || document.getElementById('rr_'+c).value=='')
+	{
+	 num=0;
+	  }
+	   else
+	    {
+	     num = parseInt(document.getElementById('rr_'+c).value);
+	      }
+	       lmc.ram[c]=num;
+	        }
+}
+
+function showState()
+{
+ calc_obj.value = lmc.accumulator;
+  pc_obj.value   = lmc.program_counter;
+   for(var c=0;c<lmc.ram.length;c++)
+    {
+     document.getElementById('rr_'+c).value = lmc.ram[c]+'';
+      document.getElementById('rr_'+c).parentNode.style.backgroundColor="#FFFFFF";
+       }
+        
+	 //Highlight instruction counter
+	  document.getElementById('rr_' + lmc.program_counter).parentNode.style.backgroundColor="#0000FF"; 
+}
+
+//------------------------------------------------------------------------------------------------------
+//---------------------------------Fetch Execute Cycle------------------------------------------------
+//------------------------------------------------------------------------------------------------------
+
+//This is the "internal" simulator
+
+function clockCycle()
+{
+//Fetch  
+lmc.instruction_reg = lmc.ram[lmc.program_counter];
+
+//Bump (Increment Program Counter)
+if(lmc.instruction_reg>=100 && lmc.instruction_reg<=999) //Halt on Data Execution
+{
+lmc.program_counter = (lmc.program_counter + 1) % 100;
+}
+else //Crash here if non-instruction loaded.
+{
+handleHalt();
+return 0;
+}
+
+//Decode & Execute
+var addr=0;
+//Load
+if(lmc.instruction_reg >= 500 && lmc.instruction_reg<=599)
+{
+addr = lmc.instruction_reg - 500;
+lmc.accumulator = lmc.ram[addr];
+}
+
+//Store
+else if(lmc.instruction_reg >= 300 && lmc.instruction_reg<=399)
+{
+addr = lmc.instruction_reg - 300;
+lmc.ram[addr] = lmc.accumulator;
+}
+
+//add 
+else if(lmc.instruction_reg >= 100 && lmc.instruction_reg<=199)
+{
+addr = lmc.instruction_reg - 100;
+if((lmc.accumulator + lmc.ram[addr])>999) {handleHalt(); message_obj.innerHTML="Overflow!"; return 0;}
+lmc.accumulator += lmc.ram[addr];
+}
+
+//Subtract 
+else if(lmc.instruction_reg >= 200 && lmc.instruction_reg<=299)
+{
+addr = lmc.instruction_reg - 200;
+lmc.accumulator -= lmc.ram[addr];
+}
+
+//Input
+else if(lmc.instruction_reg == 901)
+{
+ //Load Input obj into calc.
+   getInputFromBuffer();
+     lmc.in_buff = parseInt(input_obj.value);
+     lmc.accumulator = lmc.in_buff;
+     }
+     
+     //Output 
+     else if(lmc.instruction_reg == 902)
+     {
+     lmc.out_buff = lmc.accumulator;
+     printOutput();
+     }
+     
+     //Branch if 0 
+     else if(lmc.instruction_reg >= 700 && lmc.instruction_reg<=799)
+     {
+     addr = lmc.instruction_reg - 700;
+     if(lmc.accumulator==0)
+       {
+        lmc.program_counter = addr % 100;
+	  }
+	  }
+	  
+	  //Branch if >= 0 
+	  else if(lmc.instruction_reg >= 800 && lmc.instruction_reg<=899)
+	  {
+	  addr = lmc.instruction_reg - 800;
+	  if(lmc.accumulator>=0)
+	    {
+	     lmc.program_counter = addr % 100;
+	       }
+	       } 
+	       
+	       //Branch unconditional
+	       else if(lmc.instruction_reg >= 600 && lmc.instruction_reg<=699)
+	       {
+	       addr = lmc.instruction_reg - 600;
+	       lmc.program_counter = addr % 100;
+	       }
+}
+//------------------------------------------------------------------------------------------------------
+
+
+
+</script></body></html>
