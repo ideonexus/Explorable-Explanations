@@ -14,7 +14,7 @@ body {
 
 .form-container-container {
   margin: auto;
-  width:350px;
+  width:420px;
 }
 
 .form-container {
@@ -37,7 +37,7 @@ body {
    text-decoration: none;
    vertical-align: middle;
    padding:20px;
-   width:325px;
+   width:420px;
 }
 
 .decrement, .increment
@@ -52,13 +52,13 @@ body {
 
 input, select
 {
-    font-size:28px;
+    font-size:1.5em;
     font-weight: bold;
 }
 
 select {
     -webkit-appearance: none;
-    width: 175px !important;
+    width: 75px !important;
 }
 
 input::-webkit-outer-spin-button,
@@ -84,7 +84,7 @@ input::-webkit-inner-spin-button {
    box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
    padding:8px;
    margin-bottom:20px;
-   width:30px;
+   width:45px;
 }
 
 .form-field:focus {
@@ -160,6 +160,10 @@ input::-webkit-inner-spin-button {
    background-image: -ms-linear-gradient(top, #41024d 0%, #190121 100%);
    color: #fff;
 }
+
+.inline {
+  display: inline;
+}
 </style>
 <script type='text/javascript'>
 
@@ -174,8 +178,8 @@ function renderCanvas() {
     var ctx = canvas.getContext('2d');
     
     //Pull inputs from form.
-    var starti = Number($("#rangestart").val());
-    var endi = Number($("#rangeend").val());
+    var starti = 0;//Number($("#rangestart").val());
+    var endi = 20;//Number($("#rangeend").val());
     var start = Number($('#start').val());
     var modifier = Number($("#modifier").val());
     var op = $('#operation').val();
@@ -496,8 +500,26 @@ $(window).load(function(){
     <canvas id="canvas"></canvas>
     <div class="form-container-container">
       <form class="form-container">
+          <div class="inline">
+            <input type='button' value='-' class='decrement' field='start' />
+            <input class="form-field" type="number" id="start" value="2"  />
+            <input type='button' value='+' class='increment' field='start' />
+          </div>
+          <div class="inline">
+            <select class="form-field" id="operation" />
+              <option value="+">&nbsp;+ </option>
+              <option value="-">&nbsp;- </option>
+              <option value="*">&nbsp;* </option>
+              <option value="/">&nbsp;/ </option>
+            </select>
+          </div>
+          <div class="inline">
+            <input type='button' value='-' class='decrement' field='modifier' />
+            <input class="form-field" type="number" id="modifier" value="2"  />
+            <input type='button' value='+' class='increment' field='modifier' />
+          </div>
           <div>
-            <div class="right">
+            <!--div class="right">
               <div class="form-title">Range End</div>
               <input type='button' value='-' class='decrement' field='rangeend' />
               <input class="form-field" type="number" id="rangeend" value="20"  />
@@ -509,29 +531,7 @@ $(window).load(function(){
             <input class="form-field" type="number" id="rangestart" value="0"  />
             <input type='button' value='+' class='increment' field='rangestart' />
             <br />
-          </div>
-          <div>
-            <div class="right">
-              <div class="form-title">Modifier</div>
-              <input type='button' value='-' class='decrement' field='modifier' />
-              <input class="form-field" type="number" id="modifier" value="0"  />
-              <input type='button' value='+' class='increment' field='modifier' />
-              <br />
-            </div>
-            <div class="form-title">Base Number</div>
-            <input type='button' value='-' class='decrement' field='start' />
-            <input class="form-field" type="number" id="start" value="0"  />
-            <input type='button' value='+' class='increment' field='start' />
-            <br />
-          </div>
-          <div>
-            <div class="form-title">Operation</div>
-            <select class="form-field" id="operation" />
-                <option value="+">+ add</option>
-                <option value="-">- subtract</option>
-                <option value="*">* multiply</option>
-                <option value="/">/ divide</option>
-            </select>
+          </div-->
             <div class="submit-container right">
               <input class="submit-button" type="button" value="Calculate" onclick="renderCanvas();" />
             </div>
