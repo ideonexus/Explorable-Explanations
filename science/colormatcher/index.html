@@ -1,0 +1,349 @@
+<html>
+<head>
+<title>One Color Word Changer</title>
+<style>
+    body {
+        background-color: #000000;
+        color: white;
+        margin: 0px;
+        padding: 0px;
+        font-family:helvetica,arial;
+    }
+
+    a {
+      color: lightgreen;
+      text-decoration: none;
+    }
+
+    select {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+    }
+
+    .color {
+        width: 150px;
+        height: 150px;
+        font-size: 7em;
+        text-indent: 20%;
+    }
+
+    .invalid {
+        background-color: tomato;
+    }
+
+    #stage {
+        width: 100%;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+        top: 20%;
+    }
+
+    .footer {
+        width: 100%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        padding: 20px;
+        background-color: seagreen;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.colorblend {
+    width: 600px;
+    height: 100px;
+    border: 0px;
+}
+
+.colorbox {
+    width: 100px;
+    height: 100px;
+    border: 3px solid;
+    font-size: 5.5em;
+}
+
+.arrow-up {
+    margin-bottom: 5px;
+    width: 0; 
+    height: 0; 
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    
+    border-bottom: 50px solid lightgreen;
+}
+
+.arrow-down {
+    margin-top: 5px;
+    width: 0; 
+    height: 0; 
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    
+    border-top: 50px solid lightgreen;
+}
+
+.inline {
+    display: inline-block;
+}
+
+
+@media only screen and (max-height: 700px) {
+    #stage {
+        top: 5%;
+    }
+}
+
+</style>
+<script type='text/javascript' src='http://code.jquery.com/jquery-2.1.3.js'></script>
+<script>
+
+var soundOn = true;
+var color1, color2, color3, color4, color5, color6, colorMain, colorToGuess;
+
+var toggleSound = function() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    $.get();
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        var randColor = getRandomColor();
+        $("body").css('background-color', randColor);
+    },100);
+
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $("body").css('background-color', "#" + colorMain);
+        audioElement.pause();
+    }, 5000);
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var startGame = function() {
+    color1 = color2 = color3 = color4 = color5 = color6 = "0";
+    $("#color1").html("0");
+    $("#color2").html("0");
+    $("#color3").html("0");
+    $("#color4").html("0");
+    $("#color5").html("0");
+    $("#color6").html("0");
+    colorMain = "000000";
+    colorToGuess = getRandomColor().replace("#", "");
+    $("body").css('background-color', "#" + colorToGuess);
+    updateBlendColor();
+}
+
+var colorCompare = function(colorGuessedInt, colorToGuessInt, a, b) {
+    if (colorGuessedInt == colorToGuessInt) {//Within 10 points.
+        $("#color" + a).css('border-color', "lime");
+        $("#color" + b).css('border-color', "lime");
+    }
+    else if ((Math.abs(colorGuessedInt - colorToGuessInt)/256)*100 < 4) {//Within 10 points.
+        $("#color" + a).css('border-color', "red");
+        $("#color" + b).css('border-color', "red");
+    }
+    else if ((Math.abs(colorGuessedInt - colorToGuessInt)/256)*100 < 25) {//Withing 64 points.
+        $("#color" + a).css('border-color', "orange");
+        $("#color" + b).css('border-color', "orange");
+    }
+    else {
+        $("#color" + a).css('border-color', "white");
+        $("#color" + b).css('border-color', "white");
+    }
+}
+
+var winCheck = function() {
+    var colorGuessedInt = parseInt(color1 + color2, 16);
+    var colorToGuessInt = parseInt(colorToGuess.substring(0, 2), 16);
+    colorCompare(colorGuessedInt, colorToGuessInt, 1, 2)
+
+    colorGuessedInt = parseInt(color3 + color4, 16);
+    colorToGuessInt = parseInt(colorToGuess.substring(2, 4), 16);
+    colorCompare(colorGuessedInt, colorToGuessInt, 3, 4)
+
+    colorGuessedInt = parseInt(color5 + color6, 16);
+    colorToGuessInt = parseInt(colorToGuess.substring(4, 6), 16);
+    colorCompare(colorGuessedInt, colorToGuessInt, 5, 6)
+
+    if (colorMain == colorToGuess) {
+        winAnimation();
+    }
+}
+
+var updateBlendColor = function() {
+    $("#color1").css('background-color', "#" + color1 + color2 + "0000");
+    $("#color2").css('background-color', "#" + color1 + color2 + "0000");
+    $("#color3").css('background-color', "#00" + color3 + color4 + "00");
+    $("#color4").css('background-color', "#00" + color3 + color4 + "00");
+    $("#color5").css('background-color', "#0000" + color5 + color6);
+    $("#color6").css('background-color', "#0000" + color5 + color6);
+    colorMain = color1 + color2 + color3 + color4 + color5 + color6;
+    $("#colorblend").css('background-color', "#" + colorMain);
+    winCheck();
+}
+
+var incrementHexvalue = function(color, step){
+    var colorText = $("#color" + color).html();
+    var letters = '0123456789ABCDEF'.split('');
+    var newIndex = letters.indexOf(colorText) + step;
+    
+    if (newIndex < 0)
+        newIndex = 0;
+    else if (newIndex > letters.length)
+        newIndex = letters.length;
+
+    $("#color" + color).html(letters[newIndex]);
+    this['color' + color] = letters[newIndex];
+    return color;
+};
+
+var downColor = function (element) {
+    incrementHexvalue(element,-1);
+    updateBlendColor();
+}
+
+var upColor = function (element) {
+    incrementHexvalue(element,1);
+    updateBlendColor();
+}
+
+$( document ).ready(function() {
+    $("#color1up").click(function() { upColor("1"); });
+    $("#color2up").click(function() { upColor("2"); });
+    $("#color3up").click(function() { upColor("3"); });
+    $("#color4up").click(function() { upColor("4"); });
+    $("#color5up").click(function() { upColor("5"); });
+    $("#color6up").click(function() { upColor("6"); });
+
+    $("#color1down").click(function() { downColor("1"); });
+    $("#color2down").click(function() { downColor("2"); });
+    $("#color3down").click(function() { downColor("3"); });
+    $("#color4down").click(function() { downColor("4"); });
+    $("#color5down").click(function() { downColor("5"); });
+    $("#color6down").click(function() { downColor("6"); });
+
+    $("#color1").html(color1);
+    $("#color2").html(color2);
+    $("#color3").html(color3);
+    $("#color4").html(color4);
+    $("#color5").html(color5);
+    $("#color6").html(color6);
+
+    startGame();
+});
+
+</script>
+
+</head>
+<body>
+<div id="stage">
+    <div class="colorblend inline" id="colorblend"></div>
+    <br/>
+    <div class="inline">
+        <div class="arrow-up" id="color1up"></div>
+        <div class="colorbox" id="color1"></div>
+        <div class="arrow-down" id="color1down"></div>
+    </div>
+    <div class="inline">
+        <div class="arrow-up" id="color2up"></div>
+        <div class="colorbox" id="color2"></div>
+        <div class="arrow-down" id="color2down"></div>
+    </div>
+    <div class="inline">
+        <div class="arrow-up" id="color3up"></div>
+        <div class="colorbox" id="color3"></div>
+        <div class="arrow-down" id="color3down"></div>
+    </div>
+    <div class="inline">
+        <div class="arrow-up" id="color4up"></div>
+        <div class="colorbox" id="color4"></div>
+        <div class="arrow-down" id="color4down"></div>
+    </div>
+    <div class="inline">
+        <div class="arrow-up" id="color5up"></div>
+        <div class="colorbox" id="color5"></div>
+        <div class="arrow-down" id="color5down"></div>
+    </div>
+    <div class="inline">
+        <div class="arrow-up" id="color6up"></div>
+        <div class="colorbox" id="color6"></div>
+        <div class="arrow-down" id="color6down"></div>
+    </div>
+</div>
+
+<div class="footer">
+<form>
+    <p>
+        <input type="button" value="New Game" onclick="startGame();" class="myButton" />
+        <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+    </p>
+    <p>Inspired by <a href="https://github.com/LeaVerou/whathecolor">What the Color</a> by <a href="http://lea.verou.me/">Lea Verou</a>.</p>
+</form>
+</div>
+
+</body>
+</html>
