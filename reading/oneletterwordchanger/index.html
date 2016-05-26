@@ -134,11 +134,11 @@ shortO = ["pot","top","mop","rot","dog","log","rod","pog","tog","cot","dot","hod
 shortU = ["jug","gun","hut","nut","mug","tub","bud","sun","cup","rug","bus","sum","bug","pup","tug","cub","nun","hug","rut","sup","pun","bun","fun","dug","run","gum","but"," up"," us","rub","mud","hum","cut","gut","hub","put","pub","pug","sub","sud"];
 
 var wordgroups = [];
-wordgroups["-a-(short a)"] = shortA;
-wordgroups["-e-(short e)"] = shortE;
-wordgroups["-i-(short i)"] = shortI;
-wordgroups["-o-(short o)"] = shortO;
-wordgroups["-u-(short u)"] = shortU;
+wordgroups["a"] = shortA;
+wordgroups["e"] = shortE;
+wordgroups["i"] = shortI;
+wordgroups["o"] = shortO;
+wordgroups["u"] = shortU;
 
 var currentWordGroup = shortA;
 
@@ -163,7 +163,7 @@ function speakWord(word) {
 }
 
 var changeWord = function() {
-    var word = $('#letterone').val() + $('#lettertwo').val() + $('#letterthree').val();
+    var word = $('#letterone').val() + $('#wordgroup').val() + $('#letterthree').val();
     //If Word is not valid, highlight red
     if ($.inArray(word, currentWordGroup) == -1) {
         $(".letter").addClass("invalid");
@@ -177,7 +177,6 @@ var changeWord = function() {
 var changeWordGroup = function() {
     currentWordGroup = wordgroups[$('#wordgroup').val()];
     var letterOneOptions = [];
-    var letterTwoOptions = [];
     var letterThreeOptions = [];
     //foreach word, split into letter array and push to options
     for (var i = 0; i < currentWordGroup.length; i++) {
@@ -186,9 +185,6 @@ var changeWordGroup = function() {
         if ($.inArray(letters[0], letterOneOptions) == -1) {
             letterOneOptions.push(letters[0]);
         }
-        if ($.inArray(letters[1], letterTwoOptions) == -1) {
-            letterTwoOptions.push(letters[1]);
-        }
         if ($.inArray(letters[2], letterThreeOptions) == -1) {        
             letterThreeOptions.push(letters[2]);
         }
@@ -196,28 +192,30 @@ var changeWordGroup = function() {
 
     //Sort Letters into Alphabetical Order
     letterOneOptions.sort();
-    letterTwoOptions.sort();
     letterThreeOptions.sort();
 
+    //Get a random word to which to default
+    var defaultWord = currentWordGroup[Math.floor(Math.random()*currentWordGroup.length)]
+
     var option = '';
-    var selected = ' selected';
+    var selected = '';
     for (var i = 0; i < letterOneOptions.length; i++) {
+        if (defaultWord.split('')[0] == letterOneOptions[i])
+        {
+            selected = ' selected';
+        }
         option += '<option value="'+ letterOneOptions[i] + '"' + selected + '>' + letterOneOptions[i].toUpperCase() + '</option>';
         selected = '';
     }
     $('#letterone').find('option').remove().end().append(option);
 
     option = '';
-    selected = ' selected';
-    for (var i = 0; i < letterTwoOptions.length; i++) {
-        option += '<option value="'+ letterTwoOptions[i] + '"' + selected + '>' + letterTwoOptions[i].toUpperCase() + '</option>';
-        selected = '';
-    }
-    $('#lettertwo').find('option').remove().end().append(option);
-
-    option = '';
-    selected = ' selected';
+    selected = '';
     for (var i = 0; i < letterThreeOptions.length; i++) {
+        if (defaultWord.split('')[2] == letterThreeOptions[i])
+        {
+            selected = ' selected';
+        }
         option += '<option value="'+ letterThreeOptions[i] + '"' + selected + '>' + letterThreeOptions[i].toUpperCase() + '</option>';
         selected = '';
     }
@@ -227,7 +225,7 @@ var changeWordGroup = function() {
 var populateWordgroupSelector = function() {
     var option = '';
     for (var key in wordgroups) {
-       option += '<option value="'+ key + '">' + key + '</option>';
+       option += '<option value="'+ key + '">' + key.toUpperCase() + '</option>';
     }
     $('#wordgroup').append(option);
     $('#wordgroup').change(function() {
@@ -236,23 +234,31 @@ var populateWordgroupSelector = function() {
 }
 
 var previousLetter = function (element) {
-    var nextElement = $('#' + element + ' > option:selected').prev('option');
+    var nextElement = $('#' + element + ' :selected').prev('option');
     if (nextElement.length > 0) {
-        $('#' + element + ' > option:selected').removeAttr('selected').prev('option').attr('selected', 'selected');
+        nextElement.prop("selected", true);
     } else { //Select last option
-        $('#' + element + ' > option:selected').removeAttr('selected');
-        $('#' + element + ' option:last').attr('selected', 'selected');
+        $('#' + element + ' option:last').prop("selected", true);
+    }
+
+    if (element == "wordgroup")
+    {
+        changeWordGroup();
     }
     changeWord();
 }
 
 var nextLetter = function (element) {
-    var nextElement = $('#' + element + ' > option:selected').next('option');
+    var nextElement = $('#' + element + ' :selected').next('option');
     if (nextElement.length > 0) {
-        $('#' + element + ' > option:selected').removeAttr('selected').next('option').attr('selected', 'selected');
+        nextElement.prop("selected", true);
     } else { //Select first option.
-        $('#' + element + ' > option:selected').removeAttr('selected');
-        $('#' + element + ' option:first').attr('selected', 'selected');
+        $('#' + element + ' option:first').prop("selected", true);
+    }
+    
+    if (element == "wordgroup")
+    {
+        changeWordGroup();
     }
     changeWord();
 }
@@ -275,6 +281,12 @@ $( document ).ready(function() {
     $("#letterthreedown").click(function() {
         nextLetter("letterthree");
     });
+    $("#wordgroupup").click(function() {
+        previousLetter("wordgroup");
+    });
+    $("#wordgroupdown").click(function() {
+        nextLetter("wordgroup");
+    });
 });
 
 </script>
@@ -287,7 +299,11 @@ $( document ).ready(function() {
         <select id="letterone" class="letter"></select>
         <div class="arrow-down" id="letteronedown"></div>
     </div>
-    <select id="lettertwo" class="letter"></select>
+    <div class="inline">
+        <div class="arrow-up" id="wordgroupup"></div>
+        <select id="wordgroup" class="letter"></select>
+        <div class="arrow-down" id="wordgroupdown"></div>
+    </div>
     <div class="inline">
         <div class="arrow-up" id="letterthreeup"></div>
         <select id="letterthree" class="letter"></select>
@@ -297,7 +313,6 @@ $( document ).ready(function() {
 
 <div class="footer">
 <form>
-    <p><select id="wordgroup"></select></p>
     <p><input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /></p>
     <p>Word Groups from <a href="http://www.montessorimom.com/phonetic-word-list/">Montessori Mom Phonentic Word List</a></p>
 </form>
