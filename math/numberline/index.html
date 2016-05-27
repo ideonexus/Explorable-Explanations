@@ -14,7 +14,7 @@ body {
 
 .form-container-container {
   margin: auto;
-  width:420px;
+  width:600px;
 }
 
 .form-container {
@@ -33,32 +33,45 @@ body {
    -moz-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
    box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
    font-family: 'Helvetica Neue',Helvetica,sans-serif;
-   font-size: 1.5em;
+   font-size: 2em;
    text-decoration: none;
    vertical-align: middle;
-   padding:20px;
-   width:420px;
+   padding:30px;
+   width:600px;
+   text-align: center;
 }
 
-.decrement, .increment
-{
-    font-size:30px;
-    width: 40px;
-    height: 50px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+.arrow-up {
+    margin-bottom: 5px;
+    margin-left: 5px;
+    width: 0; 
+    height: 0; 
+    border-left: 45px solid transparent;
+    border-right: 45px solid transparent;
+    
+    border-bottom: 45px solid lightgreen;
+}
+
+.arrow-down {
+    margin-top: 5px;
+    margin-left: 5px;
+    width: 0; 
+    height: 0; 
+    border-left: 45px solid transparent;
+    border-right: 45px solid transparent;
+    
+    border-top: 45px solid lightgreen;
 }
 
 input, select
 {
-    font-size:1.5em;
+    font-size:2em;
     font-weight: bold;
 }
 
 select {
     -webkit-appearance: none;
-    width: 75px !important;
+    width: 100px !important;
 }
 
 input::-webkit-outer-spin-button,
@@ -83,8 +96,7 @@ input::-webkit-inner-spin-button {
    -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
    box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
    padding:8px;
-   margin-bottom:20px;
-   width:45px;
+   width:75px;
 }
 
 .form-field:focus {
@@ -94,7 +106,7 @@ input::-webkit-inner-spin-button {
 
 .form-container h2 {
    text-shadow: #595959 0 1px 0;
-   font-size:18px;
+   font-size: 3em;
    margin: 0 0 10px 0;
    font-weight:bold;
    text-align:center;
@@ -130,7 +142,7 @@ input::-webkit-inner-spin-button {
    color: #000000;
    font-family: helvetica, serif;
    padding: 8.5px 18px;
-   font-size: 20px;
+   font-size: 1.5em;
    text-decoration: none;
    vertical-align: middle;
 }
@@ -162,8 +174,13 @@ input::-webkit-inner-spin-button {
 }
 
 .inline {
-  display: inline;
+  display: inline-block;
 }
+
+#answer {
+  font-size: 2.5em;
+}
+
 </style>
 <script type='text/javascript'>
 
@@ -178,8 +195,8 @@ function renderCanvas() {
     var ctx = canvas.getContext('2d');
     
     //Pull inputs from form.
-    var starti = 0;//Number($("#rangestart").val());
-    var endi = 20;//Number($("#rangeend").val());
+    var starti = -10;//Number($("#rangestart").val());
+    var endi = 10;//Number($("#rangeend").val());
     var start = Number($('#start').val());
     var modifier = Number($("#modifier").val());
     var op = $('#operation').val();
@@ -230,6 +247,11 @@ function renderCanvas() {
     }else if (output < starti) {
         starti = output;
     }
+
+    if (op == "/")
+      $('#answer').html(" = " + (Math.round((start/modifier) * 10)/10));
+    else
+      $('#answer').html(" = " + output);
 
     var totRange = endi - starti;
     //Offset h to push numberline to bottom of canvas.
@@ -501,9 +523,9 @@ $(window).load(function(){
     <div class="form-container-container">
       <form class="form-container">
           <div class="inline">
-            <input type='button' value='-' class='decrement' field='start' />
+            <div class="arrow-up increment" field="start"></div>
             <input class="form-field" type="number" id="start" value="2"  />
-            <input type='button' value='+' class='increment' field='start' />
+            <div class="arrow-down decrement" field="start"></div>
           </div>
           <div class="inline">
             <select class="form-field" id="operation" />
@@ -514,9 +536,11 @@ $(window).load(function(){
             </select>
           </div>
           <div class="inline">
-            <input type='button' value='-' class='decrement' field='modifier' />
+            <div class="arrow-up increment" field="modifier"></div>
             <input class="form-field" type="number" id="modifier" value="2"  />
-            <input type='button' value='+' class='increment' field='modifier' />
+            <div class="arrow-down decrement" field="modifier"></div>
+          </div>
+          <div class="inline" id="answer">
           </div>
           <div>
             <!--div class="right">
