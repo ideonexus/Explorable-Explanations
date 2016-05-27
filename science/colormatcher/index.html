@@ -183,7 +183,9 @@ function getRandomColor() {
     return color;
 }
 
-var startGame = function() {
+var startGame = function(random = true) {
+    if (random) colorToGuess = getRandomColor().replace("#", "");
+
     color1 = color2 = color3 = color4 = color5 = color6 = "0";
     $("#color1").html("0");
     $("#color2").html("0");
@@ -192,9 +194,14 @@ var startGame = function() {
     $("#color5").html("0");
     $("#color6").html("0");
     colorMain = "000000";
-    colorToGuess = getRandomColor().replace("#", "");
     $("body").css('background-color', "#" + colorToGuess);
     updateBlendColor();
+}
+
+var setColor = function() {
+    colorToGuess = $("#choosecolor").val().replace("#", "");
+    startGame(false);
+    $("body").css('background-color', "#" + colorToGuess);
 }
 
 var colorCompare = function(colorGuessedInt, colorToGuessInt, a, b) {
@@ -229,7 +236,7 @@ var winCheck = function() {
     colorToGuessInt = parseInt(colorToGuess.substring(4, 6), 16);
     colorCompare(colorGuessedInt, colorToGuessInt, 5, 6)
 
-    if (colorMain == colorToGuess) {
+    if (colorMain.toUpperCase() == colorToGuess.toUpperCase()) {
         winAnimation();
     }
 }
@@ -340,6 +347,7 @@ $( document ).ready(function() {
     <p>
         <input type="button" value="New Game" onclick="startGame();" class="myButton" />
         <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+        Set Color: <input type="color" id="choosecolor" onchange="setColor();" class="form-field" value="#ffffff" />
     </p>
     <p>Inspired by <a href="https://github.com/LeaVerou/whathecolor">What the Color</a> by <a href="http://lea.verou.me/">Lea Verou</a>.</p>
 </form>
