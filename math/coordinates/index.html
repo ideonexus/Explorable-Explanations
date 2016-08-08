@@ -61,30 +61,8 @@
       top: 25%;
     }
 
-    @media only screen and (max-width: 800px) {
-      #container { 
-        width: 90%;
-      }
-    }
-
-    @media only screen and (max-width: 715px) {
-      span {
-        font-size: 1em;
-      }
-      #container { 
-        width: 100%;
-      }
-    }
-
-    @media only screen and (max-width: 650px) {
-      span {
-        font-size: 0.75em;
-      }
-      li {
-        width: 5%;
-        height: 5%;
-        line-height: 80%;
-      }
+    h1 {
+      line-height: .10em;
     }
 
     .hint {
@@ -227,6 +205,64 @@ input::-webkit-inner-spin-button {
     display: none;
     font-size: 28px;
 }
+
+    @media only screen and (max-width: 1100px) {
+      li {
+        width: 5%;
+        height: 5%;
+        line-height: 80%;
+      }
+
+      h1 {
+        font-size: 1em;
+      }
+
+      #coordinateToFind {
+        font-size: 1em;
+      }
+
+      span {
+        font-size: 1em;
+      }
+    }
+
+    @media only screen and (max-width: 900px) {
+      #container { 
+        width: 100%;
+      }
+    }
+
+    @media only screen and (max-width: 850px) {
+      .myButton {
+        font-size: 14px;
+          padding:4px 16px;
+      }
+    }
+
+    @media only screen and (max-width: 715px) {
+      span {
+        font-size: 0.75em;
+      }
+      .myButton {
+        font-size: 12px;
+          padding:4px 14px;
+      }
+    }
+
+    @media only screen and (max-width: 670px) {
+      span {
+        font-size: 0.60em;
+      }
+      li {
+        width: 4.5%;
+        height: 4.5%;
+      }
+      .myButton {
+        font-size: 10px;
+          padding:4px 10px;
+      }=
+    }
+
 </style>
 
 <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
@@ -322,10 +358,11 @@ var toggleLabels = function() {
     $(".coordinate > span").css( "color", "white" );
 }
 
-var hint = function() {
-    var x = coordinateToGuess.split(":")[0];
-    var y = coordinateToGuess.split(":")[1];
+var coordinateToGuessMultiplied = function() {
+   return coordinateToGuess.split(":")[0] * coordinateToGuess.split(":")[1]; 
+}
 
+var setHintHTML = function(x, y){
     $('#x' + x).children("span").removeClass("coordinate");
     $('#x' + x).removeClass("coordinate");
     $('#x' + x).parents("li").removeClass("coordinate");
@@ -359,8 +396,19 @@ var hint = function() {
     }
 }
 
+var hint = function() {
+    var x = coordinateToGuess.split(":")[0];
+    var y = coordinateToGuess.split(":")[1];
+    setHintHTML(x, y);
+
+    if (!xAlpha && !yAlpha)
+    {
+        setHintHTML(y, x);
+    }
+}
+
 var checkForWinConditions = function(guess) {
-  if (coordinateToGuess != guess)
+  if (coordinateToGuess != guess && (!xAlpha && !yAlpha && coordinateToGuessMultiplied() != guess))
   {
       //Using id= to select because jquery can't select when ":" in id.
       $('[id="' + guess + '"]').children("span").removeClass("guessed");
@@ -371,7 +419,10 @@ var checkForWinConditions = function(guess) {
       $('[id="' + guess + '"]').addClass("eliminated");
       $('[id="' + guess + '"]').parents("li").addClass("eliminated");
 
-      readSentence(guess + " is not the coordinate " + coordinateToGuess);
+      if (!xAlpha && !yAlpha)
+        readSentence(guess + " is not the result of " + coordinateToGuess.split(":")[0] + " times " + coordinateToGuess.split(":")[1]);
+      else
+        readSentence(guess + " is not the coordinate " + coordinateToGuess);
   } else {
       readSentence("You found the coordinate!");
       winAnimation();
@@ -379,13 +430,14 @@ var checkForWinConditions = function(guess) {
 }
 
 var buildNumberBlocks = function() {
+    showLabels = false;
     numbersGuessed = [];
     var numbers = [];
-    var yLabel, xLabel, coord;
+    var yLabel, xLabel, coord, coordLabel;
 
     var output = "";
 
-    var xHeaders =  "<ol><li class=\"coordinate\">&nbsp;</li>";
+    var xHeaders =  "<ol class=\"clear\"><li class=\"coordinate\">&nbsp;</li>";
 
     for (var i = 0; i < squareRoot; i++)
     {
@@ -415,12 +467,17 @@ var buildNumberBlocks = function() {
       if (x == 0) x = 10;
       if (xAlpha)
       {
-          coord = alpha[x-1] + ":" + yLabel;
-          output += "<span id=\"" + coord + "\">" + coord + "</span>";
+          coord = coordLabel = alpha[x-1] + ":" + yLabel;
       } else {
-          coord = x + ":" + yLabel;
-          output += "<span id=\"" + coord + "\">" + coord + "</span>";
+          coord = coordLabel = x + ":" + yLabel;
       }
+
+      if (!xAlpha && !yAlpha) //Multiplication Table
+      {
+          coordLabel = x * yLabel;
+      }
+
+      output += "<span id=\"" + coord + "\">" + coordLabel + "</span>";
       output += "</li>";
       
       if ((i % squareRoot) == 0) {
@@ -463,8 +520,14 @@ var buildNumberBlocks = function() {
     var yRand = (Math.floor(Math.random()*squareRoot)+1);
     if (yAlpha) yRand = alpha[yRand - 1];
     coordinateToGuess = xRand + ":" + yRand;
-    
     var find = "Find " + coordinateToGuess;
+
+    if (!xAlpha && !yAlpha) //Multiplication Table
+    {
+        find = "Find " + xRand + " times " + yRand;
+        if (!showLabels) toggleLabels();
+    }
+
     $("#coordinateToFind").html(find);
     speakWord(find);
 }

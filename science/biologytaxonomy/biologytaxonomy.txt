@@ -1,0 +1,27 @@
+
+- Table of organisms by species name (links to wikipedia). Checking the KPCOFG items highlights all members, updates list of traits below/above the table.
+
+Research: Taxonomic Checklists
+http://www.catalogueoflife.org/
+
+https://staff.concord.org/~btinker/guide/fieldguide/taxonomy_list.html
+
+Kingdom
+Monera: single-cell, no nucleus (prokaryotes)
+Protista: single-cell with nucleus (eukaryotes)
+Fungi: multi-cellular eukaryotic cells arranged in a filamentous form
+Plantae: multi-cellular, photosynthesis, cell walls
+Animalia: multi-cellular, feed on other organisms
+
+Phylum
+
+Class
+
+Order
+
+Family
+
+Genus
+
+Species
+
