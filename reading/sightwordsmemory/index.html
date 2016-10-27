@@ -10,7 +10,7 @@
       color: hotpink;
     }
 
-    #container { 
+    .containersmall { 
         width: 80%;
         height: 80%;
         /*position: absolute;*/
@@ -50,6 +50,21 @@
       line-height: 100%;
       text-align: center;
       background-color: violet;
+    }
+
+    .lismall {
+      width: 20%;
+      height: 20%;      
+    }
+
+    .lilarge {
+      width: 15%;
+      height: 15%;      
+    }
+
+    .lilarger {
+      width: 13%;
+      height: 13%;      
     }
 
     span { 
@@ -143,7 +158,7 @@
 
 </style>
 
-<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script>
 
 //http://www.mrsperkins.com/files/dolch_book.pdf
@@ -377,6 +392,8 @@ sentences["together"] = ["Let's play together."];
 sentences["try"] = ["Please try to be quiet."];
 sentences["warm"] = ["The soup is warm."];
 
+var kindergartenWordsSet01 = ["a","go","it","no","the","and","he","like","an","to","at","I","look","play","up","can","in","me","see","we","for","is","my","she","you"];
+
 var prePrimerWords = ["a","and","away","big","blue","can","come","down","find","for","funny","go","help","here","I","in","is","it","jump","little","look","make","me","my","not","one","play","red","run","said","see","the","three","to","two","up","we","where","yellow","you"];
 
 var primerWords = ["all","am","are","at","ate","be","black","brown","but","came","did","do","eat","four","get","good","have","he","into","like","must","new","no","now","on","our","out","please","pretty","ran","ride","saw","say","she","so","soon","that","there","they","this","too","under","want","was","well","went","what","white","who","will","with","yes"];
@@ -400,6 +417,7 @@ var readingGameBook5 = ["about","again","ago","at","because","behind","beside","
 var readingGameBook6 = ["alphabet","belong","book","chase","could","dolphin","even","fair","front","goes","goose","hen","hop","loose","my","once","over","page","rabbit","should","soon","think","toad","try","vulture","wombat","would","wrong","yak","zebra"];
 
 var wordArrays = [];
+wordArrays["kindergartenWordsSet01"] = kindergartenWordsSet01;
 wordArrays["prePrimerWords"] = prePrimerWords;
 wordArrays["primerWords"] = primerWords;
 wordArrays["firstGradeWords"] = firstGradeWords;
@@ -413,10 +431,23 @@ wordArrays["readingGameBook5"] = readingGameBook5;
 wordArrays["readingGameBook6"] = readingGameBook6;
 
 var currentWordArray = prePrimerWords;
+var numberOfWords = 6;
 
 var changeWordArray = function() {
     currentWordArray = wordArrays[$("#wordgroup").val()];
     buildWordBlocks();
+}
+
+var changeNumberOfWords = function() {
+    numberOfWords = parseInt($("#numberofwords").val());
+    buildWordBlocks();  
+    if (numberOfWords > 10) {
+        $("li").removeClass("lismall").removeClass("lilarge").addClass("lilarger");
+    } else if (numberOfWords > 8) {
+        $("li").removeClass("lismall").removeClass("lilarger").addClass("lilarge");
+    } else {
+        $("li").removeClass("lilarge").removeClass("lilarger").addClass("lismall");
+    }
 }
 
 var soundOn = true;
@@ -492,7 +523,7 @@ var winAnimation = function() {
 var buildWordBlocks = function() {
     var words = [];
     // get words, place them in an array & randomize the order
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < numberOfWords; i++) {
       var word = currentWordArray[Math.floor(Math.random()*currentWordArray.length)];
       //Prevent adding duplicate words to the array.
       var notInArray = false;
@@ -511,7 +542,7 @@ var buildWordBlocks = function() {
 
     // output words then hide them
     var output = "<ol>"; 
-    for (var i = 0; i < 12; i++) { 
+    for (var i = 0; i < (numberOfWords*2); i++) { 
       output += "<li>";
       output += "<span>" + words[i] + "</span>";
       output += "</li>";
@@ -593,16 +624,20 @@ $(document).ready(function() {
     $("#wordgroup").change(function() {
         changeWordArray();
     });
+    $("#numberofwords").change(function() {
+        changeNumberOfWords();
+    });
 });
 
 </script>
 </head>
 <body>
-<div id="container"></div>
+<div id="container" class="containersmall"></div>
 <div id="footer">
     <h1 id="sentence">Site Words Memory Game</h1>
     <form >
       <select id="wordgroup">
+          <option value="kindergartenWordsSet01">Kindergarten Words Set 1</option>
           <option value="prePrimerWords">Jill Perkins' Pre-Primer Words</option>
           <option value="primerWords">Jill Perkins' Primer Words</option>
           <option value="firstGradeWords">Jill Perkins' First-Grade Words</option>
@@ -614,6 +649,13 @@ $(document).ready(function() {
           <option value="readingGameBook4">Kenneth Hodkinson's Reading Game Book 4 - Penguins</option>
           <option value="readingGameBook5">Kenneth Hodkinson's Reading Game Book 5 - Unicorn</option>
           <option value="readingGameBook6">Kenneth Hodkinson's Reading Game Book 6 - Zebra</option>
+      </select>
+      <select id="numberofwords">
+          <option value="4">4 Words</option>
+          <option value="6" selected>6 Words</option>
+          <option value="8">8 Words</option>
+          <option value="10">10 Words</option>
+          <option value="12">12 Words</option>
       </select><br/>
       <input type="button" value="New Game" onclick="buildWordBlocks();" class="myButton" />
       <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
