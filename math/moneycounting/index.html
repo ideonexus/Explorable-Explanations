@@ -8,7 +8,7 @@
         font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
     }
 
-    #targetNumber {
+    #stage {
         width: 100%;
         text-align: center;
         font-size: 3em;
@@ -33,11 +33,11 @@
     }
 
     .baseCount {
-        font-size: 1.5em;
+        font-size: 1em;
     }
 
     .numberImage, .numberAdjustor {
-        width: 8.75%;
+        width: 8.8%;
         text-align: center;
         float: left;
     }
@@ -97,7 +97,7 @@
 {
     font-size:15px;
     width: 20px;
-    height: 30px;
+    height: 25px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
@@ -207,7 +207,14 @@ var moneyIt = function(s) {
         if ((i+1) % 3 == 0 && (amount.length-1) !== i) output = ',' + output;
     }
 
-    output = "$" + output + "." + dec;
+    if (s.length == 1) {
+        output = "$0.0" + dec;
+    } else if (s.length == 2) {
+        output = "$0." + dec;
+    } else {
+        output = "$" + output + "." + dec;
+    }
+
     return output;
 }
 
@@ -296,13 +303,15 @@ var buildMoneyString = function() {
 var decrement = function(val) {
     if ((enteredNumber - val) > -1) {
         enteredNumber -= val;
+        $("#guessedNumber").html(moneyIt(enteredNumber.toString()));
         buildMoneyString();
     }
 }
 
 var increment = function(val) {
-    if ((enteredNumber + val) < 10000) {
+    if ((enteredNumber + val) < 100000) {
         enteredNumber += val;
+        $("#guessedNumber").html(moneyIt(enteredNumber.toString()));
         buildMoneyString();
     }
 }
@@ -399,7 +408,7 @@ $(document).ready(function() {
 </div>
 
 <div id="footer">
-    <div id="targetNumber"></div>
+    <div id="stage"><span id="targetNumber"></span> / <span id="guessedNumber"></span></div>
     <h1 id="feedback">Base-10 Counting Blocks</h1>
     <form>
       <input type="button" value="New Game" onclick="generateNumber();" class="myButton" />
