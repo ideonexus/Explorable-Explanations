@@ -1,0 +1,411 @@
+<html>
+<head>
+<title>Money Counting</title>
+<style>
+    body {
+        background-color: teal;
+        color: white;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    }
+
+    #targetNumber {
+        width: 100%;
+        text-align: center;
+        font-size: 3em;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    .i10000,.i5000,.i2000,.i1000,.i500,.i100  {
+        width: 100%;
+    }
+
+    .i50,.i25,.i10,.i5,.i1 {
+        width: 60%;
+    }
+
+    .baseCount {
+        font-size: 1.5em;
+    }
+
+    .numberImage, .numberAdjustor {
+        width: 8.75%;
+        text-align: center;
+        float: left;
+    }
+    .numberImage {
+        height: 60%;
+        border: solid 1px white;
+    }
+
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.formelements {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.decrement, .increment
+{
+    font-size:15px;
+    width: 20px;
+    height: 30px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+input, select
+{
+    font-size:28px;
+    font-weight: bold;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:30px;
+}
+
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    $.get();
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( ".numberImage" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( ".numberImage" ).each(function( index ) {
+            $(this).css('background-color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+var currentNumber;
+var enteredNumber;
+
+//http://stackoverflow.com/questions/7150575/add-a-decimal-to-a-string
+var moneyIt = function(s) {
+    //number before the decimal point
+    num = s.substring(0,s.length-2);
+    //number after the decimal point
+    dec = s.substring(s.length-2,s.length);
+
+    var amount = new String(num);
+    amount = amount.split("").reverse();
+
+    var output = "";
+    for ( var i = 0; i <= amount.length-1; i++ ){
+        output = amount[i] + output;
+        if ((i+1) % 3 == 0 && (amount.length-1) !== i) output = ',' + output;
+    }
+
+    output = "$" + output + "." + dec;
+    return output;
+}
+
+var clearBlocks = function() {
+    $('#c10000').html('');
+    $('#c5000').html('');
+    $('#c2000').html('');
+    $('#c1000').html('');
+    $('#c500').html('');
+    $('#c100').html('');
+    $('#c50').html('');
+    $('#c25').html('');
+    $('#c10').html('');
+    $('#c5').html('');    
+    $('#c1').html('');
+
+    $('#v10000').html(moneyIt('00000'));
+    $('#v5000').html(moneyIt('0000'));
+    $('#v2000').html(moneyIt('0000'));
+    $('#v1000').html(moneyIt('0000'));
+    $('#v500').html(moneyIt('000'));
+    $('#v100').html(moneyIt('000'));
+    $('#v50').html(moneyIt('00'));
+    $('#v25').html(moneyIt('00'));
+    $('#v10').html(moneyIt('00'));
+    $('#v5').html(moneyIt('0'));
+    $('#v1').html(moneyIt('0'));    
+}
+
+var generateNumber = function() {
+    enteredNumber = 0;
+    clearBlocks();
+    currentNumber = Math.floor(Math.random() * 99999) + 1;
+    $("#targetNumber").html(moneyIt(currentNumber.toString()));
+}
+
+var buildMoneyString = function() {
+    var val;
+    var tempNumber = enteredNumber;
+    var lastDivisor = null;
+    clearBlocks();
+
+    while (tempNumber > 0) {
+        var largestDivisor;
+
+        if (tempNumber >= 10000) {
+            largestDivisor = 10000;
+        } else if (tempNumber >= 5000) {
+            largestDivisor = 5000;
+        } else if (tempNumber >= 2000) {
+            largestDivisor = 2000;
+        } else if (tempNumber >= 1000) {
+            largestDivisor = 1000;
+        } else if (tempNumber >= 500) {
+            largestDivisor = 500;
+        } else if (tempNumber >= 100) {
+            largestDivisor = 100;
+        } else if (tempNumber >= 50) {
+            largestDivisor = 50;
+        } else if (tempNumber >= 25) {
+            largestDivisor = 25;
+        } else if (tempNumber >= 10) {
+            largestDivisor = 10;
+        } else if (tempNumber >= 5) {
+            largestDivisor = 5;
+        } else if (tempNumber >= 1) {
+            largestDivisor = 1;
+        }
+
+        var valDecrement = 0
+        var htmlString = "";
+        while (tempNumber >= (valDecrement + largestDivisor)) {
+            var imageFrontBack = "_obverse";
+            if (Math.random() >= 0.5) imageFrontBack = "_reverse";
+            var imageFormat = ".png";
+            if (largestDivisor > 50) imageFormat = ".jpg";
+            htmlString += '<img src="img/' + largestDivisor + imageFrontBack + imageFormat + '" class="i' + largestDivisor + '" />';
+            valDecrement += largestDivisor;
+        }
+        $('#c' + largestDivisor).html(htmlString);
+        $('#v' + largestDivisor).html(moneyIt(valDecrement.toString()));
+        tempNumber -= valDecrement;
+    }
+}
+
+var decrement = function(val) {
+    if ((enteredNumber - val) > -1) {
+        enteredNumber -= val;
+        buildMoneyString();
+    }
+}
+
+var increment = function(val) {
+    if ((enteredNumber + val) < 10000) {
+        enteredNumber += val;
+        buildMoneyString();
+    }
+}
+
+var testAnswer = function() {
+    if (currentNumber == enteredNumber) {
+        $("#feedback").html("Correct! You are the best!!!");
+        winAnimation();
+    } else {
+        var feedback = enteredNumber + ' does not equal ' + currentNumber;
+        $("#feedback").html(feedback);
+        speakWord(feedback);
+    }
+}
+
+$(document).ready(function() {
+    generateNumber();
+});
+
+
+</script>
+</head>
+<body>
+<div>
+    <div id="c10000" class="numberImage"><img src="img/10000_obverse.jpg" class="i10000" /></div>
+    <div id="c5000" class="numberImage"><img src="img/5000_obverse.jpg" class="i5000" /></div>
+    <div id="c2000" class="numberImage"><img src="img/2000_obverse.jpg" class="i2000" /></div>
+    <div id="c1000" class="numberImage"><img src="img/1000_obverse.jpg" class="i1000" /></div>
+    <div id="c500" class="numberImage"><img src="img/500_obverse.jpg" class="i500" /></div>
+    <div id="c100" class="numberImage"><img src="img/100_obverse.jpg" class="i100" /></div>
+    <div id="c50" class="numberImage"><img src="img/50_obverse.png" class="i50" /></div>
+    <div id="c25" class="numberImage"><img src="img/25_obverse.png" class="i25" /></div>
+    <div id="c10" class="numberImage"><img src="img/10_obverse.png" class="i10" /></div>
+    <div id="c5" class="numberImage"><img src="img/5_obverse.png" class="i5" /></div>
+    <div id="c1" class="numberImage"><img src="img/1_obverse.png" class="i1" /></div>
+</div>
+<br style="clear:both" />
+<div>
+    <div id="hundreddollars" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(10000);" />
+        <span id="v10000" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(10000);" />
+    </div>
+    <div id="fiftydollars" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(5000);" />
+        <span id="v5000" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(5000);" />
+    </div>
+    <div id="twentydollars" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(2000);" />
+        <span id="v2000" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(2000);" />
+    </div>
+    <div id="tendollars" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(1000);" />
+        <span id="v1000" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(1000);" />
+    </div>
+    <div id="fivedollars" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(500);" />
+        <span id="v500" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(500);" />
+    </div>
+    <div id="dollars" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(100);" />
+        <span id="v100" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(100);" />
+    </div>
+    <div id="halfdollars" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(50);" />
+        <span id="v50" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(50);" />
+    </div>
+    <div id="quarters" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(25);" />
+        <span id="v25" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(25);" />
+    </div>
+    <div id="dimes" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(10);" />
+        <span id="v10" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(10);" />
+    </div>
+    <div id="nickles" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(5);" />
+        <span id="v5" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(5);" />
+    </div>
+    <div id="pennies" class="numberAdjustor">
+        <input type='button' value='-' class='decrement' onclick="decrement(1);" />
+        <span id="v1" class="baseCount"></span>
+        <input type='button' value='+' class='increment' onclick="increment(1);" />
+    </div>
+</div>
+
+<div id="footer">
+    <div id="targetNumber"></div>
+    <h1 id="feedback">Base-10 Counting Blocks</h1>
+    <form>
+      <input type="button" value="New Game" onclick="generateNumber();" class="myButton" />
+      <input type="button" value="Test Answer" onclick="testAnswer();" class="myButton" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+    </form>
+</div>
+</body>
+</html>
