@@ -14,6 +14,16 @@
         font-size: 3em;
     }
 
+    .numberContainers {
+        width: 95%;
+        text-align: center;        
+        margin: auto;
+    }
+
+    .cents {
+        margin-left: 10%;
+    }
+
     #footer {
         width: 90%;
         text-align: center;
@@ -24,12 +34,31 @@
         margin: auto;
     }
 
-    .i10000,.i5000,.i2000,.i1000,.i500,.i100  {
-        width: 100%;
+    .i10000,.i5000,.i2000,.i1000,.i500,.i50  {
+        width: 90%;
+        padding-top: 5px;
     }
 
-    .i50,.i25,.i10,.i5,.i1 {
+    .i100 {
+        width: 70%;
+        padding-top: 5px;
+    }
+
+    .i25 {
+        width: 70%;
+    }
+
+    .i10 {
+        width: 51%;
+    }
+    
+    .i5 {
         width: 60%;
+    }
+
+    .i1 {
+        width: 40%;
+        padding-left: 5px;
     }
 
     .baseCount {
@@ -37,15 +66,14 @@
     }
 
     .numberImage, .numberAdjustor {
-        width: 8.8%;
+        width: 16%;
         text-align: center;
         float: left;
     }
     .numberImage {
-        height: 60%;
+        height: 30%;
         border: solid 1px white;
     }
-
 
 .myButton {
   -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
@@ -335,81 +363,100 @@ $(document).ready(function() {
 </script>
 </head>
 <body>
-<div>
-    <div id="c10000" class="numberImage"><img src="img/10000_obverse.jpg" class="i10000" /></div>
-    <div id="c5000" class="numberImage"><img src="img/5000_obverse.jpg" class="i5000" /></div>
-    <div id="c2000" class="numberImage"><img src="img/2000_obverse.jpg" class="i2000" /></div>
-    <div id="c1000" class="numberImage"><img src="img/1000_obverse.jpg" class="i1000" /></div>
-    <div id="c500" class="numberImage"><img src="img/500_obverse.jpg" class="i500" /></div>
-    <div id="c100" class="numberImage"><img src="img/100_obverse.jpg" class="i100" /></div>
-    <div id="c50" class="numberImage"><img src="img/50_obverse.png" class="i50" /></div>
-    <div id="c25" class="numberImage"><img src="img/25_obverse.png" class="i25" /></div>
-    <div id="c10" class="numberImage"><img src="img/10_obverse.png" class="i10" /></div>
-    <div id="c5" class="numberImage"><img src="img/5_obverse.png" class="i5" /></div>
-    <div id="c1" class="numberImage"><img src="img/1_obverse.png" class="i1" /></div>
-</div>
-<br style="clear:both" />
-<div>
-    <div id="hundreddollars" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(10000);" />
-        <span id="v10000" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(10000);" />
+<div class="numberContainers">
+    <div class="dollars">
+        <div id="c10000" class="numberImage"><img src="img/10000_obverse.jpg" class="i10000" /></div>
+        <div id="c5000" class="numberImage"><img src="img/5000_obverse.jpg" class="i5000" /></div>
+        <div id="c2000" class="numberImage"><img src="img/2000_obverse.jpg" class="i2000" /></div>
+        <div id="c1000" class="numberImage"><img src="img/1000_obverse.jpg" class="i1000" /></div>
+        <div id="c500" class="numberImage"><img src="img/500_obverse.jpg" class="i500" /></div>
+        <div id="c100" class="numberImage"><img src="img/100_obverse.jpg" class="i100" /></div>
     </div>
-    <div id="fiftydollars" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(5000);" />
-        <span id="v5000" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(5000);" />
+    <br style="clear:both" />
+    <div class="dollars">
+        <div id="hundreddollars" class="numberAdjustor">
+            Hundred Dollars<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(10000);" />
+            <span id="v10000" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(10000);" />
+        </div>
+        <div id="fiftydollars" class="numberAdjustor">
+            Fifty Dollars<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(5000);" />
+            <span id="v5000" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(5000);" />
+        </div>
+        <div id="twentydollars" class="numberAdjustor">
+            Twenty Dollars<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(2000);" />
+            <span id="v2000" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(2000);" />
+        </div>
+        <div id="tendollars" class="numberAdjustor">
+            Ten Dollars<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(1000);" />
+            <span id="v1000" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(1000);" />
+        </div>
+        <div id="fivedollars" class="numberAdjustor">
+            Five Dollars<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(500);" />
+            <span id="v500" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(500);" />
+        </div>
+        <div id="dollars" class="numberAdjustor">
+            One Dollars<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(100);" />
+            <span id="v100" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(100);" />
+        </div>
     </div>
-    <div id="twentydollars" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(2000);" />
-        <span id="v2000" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(2000);" />
+    <br style="clear:both" />
+    <div class="cents">
+        <div id="c50" class="numberImage"><img src="img/50_obverse.png" class="i50" /></div>
+        <div id="c25" class="numberImage"><img src="img/25_obverse.png" class="i25" /></div>
+        <div id="c10" class="numberImage"><img src="img/10_obverse.png" class="i10" /></div>
+        <div id="c5" class="numberImage"><img src="img/5_obverse.png" class="i5" /></div>
+        <div id="c1" class="numberImage"><img src="img/1_obverse.png" class="i1" /></div>
     </div>
-    <div id="tendollars" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(1000);" />
-        <span id="v1000" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(1000);" />
-    </div>
-    <div id="fivedollars" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(500);" />
-        <span id="v500" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(500);" />
-    </div>
-    <div id="dollars" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(100);" />
-        <span id="v100" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(100);" />
-    </div>
-    <div id="halfdollars" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(50);" />
-        <span id="v50" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(50);" />
-    </div>
-    <div id="quarters" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(25);" />
-        <span id="v25" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(25);" />
-    </div>
-    <div id="dimes" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(10);" />
-        <span id="v10" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(10);" />
-    </div>
-    <div id="nickles" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(5);" />
-        <span id="v5" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(5);" />
-    </div>
-    <div id="pennies" class="numberAdjustor">
-        <input type='button' value='-' class='decrement' onclick="decrement(1);" />
-        <span id="v1" class="baseCount"></span>
-        <input type='button' value='+' class='increment' onclick="increment(1);" />
+    <br style="clear:both" />
+    <div class="cents">
+        <div id="halfdollars" class="numberAdjustor">
+            Half-Dollars<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(50);" />
+            <span id="v50" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(50);" />
+        </div>
+        <div id="quarters" class="numberAdjustor">
+            Quarters<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(25);" />
+            <span id="v25" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(25);" />
+        </div>
+        <div id="dimes" class="numberAdjustor">
+            Dimes<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(10);" />
+            <span id="v10" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(10);" />
+        </div>
+        <div id="nickles" class="numberAdjustor">
+            Nickles<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(5);" />
+            <span id="v5" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(5);" />
+        </div>
+        <div id="pennies" class="numberAdjustor">
+            Pennies<br/>
+            <input type='button' value='-' class='decrement' onclick="decrement(1);" />
+            <span id="v1" class="baseCount"></span>
+            <input type='button' value='+' class='increment' onclick="increment(1);" />
+        </div>
     </div>
 </div>
 
 <div id="footer">
     <div id="stage"><span id="targetNumber"></span> / <span id="guessedNumber"></span></div>
-    <h1 id="feedback">Base-10 Counting Blocks</h1>
+    <h1 id="feedback">Money Counting</h1>
     <form>
       <input type="button" value="New Game" onclick="generateNumber();" class="myButton" />
       <input type="button" value="Test Answer" onclick="testAnswer();" class="myButton" />
