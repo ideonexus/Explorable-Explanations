@@ -1,0 +1,154 @@
+<html>
+<head>
+<title>Puzzle-Piece Arithmetic</title>
+
+<style>
+body {
+    background-color: darkblue;
+    color: white;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+a {
+  color: lightblue;
+}
+
+#footer {
+    width: 90%;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.topRow, .middleRow, .bottmRow {
+    overflow: hidden;
+}
+
+.puzzlepiece {
+  float: left;
+  margin-right: 2px;
+  width: 4em;
+  height: 6em;
+  margin-top: 25px;
+  position: relative;
+  -webkit-border-radius: .5em;
+  -moz-border-radius: .5em;
+  border-radius: .5em;
+  cursor: pointer;
+  background-color: cyan;
+}
+
+.puzzlepiece .t {
+ width: 2em;
+  height: 2em;
+  position: absolute;
+  top: -1.5em;
+  left: 1.2em;
+  -webkit-border-radius: 4em;
+  -moz-border-radius: 4em;
+  border-radius: 4em;
+  background-color: cyan;
+  z-index: 100;
+}
+
+.puzzlepiece .r {
+ width: 2em;
+  height: 2em;
+  position: absolute;
+  top: 2em;
+  left: 3.5em;
+  -webkit-border-radius: 4em;
+  -moz-border-radius: 4em;
+  border-radius: 4em;
+  background-color: cyan;
+  z-index: 100;
+}
+
+.puzzlepiece .b { 
+ width: 1.8em;
+  height: 1.8em;
+  position: absolute;
+  top: 5.5em;
+  left: 1.2em;
+  -webkit-border-radius: 4em;
+  -moz-border-radius: 4em;
+  border-radius: 4em;
+  background-color: cyan;
+  z-index: 100;
+}
+
+.puzzlepiece .l { 
+  width: 2em;
+  height: 2em;
+  position: absolute;
+  top: 2em;
+  left: -0.5em;
+  -webkit-border-radius: 4em;
+  -moz-border-radius: 4em;
+  border-radius: 5em;
+  background-color: darkblue;
+}
+
+.text {
+  display: block;
+  color: black;
+  font-size: 2.5em;
+  text-align: center;
+  padding: 0.6em 0 0 0.4em;
+  position: relative;
+  background: transparent !important;
+}
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+
+<script>
+
+
+
+</script>
+
+</head>
+<body>
+<div>
+    <div class="topRow">
+        <div class="puzzlepiece">
+          <!--span class="t"></span-->
+          <span class="r"></span>
+          <span class="b"></span>
+          <span class="l"></span>
+          <span class="text">8</span>
+        </div>
+    </div>
+    <div class="middleRow">
+        <div class="puzzlepiece">
+          <span class="t"></span>
+          <span class="r"></span>
+          <span class="b"></span>
+          <span class="l"></span>
+          <span class="text">8</span>
+        </div>
+    </div>
+    <div class="bottomRow">
+        <div class="puzzlepiece">
+          <span class="t"></span>
+          <span class="r"></span>
+          <!--span class="b"></span-->
+          <span class="l"></span>
+          <span class="text">8</span>
+        </div>
+    </div>
+
+</div>
+
+<div id="footer">
+    <div id="targetNumber"></div>
+    <h1 id="feedback">Puzzle Piece Arithmetic</h1>
+    <p>Credit to <a href="https://codepen.io/ProfessorSamoff/pen/ByJoaE">Tim Samoff</a> for the puzzle piece CSS.</p>
+</div>
+</body>
+</html>
