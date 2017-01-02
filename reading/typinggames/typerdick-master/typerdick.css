@@ -1,0 +1,246 @@
+*,
+*::before,
+*::after {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+       -o-user-select: none;
+       -k-user-select: none;
+          user-select: none;
+  cursor: default;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: sans-serif;
+  font-size: 0;
+  white-space: nowrap;
+  text-align: center;
+}
+
+body::before {
+  content: '';
+  height: 100%;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.main {
+  font-size: 0;
+  display: inline-block;
+  vertical-align: middle;
+  white-space: normal;
+  text-align: left;
+}
+
+.game {
+  font-size: 0;
+  margin: 10px;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+}
+
+.grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+}
+
+.grid canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.column {
+  position: absolute;
+  top: 0;
+}
+
+.cell {
+  position: absolute;
+  left: 0;
+  text-align: center;
+  -webkit-transition: background-color .2s;
+     -moz-transition: background-color .2s;
+      -ms-transition: background-color .2s;
+       -o-transition: background-color .2s;
+       -k-transition: background-color .2s;
+          transition: background-color .2s;
+}
+
+.cell.score {
+  background-color: rgba(0, 0, 255, 0.2);
+}
+
+.cell.slow {
+  background-color: rgba(0, 255, 0, 0.3);
+}
+
+.cell.slow.score {
+  background-color: rgba(0, 255, 127, 0.3);
+}
+
+.cell.block,
+.cell.slow.score.block {
+  background-color: rgb(235, 235, 235);
+}
+
+.cell.block .label {
+  display: none;
+}
+
+.cell .label {
+  margin-top: 10%;
+}
+
+.ongoing.paused .cell .label {
+  display: none;
+}
+
+.player {
+  position: absolute;
+  visibility: visible;
+  opacity: 0;
+  top: 0;
+  left: 0;
+  -webkit-transition: opacity .5s;
+     -moz-transition: opacity .5s;
+      -ms-transition: opacity .5s;
+       -o-transition: opacity .5s;
+       -k-transition: opacity .5s;
+          transition: opacity .5s;
+}
+
+.player.visible {
+  opacity: 1;
+}
+
+.crosshair {
+  position: absolute;
+  border-color: rgb(255, 191, 191);
+  border-style: solid;
+  border-width: 0;
+}
+
+.player.visible .crosshair {
+  -webkit-transition: top .1s, left .1s;
+     -moz-transition: top .1s, left .1s;
+      -ms-transition: top .1s, left .1s;
+       -o-transition: top .1s, left .1s;
+       -k-transition: top .1s, left .1s;
+          transition: top .1s, left .1s;
+}
+
+.instructions {
+  padding: 5px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.instructions .red {
+  background-color: rgb(255, 191, 191);
+}
+
+.instructions .blue {
+  background-color: rgba(0, 0, 255, 0.2);
+}
+
+.instructions .green {
+  background-color: rgba(0, 255, 0, 0.3);
+}
+
+.status {
+  font-size: 14px;
+  padding: 5px;
+  text-align: center;
+}
+
+.field {
+  display: inline-block;
+  width: 30%;
+  white-space: nowrap;
+}
+
+.field::before {
+  margin-right: 3px;
+}
+
+.score.field::before {
+  content: 'score: ';
+}
+
+.speed.field::before {
+  content: 'speed: ';
+}
+
+.time.field::before {
+  content: 'suffering: ';
+}
+
+.overlay {
+  text-align: center;
+  white-space: nowrap;
+  background-color: rgba(255, 255, 255, 0.9);
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  -webkit-transition: opacity .1s;
+     -moz-transition: opacity .1s;
+      -ms-transition: opacity .1s;
+       -o-transition: opacity .1s;
+       -k-transition: opacity .1s;
+          transition: opacity .1s;
+}
+
+.overlay.visible {
+  opacity: 1;
+}
+
+.overlay::before {
+  content: '';
+  height: 100%;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.overlay .text {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: left;
+  white-space: normal;
+  color: rgb(63, 63, 63);
+}
+
+.overlay .text .heading {
+  text-align: center;
+  font-weight: bold;
+  font-size: 40px;
+}
+
+.overlay .text .body {
+  margin: 15px 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.overlay .text .body a {
+  color: inherit;
+}
+
+.overlay .text .body a.wide {
+  margin: 0 10px;
+}

@@ -493,11 +493,7 @@ function getRandomColor() {
 var winAnimation = function() {
     var audioElement = document.createElement('audio');
     audioElement.setAttribute('src', 'mp3/tada.mp3');
-    //audioElement.setAttribute('autoplay', 'autoplay');
     $.get();
-    //audioElement.addEventListener("load", function() {
-    //    audioElement.play();
-    //}, true);
 
     window.setTimeout(function(){
         audioElement.play();
@@ -522,8 +518,26 @@ var winAnimation = function() {
     }, 5000);
 }
 
+// randomize array of words
+var words = [];
+var randomizeWords = function(){
+  Array.prototype.randomize = function()
+  {
+    var i = this.length, j, temp;
+    while ( --i )
+    {
+      j = Math.floor( Math.random() * (i - 1) );
+      temp = this[i];
+      this[i] = this[j];
+      this[j] = temp;
+    }
+  };
+
+  words.randomize();
+  winAnimation();
+}
+      
 var buildWordBlocks = function() {
-    var words = [];
     // get words, place them in an array & randomize the order
     for (var i = 0; i < numberOfWords; i++) {
       var word = currentWordArray[Math.floor(Math.random()*currentWordArray.length)];
@@ -538,7 +552,6 @@ var buildWordBlocks = function() {
         }
       }
       words.push(word);
-      words.push(word);
     }
     randomizeWords();
 
@@ -548,77 +561,68 @@ var buildWordBlocks = function() {
       output += "<li>";
       output += "<span>" + words[i] + "</span>";
       output += "</li>";
-
     }
     output += "</ol>";
 
     $("#container").html(output);
-    $("span").hide();
+    currentWordcurrentWordCharacterArray = words[0].split("");
+    appendCurrentLetter(currentWordcurrentWordCharacterArray[0]);
+}
 
-    var guess1 = "";
-    var guess2 = "";
-    var count = 0;
+var timeRunning = 0;
+var currentWordCharacterArray;
 
-    $("li").click(function() {
-      if ((count < 2) && ($(this).children("span").hasClass("face-up")) === false) {
-        
-        // increment guess count, show image, mark it as face up
-        count++;
-        $(this).children("span").show();
-        $(this).children("span").addClass("face-up");
-        $(this).addClass("face-up");
-        
-        //guess #1
-        if (count === 1 ) { 
-          guess1 = $(this).children("span").html(); 
-          speakWord(guess1);
-        }   
-        
-        //guess #2
-        else { 
-          guess2 = $(this).children("span").html();
-          speakWord(guess2);
+var bounceChar = function() {
+    $('.currentLetter').css({'left':($('#originalText').position().left - 10) + 'px', 'top':($('#originalText').position().top - 20) + 'px'}).animate({top: '+=' + 5}, 200, 'easeOutBounce').animate({top: '-=' + 5}, 200, 'easeOutBounce');
+    setTimeout(bounceChar, 400 );
+}
 
-          // since it's the 2nd guess check for match
-          if (guess1 === guess2) {
-            readSentence(guess1);
-            $("li").children("span.face-up").addClass("match");
-            $("li").children("span.face-up").parent().addClass("match");
-            count = 0;
-            if ($("span").length == $("span.match").length) {
-                winAnimation();
-            }
-          }
-          // else it's a miss
-          else { 
-            setTimeout(function() {
-              $("span").not(".match").hide();
-              $("span").not(".match").removeClass("face-up");
-              $("span").not(".match").parent().removeClass("face-up");
-              count = 0;
-            }, 2000);
-          }
-        }
-      }
-    });
-
-    // randomize array of words
-    function randomizeWords(){
-      Array.prototype.randomize = function()
-      {
-        var i = this.length, j, temp;
-        while ( --i )
-        {
-          j = Math.floor( Math.random() * (i - 1) );
-          temp = this[i];
-          this[i] = this[j];
-          this[j] = temp;
-        }
-      };
-      
-      words.randomize();
-      winAnimation();
+var appendCurrentLetter = function(currentLetter) {
+    if (uppercase) {
+        $('body').append('<span class="currentLetter">' + currentWordCharacterArray[0] + '</span>');
+    } else {
+        $('body').append('<span class="currentLetter">' + currentWordCharacterArray[0].toLowerCase() + '</span>');
     }
+    bounceChar();
+}
+
+var testKeyPress = function(e){
+  if(String.fromCharCode(e.keyCode).toUpperCase() == currentWordCharacterArray[0]) {
+    alphacolor = getBrightHex();
+    document.getElementById("originalText").style.color = alphacolor;
+
+    backgroundcolor = getDarkHex();
+    document.body.style.background = backgroundcolor;
+
+    speakWord(currentWordCharacterArray[0]);
+
+    if(currentWordCharacterArray.length == 26){
+      var timer = setInterval(function(){
+        timeRunning += 0.01;
+        $('#time').text('Time: ' + timeRunning.toFixed(3));
+      }, 10);
+    }
+      
+    $('body').append('<span class="staticLetter">' + currentWordCharacterArray[0] + '</span>');
+    
+        $('.staticLetter').css({'left':$('#originalText').position().left + 'px', 'top':$('#originalText').position().top + 'px'}).animate({top: '+=' + 300}, 500, 'easeOutBounce').fadeOut('slow');
+    
+        $('.currentLetter').remove();
+
+        currentWordCharacterArray.shift();
+
+        if (uppercase) {
+        $('#originalText').text(currentWordCharacterArray.join().replace(/,/g, ''));
+        } else {
+            $('#originalText').text(currentWordCharacterArray.join().toLowerCase().replace(/,/g, ''));
+        }
+
+    if(currentWordCharacterArray.length == 0) {
+      alert('You typed the alphabet in ' + timeRunning.toFixed(3) + ' seconds!!\n\nREFRESH TO PLAY AGAIN');
+    } else {
+        appendCurrentLetter(currentWordCharacterArray[0]);
+    }
+  }
 }
 
 $(document).ready(function() {
@@ -629,14 +633,18 @@ $(document).ready(function() {
     $("#numberofwords").change(function() {
         changeNumberOfWords();
     });
+    $(window).keydown(function(e){
+        testKeyPress(e);
+    });
 });
 
 </script>
 </head>
 <body>
+<div id="time">Time: </div>
 <div id="container" class="containersmall"></div>
 <div id="footer">
-    <h1 id="sentence">Site Words Memory Game</h1>
+    <h1 id="sentence">Site Words Typing Game</h1>
     <form >
       <select id="wordgroup">
           <option value="kindergartenWordsSet01">Kindergarten Words Set 1</option>

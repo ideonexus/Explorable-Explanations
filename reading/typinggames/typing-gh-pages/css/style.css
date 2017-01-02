@@ -1,0 +1,57 @@
+#box
+{
+  margin:auto;
+  height:400px;
+  background:grey;
+  overflow:hidden;
+  position:relative;
+  font-family:"Georgia";
+  font-size:50px;
+  color:#fff;
+}
+
+#box > div
+{
+  display:inline-block;
+  position:absolute;
+  width:50px;
+  text-align:center;
+  transition-property:right;
+  transition-duration:100ms;
+  transition-timing-function:linear;
+  transition-delay:0;
+}
+
+#message
+{
+  display:block;
+  text-align:center;
+  position:relative;
+  font-size:125px;
+  top:50%;
+  z-index:0;
+  color:rgba(0,0,0,0.6);
+  -webkit-transform:translateY(-50%);
+  -ms-transform:translateY(-50%);
+  transform:translateY(-50%);
+  text-shadow:2px 2px 3px rgba(255,255,255,0.1)
+}
+
+.panel
+{
+  max-width:1000px;
+  margin:auto;
+}
+
+.panel-body
+{
+  padding:0;
+}
+
+.btn {
+  margin-left: 10px;
+}
+
+.container {
+  max-width: 1000px;
+}

@@ -284,16 +284,69 @@ var numberRangeTop = 101;
 var numbersToGuess = [];
 var numbersGuessed = []
 
+// http://www.javascripter.net/faq/numberisprime.htm
+function isPrime(n) {
+    // Make sure n:
+    // is a number,
+    // is finite,
+    // is divisble by 1 without a remainder (% is the modulus operator),
+    // and is not less than 2
+    if (isNaN(n) || !isFinite(n) || n % 1 || n < 2) {
+        return false; 
+    }
+    // Eliminate even numbers
+    if (n % 2 == 0) {
+        return (n == 2);
+    }
+    // Eliminate numbers divisible by 3
+    if (n % 3 == 0) {
+        return (n == 3);
+    }
+    // m is the upper-bound of numbers we will test, no need to go higher than the square root.
+    var m = Math.sqrt(n);
+    // Since we have eliminated even numbers and numbers divisible by 3...
+    // Loop through every number between 5 and m, incrementing by 6 each loop, so {5,11,17,23,29...}
+    for (var i = 5; i <= m; i += 6) {
+        if (n % i == 0) {
+            return false;
+        }
+        if (n % (i + 2) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function isSquare(n) {
+  return (Math.sqrt(n) % 1 == 0);
+}
+
 var getFactors = function(factor) {
-  if (factor != 1) {
+  if (factor == "primes")
+  {
     for (var i = numberRangeBottom; i < numberRangeTop; i++) {
-      if ((i % factor) == 0) {
-          numbersToGuess.push(i);
+      if (isPrime(i))
+      {
+        numbersToGuess.push(i);
       }
+    }    
+  }
+  else if (factor == "squares")
+  {
+    for (var i = numberRangeBottom; i < numberRangeTop; i++) {
+      if (isSquare(i))
+      {
+        numbersToGuess.push(i);
+      }
+    }    
+  }
+  else if (factor == 1) {
+    for (var i = numberRangeBottom; i < numberRangeTop; i++) {
+        numbersToGuess.push(i);
     }
   } else {
     for (var i = numberRangeBottom; i < numberRangeTop; i++) {
-      if ((i % 2) == 1) {
+      if ((i % factor) == 0) {
           numbersToGuess.push(i);
       }
     }
@@ -334,6 +387,12 @@ var changeGame = function() {
         case "odd":
             getFactors(1);
             break;
+        case "primes":
+            getFactors("primes");
+            break;
+        case "squares":
+            getFactors("squares");
+            break;
         case "factors":
             getFactors(parseInt($("#factor").val()));
             break;
@@ -356,6 +415,12 @@ var checkForWinConditions = function(guess) {
             break;
         case "odd":
             readSentence(guess + " is an odd number!");
+            break;
+        case "primes":
+            readSentence(guess + " is a prime number!");
+            break;
+        case "squares":
+            readSentence(guess + " is a square of " + Math.sqrt(guess) + " !");
             break;
         default:
             readSentence(guess + " is a factor of " + $("#factor").val() + "!");
@@ -425,7 +490,6 @@ var buildNumberBlocks = function() {
     $("li").click(function() {
       if ($(this).children("span").hasClass("eliminated") === false && $(this).children("span").hasClass("guessed") === false) {        
         guess = parseInt($(this).children("span").html());
-        speakWord(guess);
 
         // increment guess count, show image, mark it as face up
         $(this).children("span").addClass("guessed");
@@ -436,6 +500,16 @@ var buildNumberBlocks = function() {
     });
 
     //winAnimation();
+}
+
+var showAnswers = function() {
+    for (var i = 0; i <= numbersToGuess.length; i++)
+    {
+        var guess = numbersToGuess[i];
+        numbersGuessed.push(guess);
+        $("#" + guess).parents("li").addClass("guessed");
+        $("#" + guess).addClass("guessed");
+    }
 }
 
 $(document).ready(function() {
@@ -463,6 +537,8 @@ $(document).ready(function() {
           <option value="wolffence">Wolf-Fence Number-Guessing Game</option>
           <option value="even">Find Even Numbers</option>
           <option value="odd">Find Odd Numbers</option>
+          <option value="primes">Find Prime Numbers</option>
+          <option value="squares">Find Squares</option>
           <option value="factors">Find Factors of:</option>
         </select>
         <span id="factorfields">
