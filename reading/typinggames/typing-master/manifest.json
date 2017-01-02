@@ -1,0 +1,22 @@
+{
+	"BundleType": "Application",
+	"BundleIdentifier": "typing",
+	"AppIcon": {
+		"36x18": "icon.png"
+	},
+	"AppName": {
+		"en": "typingGame"
+	},
+	"SupportedLanguages": [
+		"en"
+	],
+    "RequiredPermissions": [
+        "http://*.echonest.com",
+        "http://*.tunewiki.com",
+        "http://*.tunewiki.com"
+    ],
+    "VendorIdentifier": [
+        "adamtownusa"
+    ]
+	
+}

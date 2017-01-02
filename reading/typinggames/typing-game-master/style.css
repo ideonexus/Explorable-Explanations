@@ -1,0 +1,45 @@
+body {
+  font-family: sans-serif;
+}
+
+#spacer {
+  width: 0px;
+  height: 10px;
+  background: red;
+  display: block;
+  float:left;
+}
+
+#container {
+  width: 1000px;
+  height: 10px;
+
+  margin-left: auto;
+  margin-right: auto;
+
+  border: none;
+  border-right: 1px solid red;
+  border-bottom: 1px solid black;
+}
+
+#letters {
+  display: inline-block;
+  float:left;
+  line-height: 0;
+}
+
+#score {
+  font-size: 40px;
+  text-align: center;
+}
+
+.letter {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  font-size: 10px;
+  line-height: 10px;
+  text-align: center;
+  color: white;
+  background-color: black;
+}

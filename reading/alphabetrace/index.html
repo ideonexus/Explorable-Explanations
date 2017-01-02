@@ -112,7 +112,6 @@ function speakWord(word) {
     }
 }
 
-
 function getBrightHex() {
     var hexvals = ["8", "9", "A", "B", "C", "D", "E", "F"];
     currHexVal = "#";
@@ -134,62 +133,69 @@ function getDarkHex() {
 }
 
 var timeRunning = 0;
+var characterArray;
 
-var bounceCharFunction;
 var bounceChar = function() {
     $('.currentLetter').css({'left':($('#originalText').position().left - 10) + 'px', 'top':($('#originalText').position().top - 20) + 'px'}).animate({top: '+=' + 5}, 200, 'easeOutBounce').animate({top: '-=' + 5}, 200, 'easeOutBounce');
     setTimeout(bounceChar, 400 );
 }
 
-$(function(){
-	
-	var characterArray = $('#originalText').text().split("");
-    $('body').append('<span class="currentLetter">' + characterArray[0] + '</span>');
-    //bounceCharFunction = bounceChar();
+var appendCurrentLetter = function(currentLetter) {
+    if (uppercase) {
+        $('body').append('<span class="currentLetter">' + characterArray[0] + '</span>');
+    } else {
+        $('body').append('<span class="currentLetter">' + characterArray[0].toLowerCase() + '</span>');
+    }
     bounceChar();
+}
 
-	$(window).keydown(function(e){
-		
-		if(String.fromCharCode(e.keyCode).toUpperCase() == characterArray[0]){		
-			
-			alphacolor = getBrightHex();
-			document.getElementById("originalText").style.color = alphacolor;
+var testKeyPress = function(e){
+	if(String.fromCharCode(e.keyCode).toUpperCase() == characterArray[0]) {
+		alphacolor = getBrightHex();
+		document.getElementById("originalText").style.color = alphacolor;
 
-			backgroundcolor = getDarkHex();
-			document.body.style.background = backgroundcolor;
+		backgroundcolor = getDarkHex();
+		document.body.style.background = backgroundcolor;
 
-			speakWord(characterArray[0]);
+		speakWord(characterArray[0]);
 
-			if(characterArray.length == 26){
-				var timer = setInterval(function(){
-					timeRunning += 0.01;
-					$('#time').text('Time: ' + timeRunning.toFixed(3));
-				}, 10);
-			}
-				
-			$('body').append('<span class="staticLetter">' + characterArray[0] + '</span>');
-			
-            $('.staticLetter').css({'left':$('#originalText').position().left + 'px', 'top':$('#originalText').position().top + 'px'}).animate({top: '+=' + 300}, 500, 'easeOutBounce').fadeOut('slow');
-			
-            $('.currentLetter').remove();
-
-            characterArray.shift();
-
-			$('#originalText').text(characterArray.join().replace(/,/g, ''));
-
-            //$('#originalText').text().charAt(0).animate({ top: "+=100px" }, 400, "easeOutBounce");
-            //$('#originalText').animate({ top: "+=100px" }, 400, "easeOutBounce");
-			
-			if(characterArray.length == 0) {
-				alert('You typed the alphabet in ' + timeRunning.toFixed(3) + ' seconds!!\n\nREFRESH TO PLAY AGAIN');
-            } else {
-                $('body').append('<span class="currentLetter">' + characterArray[0] + '</span>');
-                //bounceCharFunction = bounceChar();
-                bounceChar();
-            }
+		if(characterArray.length == 26){
+			var timer = setInterval(function(){
+				timeRunning += 0.01;
+				$('#time').text('Time: ' + timeRunning.toFixed(3));
+			}, 10);
 		}
-	});
-});
+			
+		$('body').append('<span class="staticLetter">' + characterArray[0] + '</span>');
+		
+        $('.staticLetter').css({'left':$('#originalText').position().left + 'px', 'top':$('#originalText').position().top + 'px'}).animate({top: '+=' + 300}, 500, 'easeOutBounce').fadeOut('slow');
+		
+        $('.currentLetter').remove();
+
+        characterArray.shift();
+
+        if (uppercase) {
+    		$('#originalText').text(characterArray.join().replace(/,/g, ''));
+        } else {
+            $('#originalText').text(characterArray.join().toLowerCase().replace(/,/g, ''));
+        }
+
+		if(characterArray.length == 0) {
+			alert('You typed the alphabet in ' + timeRunning.toFixed(3) + ' seconds!!\n\nREFRESH TO PLAY AGAIN');
+        } else {
+            appendCurrentLetter(characterArray[0]);
+        }
+	}
+}
+
+$( document ).ready(function(){
+    characterArray = $('#originalText').text().split("");
+    appendCurrentLetter(characterArray[0]);
+    $(window).keydown(function(e){
+        testKeyPress(e);
+    });
+})
+
 </script>
 </head>
 <body>

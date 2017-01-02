@@ -1,0 +1,29 @@
+body {
+
+}
+
+#info {
+    height:24px;
+}
+
+h2 {
+    font-size: 150%;
+    padding-top: 20px;
+}
+
+#results {
+    margin-left:20px;
+    margin-top:10px;
+}
+
+textarea{
+    text-align:center;
+    font-size:200%;
+    line-height:1;
+}
+
+span {
+	padding-right: 2em;
+	font-family: Courier;
+    font-size:125%;
+}
