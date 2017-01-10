@@ -112,6 +112,15 @@ function speakWord(word) {
     }
 }
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
 function getBrightHex() {
     var hexvals = ["8", "9", "A", "B", "C", "D", "E", "F"];
     currHexVal = "#";
@@ -130,6 +139,26 @@ function getDarkHex() {
         currHexVal += hexvals[idx];
     }
     return currHexVal;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    $.get();
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        var randColor = getRandomColor();
+        $("body").css("background-color",randColor);
+    },100);
+
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        audioElement.pause();
+    }, 5000);
 }
 
 var timeRunning = 0;
@@ -155,7 +184,7 @@ var testKeyPress = function(e){
 		document.getElementById("originalText").style.color = alphacolor;
 
 		backgroundcolor = getDarkHex();
-		document.body.style.background = backgroundcolor;
+		$("body").css("background-color",backgroundcolor);
 
 		speakWord(characterArray[0]);
 
@@ -181,11 +210,17 @@ var testKeyPress = function(e){
         }
 
 		if(characterArray.length == 0) {
-			alert('You typed the alphabet in ' + timeRunning.toFixed(3) + ' seconds!!\n\nREFRESH TO PLAY AGAIN');
+			$('#originalText').text('You typed the alphabet in ' + timeRunning.toFixed(3) + ' seconds!!\n\nREFRESH TO PLAY AGAIN');
+            winAnimation();
         } else {
             appendCurrentLetter(characterArray[0]);
         }
-	}
+	} else {
+        var audioElement = document.createElement('audio');
+        audioElement.setAttribute('src', 'mp3/wrong.mp3');
+        $.get();
+        audioElement.play();
+    }
 }
 
 $( document ).ready(function(){
