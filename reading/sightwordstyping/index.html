@@ -158,7 +158,8 @@
 
 </style>
 
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="js/jquery.easing.1.3.js"></script>
 <script>
 
 //http://www.mrsperkins.com/files/dolch_book.pdf
@@ -435,18 +436,49 @@ var numberOfWords = 6;
 
 var changeWordArray = function() {
     currentWordArray = wordArrays[$("#wordgroup").val()];
-    buildWordBlocks();
+    getWords();
 }
 
 var changeNumberOfWords = function() {
     numberOfWords = parseInt($("#numberofwords").val());
-    buildWordBlocks();  
+    getWords();  
     if (numberOfWords > 10) {
         $("li").removeClass("lismall").removeClass("lilarge").addClass("lilarger");
     } else if (numberOfWords > 8) {
         $("li").removeClass("lismall").removeClass("lilarger").addClass("lilarge");
     } else {
         $("li").removeClass("lilarge").removeClass("lilarger").addClass("lismall");
+    }
+}
+
+var uppercase = true;
+
+function toggleCase() {
+    if (uppercase) {
+        uppercase = false;
+        $("#caseToggle").html("Toggle UpperCase");
+        $( "#container" ).html($( "#container" ).html().toLowerCase());
+    } else {
+        uppercase = true;
+        $("#caseToggle").html("Toggle LowerCase");
+        $( "#container" ).html($( "#container" ).html().toUpperCase());
+    }
+    if (soundOn) speakWord(baseWord);
+}
+
+var serifFont = true;
+
+function toggleFont() {
+    if (serifFont) {
+        serifFont = false;
+        document.getElementById("container").style.fontFamily = "Arial,sans-serif";
+        document.getElementById("sentence").style.fontFamily = "Arial,sans-serif";
+        document.getElementById("fontToggle").innerHTML = "Serif Font";
+    } else {
+        serifFont = true;
+        document.getElementById("container").style.fontFamily = "lucida grande";
+        document.getElementById("sentence").style.fontFamily = "lucida grande";
+        document.getElementById("fontToggle").innerHTML = "Sans-Serif";
     }
 }
 
@@ -490,6 +522,26 @@ function getRandomColor() {
     return color;
 }
 
+function getBrightHex() {
+    var hexvals = ["8", "9", "A", "B", "C", "D", "E", "F"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
+function getDarkHex() {
+    var hexvals = ["0", "1", "2", "3", "4", "5", "6", "7"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
 var winAnimation = function() {
     var audioElement = document.createElement('audio');
     audioElement.setAttribute('src', 'mp3/tada.mp3');
@@ -500,26 +552,23 @@ var winAnimation = function() {
     }, 3000);
 
     var animationInterval = setInterval(function(){
-        $( "li" ).each(function( index ) {
-            var randColor = getRandomColor();
-            $(this).css('background-color', randColor);
-            $(this).children("span").css('background-color', randColor);
-            $(this).children("span").css('color', 'white');
-        });
+        var randColor = getRandomColor();
+         $("body").css("background-color",randColor);
     },100);
     window.setTimeout(function(){
         window.clearInterval(animationInterval);
-        $( "li" ).each(function( index ) {
-            $(this).css('background-color', "");
-            $(this).children("span").css('background-color', "");
-            $(this).children("span").css('color', "");
-        });
+        $("body").css("background-color","");
         audioElement.pause();
     }, 5000);
 }
 
 // randomize array of words
 var words = [];
+var timeRunning = 0;
+var currentWordCharacterArray = [];
+var currentWord = "";
+var firstKeyPressed = false;
+
 var randomizeWords = function(){
   Array.prototype.randomize = function()
   {
@@ -534,10 +583,11 @@ var randomizeWords = function(){
   };
 
   words.randomize();
-  winAnimation();
+  //winAnimation();
 }
-      
-var buildWordBlocks = function() {
+
+var getWords = function() {
+    words = [];
     // get words, place them in an array & randomize the order
     for (var i = 0; i < numberOfWords; i++) {
       var word = currentWordArray[Math.floor(Math.random()*currentWordArray.length)];
@@ -554,79 +604,99 @@ var buildWordBlocks = function() {
       words.push(word);
     }
     randomizeWords();
+    buildWordBlocks();
+    currentWord = words[0];
+}
 
+var buildWordBlocks = function() {
     // output words then hide them
     var output = "<ol>"; 
-    for (var i = 0; i < (numberOfWords*2); i++) { 
+    for (var i = 0; i < words.length; i++) { 
       output += "<li>";
-      output += "<span>" + words[i] + "</span>";
+      if (uppercase) {
+        output += "<span>" + words[i].toUpperCase() + "</span>";
+      } else {
+        output += "<span>" + words[i].toLowerCase() + "</span>";
+      }
       output += "</li>";
     }
     output += "</ol>";
 
     $("#container").html(output);
-    currentWordcurrentWordCharacterArray = words[0].split("");
-    appendCurrentLetter(currentWordcurrentWordCharacterArray[0]);
+    
+    if (words.length != 0)
+    {
+      currentWordCharacterArray = words[0].split("");
+      appendCurrentLetter(currentWordCharacterArray[0]);
+    }
 }
 
-var timeRunning = 0;
-var currentWordCharacterArray;
-
 var bounceChar = function() {
-    $('.currentLetter').css({'left':($('#originalText').position().left - 10) + 'px', 'top':($('#originalText').position().top - 20) + 'px'}).animate({top: '+=' + 5}, 200, 'easeOutBounce').animate({top: '-=' + 5}, 200, 'easeOutBounce');
+    $('.currentLetter').css({'left':($('#container').position().left - 10) + 'px', 'top':($('#container').position().top - 20) + 'px'}).animate({top: '+=' + 5}, 200, 'easeOutBounce').animate({top: '-=' + 5}, 200, 'easeOutBounce');
     setTimeout(bounceChar, 400 );
 }
 
 var appendCurrentLetter = function(currentLetter) {
-    if (uppercase) {
-        $('body').append('<span class="currentLetter">' + currentWordCharacterArray[0] + '</span>');
-    } else {
-        $('body').append('<span class="currentLetter">' + currentWordCharacterArray[0].toLowerCase() + '</span>');
-    }
-    bounceChar();
+    //if (uppercase) {
+    //    $('body').append('<span class="currentLetter">' + currentWordCharacterArray[0].toUpperCase() + '<///span>');
+    //} else {
+    //    $('body').append('<span class="currentLetter">' + currentWordCharacterArray[0].toLowerCase() + '<///span>');
+    //}
+    //bounceChar();
 }
 
 var testKeyPress = function(e){
-  if(String.fromCharCode(e.keyCode).toUpperCase() == currentWordCharacterArray[0]) {
+  if(currentWordCharacterArray.length != 0 && String.fromCharCode(e.keyCode).toUpperCase() == currentWordCharacterArray[0].toUpperCase()) {
     alphacolor = getBrightHex();
-    document.getElementById("originalText").style.color = alphacolor;
+    document.getElementById("container").style.color = alphacolor;
 
     backgroundcolor = getDarkHex();
     document.body.style.background = backgroundcolor;
 
-    speakWord(currentWordCharacterArray[0]);
 
-    if(currentWordCharacterArray.length == 26){
+    if(!firstKeyPressed){
       var timer = setInterval(function(){
         timeRunning += 0.01;
         $('#time').text('Time: ' + timeRunning.toFixed(3));
       }, 10);
+      firstKeyPressed = true;
     }
       
     $('body').append('<span class="staticLetter">' + currentWordCharacterArray[0] + '</span>');
     
-        $('.staticLetter').css({'left':$('#originalText').position().left + 'px', 'top':$('#originalText').position().top + 'px'}).animate({top: '+=' + 300}, 500, 'easeOutBounce').fadeOut('slow');
-    
-        $('.currentLetter').remove();
+    $('.staticLetter').css({'left':$('#container').position().left + 'px', 'top':$('#container').position().top + 'px'}).animate({top: '+=' + 300}, 500, 'easeOutBounce').fadeOut('slow');
 
-        currentWordCharacterArray.shift();
+    $('.currentLetter').remove();
 
-        if (uppercase) {
-        $('#originalText').text(currentWordCharacterArray.join().replace(/,/g, ''));
-        } else {
-            $('#originalText').text(currentWordCharacterArray.join().toLowerCase().replace(/,/g, ''));
-        }
+    currentWordCharacterArray.shift();
 
     if(currentWordCharacterArray.length == 0) {
-      alert('You typed the alphabet in ' + timeRunning.toFixed(3) + ' seconds!!\n\nREFRESH TO PLAY AGAIN');
+        speakWord(currentWord);
+        words.shift()
+        currentWord = words[0];
+        if (words.length == 0) {
+            winAnimation();
+            $("#sentence").html('You typed ' + numberOfWords + ' words in ' + timeRunning.toFixed(3) + ' seconds!!');
+        } else {
+          currentWordCharacterArray = words[0].split("");
+          appendCurrentLetter(currentWordCharacterArray[0]);
+        }
+        buildWordBlocks();
     } else {
+        words[0] = currentWordCharacterArray.join("");
         appendCurrentLetter(currentWordCharacterArray[0]);
+        buildWordBlocks();
     }
+  } else {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/wrong.mp3');
+    $.get();
+    audioElement.play();
   }
 }
 
 $(document).ready(function() {
-    buildWordBlocks();
+    getWords();
     $("#wordgroup").change(function() {
         changeWordArray();
     });
@@ -667,8 +737,11 @@ $(document).ready(function() {
           <option value="10">10 Words</option>
           <option value="12">12 Words</option>
       </select><br/>
-      <input type="button" value="New Game" onclick="buildWordBlocks();" class="myButton" />
-      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
+      <input type="button" value="New Game" onclick="getWords();" class="myButton" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+      <input type="button" value="Toggle LowerCase" onclick="toggleCase();" class="myButton" id="soundToggle" />
+      <input type="button" value="Sans-Serif" onclick="toggleFont();" class="myButton" id="soundToggle" />
+      <br/>
       <p>Built on <a href="http://codepen.io/jamesbarnett/pen/kiGsl">LOLCatz Memory Game</a> by jamesbarnett, Dolch Site Words from <a href="http://www.mrsperkins.com/files/dolch_book.pdf">Jill Perkins' Workbook</a>, and Reading Game words from <a href="http://thereadinggame.com/">Kenneth Hodkinson</a>.</p>
     </form>
 </div>
