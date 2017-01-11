@@ -10,6 +10,12 @@
       color: hotpink;
     }
 
+    .timecontainer {
+        width: 100%;
+        text-align: center;
+        font-size: 2em;    
+    }
+
     .containersmall { 
         width: 80%;
         height: 80%;
@@ -32,26 +38,26 @@
         margin: auto;
     }
 
-    /*ul { 
-        padding: 0;
-        margin: 0;
-    }*/
+    ol { 
+        text-align: center;
+    }
 
     li {
       padding: 0;
-      float: left;
+      display: inline-block;
       margin: 10px;
       list-style: none;
       outline: solid;
       /*width: 150px;
       height: 150px;*/
-      width: 20%;
+      width: 25%;
       height: 20%;
       line-height: 100%;
       text-align: center;
       background-color: violet;
     }
 
+    /*
     .lismall {
       width: 20%;
       height: 20%;      
@@ -66,6 +72,7 @@
       width: 13%;
       height: 13%;      
     }
+    */
 
     span { 
       font-size: 3em;
@@ -568,6 +575,7 @@ var timeRunning = 0;
 var currentWordCharacterArray = [];
 var currentWord = "";
 var firstKeyPressed = false;
+var timer;
 
 var randomizeWords = function(){
   Array.prototype.randomize = function()
@@ -587,7 +595,11 @@ var randomizeWords = function(){
 }
 
 var getWords = function() {
+    window.clearInterval(timer);
+    $('#time').text('Time: 0.0');
+    firstKeyPressed = false;
     words = [];
+
     // get words, place them in an array & randomize the order
     for (var i = 0; i < numberOfWords; i++) {
       var word = currentWordArray[Math.floor(Math.random()*currentWordArray.length)];
@@ -655,7 +667,7 @@ var testKeyPress = function(e){
 
 
     if(!firstKeyPressed){
-      var timer = setInterval(function(){
+      timer = setInterval(function(){
         timeRunning += 0.01;
         $('#time').text('Time: ' + timeRunning.toFixed(3));
       }, 10);
@@ -672,9 +684,11 @@ var testKeyPress = function(e){
 
     if(currentWordCharacterArray.length == 0) {
         speakWord(currentWord);
+        readSentence(currentWord);
         words.shift()
         currentWord = words[0];
         if (words.length == 0) {
+            window.clearInterval(timer);
             winAnimation();
             $("#sentence").html('You typed ' + numberOfWords + ' words in ' + timeRunning.toFixed(3) + ' seconds!!');
         } else {
@@ -711,7 +725,7 @@ $(document).ready(function() {
 </script>
 </head>
 <body>
-<div id="time">Time: </div>
+<div id="time" class="timecontainer">Time: </div>
 <div id="container" class="containersmall"></div>
 <div id="footer">
     <h1 id="sentence">Site Words Typing Game</h1>
@@ -732,8 +746,8 @@ $(document).ready(function() {
       </select>
       <select id="numberofwords">
           <option value="4">4 Words</option>
-          <option value="6" selected>6 Words</option>
-          <option value="8">8 Words</option>
+          <option value="6">6 Words</option>
+          <option value="8" selected>8 Words</option>
           <option value="10">10 Words</option>
           <option value="12">12 Words</option>
       </select><br/>
