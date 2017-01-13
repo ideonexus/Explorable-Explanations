@@ -43,14 +43,14 @@
     }
 
     li {
-      padding: 0;
+      padding: 0 15px 0 15px;
       display: inline-block;
       margin: 10px;
       list-style: none;
       outline: solid;
       /*width: 150px;
       height: 150px;*/
-      width: 25%;
+      min-width: 25%;
       height: 20%;
       line-height: 100%;
       text-align: center;
@@ -86,6 +86,10 @@
       span {
         font-size: 2em;
       }
+    }
+
+    .currentletter {
+      font-size: 4em;
     }
 
     .face-up {
@@ -439,7 +443,7 @@ wordArrays["readingGameBook5"] = readingGameBook5;
 wordArrays["readingGameBook6"] = readingGameBook6;
 
 var currentWordArray = kindergartenWordsSet01;
-var numberOfWords = 6;
+var numberOfWords = 8;
 
 var changeWordArray = function() {
     currentWordArray = wordArrays[$("#wordgroup").val()];
@@ -621,40 +625,47 @@ var getWords = function() {
 }
 
 var buildWordBlocks = function() {
+    if (words.length != 0)
+    {
+      currentWordCharacterArray = words[0].split("");
+    }
+
     // output words then hide them
     var output = "<ol>"; 
     for (var i = 0; i < words.length; i++) { 
       output += "<li>";
       if (uppercase) {
-        output += "<span>" + words[i].toUpperCase() + "</span>";
+        if (i == 0)
+        {
+          output += "<span class=\"currentletter\">" + currentWordCharacterArray[0].toUpperCase() + "</span>" 
+            + "<span>" + words[i].substring(1, words[i].length).toUpperCase() + "</span>";
+        }
+        else
+        {
+          output += "<span>" + words[i].toUpperCase() + "</span>";
+        }
       } else {
-        output += "<span>" + words[i].toLowerCase() + "</span>";
+        if (i == 0)
+        {
+          output += "<span class=\"currentletter\">" + currentWordCharacterArray[0].toLowerCase() + "</span>" 
+            + "<span>" + words[i].substring(1, words[i].length).toLowerCase() + "</span>";
+        }
+        else
+        {
+          output += "<span>" + words[i].toLowerCase() + "</span>";
+        }
       }
       output += "</li>";
     }
     output += "</ol>";
 
     $("#container").html(output);
-    
-    if (words.length != 0)
-    {
-      currentWordCharacterArray = words[0].split("");
-      appendCurrentLetter(currentWordCharacterArray[0]);
-    }
+    bounceChar();
 }
 
 var bounceChar = function() {
-    $('.currentLetter').css({'left':($('#container').position().left - 10) + 'px', 'top':($('#container').position().top - 20) + 'px'}).animate({top: '+=' + 5}, 200, 'easeOutBounce').animate({top: '-=' + 5}, 200, 'easeOutBounce');
+    $('.currentLetter').css({'left':($('#container').position().left - 10) + 'px', 'top':($('#container').position().top - 5) + 'px'}).animate({top: '+=' + 5}, 200, 'easeOutBounce').animate({top: '-=' + 5}, 200, 'easeOutBounce');
     setTimeout(bounceChar, 400 );
-}
-
-var appendCurrentLetter = function(currentLetter) {
-    //if (uppercase) {
-    //    $('body').append('<span class="currentLetter">' + currentWordCharacterArray[0].toUpperCase() + '<///span>');
-    //} else {
-    //    $('body').append('<span class="currentLetter">' + currentWordCharacterArray[0].toLowerCase() + '<///span>');
-    //}
-    //bounceChar();
 }
 
 var testKeyPress = function(e){
@@ -693,12 +704,10 @@ var testKeyPress = function(e){
             $("#sentence").html('You typed ' + numberOfWords + ' words in ' + timeRunning.toFixed(3) + ' seconds!!');
         } else {
           currentWordCharacterArray = words[0].split("");
-          appendCurrentLetter(currentWordCharacterArray[0]);
         }
         buildWordBlocks();
     } else {
         words[0] = currentWordCharacterArray.join("");
-        appendCurrentLetter(currentWordCharacterArray[0]);
         buildWordBlocks();
     }
   } else {
