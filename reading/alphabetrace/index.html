@@ -178,7 +178,16 @@ var appendCurrentLetter = function(currentLetter) {
     bounceChar();
 }
 
+var keypressAllowed = true;
+
 var testKeyPress = function(e){
+      //This code prevents user from holding down a key.
+      if (event.repeat != undefined) {
+        keypressAllowed = !event.repeat;
+      }
+      if (!keypressAllowed) return;
+      keypressAllowed = false;
+
 	if(String.fromCharCode(e.keyCode).toUpperCase() == characterArray[0]) {
 		alphacolor = getBrightHex();
 		document.getElementById("originalText").style.color = alphacolor;
@@ -228,6 +237,12 @@ $( document ).ready(function(){
     appendCurrentLetter(characterArray[0]);
     $(window).keydown(function(e){
         testKeyPress(e);
+    });
+    $(document).keyup(function(e) { 
+      keypressAllowed = true;
+    });
+    $(document).focus(function(e) { 
+      keypressAllowed = true;
     });
 })
 
