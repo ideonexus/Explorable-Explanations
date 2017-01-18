@@ -668,7 +668,16 @@ var bounceChar = function() {
     setTimeout(bounceChar, 400 );
 }
 
+var keypressAllowed = true;
+
 var testKeyPress = function(e){
+  //This code prevents user from holding down a key.
+  if (event.repeat != undefined) {
+    keypressAllowed = !event.repeat;
+  }
+  if (!keypressAllowed) return;
+  keypressAllowed = false;
+
   if(currentWordCharacterArray.length != 0 && String.fromCharCode(e.keyCode).toUpperCase() == currentWordCharacterArray[0].toUpperCase()) {
     alphacolor = getBrightHex();
     document.getElementById("container").style.color = alphacolor;
@@ -728,6 +737,12 @@ $(document).ready(function() {
     });
     $(window).keydown(function(e){
         testKeyPress(e);
+    });
+    $(document).keyup(function(e) { 
+      keypressAllowed = true;
+    });
+    $(document).focus(function(e) { 
+      keypressAllowed = true;
     });
 });
 
