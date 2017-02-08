@@ -1,0 +1,148 @@
+<html>
+<head>
+<title>Parts of Speech Game</title>
+<style>
+    body {
+        background-color: darkslateblue;
+        color: white;
+        margin: 0px;
+        padding: 0px;
+        font-size: 1.5em;
+        font-family: arial, helvetica, sans-serif;
+    }
+
+    a {
+      color: hotpink;
+    }
+
+    .stage {
+        width: 80%;
+        height: 80%;
+        margin: auto;
+        padding: 0px;    
+    }
+
+    #header {
+        width: 90%;
+        text-align: center;
+        margin: auto;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 40% !important;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:1.5em;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+
+//Text Array: Title, Link, OriginalText, SeedText
+var seedTextArray = [];
+
+seedTextArray["wizardofoz"] = ["Wizard of Oz","https://www.gutenberg.org/files/55/55-h/55-h.htm","When Dorothy stood in the doorway and looked around, she could see nothing but the great gray prairie on every side. Not a tree nor a house broke the broad sweep of flat country that reached to the edge of the sky in all directions. The sun had baked the plowed land into a gray mass, with little cracks running through it. Even the grass was not green, for the sun had burned the tops of the long blades until they were the same gray color to be seen everywhere. Once the house had been painted, but the sun blistered the paint and the rains washed it away, and now the house was as dull and gray as everything else.","When [pronoun] stood in the [noun] and looked around, she could see nothing but the great [adjective] [noun] on every side. Not a [noun] nor a [noun] broke the broad sweep of flat country that reached to the edge of the sky in all directions. The sun had baked the plowed land into a gray mass, with little [plural noun] running through it. Once the [noun] had been [verb past-tense], but the sun blistered the paint and the rains washed it away, and now the house was as [adjective] and [adjective] as everything else."];
+
+seedTextArray["thesecretgarden"] = ["The Secret Garden","http://read.gov/books/secret-garden.html","When Mary Lennox was sent to Misselthwaite Manor to live with her uncle everybody said she was the most disagreeable-looking child ever seen. It was true, too. She had a little thin face and a little thin body, thin light hair and a sour expression. Her hair was yellow, and her face was yellow because she had been born in India and had always been ill in one way or another.","When [proper noun] [helping verb] [action verb] to Misselthwaite Manor to live [preposition] her uncle everybody [action verby] she was the [adverb] disagreeable-looking child ever seen. It was true, too. [pronoun] had a little thin face [coordinating conjunction] a little thin body, thin light hair and a [adjective] expression. [posessive pronoun] hair was [predicate adjective], and her face was yellow [subordinating conjunction] she had been born [preposition] [proper noun] and had always been ill in one way [coordinating conjunction] another."];
+
+
+var MadLib = function() {
+  var cont = true;
+  //var re = /\((.*)\)/; //Going non-Regex for readability.
+  var textSelection = $("#seedtext").val();
+  var currentSeedText = seedTextArray[textSelection];
+  var seedText = currentSeedText[3];
+  var userInput;
+  while(cont)
+  {
+      var init = seedText.indexOf('[');
+      var fin = seedText.indexOf(']');
+      if (init != -1)
+      {
+          userInput = prompt("Please enter a " + seedText.substr(init+1,fin-init-1), "");
+          seedText = seedText.replace(seedText.substr(init,fin-init+1), "<b><u>" + userInput + "</u></b>")
+      }
+      else
+      {
+          cont = false;
+      }
+  }
+
+  $("#sentence").html(seedText);
+  $("#seed").html(currentSeedText[3]);
+  $("#original").html(currentSeedText[2]);
+  $("#source").html("From the book <a href=\"" + currentSeedText[1] + "\"><em>" + currentSeedText[0] + "</em></a>");
+}
+
+$( document ).ready(function() {
+    $("#startbutton").click(function() {
+        MadLib();
+    });
+});
+</script>
+</head>
+<body>
+<div id="header">
+    <form>
+      <select id="seedtext">
+          <option value="wizardofoz">Wizard of Oz</option>
+          <option value="thesecretgarden">The Secret Garden</option>
+      </select><br/>
+      <input type="button" id="startbutton" class="myButton" value="Start" />
+    </form>
+</div>
+<div class="stage">
+    <h2>Your Text</h2>
+    <p><span id="sentence"></span></p>
+    <h2>Original Text</h2>
+    <p><span id="source"></span></p>
+    <p><span id="original"></span></p>
+    <h2>Seed Text</h2>
+    <p><span id="seed"></span></p>
+</div>
+</body>
+</html>
