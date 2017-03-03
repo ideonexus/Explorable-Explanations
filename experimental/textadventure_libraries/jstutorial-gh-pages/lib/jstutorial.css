@@ -1,0 +1,36 @@
+.javascript{
+	margin-left: 20px;
+	margin-right: 50px;
+	margin-top: 10px;
+	margin-left: 10px;
+	border-radius: 10px;
+	background-color: #CCC;
+	padding: 15px;
+	display: block;
+}
+
+button{
+	float: right;
+	padding: 10px;
+}
+
+.content{
+	margin-bottom: 200px;
+}
+
+.runCode{
+	z-index: 10;
+	float: none;
+	position: fixed;
+	right: 10px;
+	bottom: 170px;
+}
+
+.CodeMirror{
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 200px;
+	background-color: #CCC;
+}

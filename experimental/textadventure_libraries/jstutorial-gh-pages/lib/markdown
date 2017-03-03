@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+var rs = require('robotskirt')
+  , fs = require('fs')
+  , util = require('util');
+
+var flags = [rs.flags.EXT_FENCED_CODE];
+// var renderer = new rs.HtmlRenderer();
+var files = process.argv.slice(2);
+files.forEach(function(filename){
+    fs.readFile(filename, 'utf8', function (err, data) {
+		// var parser = new rs.Markdown(renderer, flags);
+		var htmlContent = rs.toHtmlSync(data, flags);
+		fs.readFile('lib/template.html', 'utf8', function(err, data){
+			util.puts(data.replace('CONTENT', htmlContent));
+		});
+    })
+});
