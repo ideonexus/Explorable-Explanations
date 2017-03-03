@@ -322,7 +322,14 @@ var winAnimation = function() {
         $( "li" ).each(function( index ) {
             $(this).css('background-color', "");
             $(this).children("span").css('background-color', "");
-            $(this).children("span").css('color', "");
+            if (!xAlpha && !yAlpha)
+            {
+                $(this).children("span").css('color', "black");
+            }
+            else
+            {
+                $(this).children("span").css('color', "");
+            }
         });
         audioElement.pause();
     }, 5000);
@@ -408,8 +415,11 @@ var hint = function() {
 }
 
 var checkForWinConditions = function(guess) {
-  if (coordinateToGuess != guess && (!xAlpha && !yAlpha && coordinateToGuessMultiplied() != guess))
+  if (coordinateToGuess == guess || (!xAlpha && !yAlpha && coordinateToGuessMultiplied() == guess))
   {
+      readSentence("You found the coordinate!");
+      winAnimation();
+  } else {
       //Using id= to select because jquery can't select when ":" in id.
       $('[id="' + guess + '"]').children("span").removeClass("guessed");
       $('[id="' + guess + '"]').removeClass("guessed");
@@ -423,9 +433,6 @@ var checkForWinConditions = function(guess) {
         readSentence(guess + " is not the result of " + coordinateToGuess.split(":")[0] + " times " + coordinateToGuess.split(":")[1]);
       else
         readSentence(guess + " is not the coordinate " + coordinateToGuess);
-  } else {
-      readSentence("You found the coordinate!");
-      winAnimation();
   }
 }
 
