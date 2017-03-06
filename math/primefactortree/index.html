@@ -2,13 +2,192 @@
 <head>
 <title>Prime Factor Tree Generator</title>
 <style>
-div, #tree {
-	margin-top: 10px;
-}
+
 canvas {
-	width: 90%;
+	width: 100%;
+  height: 3000px;
 }
+
+body {
+    background-color: lightblue;
+    font-family: arial;
+    color: white;
+}
+
+.form-container-container {
+  margin: auto;
+  width:550px;
+}
+
+.form-container {
+   border: 5px solid #000000;
+   background: #04baab;
+   background: -webkit-gradient(linear, left top, left bottom, from(#0009ff), to(#04baab));
+   background: -webkit-linear-gradient(top, #0009ff, #04baab);
+   background: -moz-linear-gradient(top, #0009ff, #04baab);
+   background: -ms-linear-gradient(top, #0009ff, #04baab);
+   background: -o-linear-gradient(top, #0009ff, #04baab);
+   background-image: -ms-linear-gradient(top, #0009ff 0%, #04baab 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   -moz-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   font-family: 'Helvetica Neue',Helvetica,sans-serif;
+   font-size: 1.5em;
+   text-decoration: none;
+   vertical-align: middle;
+   padding:20px;
+   width:545px;
+}
+
+a {
+  text-decoration: none;
+}
+
+.form-container div {
+    margin-right: 30px;
+}
+
+.decrement, .increment
+{
+    font-size:30px;
+    width: 40px;
+    height: 50px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+input, select
+{
+    font-size:28px;
+    font-weight: bold;
+}
+
+select {
+    -webkit-appearance: none;
+    width: 250px !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.right {
+    float: right;
+}
+
+.left {
+    float: left;
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:300px;
+}
+
+.form-field:focus {
+   background: #c4f0ff;
+   color: #ff00e1;
+}
+
+.form-container h2 {
+   text-shadow: #595959 0 1px 0;
+   font-size:18px;
+   margin: 0 0 10px 0;
+   font-weight:bold;
+   text-align:center;
+}
+
+.form-title {
+   margin-bottom:10px;
+   color: #ffffff;
+   text-shadow: #595959 0 1px 0;
+}
+
+.submit-container {
+   margin:8px 0;
+   text-align:right;
+}
+
+.submit-button {
+   border: 5px solid #000000;
+   background: #4f024f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#bf5abc), to(#4f024f));
+   background: -webkit-linear-gradient(top, #bf5abc, #4f024f);
+   background: -moz-linear-gradient(top, #bf5abc, #4f024f);
+   background: -ms-linear-gradient(top, #bf5abc, #4f024f);
+   background: -o-linear-gradient(top, #bf5abc, #4f024f);
+   background-image: -ms-linear-gradient(top, #bf5abc 0%, #4f024f 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   text-shadow: #000000 0 1px 0;
+   color: #000000;
+   font-family: helvetica, serif;
+   padding: 8.5px 18px;
+   font-size: 20px;
+   text-decoration: none;
+   vertical-align: middle;
+}
+
+.submit-button:hover {
+   border: 5px solid #ffffff;
+   text-shadow: #ffffff 0 1px 0;
+   background: #1a011f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#4d0448), to(#1a011f));
+   background: -webkit-linear-gradient(top, #4d0448, #1a011f);
+   background: -moz-linear-gradient(top, #4d0448, #1a011f);
+   background: -ms-linear-gradient(top, #4d0448, #1a011f);
+   background: -o-linear-gradient(top, #4d0448, #1a011f);
+   background-image: -ms-linear-gradient(top, #4d0448 0%, #1a011f 100%);
+   color: #fff;
+}
+
+.submit-button:active {
+   text-shadow: #ffffff 0 1px 0;
+   border: 5px solid #ffffff;
+   background: #190121;
+   background: -webkit-gradient(linear, left top, left bottom, from(#41024d), to(#1a011f));
+   background: -webkit-linear-gradient(top, #41024d, #190121);
+   background: -moz-linear-gradient(top, #41024d, #190121);
+   background: -ms-linear-gradient(top, #41024d, #190121);
+   background: -o-linear-gradient(top, #41024d, #190121);
+   background-image: -ms-linear-gradient(top, #41024d 0%, #190121 100%);
+   color: #fff;
+}
+
+div.inline {
+  display: inline-block;
+}
+
+p {
+  font-size: 0.75em;
+  text-align: center;
+}
+
 </style>
+
+<script type="text/javascript" src="jquery.1.6.1.min.js"></script>
+
 <script type="text/javascript">
 // Simple trial-division factoring
 var factor = function(n){
@@ -38,8 +217,8 @@ var recursiveFactor = function(n, i){
             value: factors[0],
             factors: recursiveFactor(factors[0], true)
           },
-          
-{            value: factors[1],
+          {
+            value: factors[1],
             factors: recursiveFactor(factors[1], true)
           }
         ];
@@ -57,52 +236,80 @@ var recursiveFactor = function(n, i){
     }
 }
 
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 // Rendering options
 var options = {
   canvasId: "tree",
-  offset: {x: 20, y: 30},
-  size: {width: 800, height: 600},
-  fontSize: 13,
-  padding: 5,
-  lineThickness: 3,
+  offset: {x: 100, y: 100},
+  size: {width: 1000, height: 3000},
+  fontSize: 26,
+  padding: 10,
+  lineThickness: 5,
   colors: {
-    background: "#fff",
+    background: "purple",
     label: {
-      background: "#555",
-      text: "#fff"
+      background: "#fff",
+      text: "#000"
     }
   }
 };
 options.center = {x: options.size.width / 2, y: options.fontSize + options.padding};
 
 // Recursively render tree nodes to a canvas
+var reverse = false;
 var recursiveRender = function(node, x, y){
   if(!x) x = 0;
   if(!y) y = 0;
   var canvas = document.getElementById(options.canvasId);
   var context = canvas.getContext("2d");
   // Recurse through children and draw lines to them
-  if(node.factors){
-    context.strokeStyle = options.colors.label.background;
-    context.lineWidth = options.lineThickness;
-    if(node.factors[0]){
-      recursiveRender(node.factors[0], x - options.offset.x, y + options.offset.y);
-      context.beginPath();
-      context.moveTo(x + options.center.x, y + options.center.y + options.fontSize / 2);
-      context.lineTo(x - options.offset.x + options.center.x, y + options.offset.y + options.center.y - options.fontSize / 2);
-      context.stroke();
-    }
-    if(node.factors[1]){
-      recursiveRender(node.factors[1], x + options.offset.x, y + options.offset.y);
-      context.beginPath();
-      context.moveTo(x + options.center.x, y + options.center.y + options.fontSize / 2);
-      context.lineTo(x + options.offset.x + options.center.x, y + options.offset.y + options.center.y - options.fontSize / 2);
-      context.stroke();
-    }
+  if (node.factors) 
+  {
+      context.strokeStyle = options.colors.label.background;
+      context.lineWidth = options.lineThickness;
+      if (node.factors[0]) 
+      {
+          //Switch left and right to keep factors going down the middel of the canvas.
+          if (reverse)
+          {
+              //Move the whole thing over to branch to the left.
+              x = options.offset.x;
+              recursiveRender(node.factors[0], x + options.offset.x, y + options.offset.y);
+          }
+          else
+          {
+              recursiveRender(node.factors[0], x - options.offset.x, y + options.offset.y);
+          }
+          context.beginPath();
+          context.moveTo(x + options.center.x, y + options.center.y + options.fontSize / 2);
+          context.lineTo(x - options.offset.x + options.center.x, y + options.offset.y + options.center.y - options.fontSize / 2);
+          context.stroke();
+          reverse = !reverse;
+        }
+
+        //If there's another node, render it.
+        if (node.factors[1]) 
+        {
+            if (reverse)
+            {
+                recursiveRender(node.factors[1], x + options.offset.x, y + options.offset.y);
+            }
+            else
+            {
+                recursiveRender(node.factors[1], x - options.offset.x, y + options.offset.y);
+            }
+            context.beginPath();
+            context.moveTo(x + options.center.x, y + options.center.y + options.fontSize / 2);
+            context.lineTo(x + options.offset.x + options.center.x, y + options.offset.y + options.center.y - options.fontSize / 2);
+            context.stroke();
+        }
   }
+
   // Draw label background
-  var textWidth = context.measureText(node.value).width;
-  console.log(textWidth);
+  var textWidth = context.measureText(numberWithCommas(node.value)).width;
   context.fillStyle = options.colors.label.background;
   context.fillRect(x + options.center.x - textWidth / 2 - options.padding, y + options.center.y - options.fontSize / 2 - options.padding, textWidth + options.padding * 2, options.fontSize + options.padding * 2);
   // Draw label text
@@ -110,35 +317,149 @@ var recursiveRender = function(node, x, y){
   context.font = "bold " + options.fontSize + "px sans-serif";
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillText(node.value, x + options.center.x, y + options.center.y);
+  context.fillText(numberWithCommas(node.value), x + options.center.x, y + options.center.y);
+}
+
+function renderPrime() {
+    var canvas = document.getElementById(options.canvasId);
+    var ctx = canvas.getContext("2d");
+    var centerX = canvas.width / 2;
+    var centerY = 100;
+    var radius = 70;
+    var eyeRadius = 10;
+    var eyeXOffset = 25;
+    var eyeYOffset = 20;
+    
+    // draw the yellow circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'yellow';
+    ctx.fill();
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'black';
+    ctx.stroke();
+      
+    // draw the eyes
+    ctx.beginPath();
+    var eyeX = centerX - eyeXOffset;
+    var eyeY = centerY - eyeXOffset;
+    ctx.arc(eyeX, eyeY, eyeRadius, 0, 2 * Math.PI, false);
+    var eyeX = centerX + eyeXOffset;
+    ctx.arc(eyeX, eyeY, eyeRadius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'black';
+    ctx.fill();
+    
+    // draw the mouth
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 50, 0, Math.PI, false);
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = "50px Arial";
+    ctx.fillText("Prime!",(canvas.width/2)-70,225);
+}
+
+var drawTree = function(){
+  var data = recursiveFactor(document.getElementById("val").value);
+  var canvas = document.getElementById(options.canvasId);
+  var context = canvas.getContext("2d");
+  // Resize canvas
+  canvas.width = options.size.width;
+  canvas.height = options.size.height;
+  // Clear canvas
+  context.fillStyle = options.colors.background;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  // Render
+  if (data != null)
+  {
+    recursiveRender(data);
+  }
+  else
+  {
+     renderPrime();
+  }
+}
+
+var incrementDecrement = function(button, incdec) {
+    // Get the field name
+    var fieldName = $(button).attr('field');
+    var field = $('#'+fieldName);
+    // Get increment/decrement value
+    var precision = 0;
+    if (typeof(field.attr("data-precision")) != "undefined")
+    {
+      precision = parseFloat(field.attr("data-precision"));
+    }
+    var amt = parseFloat(field.attr("data-incdec"));
+    // Get its current value
+    var currentVal = parseFloat(field.val());
+    // If it isn't undefined
+    if (!isNaN(currentVal)) {
+        if (incdec == "-")
+        {
+          // Decrement one
+          newValue = parseFloat(currentVal - amt).toFixed(precision);
+          if (newValue < 0) {
+              newValue = 0;
+          }
+        }
+        else
+        {
+          // Increment one
+          newValue = parseFloat(currentVal + amt).toFixed(precision);
+        }
+    } else {
+        // Otherwise put a 0 there
+        newValue = 0;
+    }
+
+    field.val(newValue);
+    drawTree();
+}
+
+var handleEnterKeydown = function (sender, args) {
+    args = args || window.event;
+    if (args.keyCode == 13) {
+        args.cancelBubble = true;
+        args.returnValue = false;
+        if (args.preventDefault) args.preventDefault();
+        if (args.stopPropagation) args.stopPropagation();
+        drawTree();
+    }
 }
 
 window.onload = function(){
 
-  var drawTree = function(){
-    var data = recursiveFactor(document.getElementById("val").value);
-    var canvas = document.getElementById(options.canvasId);
-    var context = canvas.getContext("2d");
-    // Resize canvas
-    canvas.width = options.size.width;
-    canvas.height = options.size.height;
-    // Clear canvas
-    context.fillStyle = options.colors.background;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    // Render
-    recursiveRender(data);
-  }
+  // This button will increment the value
+  $('.increment').click(function(e){
+      // Stop acting like a button
+      e.preventDefault();
+      incrementDecrement(this, "+");
+  });
+
+  // This button will decrement the value till 0
+  $(".decrement").click(function(e) {
+      // Stop acting like a button
+      e.preventDefault();
+      incrementDecrement(this, "-");
+  });
 
   document.getElementById("val").onchange = drawTree;
   drawTree();
-
 }
 </script>
 </head>
 <body>
+<div class="form-container-container">
+  <form class="form-container">
 <div>
-	<input id="val" value="100">
-	<button id="update">Update</button>
+  <input type='button' value='-' class='decrement' field='val' />
+  <input id="val" class="form-field" type="number" data-incdec="1" value="128" onkeydown="handleEnterKeydown();">
+  <input type='button' value='+' class='increment' field='val' />
+  <input class="submit-button" type="button" id="update" value="Render" />
+</div>
+  <p>Slightly tweeked from original code by <a href="https://github.com/collectivecognition/primeFactorTree">William Blanchette</a>.</p>
+  </form>
 </div>
 <canvas id="tree"/>	
 </body>
