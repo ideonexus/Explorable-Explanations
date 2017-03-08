@@ -85,9 +85,67 @@
 //Text Array: Title, Link, OriginalText, SeedText
 var seedTextArray = [];
 
-seedTextArray["wizardofoz"] = ["Wizard of Oz","https://www.gutenberg.org/files/55/55-h/55-h.htm","When Dorothy stood in the doorway and looked around, she could see nothing but the great gray prairie on every side. Not a tree nor a house broke the broad sweep of flat country that reached to the edge of the sky in all directions. The sun had baked the plowed land into a gray mass, with little cracks running through it. Even the grass was not green, for the sun had burned the tops of the long blades until they were the same gray color to be seen everywhere. Once the house had been painted, but the sun blistered the paint and the rains washed it away, and now the house was as dull and gray as everything else.","When [pronoun] stood in the [noun] and looked around, she could see nothing but the great [adjective] [noun] on every side. Not a [noun] nor a [noun] broke the broad sweep of flat country that reached to the edge of the sky in all directions. The sun had baked the plowed land into a gray mass, with little [plural noun] running through it. Once the [noun] had been [verb past-tense], but the sun blistered the paint and the rains washed it away, and now the house was as [adjective] and [adjective] as everything else."];
+//TODO
+//https://en.wikipedia.org/wiki/The_Lion_and_the_Unicorn
+//https://en.wikipedia.org/wiki/Little_Bo_Peep
+//https://en.wikipedia.org/wiki/Itsy_Bitsy_Spider
+//https://en.wikipedia.org/wiki/Humpty_Dumpty
 
-seedTextArray["thesecretgarden"] = ["The Secret Garden","http://read.gov/books/secret-garden.html","When Mary Lennox was sent to Misselthwaite Manor to live with her uncle everybody said she was the most disagreeable-looking child ever seen. It was true, too. She had a little thin face and a little thin body, thin light hair and a sour expression. Her hair was yellow, and her face was yellow because she had been born in India and had always been ill in one way or another.","When [proper noun] [helping verb] [action verb] to Misselthwaite Manor to live [preposition] her uncle everybody [action verby] she was the [adverb] disagreeable-looking child ever seen. It was true, too. [pronoun] had a little thin face [coordinating conjunction] a little thin body, thin light hair and a [adjective] expression. [posessive pronoun] hair was [predicate adjective], and her face was yellow [subordinating conjunction] she had been born [preposition] [proper noun] and had always been ill in one way [coordinating conjunction] another."];
+seedTextArray["rockabyebaby"] = [
+  "Rock-a-bye Baby"
+  ,"https://en.wikipedia.org/wiki/Rock-a-bye_Baby"
+  ,"Rock-a-by baby<br/>On the tree top,<br/>When the wind blows<br/>The cradle will rock.<br/>When the bough breaks,<br/>The cradle will fall,<br/>And down will fall baby<br/>Cradle and all."
+  ,"Rock-a-by {noun (two-syllable)}<br/>On the tree top,<br/>When the wind blows<br/>The {noun2 (two-syllable)} will rock.<br/>When the bough breaks,<br/>The {noun2 (two-syllable)} will fall,<br/>And down will fall {noun (two-syllable)}<br/>{noun2 (two-syllable)} and all."
+  ];
+
+seedTextArray["maryhadalittlelamb"] = [
+  "Mary Had a Little Lamb"
+  ,"https://en.wikipedia.org/wiki/Mary_Had_a_Little_Lamb"
+  ,"Mary had a little lamb, little lamb,<br/>little lamb, Mary had a little lamb<br/>whose fleece was white as snow.<br/>And everywhere that Mary went<br/>Mary went, Mary went, everywhere<br/>that Mary went<br/>The lamb was sure to go.<br/><br/>He followed her to school one day,<br/>school one day, school one day,<br/>He followed her to school one day,<br/>Which was against the rules,<br/>It made the children laugh and play,<br/>laugh and play, laugh and play,<br/>It made the children laugh and play,<br/>To see a lamb at school.<br/><br/>And so the teacher turned it out,<br/>turned it out, turned it out,<br/>And so the teacher turned it out,<br/>But still it lingered near,<br/>He waited patiently about,<br/>ly about, ly about,<br/>He waited patiently about,<br/>Till Mary did appear.<br/><br/>\"Why does the lamb love Mary so?\<br/>love Mary so?\" love Mary so?\"<br/>\"Why does the lamb love Mary so?\"<br/>The eager children cried.<br/>\"Why, Mary loves the lamb, you know,\"<br/>lamb, you know,\" lamb, you know,\"<br/>\"Why, Mary loves the lamb, you know,\"<br/>The teacher did reply."
+  ,"{name (two-syllable)} had a little {animal (two-syllable)}, little {animal (two-syllable)},<br/>little {animal (two-syllable)}, {name (two-syllable)} had a little {animal (two-syllable)}<br/>whose [animal body part] was white as snow.<br/>And everywhere that {name (two-syllable)} went<br/>{name (two-syllable)} went, {name (two-syllable)} went, everywhere<br/>that {name (two-syllable)} went<br/>The {animal (two-syllable)} was sure to go.<br/><br/>{he or she (animal)} followed {his or her (name)}  to {place} one day,<br/>{place} one day, {place} one day,<br/>{he or she (animal)} followed {his or her (name)}  to {place} one day,<br/>Which was against the rules,<br/>It made the children laugh and play,<br/>laugh and play, laugh and play,<br/>It made the children laugh and play,<br/>To see a {animal (two-syllable)} at {place}.<br/><br/>And so the {occupation} turned it out,<br/>turned it out, turned it out,<br/>And so the {occupation} turned it out,<br/>But still it lingered near,<br/>{he or she (animal)} waited patiently about,<br/>ly about, ly about,<br/>{he or she (animal)} waited patiently about,<br/>Till {name (two-syllable)} did appear.<br/><br/>\"Why does the {animal (two-syllable)} love {name (two-syllable)} so?\"<br/>love {name (two-syllable)} so?\" love {name (two-syllable)} so?\"<br/>\"Why does the {animal (two-syllable)} love {name (two-syllable)} so?\"<br/>The eager children cried.<br/>\"Why, {name (two-syllable)} loves the {animal (two-syllable)}, you know,\"<br/>{animal (two-syllable)}, you know,\" {animal (two-syllable)}, you know,\"<br/>\"Why, {name (two-syllable)} loves the {animal (two-syllable)}, you know,\"<br/>The {occupation} did reply."
+  ];
+
+seedTextArray["threelittlekittens"] = [
+  "Three Little Kittens"
+  ,"https://en.wikipedia.org/wiki/Three_Little_Kittens"
+  ,"The three little kittens they lost their mittens,<br/>And they began to cry,<br/>Oh, mother dear, we sadly fear<br/>Our mittens we have lost<br/>What? Lost your mittens, you naughty kittens!<br/>Then you shall have no pie.<br/>Mee-ow, mee-ow, mee-ow.<br/>We shall have no pie.<br/>Our mittens we have lost.<br/><br/>The three little kittens they found their mittens,<br/>And they began to smile,<br/>Oh, mother dear, see here, see here,<br/>Our mittens we have found<br/>What? Found your mittens, you good little kittens,<br/>And you shall have some pie.<br/>Mee-ow, mee-ow, mee-ow.<br/>We shall have some pie.<br/>Let us have some pie."
+  ,"The {number} [adjective] {animal (plural)} they lost their {noun (plural)},<br/>And they began to cry,<br/>Oh, mother dear, we sadly fear<br/>Our {noun (plural)} we have lost<br/>What? Lost your {noun (plural)}, you naughty {animal (plural)}!<br/>Then you shall have no {food}.<br/>{animal sound}, {animal sound}, {animal sound}.<br/>We shall have no {food}.<br/>Our {noun (plural)} we have lost.<br/><br/>The {number} little {animal (plural)} they found their {noun (plural)},<br/>And they began to smile,<br/>Oh, mother dear, see here, see here,<br/>Our {noun (plural)} we have found<br/>What? Found your {noun (plural)}, you good little {animal (plural)},<br/>And you shall have some {food}.<br/>{animal sound}, {animal sound}, {animal sound}.<br/>We shall have some {food}.<br/>Let us have some {food}."
+  ];
+
+seedTextArray["twinkletwinkle"] = [
+  "Twinkle, Twinkle, Little Star"
+  ,"https://en.wikipedia.org/wiki/Twinkle,_Twinkle,_Little_Star"
+  ,"Twinkle, twinkle, little star,<br/>How I wonder what you are!<br/>Up above the world so high,<br/>Like a diamond in the sky.<br/><br/>When the blazing sun is gone,<br/>When he nothing shines upon,<br/>Then you show your little light,<br/>Twinkle, twinkle, through the night.<br/><br/>Then the traveller in the dark<br/>Thanks you for your tiny spark;<br/>He could not see where to go,<br/>If you did not twinkle so.<br/><br/>In the dark blue sky you keep,<br/>And often through my curtains peep,<br/>For you never shut your eye<br/>Till the sun is in the sky.<br/><br/>As your bright and tiny spark<br/>Lights the traveller in the dark,<br/>Though I know not what you are,<br/>Twinkle, twinkle, little star."
+  ,"{verb (present tense)}, {verb (present tense)}, {adjective} {noun},<br/>How I wonder what you are!<br/>Up above the [noun] so [adjective],<br/>Like a [noun] in the [noun].<br/><br/>When the [adjective] [noun] is [verb],<br/>When he nothing [verb] upon,<br/>Then you [verb] your [adjective] [noun],<br/>{verb (present tense)}, {verb (present tense)}, through the [noun].<br/><br/>Then the [noun] in the [noun]<br/>Thanks you for your [adjective] [noun];<br/>He could not [verb] where to go,<br/>If you did not {verb (present tense)} so.<br/><br/>In the [adjective] [adjective] [noun] you keep,<br/>And often through my [noun] [verb],<br/>For you never [verb] your [noun]<br/>Till the [noun] is in the [noun].<br/><br/>As your [adjective] and [adjective] spark<br/>[verb] the [noun] in the [noun],<br/>Though I know not what you are,<br/>{verb (present tense)}, {verb (present tense)}, {adjective} {noun}."
+  ];
+
+seedTextArray["starspangledbanner"] = [
+  "Star-Spangled Banner"
+  ,"https://en.wikipedia.org/wiki/The_Star-Spangled_Banner#Lyrics"
+  ,"Oh, say, can you see,<br/>By the dawn's early light,<br/>What so proudly we hailed<br/>At the twilight's last gleaming?<br/>Whose broad stripes and bright stars,<br/>Through the perilous fight,<br/>O'er the ramparts we watched,<br/>Were so gallantly streaming?<br/>And the rockets' red glare,<br/>The bombs bursting in air,<br/>Gave proof through the night<br/>That our flag was still there.<br/>O say, does that star-spangled banner yet wave<br/>O'er the land of the free and the home of the brave?"
+  ,"Oh, say, can you [verb],<br/>By the dawn's early [noun],<br/>What so [adverb] we [verb (past tense)]<br/>At the twilight's last gleaming?<br/>Whose broad [plural noun] and bright [plural noun],<br/>Through the [adjective] fight,<br/>O'er the [plural noun] we watched,<br/>Were so gallantly [verb ending in -ing]?<br/>And the rockets' [color] glare,<br/>The [plural noun] bursting in [noun],<br/>Gave proof through the night<br/>That our [noun] was still there.<br/>[interjection], does that [adjective] banner yet [verb]<br/>O'er the land of the [adjective] and the home of the [adjective]?"
+  ];
+
+seedTextArray["trees"] = [
+  "Trees"
+  ,"https://www.poetryfoundation.org/poetrymagazine/poems/detail/12744"
+  ,"I think that I shall never see <br/>A poem lovely as a tree. <br/><br/>A tree whose hungry mouth is prest <br/>Against the earth’s sweet flowing breast; <br/><br/>A tree that looks at God all day, <br/>And lifts her leafy arms to pray; <br/><br/>A tree that may in Summer wear <br/>A nest of robins in her hair; <br/><br/>Upon whose bosom snow has lain; <br/>Who intimately lives with rain. <br/><br/>Poems are made by fools like me, <br/>But only God can make a tree."
+  ,"I think that I shall never [verb] <br/>A poem [adverb] as a {noun}. <br/><br/>A {noun} whose [adjective] mouth is prest <br/>Against the [possesive noun] sweet flowing [noun]; <br/><br/>A {noun} that looks at [noun] all day, <br/>And [verb (present tense)] her [adjective] arms to [verb]; <br/><br/>A [verb] that may in Summer [verb] <br/>A nest of [plural noun] in her hair; <br/><br/>Upon whose bosom [noun] has [verb (past-tense)]; <br/>Who [adverb] lives with [noun]. <br/><br/>Poems are made by [plural noun] like me, <br/> But only [noun] can make a {noun}."
+  ];
+
+seedTextArray["wizardofoz"] = [
+  "Wizard of Oz"
+  ,"https://www.gutenberg.org/files/55/55-h/55-h.htm"
+  ,"When Dorothy stood in the doorway and looked around, she could see nothing but the great gray prairie on every side. Not a tree nor a house broke the broad sweep of flat country that reached to the edge of the sky in all directions. The sun had baked the plowed land into a gray mass, with little cracks running through it. Even the grass was not green, for the sun had burned the tops of the long blades until they were the same gray color to be seen everywhere. Once the house had been painted, but the sun blistered the paint and the rains washed it away, and now the house was as dull and gray as everything else."
+  ,"When [pronoun] stood in the [noun] and looked around, she could see nothing but the great [adjective] [noun] on every side. Not a [noun] nor a [noun] broke the broad sweep of flat country that reached to the edge of the sky in all directions. The sun had baked the plowed land into a gray mass, with little [plural noun] running through it. Once the [noun] had been [verb past-tense], but the sun blistered the paint and the rains washed it away, and now the house was as [adjective] and [adjective] as everything else."
+  ];
+
+seedTextArray["thesecretgarden"] = [
+  "The Secret Garden"
+  ,"http://read.gov/books/secret-garden.html"
+  ,"When Mary Lennox was sent to Misselthwaite Manor to live with her uncle everybody said she was the most disagreeable-looking child ever seen. It was true, too. She had a little thin face and a little thin body, thin light hair and a sour expression. Her hair was yellow, and her face was yellow because she had been born in India and had always been ill in one way or another."
+  ,"When [proper noun] [helping verb] [action verb] to Misselthwaite Manor to live [preposition] her uncle everybody [action verby] she was the [adverb] disagreeable-looking child ever seen. It was true, too. [pronoun] had a little thin face [coordinating conjunction] a little thin body, thin light hair and a [adjective] expression. [posessive pronoun] hair was [predicate adjective], and her face was yellow [subordinating conjunction] she had been born [preposition] [proper noun] and had always been ill in one way [coordinating conjunction] another."
+  ];
 
 
 var MadLib = function() {
@@ -97,6 +155,31 @@ var MadLib = function() {
   var currentSeedText = seedTextArray[textSelection];
   var seedText = currentSeedText[3];
   var userInput;
+  var curword, replaceword;
+
+  //{word} are for universal replaces
+  while(cont)
+  {
+      var init = seedText.indexOf('{');
+      var fin = seedText.indexOf('}');
+      if (init != -1)
+      {
+          curword = seedText.substr(init+1,fin-init-1);
+          replaceword = '{' + curword + '}';
+          userInput = prompt("Please enter a " + curword, "");
+          while(seedText.indexOf(replaceword) != -1)
+          {
+              seedText = seedText.replace(replaceword, "<b><u>" + userInput + "</u></b>")
+          }
+      }
+      else
+      {
+          cont = false;
+      }
+  }
+
+  cont = true;
+  //[word] are for single-replaces
   while(cont)
   {
       var init = seedText.indexOf('[');
@@ -129,6 +212,12 @@ $( document ).ready(function() {
 <div id="header">
     <form>
       <select id="seedtext">
+          <option value="rockabyebaby">Rock-a-bye Baby</option>
+          <option value="maryhadalittlelamb">Mary Had a Little Lamb</option>
+          <option value="twinkletwinkle">Twinkle, Twinkle, Little Star</option>
+          <option value="threelittlekittens">Three Little Kittens</option>
+          <option value="starspangledbanner">Star-Spangled Banner</option>
+          <option value="trees">Trees</option>
           <option value="wizardofoz">Wizard of Oz</option>
           <option value="thesecretgarden">The Secret Garden</option>
       </select><br/>
