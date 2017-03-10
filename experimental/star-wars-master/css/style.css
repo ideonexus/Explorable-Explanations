@@ -1,0 +1,66 @@
+body {
+	margin: 0;
+	background-color: #000;
+	font-family: droid sans mono, monospace;
+	font-size: 16px;
+}
+
+canvas {
+	display: block;
+	margin: auto;
+	opacity: 1;
+	-webkit-transition: opacity 3s;
+	-moz-transition: opacity 3s;
+	-ms-transition: opacity 3s;
+	-o-transition: opacity 3s;
+	transition: opacity 3s;
+}
+
+body.intro canvas {
+	opacity: 0;
+}
+
+pre, pre a {
+	color: yellow;
+	font-weight: bold;
+	font-size: 14px;
+	text-align: center;
+}
+
+pre span, pre a {
+	font-size: 16px;
+}
+
+table {
+	margin: auto;
+	font-size: 18px;
+}
+
+table td {
+	text-align: center;
+	cursor: pointer;
+	padding: 1em 2em;
+	font-weight: bold;
+}
+
+table span {
+	font-size: 1000%;
+	display: block;
+	font-weight: normal;
+}
+
+.jedi {
+	color: #fff;
+}
+
+.sith {
+	color: #888;
+}
+
+.jedi:hover {
+	text-shadow: 0 0 2em #33f;
+}
+
+.sith:hover {
+	text-shadow: 0 0 2em #f33;
+}
