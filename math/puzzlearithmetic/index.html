@@ -23,8 +23,43 @@ a {
     margin: auto;
 }
 
+.puzzleboard {
+   display: table;
+   margin: 0 auto;
+}
+
+.optionboard {
+   display: table;
+   margin: 0 auto;
+   text-align: center;
+}
+
+.option {
+    display: inline-table;
+    overflow: auto;
+    padding-right: 30px;
+    padding-bottom: 30px;
+}
+
 .topRow, .middleRow, .bottmRow {
     overflow: hidden;
+}
+
+.inline {
+  display: inline;
+}
+
+.puzzleplaceholder {
+  float: left;
+  margin-right: 2px;
+  width: 4em;
+  height: 6em;
+  margin-top: 25px;
+  position: relative;
+  -webkit-border-radius: .5em;
+  -moz-border-radius: .5em;
+  border-radius: .5em;
+  cursor: pointer;
 }
 
 .puzzlepiece {
@@ -41,12 +76,12 @@ a {
   background-color: cyan;
 }
 
-.puzzlepiece .t {
- width: 2em;
-  height: 2em;
+.puzzlepiece .topout {
+  width: 1.9em;
+  height: 1.9em;
   position: absolute;
   top: -1.5em;
-  left: 1.2em;
+  left: 1.15em;
   -webkit-border-radius: 4em;
   -moz-border-radius: 4em;
   border-radius: 4em;
@@ -54,42 +89,91 @@ a {
   z-index: 100;
 }
 
-.puzzlepiece .r {
- width: 2em;
+.puzzlepiece .topin {
+  width: 2em;
   height: 2em;
   position: absolute;
-  top: 2em;
-  left: 3.5em;
+  top: -0.5em;
+  left: 1.1em;
   -webkit-border-radius: 4em;
   -moz-border-radius: 4em;
   border-radius: 4em;
-  background-color: cyan;
-  z-index: 100;
+  background-color: darkblue;
 }
 
-.puzzlepiece .b { 
- width: 1.8em;
-  height: 1.8em;
-  position: absolute;
-  top: 5.5em;
-  left: 1.2em;
-  -webkit-border-radius: 4em;
-  -moz-border-radius: 4em;
-  border-radius: 4em;
-  background-color: cyan;
-  z-index: 100;
-}
-
-.puzzlepiece .l { 
+.puzzlepiece .leftin { 
   width: 2em;
   height: 2em;
   position: absolute;
   top: 2em;
-  left: -0.5em;
+  left: -0.4em;
   -webkit-border-radius: 4em;
   -moz-border-radius: 4em;
   border-radius: 5em;
   background-color: darkblue;
+}
+
+.puzzlepiece .rightout {
+  width: 1.9em;
+  height: 1.9em;
+  position: absolute;
+  top: 2.05em;
+  left: 3.67em;
+  -webkit-border-radius: 4em;
+  -moz-border-radius: 4em;
+  border-radius: 4em;
+  background-color: cyan;
+  z-index: 100;
+}
+
+.puzzlepiece .bottomout { 
+  width: 1.9em;
+  height: 1.9em;
+  position: absolute;
+  top: 5.53em;
+  left: 1.15em;
+  -webkit-border-radius: 4em;
+  -moz-border-radius: 4em;
+  border-radius: 4em;
+  background-color: cyan;
+  z-index: 100;
+}
+
+.puzzlepiece .bottomin { 
+  width: 2em;
+  height: 2em;
+  position: absolute;
+  top: 4.5em;
+  left: 1.1em;
+  -webkit-border-radius: 4em;
+  -moz-border-radius: 4em;
+  border-radius: 4em;
+  background-color: darkblue;
+  z-index: 100;
+}
+
+.puzzlepiece.merged {
+  margin-right: 0px;
+}
+
+.puzzlepiece.merged .rightout {
+  margin-right: 0px;
+  width: 2.2em;
+  height: 2.2em;
+  top: 2em;
+  left: 3.5em;
+}
+
+.topRow {
+  margin-bottom: -1.5em;
+}
+
+.middleRow {
+  height: 9em;
+}
+
+.bottomRow {
+  margin-top: -2.95em;
 }
 
 .text {
@@ -100,54 +184,469 @@ a {
   padding: 0.6em 0 0 0.4em;
   position: relative;
   background: transparent !important;
+  z-index: 1000;
 }
+
+.text.offset {
+  top: -1.8em;
+  left: 0.6em;
+}
+
+@media screen and (max-width: 1500px) {
+  .option {
+      padding-right: 30px;
+      padding-bottom: 0px;
+  }
+
+  .puzzleplaceholder {
+    margin-right: 2px;
+    width: 3em;
+    height: 5em;
+    margin-top: 25px;
+  }
+
+  .puzzlepiece {
+    margin-right: 2px;
+    width: 3em;
+    height: 5em;
+    margin-top: 25px;
+  }
+
+  .puzzlepiece .topout {
+    width: 1.4em;
+    height: 1.4em;
+    top: -1.2em;
+    left: 0.8em;
+  }
+
+  .puzzlepiece .topin {
+    width: 1.5em;
+    height: 1.5em;
+    top: -0.5em;
+    left: 0.8em;
+  }
+
+  .puzzlepiece .leftin { 
+    width: 1.5em;
+    height: 1.5em;
+    top: 1.6em;
+    left: -0.3em;
+  }
+
+  .puzzlepiece .rightout {
+    width: 1.4em;
+    height: 1.4em;
+    top: 1.6em;
+    left: 2.7em;
+  }
+
+  .puzzlepiece .bottomout { 
+    width: 1.4em;
+    height: 1.4em;
+    top: 4.6em;
+    left: 0.8em;
+  }
+
+  .puzzlepiece .bottomin { 
+    width: 1.5em;
+    height: 1.5em;
+    top: 3.8em;
+    left: 0.8em;
+  }
+
+  .puzzlepiece.merged .rightout {
+    width: 1.8em;
+    height: 1.8em;
+    top: 1.6em;
+    left: 2.6em;
+  }
+
+  .topRow {
+    margin-bottom: -1.5em;
+  }
+
+  .middleRow {
+    height: 8em;
+  }
+
+  .bottomRow {
+    margin-top: -2.95em;
+  }
+
+  .text {
+    font-size: 2.0em;
+    padding: 0.6em 0 0 0.4em;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .option {
+      padding-right: 30px;
+      padding-bottom: 0px;
+  }
+
+  .puzzleplaceholder {
+    margin-right: 2px;
+    width: 2em;
+    height: 3em;
+    margin-top: 25px;
+  }
+
+  .puzzlepiece {
+    margin-right: 2px;
+    width: 2em;
+    height: 3em;
+    margin-top: 25px;
+  }
+
+  .puzzlepiece .topout {
+    width: 1.0em;
+    height: 1.0em;
+    top: -0.8em;
+    left: 0.5em;
+  }
+
+  .puzzlepiece .topin {
+    width: 1.1em;
+    height: 1.1em;
+    top: -0.2em;
+    left: 0.5em;
+  }
+
+  .puzzlepiece .leftin { 
+    width: 1.1em;
+    height: 1.1em;
+    top: 1.0em;
+    left: -0.2em;
+  }
+
+  .puzzlepiece .rightout {
+    width: 1.0em;
+    height: 1.0em;
+    top: 1.0em;
+    left: 1.85em;
+  }
+
+  .puzzlepiece .bottomout { 
+    width: 1.0em;
+    height: 1.0em;
+    top: 2.7em;
+    left: 0.5em;
+  }
+
+  .puzzlepiece .bottomin { 
+    width: 1.1em;
+    height: 1.1em;
+    top: 2.1em;
+    left: 0.35em;
+  }
+
+  .puzzlepiece.merged .rightout {
+    width: 1.3em;
+    height: 1.3em;
+    top: 0.95em;
+    left: 1.7em;
+  }
+
+  .topRow {
+    margin-bottom: -1.6em;
+  }
+
+  .middleRow {
+    height: 6em;
+  }
+
+  .bottomRow {
+    margin-top: -2.95em;
+  }
+
+  .text {
+    font-size: 1.5em;
+    padding: 0.6em 0 0 0.4em;
+  }
+}
+
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
 
 </style>
 
-<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
 <script>
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
 
+function getBrightHex() {
+    var hexvals = ["8", "9", "A", "B", "C", "D", "E", "F"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    $.get();
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function() {
+        var randColor = getRandomColor();
+        $("body").css("background-color",randColor);
+    },100);
+
+    window.setTimeout(function() {
+        window.clearInterval(animationInterval);
+        audioElement.pause();
+        $("body").css("background-color","");
+    }, 5000);
+}
+
+var randomNumberBetween1and20, remainder;
+var answertemplate = "<div class=\"puzzlepiece merged\">"
+    + "<span class=\"topout\"></span>"
+    + "<span class=\"rightout\"></span>"
+    + "<span class=\"bottomout\"></span>"
+    + "<span class=\"leftin\"></span>"
+    + "<span class=\"text\">*</span>"
+    + "</div>"
+var middlehtmltemplate = "<div class=\"puzzleplaceholder\"></span></div>";
+
+
+var buildPuzzle = function ()
+{
+    remainder = randomNumberBetween1and20 = Math.floor(Math.random() * 20) + 1;
+
+    var tophtmltemplate = "<div class=\"puzzlepiece\">"
+        + "<span class=\"rightout\"></span>"
+        + "<span class=\"bottomin\"></span>"
+        + "<span class=\"leftin\"></span>"
+        + "<span class=\"text\">&bull;</span>"
+        + "</div>";
+
+    var bottomhtmltemplate = "<div class=\"puzzlepiece\">"
+        + "<span class=\"topin\"></span>"
+        + "<span class=\"rightout\"></span>"
+        + "<span class=\"leftin\"></span>"
+        + "<span class=\"text\">&bull;</span>"
+        + "</div>";
+
+    var tophtml = "";
+    var middlehtml = "";
+    var bottomhtml = "";
+    
+    for (i = 1; i <= randomNumberBetween1and20; i++) { 
+        tophtml += tophtmltemplate;
+        middlehtml += middlehtmltemplate;
+        bottomhtml += bottomhtmltemplate;
+    }
+    
+    $('#topExpand').html(tophtml);
+    $('#solution').html(middlehtml);
+    $('#bottomExpand').html(bottomhtml);
+    $('#question').html(randomNumberBetween1and20);
+
+    var answerhtml = "";
+    for (i = 1; i <= 9; i++) {
+        
+        var half = Math.ceil(i/2);
+        var modulo = i % 2;
+        answerhtml += "<div class=\"option\" data-answer=\"" + i + "\">";
+        
+        for (j = 1; j <= i; j++) {
+            if (j == half || i == 1)
+            {
+              
+              if (modulo != 0)
+              {
+                answerhtml += answertemplate.replace("*", i);
+              }
+              else
+              {
+                answerhtml += answertemplate.replace(
+                  "*</span>"
+                  , "&bull;</span><span class=\"text offset\">" + i + "</span>"
+                );
+              }
+            }
+            else
+            {
+              answerhtml += answertemplate.replace("*", "&bull;");
+            }
+        }
+        
+        answerhtml += "</div>";
+
+        if (i == 5 || i == 7) answerhtml += "<div style=\"clear: both;height: 25px;\"></div>";
+    }
+    $('#answeroptions').html(answerhtml);
+
+    $('.option').click(function(e){
+        // Stop acting like a button
+        e.preventDefault();
+        addanswer(this);
+    });
+
+}
+
+var addanswer = function(piece) {
+    // Get the field name
+    var answer = parseInt($(piece).attr('data-answer'));
+    if (answer > remainder)
+    {
+        var audioElement = document.createElement('audio');
+        audioElement.setAttribute('src', 'mp3/wrong.mp3');
+        $.get();
+        audioElement.play();
+    }
+    else
+    {
+        remainder -= answer;
+        //Add pieces
+        var answerloop = randomNumberBetween1and20 - remainder;
+        var answerhtml = ""
+        var roygbiv = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"];
+        var colorShiftIncrement = Math.ceil(randomNumberBetween1and20/7);
+        var currentColorIndex = 1;
+        for (i = 1; i <= answerloop; i++) {
+            if (i > (colorShiftIncrement * currentColorIndex))
+            {
+                currentColorIndex++;
+            }
+            var currentColor = roygbiv[(currentColorIndex-1)];
+            answerhtml += answertemplate.replace("*", "&bull;")
+              .replace(" merged\"","\" style=\"background-color: " + currentColor + ";\"")
+              .replace("topout\"","topout\" style=\"background-color: " + currentColor + ";\"")
+              .replace("rightout\"","rightout\" style=\"background-color: " + currentColor + ";\"")
+              .replace("bottomout\"","bottomout\" style=\"background-color: " + currentColor + ";\"");
+        }
+        var remainderhtml = "";
+        for (i = 1; i <= remainder; i++) {
+            remainderhtml += middlehtmltemplate;
+        }
+        $('#solution').html(answerhtml + remainderhtml);
+
+        if (remainder == 0)
+        {
+            winAnimation();
+        }
+    }
+}
+
+$( document ).ready(function() {
+    buildPuzzle();
+});
 
 </script>
 
 </head>
 <body>
-<div>
+  <div class="puzzleboard">
     <div class="topRow">
         <div class="puzzlepiece">
-          <!--span class="t"></span-->
-          <span class="r"></span>
-          <span class="b"></span>
-          <span class="l"></span>
-          <span class="text">8</span>
+          <span class="rightout"></span>
+          <span class="bottomin"></span>
+          <span class="text"></span>
+        </div>
+        <div class="inline" id="topExpand"></div>
+        <div class="puzzlepiece">
+          <span class="bottomin"></span>
+          <span class="leftin"></span>
+          <span class="text"></span>
         </div>
     </div>
     <div class="middleRow">
         <div class="puzzlepiece">
-          <span class="t"></span>
-          <span class="r"></span>
-          <span class="b"></span>
-          <span class="l"></span>
-          <span class="text">8</span>
+          <span class="topout"></span>
+          <span class="rightout"></span>
+          <span class="bottomout"></span>
+          <span class="text"></span>
+        </div>
+        <div class="inline" id="solution"></div>
+        <div class="puzzlepiece">
+          <span class="topout"></span>
+          <span class="bottomout"></span>
+          <span class="leftin"></span>
+          <span class="text" id="question"></span>
         </div>
     </div>
     <div class="bottomRow">
         <div class="puzzlepiece">
-          <span class="t"></span>
-          <span class="r"></span>
-          <!--span class="b"></span-->
-          <span class="l"></span>
-          <span class="text">8</span>
+          <span class="topin"></span>
+          <span class="rightout"></span>
+          <span class="text"></span>
+        </div>
+        <div class="inline" id="bottomExpand"></div>
+        <div class="puzzlepiece">
+          <span class="topin"></span>
+          <span class="leftin"></span>
+          <span class="text problem"></span>
         </div>
     </div>
+  </div>
 
-</div>
+ <div class="optionboard" id="answeroptions">
+ </div>
 
 <div id="footer">
     <div id="targetNumber"></div>
     <h1 id="feedback">Puzzle Piece Arithmetic</h1>
+    <form>
+      <input type="button" value="New Game" onclick="buildPuzzle();" class="myButton" />
+    </form>
     <p>Credit to <a href="https://codepen.io/ProfessorSamoff/pen/ByJoaE">Tim Samoff</a> for the puzzle piece CSS.</p>
 </div>
 </body>
