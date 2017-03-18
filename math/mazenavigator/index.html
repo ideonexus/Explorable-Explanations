@@ -9,42 +9,7 @@
     <script type="text/javascript" src="lib/gameLoop.js"></script> 
     <script type="text/javascript" src="lib/maze/mazerenderer.js"></script>
     <script type="text/javascript" src="lib/maze/maze.js"></script>
-    <script type="text/javascript" src="lib/gameplay/man.js"></script>
-    
-    <script type="text/javascript">
-    
-        //define render colours here
-        var MAN_COLOUR = "#FF9020";
-        var TRAIL_COLOUR = "#AA5020";
-        var GOAL_COLOUR = "#22FF22";
-        var BACKGROUND_COLOUR = "#0085FF";
-        var WALL_COLOUR = "#440944";
-        
-        //add key controls for arrows/WASD
-        
-        $(document).on("keydown", function (e) 
-        {
-            if(e.which == 38 || e.which == 87)
-            {
-                moveMan('up');
-            }
-            if(e.which == 37 || e.which == 65)
-            {
-                moveMan('left');
-            }
-            
-            if(e.which == 39 || e.which == 68)
-            {
-                moveMan('right');
-            }
-            
-            if(e.which == 40 || e.which == 83)
-            {
-                moveMan('down');
-            }
-            
-        });
-    </script>
+    <!--script type="text/javascript" src="lib/gameplay/man.js"></script-->
     
     <style>
         body {
@@ -71,19 +36,30 @@
             width: 100%;
             height: 100%;
             
-            position : absolute;
+            /*position : absolute;*/
             
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+
             /*border : solid;*/
         }
         
         #controlsPanelAfter
         {
-            position : absolute;
+            /*position : absolute;*/
             bottom: 0;      
-            right: 0;
+            /*right: 0;*/
             background-color : #662299;
             /*opacity : 0.8;*/
             
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
             /*overflow : auto;*/
         }
         
@@ -105,6 +81,232 @@
         }
 
     </style>
+
+<script type="text/javascript">
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    $.get();
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function() {
+        var randColor = getRandomColor();
+        $("#gameArea").css("background-color",randColor);
+        $("#controlsPanelAfter").css("background-color",randColor);
+    },100);
+
+    window.setTimeout(function() {
+        window.clearInterval(animationInterval);
+        audioElement.pause();
+        $("#gameArea").css("background-color","");
+        $("#controlsPanelAfter").css("background-color","");
+    }, 5000);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// man.js
+//////////////////////////////////////////////////////////////////////////////
+// Contains functions and data relating to the man that the player moves
+// on screen.
+//////////////////////////////////////////////////////////////////////////////
+
+var manPosition = new MazeCell(0,0);
+
+var _oldPosition = null;
+
+var manMoved = false;
+
+//////////////////////////////////////////////////////////////////////////////
+// INITIALIZE MAN
+//////////////////////////////////////////////////////////////////////////////
+
+function initializeMan()
+{
+    //start man at top-left corner
+    manPosition = new MazeCell(0,0);
+    
+    //flag man as moved so he is drawn
+    manMoved = true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// MOVE MAN
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Tries to move the man in the specified direction.  Valid directions are
+ * "up", "down", "left", "right" - value should be a string."
+ */
+function moveMan(direction)
+{
+    var newPos = new MazeCell(manPosition.x,manPosition.y);
+    var moveMan = true;
+
+    //calculate change in position based on direction input
+    switch(direction)
+    {
+        case "up":
+            newPos.y -= 1;
+            break;
+        
+        case "right":
+            newPos.x += 1;
+            break;
+            
+        case "down":
+            newPos.y += 1;
+            break;
+            
+        case "left":
+            newPos.x -= 1;
+            break;
+    }
+    
+    //assert cells are neighbours - this will stop man going out of edge
+    if(!areNeighbours(newPos,manPosition))
+    {
+        moveMan = false;
+    }
+    
+    //check if there is a wall between current/destination mazeCell
+    if(wallBetween(newPos,manPosition))
+    {
+        moveMan = false;
+    }    
+
+    if (moveMan)
+    {
+        //save old position to be cleared.
+        _oldPosition = manPosition;
+        
+        //save the new position as current
+        manPosition = newPos;
+        
+        //flag man as moved so he gets redrawn next animation frame
+        manMoved = true;
+        
+        _checkWin();
+    }
+    else
+    {
+        //Play Bzzzzzzt!!!!
+        var audioElement = document.createElement('audio');
+        audioElement.setAttribute('src', 'mp3/wrong.mp3');
+        $.get();
+        audioElement.play();
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// DRAW MAN
+//////////////////////////////////////////////////////////////////////////////
+
+function drawMan()
+{
+    var gameCanvas = document.getElementById("gameCanvas");
+    
+    var ctx = gameCanvas.getContext('2d');
+    
+    //width/height of a full maze cell
+    var tileWidth = gameCanvas.width/MAZE_SIZE;
+    var tileHeight = gameCanvas.height/MAZE_SIZE;
+    
+    //shrink man slightly to fit inside cell
+    var manWidth = tileWidth*0.7;
+    var manHeight = tileHeight*0.7;
+    
+    //check if we need to clear the old position of the man
+    if(_oldPosition != null)
+    {
+        
+        var oldMazeCellDrawX = _oldPosition.x * tileWidth;
+        var oldMazeCellDrawY = _oldPosition.y * tileHeight;
+        
+        ctx.fillStyle = BACKGROUND_COLOUR;
+        
+        ctx.fillRect(oldMazeCellDrawX + 3,
+                     oldMazeCellDrawY + 3,
+                     tileWidth-6, tileHeight-6);
+                     
+        ctx.fillStyle = TRAIL_COLOUR;
+        
+        ctx.fillRect(oldMazeCellDrawX + (tileWidth*0.4),
+                     oldMazeCellDrawY + (tileHeight*0.4),
+                     tileWidth*0.15, tileHeight*0.15);
+    }
+    
+    //drawn the new position of the man
+    var manDrawX = manPosition.x * tileWidth;
+    var manDrawY = manPosition.y * tileHeight;
+    
+    ctx.fillStyle=MAN_COLOUR;
+    
+    ctx.fillRect(manDrawX + (tileWidth * 0.15), //x
+                 manDrawY + (tileHeight * 0.15), //y
+                 manWidth, manHeight);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// CHECK WIN
+//////////////////////////////////////////////////////////////////////////////
+
+function _checkWin()
+{
+    if(manPosition.x == GOAL_CELL.x && manPosition.y == GOAL_CELL.y)
+    {
+        winAnimation();
+        //alert("You are the maze master!");
+        
+        //newGame();
+    }
+}
+
+//define render colours here
+var MAN_COLOUR = "#FF9020";
+var TRAIL_COLOUR = "#AA5020";
+var GOAL_COLOUR = "#22FF22";
+var BACKGROUND_COLOUR = "#0085FF";
+var WALL_COLOUR = "#440944";
+
+//add key controls for arrows/WASD
+
+$(document).on("keydown", function (e) 
+{
+    if(e.which == 38 || e.which == 87)
+    {
+        moveMan('up');
+    }
+    if(e.which == 37 || e.which == 65)
+    {
+        moveMan('left');
+    }
+    
+    if(e.which == 39 || e.which == 68)
+    {
+        moveMan('right');
+    }
+    
+    if(e.which == 40 || e.which == 83)
+    {
+        moveMan('down');
+    }
+    
+});
+
+</script>
 
 </head>
     <body onload="pageLoaded()">
