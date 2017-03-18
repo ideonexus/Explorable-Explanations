@@ -40,58 +40,62 @@ function windowResized()
     var horizontal = (Math.min(winWidth,winHeight) == winHeight);
     
     //browser is in landscape mode!
-    if(horizontal)
-    {
-        //canvas should be as tall as possible with some room left for 
-        //buttons (8% on either side - this will only apply if window
-        //is very thin)
-        newCanvasSize = Math.min(winHeight,(0.84*winWidth));
-        
-        //each control panel should fill half of screen size - canvas size
-        var cPanelWidth = ((winWidth-newCanvasSize)/2)+"px";
-        var cPanelHeight = "100%";
-        
-        //calculate CP sizes
-        
-        controlsPanelBefore.style.width = cPanelWidth;
-        controlsPanelBefore.style.height = cPanelHeight;
-        
-        controlsPanelAfter.style.width = cPanelWidth;
-        controlsPanelAfter.style.height = cPanelHeight;
-        
-        //add the first two buttons to the 'before' panel        
-        controlsPanelBefore.appendChild(buttonUp);
-        controlsPanelBefore.appendChild(buttonLeft);
-        
-        //calculate button sizes and apply
-        
-        var buttonWidth = cPanelWidth;
-        var buttonHeight = "50%";
-        
-        for(var i = 0; i<allButtons.length; i++)
-        {
-            
-            allButtons[i].style.width = buttonWidth;
-            allButtons[i].style.height = buttonHeight;
-            
-        }
-        
-        //position the canvas at the right edge of the left control panel  
-        canvas.style.left = cPanelWidth;        
-    }
-    
-    //browser is in portrait mode!
-    else
-    {
+    //if(horizontal)
+    //{
+    //    //canvas should be as tall as possible with some room left for 
+    //    //buttons (8% on either side - this will only apply if window
+    //    //is very thin)
+    //    newCanvasSize = Math.min(winHeight,(0.84*winWidth));
+    //    
+    //    //each control panel should fill half of screen size - canvas size
+    //    var cPanelWidth = ((winWidth-newCanvasSize)/2)+"px";
+    //    var cPanelHeight = "100%";
+    //    
+    //    //calculate CP sizes
+    //    
+    //    controlsPanelBefore.style.width = cPanelWidth;
+    //    controlsPanelBefore.style.height = cPanelHeight;
+    //    
+    //    controlsPanelAfter.style.width = cPanelWidth;
+    //    controlsPanelAfter.style.height = cPanelHeight;
+    //    
+    //    //add the first two buttons to the 'before' panel        
+    //    controlsPanelBefore.appendChild(buttonUp);
+    //    controlsPanelBefore.appendChild(buttonLeft);
+    //    
+    //    //calculate button sizes and apply
+    //    
+    //    var buttonWidth = cPanelWidth;
+    //    var buttonHeight = "50%";
+    //    
+    //    for(var i = 0; i<allButtons.length; i++)
+    //    {
+    //        
+    //        allButtons[i].style.width = buttonWidth;
+    //        allButtons[i].style.height = buttonHeight;
+    //        
+    //    }
+    //    
+    //    //position the canvas at the right edge of the left control panel  
+    //    canvas.style.left = cPanelWidth;        
+    //}
+    //
+    ////browser is in portrait mode!
+    //else
+    //{
         //Make canvas as wide as possible while 
-        newCanvasSize = Math.min(winWidth,(0.92*winHeight));
+        //newCanvasSize = Math.min(winWidth,(0.92*winHeight));
+        newCanvasSize = Math.min(winWidth,(0.82*winHeight));
         
         //make bottom control panel fill the rest of the space
-        controlsPanelAfter.style.width = "100%";
+        //controlsPanelAfter.style.width = "100%";
+        controlsPanelAfter.style.width = newCanvasSize+"px";
         controlsPanelAfter.style.height = (winHeight-newCanvasSize)+"px";
         
         //calculate button size
-        var buttonWidth = (winWidth/4)-5;
+        //var buttonWidth = (winWidth/4)-5;
+        //var buttonHeight = winHeight-newCanvasSize;
+        var buttonWidth = (newCanvasSize/4)-5;
         var buttonHeight = winHeight-newCanvasSize;
         
         for(var i = 0; i<allButtons.length; i++)
@@ -108,7 +112,7 @@ function windowResized()
         
         //make sure the canvas hugs the left edge
         canvas.style.left = "0px";
-    }
+    //}
     
     //apply the canvas size
     canvas.style.height = newCanvasSize+"px";
