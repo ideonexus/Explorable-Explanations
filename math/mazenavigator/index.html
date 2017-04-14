@@ -1,24 +1,20 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Maze HTML5 - Gosh Darn Games</title>
-    
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script type="text/javascript" src="lib/browserevents.js"></script>
-    <script type="text/javascript" src="lib/layoutManager.js"></script>
-    <script type="text/javascript" src="lib/gameLoop.js"></script> 
-    <script type="text/javascript" src="lib/maze/mazerenderer.js"></script>
-    <script type="text/javascript" src="lib/maze/maze.js"></script>
-    <!--script type="text/javascript" src="lib/gameplay/man.js"></script-->
-    
+    <title>Maze HTML5 - Gosh Darn Games</title>    
     <style>
         body {
             margin: 0;
             padding: 0;
+            color: white;
             background-color: #662299;
             overflow : hidden;
         }
         
+        a {
+          color: hotpink;
+        }
+
         #gameArea
         {
             width : 100%;
@@ -80,9 +76,665 @@
             float : left;
         }
 
+.controlButtonsmall {
+    width: 1.5em;
+    height: 1.5em;
+}
+
+#footer {
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    padding: 20px;
+    background-color: purple;
+}
+
+#optionscontainer {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    background-color: lightblue;
+}
+
+#showfooter {
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.programInput {
+    display: none;
+}
+
+.programInput {
+    width: 100%;
+    text-align: center;
+}
+
+select
+{
+    font-size:1.5em;
+    font-weight: bold;
+    -webkit-appearance: none;
+    width: 50% !important;
+}
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
     </style>
 
+<script src="jquery.min.js"></script>
 <script type="text/javascript">
+
+//define render colours here
+var MAN_COLOUR = "#FF9020";
+var TRAIL_COLOUR = "#AA5020";
+var GOAL_COLOUR = "#22FF22";
+var BACKGROUND_COLOUR = "#0085FF";
+var WALL_COLOUR = "#440944";
+
+var mode = 'maze';
+var changeMode = function() {
+    mode = $('#mode').val();
+    $('.programInput').hide();
+
+    switch(mode) {
+        case 'dungeon':
+            break;
+        case 'program':
+            $('.programInput').show(500);
+            $('.program').focus();
+            break;
+        default:
+            break;
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// layoutManager.cs
+//////////////////////////////////////////////////////////////////////////////
+// This file contains the functions that allow the game's user interface
+// to adapt when the window is resized.  This reactive behaviour is 
+// achieved by editing the layout values for the various DIVs and buttons
+// that must be moved.
+//
+// One important thing to note is that a DOM element can be moved from
+// one div to another simply by appendChild'ing it to the destination.  The
+// element will move since it can only be in one place at a time.
+//////////////////////////////////////////////////////////////////////////////
+
+function windowResized()
+{
+    //The div that holds buttons before the canvas (i.e. left pane horizontal)
+    var controlsPanelBefore = document.getElementById("controlsPanelBefore");
+    
+    //The div that holds buttons after the canvas
+    var controlsPanelAfter = document.getElementById("controlsPanelAfter");
+    
+    var canvas = document.getElementById("gameCanvas");
+    
+    var buttonUp = document.getElementById("button-up");
+    var buttonRight = document.getElementById("button-right");
+    var buttonDown = document.getElementById("button-down");
+    var buttonLeft = document.getElementById("button-left");
+    
+    //List of all buttons in the order they should appear
+    var allButtons = [buttonLeft,buttonUp,buttonDown,buttonRight];
+    
+    var winWidth = window.innerWidth;
+    var winHeight = window.innerHeight;
+    
+    //new canvas size according to window dimensions - canvas will always
+    //be a square 
+    var newCanvasSize = null;
+    
+    //determine if the window is oriented horizontally
+    //var horizontal = (Math.min(winWidth,winHeight) == winHeight);
+    
+    newCanvasSize = Math.min(winWidth,(0.82*winHeight));
+    
+    //make bottom control panel fill the rest of the space
+    //controlsPanelAfter.style.width = "100%";
+    controlsPanelAfter.style.width = newCanvasSize+"px";
+    controlsPanelAfter.style.height = (winHeight-newCanvasSize)+"px";
+    
+    //calculate button size
+    //var buttonWidth = (winWidth/4)-5;
+    //var buttonHeight = winHeight-newCanvasSize;
+    //Because I am restricting the canvas width, alway go by button width.
+    var buttonWidth = (newCanvasSize/8);
+    //var buttonHeight = winHeight-(newCanvasSize*1.5);
+    var buttonSquare = buttonWidth;//(buttonWidth < buttonHeight) ? buttonHeight : buttonWidth;
+
+    for(var i = 0; i<allButtons.length; i++)
+    {
+        //add all buttons to bottom panel (top will disappear when empty)
+        controlsPanelAfter.appendChild(allButtons[i]);
+        
+        //apply button size
+        allButtons[i].style.width = buttonSquare+"px";
+        allButtons[i].style.height = buttonSquare+"px";
+        
+        if (i != allButtons.length-1)
+        {
+            allButtons[i].style.marginRight = (buttonSquare*1.3)+"px";      
+        }
+    }
+    
+    //make sure the canvas hugs the left edge
+    canvas.style.left = "0px";
+    
+    //apply the canvas size
+    canvas.style.height = newCanvasSize+"px";
+    canvas.style.width = newCanvasSize+"px";
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// gameLoop.js
+//////////////////////////////////////////////////////////////////////////////
+// Defines the requestAnimationFrame call-back loop that is used to update
+// the canvas.
+//////////////////////////////////////////////////////////////////////////////
+
+function animationFrame()
+{
+    if(manMoved)
+    {        
+        drawMan();
+        
+        manMoved = false;
+    }
+    
+    window.requestAnimationFrame(animationFrame);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// mazerenderer.js
+//////////////////////////////////////////////////////////////////////////////
+// Contains functions for drawing the maze in the canvas element defined in
+// index.html
+//////////////////////////////////////////////////////////////////////////////
+
+//function renderMaze(mazeCanvas)
+function renderMaze()
+{
+    var mazeCanvas = document.getElementById("gameCanvas");
+    var ctx = mazeCanvas.getContext("2d");
+    
+    //Clear the Canvase
+    ctx.fillStyle = BACKGROUND_COLOUR;
+    ctx.fillRect(0,0,gameCanvas.width,gameCanvas.height);
+    
+    var tileWidth = mazeCanvas.width/MAZE_SIZE;
+    var tileHeight = mazeCanvas.height/MAZE_SIZE;
+    
+    ctx.strokeStyle = WALL_COLOUR;
+    ctx.lineWidth = 2;
+    
+    //loop through cells of the maze and draw lines
+    for(var x = 0; x<MAZE_SIZE; x++)
+    {
+        for(var y = 0; y<MAZE_SIZE; y++)
+        {
+            //render NS wall
+            if(walls_ns[x][y])
+            {
+                
+                //calculate the start coords of this NS line            
+                var nsStartX = (x * tileWidth) + tileWidth;
+                var nsStartY = (y * tileHeight);
+                
+                //calculate the end coords of this NS line
+                var nsEndX = (x * tileWidth) + tileWidth;
+                var nsEndY = (y * tileHeight) + tileHeight;
+                
+                //render this NS line
+                ctx.beginPath();
+                ctx.moveTo(nsStartX,nsStartY);
+                ctx.lineTo(nsEndX,nsEndY);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            
+            //render EW wall
+            if(walls_ew[x][y])
+            {
+                //calculate the start coords of this EW line
+                var ewStartX = x * tileWidth;
+                var ewStartY = y * tileHeight + tileHeight;
+                
+                //calculate the end coords of this EW line
+                var ewEndX = x * tileWidth + tileWidth;
+                var ewEndY = y * tileHeight + tileHeight;
+                
+                //render this EW wall
+                ctx.beginPath();
+                ctx.moveTo(ewStartX,ewStartY);
+                ctx.lineTo(ewEndX,ewEndY);
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+    }
+    
+    //render the goal in the bottom-right corner
+    var goalX = GOAL_CELL.x * tileWidth;
+    var goalY = GOAL_CELL.y * tileHeight;
+    
+    var goalWidth = tileWidth*0.7;
+    var goalHeight = tileHeight*0.7;
+    
+    ctx.fillStyle=GOAL_COLOUR;
+    
+    ctx.fillRect(goalX + (tileWidth * 0.15), //x
+                 goalY + (tileHeight * 0.15), //y
+                 goalWidth, goalHeight);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// maze.js
+//////////////////////////////////////////////////////////////////////////////
+// This module contains the data structures for representing the maze,
+// the current position of the player and functions for generating the
+// maze as well as A* for solving the maze.  A* is used to solve the maze
+// when positioning the end goal so that the end goal can be placed a
+// fixed distance from the player.
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// CONSTANTS
+//////////////////////////////////////////////////////////////////////////////
+
+var MAZE_SIZE=13;
+
+var GOAL_CELL = new MazeCell(MAZE_SIZE-1,MAZE_SIZE-1);
+
+//////////////////////////////////////////////////////////////////////////////
+// DATA CLASSES
+//////////////////////////////////////////////////////////////////////////////
+
+function MazeCell(x,y)
+{
+    if(x<0 || y < 0 || x>= MAZE_SIZE || y>=MAZE_SIZE)
+    {
+        throw "Invalid maze cell created: "+x+", "+y;
+    }
+    
+    this.x = x;
+    this.y = y;
+}
+
+MazeCell.prototype.isValid = function()
+{
+    if(this.x < 0 || this.x >= MAZE_SIZE  ||
+       this.y < 0 || this.y >= MAZE_SIZE)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+MazeCell.prototype.getNeighbours = function()
+{
+    var neighbours = [];
+    
+    //check that we're inside bounds and append appropriate neighbours
+    if(!this.isValid())
+    {
+        return [];
+    }
+    
+    if(this.x > 0)
+        neighbours.push(new MazeCell(this.x-1,this.y));
+    
+    if(this.y > 0)
+        neighbours.push(new MazeCell(this.x,this.y-1));
+    
+    if(this.x < MAZE_SIZE-1)
+        neighbours.push(new MazeCell(this.x+1,this.y));
+    
+    if(this.y < MAZE_SIZE-1)
+        neighbours.push(new MazeCell(this.x,this.y+1));
+    
+    return neighbours;
+    
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// CREATE MAZE
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * The walls of the maze are represented by two 2D arrays of boolean
+ * values. 
+ *
+ * walls_ns - holds the walls running from north to south blocking passage
+ *            between east and west
+ * walls_ew - holds the walls running from east to west blocking passage
+*             between north and south 
+ */
+var walls_ns = null;
+var walls_ew = null;
+var animateInterval = 10;
+
+/**
+ * This function is called by gameplay.js when the maze is to be 
+ * regenerated.
+ */
+ 
+function newGame()
+{
+    program = '';
+    showHideFooter('hide');
+
+    //create the data structures for the maze walls
+    //create empty array for walls_ns
+    walls_ns = _make2DBoolArray(MAZE_SIZE,true);;
+    
+    //create empty array for walls going east to west
+    walls_ew = _make2DBoolArray(MAZE_SIZE,true);
+    
+    /**
+     * walks through the maze removing walls as it goes
+     * using a depth-first search that is iterative rather than recursive.
+     */
+
+    //used to remember where we are in the search for backtracking
+    cellStack = [];
+    
+    //2d array of boolean values record what cells have been visited
+    visitedCells = _make2DBoolArray(MAZE_SIZE,false);
+    
+    //select random start point in the maze
+    var startX = Math.floor(Math.random() * MAZE_SIZE);
+    var startY = Math.floor(Math.random() * MAZE_SIZE);
+    
+    currentCell = new MazeCell(startX,startY);
+    
+    visitedCells[startX][startY] = true;
+    
+    nextCell = null;
+
+    _removeWallRecursive();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// WALL BETWEEN
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * This function returns true/false if there is a wall between the maze
+ * cells specified.  Throws an error if the cells are not adjacent.
+ */
+function wallBetween(mazeCellA,mazeCellB)
+{
+    //assert that the cells are neighbours    
+    if(!areNeighbours(mazeCellA,mazeCellB))
+    {
+        //throw "Tried to test for wall between non-adjacent cells.";
+        return true;
+    }
+    
+    //whether cells are horizontally aligned.
+    var horizontal = false;
+    
+    if(mazeCellA.y == mazeCellB.y)
+    {
+        horizontal = true;
+    }
+    
+    //test for walls based whether walls are horizontal or vertical
+    if(horizontal)
+    {
+        //use the lowest value of x for wall index
+        var minX = Math.min(mazeCellA.x,mazeCellB.x);
+        
+        return walls_ns[minX][mazeCellA.y];
+    }
+    else
+    {
+        var minY = Math.min(mazeCellA.y,mazeCellB.y);
+        
+        return walls_ew[mazeCellA.x][minY];
+    }
+}
+ 
+//////////////////////////////////////////////////////////////////////////////
+// REMOVE MAZE WALLS
+//////////////////////////////////////////////////////////////////////////////
+
+var currentCell, nextCell, visitedCells, cellStack;
+
+function _removeWallRecursive()
+{
+    var neighbours = _shuffleArray(currentCell.getNeighbours());
+
+    for (idx = 0; idx < neighbours.length; idx++)
+    {
+        var n = neighbours[idx];
+        
+        //skip neighbours that have been visited
+        if(visitedCells[n.x][n.y])
+        {
+            continue;
+        }
+
+        nextCell = n;
+    }
+    
+    //all neighbours have been visited - try to backtrack
+    if (nextCell == null)
+    {
+        if(cellStack.length > 0)
+        {
+            currentCell = cellStack.pop();
+        }
+        else
+        {
+            currentCell = null;
+            initializeMan();
+            return;
+        }
+        setTimeout(_removeWallRecursive,animateInterval);
+    }
+    
+    if (currentCell != null && nextCell != null)
+    {
+        //the neighbour in nextCell has not been visited - remove wall
+        _removeWallBetween(currentCell,nextCell);
+        
+        //mark next cell as visited
+        visitedCells[nextCell.x][nextCell.y] = true;
+        
+        //push current cell onto backtracking stack
+        cellStack.push(currentCell);
+        
+        //record new current cell
+        currentCell = nextCell;
+        
+        //erase next cell so it can become a future neighbour
+        nextCell = null;
+
+        renderMaze();
+
+        setTimeout(_removeWallRecursive,animateInterval);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// REMOVE WALL
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * This private function removes a wall between two cells.  Throws an error if
+ * the cells are not adjacent or the wall has already been removed.
+ */
+function _removeWallBetween(mazeCellA,mazeCellB)
+{
+    //assert that the cells are neighbours    
+    if(!areNeighbours(mazeCellA,mazeCellB))
+    {
+        //throw "Tried to remove wall between non-adjacent cells";
+        return;
+    }
+    
+    //check if vertically aligned
+    if(mazeCellA.x == mazeCellB.x)
+    {
+        //select the lowest idx of the two cells
+        var yIdx = Math.min(mazeCellA.y,mazeCellB.y);
+        
+        //remove the ew wall
+        walls_ew[mazeCellA.x][yIdx] = false;
+    }
+    
+    //check if horizontally aligned
+    if(mazeCellA.y == mazeCellB.y)
+    {
+        //select the lowest X idx of the two cells
+        var xIdx = Math.min(mazeCellA.x, mazeCellB.x);
+        
+        //remove the ns wall
+        walls_ns[xIdx][mazeCellA.y] = false;
+    }
+}  
+
+//////////////////////////////////////////////////////////////////////////////
+// ARE NEIGHBOURS
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Returns boolean indicating whether the two cells are neighbours.
+ */
+function areNeighbours(mazeCellA,mazeCellB)
+{
+
+    var neighboursA = mazeCellA.getNeighbours();
+    
+    //loop through all of A's neighbours and see if b is equal to one of them
+    for(idx = 0; idx < neighboursA.length; idx++)
+    {
+        if(neighboursA[idx].x == mazeCellB.x &&
+           neighboursA[idx].y == mazeCellB.y)
+        {
+            return true;
+        }               
+    }
+    
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// MAKE 2D BOOL ARRAY
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * This private function creates a 2D bool array initialized true or false.
+ * Convenience method for creating maze walls and visited cells arrays.
+ */
+function _make2DBoolArray(size,initialValue)
+{
+    var parentArray = new Array(size);
+    
+    //create the sub-arrays to hold boolean values
+    for (var x = 0; x<size; x++)
+    {
+        parentArray[x] = new Array(size);
+        
+        //set all values to true
+        for (var y = 0; y<size; y++)
+        {
+            parentArray[x][y] = initialValue;
+        }
+    }
+    
+    return parentArray;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// SHUFFLE ARRAY
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Shuffle included here since javascript doesn't have a shuffle built in.
+ */
+function _shuffleArray(array)
+{
+  var m = array.length, t, i;
+  while (m > 0) 
+  {
+    i = Math.floor(Math.random() * m--);
+    t = array[m];
+    array[m] = array[i];
+    array[i] = t;
+  }
+  return array;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Win Animation Functions
+//////////////////////////////////////////////////////////////////////////////
+var soundOn = true;
+
+var toggleSound = function() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
 
 function getRandomColor() {
     var letters = '0123456789ABCDEF'.split('');
@@ -98,9 +750,12 @@ var winAnimation = function() {
     audioElement.setAttribute('src', 'mp3/tada.mp3');
     $.get();
 
-    window.setTimeout(function(){
-        audioElement.play();
-    }, 3000);
+    if (soundOn)
+    {
+        window.setTimeout(function(){
+            audioElement.play();
+        }, 3000);
+    }
 
     var animationInterval = setInterval(function() {
         var randColor = getRandomColor();
@@ -114,6 +769,18 @@ var winAnimation = function() {
         $("#gameArea").css("background-color","");
         $("#controlsPanelAfter").css("background-color","");
     }, 5000);
+}
+
+var showHideFooter = function(showhide) {
+    if (showhide == 'hide') {
+        $('#footer').hide(1000);
+        $('.stage').show(1000);
+        $('#optionscontainer').show(1000);
+    } else {
+        $('#footer').show(1000);
+        $('.stage').hide(1000);
+        $('#optionscontainer').hide(1000);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -146,12 +813,57 @@ function initializeMan()
 // MOVE MAN
 //////////////////////////////////////////////////////////////////////////////
 
+var program = '';
+var executing = false;
+var moves = [];;
+
+var doExecuteMoveMan = function(move, stopExecuting) {
+    setTimeout(function() { 
+        moveMan(move); 
+        program = program.replace("<img src=\"img/arrow-" + move + ".png\" class=\"controlButtonsmall\" />",'');
+        $('#program').html(program);
+        if (!stopExecuting) {
+            executeProgram();
+        } else {
+            executing = false;
+            $('#program').html('Use the Arrows to Program Your Robot');
+            moves = [];
+            program = '';
+        }
+    }, 1000);
+}
+
+var executeProgram = function()
+{
+    executing = true;
+    //program = program.replace(/,\s*$/, ""); //removes last comma
+    //moves = program.split(',');
+    
+    if (moves.length == 1) {
+        doExecuteMoveMan(moves[0], true);
+    } else {
+        doExecuteMoveMan(moves[0], false);
+        moves.shift();
+    }
+
+}
+
 /**
  * Tries to move the man in the specified direction.  Valid directions are
  * "up", "down", "left", "right" - value should be a string."
  */
+
 function moveMan(direction)
 {
+
+    if (mode == 'program' && !executing)
+    {
+        moves.push(direction);
+        program += "<img src=\"img/arrow-" + direction + ".png\" class=\"controlButtonsmall\" />";
+        $('#program').html(program);
+        return;
+    }
+
     var newPos = new MazeCell(manPosition.x,manPosition.y);
     var moveMan = true;
 
@@ -268,94 +980,114 @@ function _checkWin()
     if(manPosition.x == GOAL_CELL.x && manPosition.y == GOAL_CELL.y)
     {
         winAnimation();
-        //alert("You are the maze master!");
-        
-        //newGame();
     }
 }
 
-//define render colours here
-var MAN_COLOUR = "#FF9020";
-var TRAIL_COLOUR = "#AA5020";
-var GOAL_COLOUR = "#22FF22";
-var BACKGROUND_COLOUR = "#0085FF";
-var WALL_COLOUR = "#440944";
+$( document ).ready(function () {
+    
+    //add key controls for arrows/WASD
+    $(document).on("keydown", function (e) 
+    {
+        if(e.which == 38 || e.which == 87)
+        {
+            moveMan('up');
+        }
+        if(e.which == 37 || e.which == 65)
+        {
+            moveMan('left');
+        }
+        
+        if(e.which == 39 || e.which == 68)
+        {
+            moveMan('right');
+        }
+        
+        if(e.which == 40 || e.which == 83)
+        {
+            moveMan('down');
+        }
+        
+    });
 
-//add key controls for arrows/WASD
+    windowResized();
+    
+    newGame();
+    
+    //add events for window changing size
+    window.addEventListener('resize', windowResized, false);
+    window.addEventListener('orientationchange', windowResized, false);
+    
+    
+    //add listener for animationFrame
+    window.requestAnimationFrame(animationFrame);
 
-$(document).on("keydown", function (e) 
-{
-    if(e.which == 38 || e.which == 87)
+    $("#mode").change(function() {
+        changeMode();
+    });
+
+    //add button event listeners        
+    $("#button-up").click(function()
     {
         moveMan('up');
-    }
-    if(e.which == 37 || e.which == 65)
-    {
-        moveMan('left');
-    }
+    });
     
-    if(e.which == 39 || e.which == 68)
+    $("#button-right").click(function()
     {
         moveMan('right');
-    }
+    });
     
-    if(e.which == 40 || e.which == 83)
+    $("#button-down").click(function()
     {
         moveMan('down');
-    }
+    });
     
+    $("#button-left").click(function()
+    {
+        moveMan('left');
+    });
+
+    $("#showfooter").click(function() {
+        showHideFooter('show');
+    });
 });
 
 </script>
 
 </head>
-    <body onload="pageLoaded()">
-    <!--p>Credit to <a href="https://github.com/goshdarngames/HTML5-Maze">GoshDarnGames</a>.</p-->
+    <body>
+    <!--p>Credit to .</p-->
         
         <div id="gameArea">
             
-            <div id="controlsPanelBefore">
-            
-                
-            
-            </div>
+            <div id="controlsPanelBefore"></div>
             
             <canvas id="gameCanvas" width="800" height="800"></canvas>
         
             <div id="controlsPanelAfter">
-                <img id="button-up" src="img/arrow-up.svg" class="controlButton" alt="Move Man Up" /> 
-                <img id="button-left" src="img/arrow-left.svg" class="controlButton" alt="Move Man Left" /> 
-                
-                <img id="button-down" src="img/arrow-down.svg" class="controlButton" alt="Move Man Down" /> 
-                <img id="button-right" src="img/arrow-right.svg" class="controlButton" alt="Move Man Right" /> 
-                
+                <img id="button-up" src="img/arrow-up.png" class="controlButton" alt="Move Man Up" /> 
+                <img id="button-left" src="img/arrow-left.png" class="controlButton" alt="Move Man Left" /> 
+                <img id="button-down" src="img/arrow-down.png" class="controlButton" alt="Move Man Down" />
+                <img id="button-right" src="img/arrow-right.png" class="controlButton last" alt="Move Man Right" /> 
+                <div class="programInput">
+                    <span id="program">Use the Arrows to Program Your Robot</span><br/>
+                    <input type="button" value="Execute" onclick="executeProgram();" class="myButton" />
+                </div>
             </div>
+
         </div>
         
-        <script type="text/javascript">
-        
-            //add button event listeners
-        
-            $("#button-up").click(function()
-            {
-                moveMan('up');
-            });
-            
-            $("#button-right").click(function()
-            {
-                moveMan('right');
-            });
-            
-            $("#button-down").click(function()
-            {
-                moveMan('down');
-            });
-            
-            $("#button-left").click(function()
-            {
-                moveMan('left');
-            });
-
-        </script>
+<div id="footer">
+    <form>
+      <select id="mode">
+          <option value="maze">Maze Navigator</option>
+          <option value="dungeon">Dungeon Dragon</option>
+          <option value="program">Programmable Navigation</option>
+      </select><br/>
+      <input type="button" value="New Game" onclick="newGame();" class="myButton" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
+      <p>Built on the procedurally-generated maze code by <a href="https://github.com/goshdarngames/HTML5-Maze">GoshDarnGames</a>.</p>
+    </form>
+</div>
+<div id="optionscontainer"><a href="javascript:void(0);" id="showfooter">options</a></div>
     </body>
 </html>
