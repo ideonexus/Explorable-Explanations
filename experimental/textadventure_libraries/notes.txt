@@ -1,4 +1,0 @@
-
-Text Adventure Tutorial
-https://github.com/dethe/jstutorial/blob/gh-pages/text_adventure_tutorial.md
-
