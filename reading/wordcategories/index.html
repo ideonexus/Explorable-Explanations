@@ -1,0 +1,380 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: darkslateblue;
+        color: white;
+    }
+
+    a {
+      color: hotpink;
+    }
+
+    .containersmall { 
+        width: 80%;
+        height: 80%;
+        /*position: absolute;*/
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        margin: auto;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    /*ul { 
+        padding: 0;
+        margin: 0;
+    }*/
+
+    li {
+      padding: 0;
+      float: left;
+      margin: 10px;
+      list-style: none;
+      outline: solid;
+      /*width: 150px;
+      height: 150px;*/
+      min-width: 20%;
+      height: 20%;
+      line-height: 100%;
+      text-align: center;
+      background-color: violet;
+    }
+
+    .lismall {
+      width: 20%;
+      height: 20%;      
+    }
+
+    .lilarge {
+      width: 15%;
+      height: 15%;      
+    }
+
+    .lilarger {
+      width: 13%;
+      height: 13%;      
+    }
+
+    .lilarge span, .lilarger span {
+      top: 40%;
+    }
+
+    span { 
+      font-size: 3em;
+      font-weight: bold;
+      color: black;
+      position: relative;
+      top: 50%;
+    }
+
+    @media only screen and (max-width: 500px) {
+      span {
+        font-size: 2em;
+      }
+    }
+
+    .face-up {
+        background-color: crimson;
+        color: white;
+    }
+
+    .match {
+        background-color: yellow;
+        color: black;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 300px !important;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+
+
+</style>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="js/wordfamilies.js"></script>
+<script>
+
+//http://www.mrsperkins.com/files/dolch_book.pdf
+
+var numberOfWords = 6;
+
+var changeNumberOfWords = function() {
+    numberOfWords = parseInt($("#numberofwords").val());
+    buildWordBlocks();  
+    if (numberOfWords > 10) {
+        $("li").removeClass("lismall").removeClass("lilarge").addClass("lilarger");
+    } else if (numberOfWords > 8) {
+        $("li").removeClass("lismall").removeClass("lilarger").addClass("lilarge");
+    } else {
+        $("li").removeClass("lilarge").removeClass("lilarger").addClass("lismall");
+    }
+}
+
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    //audioElement.setAttribute('autoplay', 'autoplay');
+    $.get();
+    //audioElement.addEventListener("load", function() {
+    //    audioElement.play();
+    //}, true);
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( "li" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+            $(this).children("span").css('background-color', randColor);
+            $(this).children("span").css('color', 'white');
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( "li" ).each(function( index ) {
+            $(this).css('background-color', "");
+            $(this).children("span").css('background-color', "");
+            $(this).children("span").css('color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+var randwords;
+var buildWordBlocks = function() {
+    var wordparts = [];
+    randwords = [];
+    // get words, place them in an array & randomize the order
+    for (var i = 0; i < numberOfWords; i++) {
+      var word = words[Math.floor(Math.random()*words.length)];
+      //Prevent adding duplicate words to the array.
+      var notInArray = false;
+      while (!notInArray) {
+        if ($.inArray(word, randwords) != -1) {
+          word = words[Math.floor(Math.random()*words.length)];
+        }
+        else {
+          notInArray = true;
+        }
+      }
+      randwords.push(word);
+      wordparts.push(word.split("-")[0]);
+      wordparts.push(word.split("-")[1]);
+    }
+    randomizeWords();
+
+    // output words then hide them
+    var output = "<ol>"; 
+    for (var i = 0; i < (numberOfWords*2); i++) { 
+      output += "<li>";
+      output += "<span>" + wordparts[i] + "</span>";
+      output += "</li>";
+
+    }
+    output += "</ol>";
+
+    $("#container").html(output);
+    //$("span").hide();
+
+    var guess1 = "";
+    var guess2 = "";
+    var count = 0;
+
+    $("li").click(function() {
+      if ((count < 2) && ($(this).children("span").hasClass("face-up")) === false) {
+        
+        // increment guess count, show image, mark it as face up
+        count++;
+        //$(this).children("span").show();
+        $(this).children("span").addClass("face-up");
+        $(this).addClass("face-up");
+        
+        //guess #1
+        if (count === 1 ) { 
+          guess1 = $(this).children("span").html(); 
+          speakWord(guess1);
+        }   
+        
+        //guess #2
+        else { 
+          guess2 = $(this).children("span").html();
+          speakWord(guess2);
+
+          // since it's the 2nd guess check for match
+          if ($.inArray(guess1 + "-" + guess2, randwords) != -1) {
+            $("li").children("span.face-up").addClass("match");
+            $("li").children("span.face-up").parent().addClass("match");
+            count = 0;
+            compound = guess1+guess2;
+            speakWord(compound);
+            $("#sentence").html("<a href=\"http://www.dictionary.com/browse/" + compound + "\" target=\"_blank\">" + compound + "</a>");
+            if ($("span").length == $("span.match").length) {
+                winAnimation();
+            }
+          }
+          // else it's a miss
+          else { 
+            setTimeout(function() {
+              //$("span").not(".match").hide();
+              $("span").not(".match").removeClass("face-up");
+              $("span").not(".match").parent().removeClass("face-up");
+              count = 0;
+            }, 2000);
+          }
+        }
+      }
+    });
+
+    // randomize array of words
+    function randomizeWords() {
+      Array.prototype.randomize = function()
+      {
+        var i = this.length, j, temp;
+        while ( --i )
+        {
+          j = Math.floor( Math.random() * (i - 1) );
+          temp = this[i];
+          this[i] = this[j];
+          this[j] = temp;
+        }
+      };
+      
+      wordparts.randomize();
+      winAnimation();
+    }
+}
+
+$(document).ready(function() {
+    buildWordBlocks();
+    $("#wordgroup").change(function() {
+        changeWordArray();
+    });
+    $("#numberofwords").change(function() {
+        changeNumberOfWords();
+    });
+});
+
+</script>
+</head>
+<body>
+<div id="container" class="containersmall"></div>
+<div id="footer">
+    <h1 id="sentence">Compound Words Game</h1>
+    <form >
+      <select id="numberofwords">
+          <option value="4">4 Words</option>
+          <option value="6" selected>6 Words</option>
+          <option value="8">8 Words</option>
+          <option value="10">10 Words</option>
+          <option value="12">12 Words</option>
+      </select><br/>
+      <input type="button" value="New Game" onclick="buildWordBlocks();" class="myButton" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
+      <h5>Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
+    </form>
+</div>
+</body>
+</html>

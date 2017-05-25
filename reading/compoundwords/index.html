@@ -74,7 +74,6 @@
     span { 
       font-size: 3em;
       font-weight: bold;
-      color: black;
       position: relative;
       top: 50%;
     }
@@ -93,6 +92,10 @@
     .match {
         background-color: yellow;
         color: black;
+    }
+
+    .def {
+        font-size: 0.5em;
     }
 
     select
@@ -311,7 +314,7 @@ var buildWordBlocks = function() {
             count = 0;
             compound = guess1+guess2;
             speakWord(compound);
-            $("#sentence").html("<a href=\"http://www.dictionary.com/browse/" + compound + "\" target=\"_blank\">" + compound + "</a>");
+            $("#sentence").html(compound + "<br/><a href=\"http://www.dictionary.com/browse/" + compound + "\" target=\"_blank\" class=\"def\">definition</a>");
             if ($("span").length == $("span.match").length) {
                 winAnimation();
             }
