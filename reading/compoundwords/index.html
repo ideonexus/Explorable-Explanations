@@ -1,0 +1,381 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: darkslateblue;
+        color: white;
+    }
+
+    a {
+      color: hotpink;
+    }
+
+    .containersmall { 
+        width: 80%;
+        height: 80%;
+        /*position: absolute;*/
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        margin: auto;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    /*ul { 
+        padding: 0;
+        margin: 0;
+    }*/
+
+    li {
+      padding: 0;
+      float: left;
+      margin: 10px;
+      list-style: none;
+      outline: solid;
+      /*width: 150px;
+      height: 150px;*/
+      min-width: 20%;
+      height: 20%;
+      line-height: 100%;
+      text-align: center;
+      background-color: violet;
+    }
+
+    .lismall {
+      width: 20%;
+      height: 20%;      
+    }
+
+    .lilarge {
+      width: 15%;
+      height: 15%;      
+    }
+
+    .lilarger {
+      width: 13%;
+      height: 13%;      
+    }
+
+    .lilarge span, .lilarger span {
+      top: 40%;
+    }
+
+    span { 
+      font-size: 3em;
+      font-weight: bold;
+      color: black;
+      position: relative;
+      top: 50%;
+    }
+
+    @media only screen and (max-width: 500px) {
+      span {
+        font-size: 2em;
+      }
+    }
+
+    .face-up {
+        background-color: crimson;
+        color: white;
+    }
+
+    .match {
+        background-color: yellow;
+        color: black;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 300px !important;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+
+
+</style>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+
+//http://www.mrsperkins.com/files/dolch_book.pdf
+
+var words = ["life-time","else-where","up-side","grand-mother","can-not","base-ball","fire-works","pass-port","to-gether","be-come","be-came","sun-flower","cross-walk","basket-ball","sweet-meat","super-structure","moon-light","foot-ball","rail-road","rattle-snake","any-body","weather-man","throw-back","skate-board","mean-time","earth-quake","every-thing","here-in","some-times","back-ward","school-house","butter-flies","up-stream","no-where","by-pass","fire-flies","be-cause","some-where","spear-mint","some-thing","a-nother","some-what","air-port","any-one","to-day","him-self","grass-hopper","in-side","them-selves","play-things","foot-prints","there-fore","up-lift","super-giant","home-made","with-out","back-bone","scape-goat","pepper-mint","eye-balls","long-house","for-get","after-noon","south-west","north-east","along-side","mean-while","key-board","what-ever","black-smith","disk-drive","her-self","no-body","sea-shore","near-by","silver-smith","watch-maker","sub-way","horse-back","it-self","head-quarters","sand-stone","lime-stone","under-ground","glass-making","river-banks","touch-down","honey-moon","boot-strap","tooth-pick","tooth-paste","dish-washer","house-hold","town-ship","shady-side","pop-corn","air-plane","pick-up","house-keeper","book-case","baby-sitter","sauce-pan","luke-warm","blue-fish","ham-burger","honey-dew","rain-check","thunder-storm","spokes-person","wide-spread","week-end","home-town","common-place","more-over","pace-maker","super-market","super-men","super-natural","super-power","some-body","some-day","some-how","some-one","any-more","any-place","any-time","any-way","back-hand","watch-dog","back-log","back-pack","back-stage","water-fall","back-track","noise-maker","under-age","under-belly","under-bid","under-charge","book-worm","book-store","book-shelf","book-end","super-script","super-sonic","super-star","super-sensitive","book-keeper","book-mark","book-mobile","for-give","fork-lift","for-mat","fort-night","honey-comb","honey-suckle","honey-bee","key-hole","key-note","key-way","key-word","life-blood","life-boat","life-guard","life-like","life-line","life-long","fore-finger","fore-father","fore-hand","fore-head","one-time","super-cargo","super-charge","over-abundance","back-side","back-slap","back-space","back-spin","under-cut","under-develop","under-dog","under-estimate","super-strong","super-tanker","super-weapon","super-woman","under-expose","under-foot","how-ever","eye-sight","air-field","side-kick","cross-over","sun-bathe","any-where","any-how","back-ache","back-bite","back-breaker","back-drop","back-fire","back-ground","text-book","under-achieve","under-act","under-arm","key-pad","key-punch","key-stone","key-stroke","up-stairs","soft-ball","up-tight","up-state","super-cool","super-ego","super-fine","super-hero","fore-leg","fore-man","fore-see","one-self","wash-room","black-bird","black-board","black-berries","up-end","black-top","white-cap","white-fish","white-wall","white-wash","friend-ship","pan-cake","day-time","up-bringing","up-beat","up-coming","repair-man","fire-fighter","stand-by","bed-room","black-jack","black-list","black-mail","black-out","up-hill","water-line","up-keep","up-land","fire-house","teen-ager","car-pool","bell-bottom","ball-room","brain-child","pin-stripe","body-work","up-ward","up-wind","up-turn","store-rooms","dead-line","rain-bow","water-melon","water-way","day-break","day-book","day-dream","day-light","up-date","up-grade","up-heaval","up-held","up-load","wash-stand","up-on","upper-classman","life-saver","fore-arm","forbe-arer","for-bid","car-hop","car-load","car-port","carpet-bagger","waste-paper","up-shot","up-link","up-stage","news-paper","grand-child","grand-parent","grand-children","fish-pond","fish-tail","hook-up","eye-catching","taxi-cab","tax-payer","tea-cup","team-work","upper-cut","upper-case","upper-most","up-rising","news-reel","news-stand","news-worthy","grand-daughter","grand-father","grand-master","grand-aunt","grand-nephew","up-right","up-roar","up-root","up-start","grand-nieces","grand-son","grand-stand","grand-uncle","bold-face","bank-book","bank-roll","dish-cloth","dish-pan","dish-water","card-board","care-free","care-taker","car-sick","car-fare","car-go","up-take","up-thrust","news-room","up-time","carry-all","cart-wheel","wheel-base","wheel-barrow","wash-cloth","fish-like","water-proof","fish-net","news-dealer","water-shed","news-man","snow-drift","in-take","court-yard","over-flow","corn-meal","under-clothes","over-coat","under-cover","under-current","take-over","tale-bearer","tale-teller","tape-worm","super-human","waste-land","super-man","super-highways","after-life","set-back","over-land","high-way","main-land","cave-man","draw-bridge","life-work","fire-bomb","some-place","pass-book","pass-key","air-time","fire-cracker","side-walk","fire-ball","all-over","note-book","throw-away","fire-proof","butter-milk","foot-note","moon-beam","Sun-day","hand-made","candle-light","fire-arm","air-line","cross-bow","side-show","soft-ware","sun-fish","moon-struck","rattle-trap","weather-proof","earth-worm","school-boy","sweet-heart","butter-nut","here-after","play-back","foot-hill","eye-lid","south-east","horse-play","head-ache","blue-print","rain-drop","week-day","hammer-head","fore-close","fore-closure","slow-down","sky-scraper","mother-hood","father-land","fore-cast","high-ball","fore-bear","main-line","slum-lord","snow-ball","snake-skin","sound-proof","fire-break","air-craft","cross-cut","rail-way","earth-ward","butter-cup","all-spice","note-worthy","play-boy","foot-locker","hand-gun","horse-power","rain-storm","blueg-rass","cheese-burger","week-night","head-light","bed-rock","stand-off","common-wealth","can-can","fire-boat","air-lift","Pass-over","cross-breed","side-burns","sun-baked","moon-shine","school-book","here-by","play-house","butter-fingers","foot-lights","hand-book","back-slide","eye-lash","steam-ship","head-line","spill-way","house-boat","long-hand","horse-hair","stand-pipe","whats-oever","fore-sight","soy-bean","book-seller","blue-berry","cheese-cake","rain-coat","thunder-bolt","stand-point","bed-roll","card-sharp","bell-boy","brain-wash","body-guard","pin-hole","pony-tail","news-boy","care-worn","duck-pin","duck-bill","hook-worm","court-house","after-image","high-chair","moth-ball","six-fold","skin-tight","sky-light","slap-stick","snow-bank","stand-out","hand-out","eye-glasses","foot-rest","step-son","stock-room","stone-wall","sail-boat","watch-word","time-saving","time-share","sales-clerk","show-off","share-cropper","sheep-skin","candle-stick","news-break","news-caster","news-print","butter-scotch","turn-about","turn-around","turn-buckle","eye-witness","star-fish","stage-hand","space-walk","shoe-maker","turn-down","turn-key","turn-off","horse-fly","come-down","come-back","cab-driver","blue-bird","table-spoon","table-top","table-ware","stop-light","sun-lit","sand-lot","snow-bird","blue-bell","wheel-house","fish-hook","fish-bowl","strong-hold","tail-gate","tail-light","tail-like","pin-up","tail-spin","take-off","take-out","bell-hop","tap-root","tar-get","task-master","steam-boat","dairy-maid","tea-spoon","daisy-wheel","pin-wheel","tell-tale","tender-foot","ten-fold","time-keeper","watch-word","time-saving","time-share","shoe-lace","show-off","share-cropper","sheep-skin","new-found","news-break","news-caster","news-print","time-table","turn-about","turn-around","turn-buckle","sharp-shooter","star-fish","stage-hand","space-walk","turn-coat","turn-down","turn-key","turn-off","above-board","come-down","come-back","cab-driver","table-cloth","table-spoon","table-top","table-ware","sun-dial","sun-lit","sand-lot","snow-bird","wheel-chair","wheel-house","fish-hook","fish-bowl","tag-along","tail-gate","tail-light","tail-like","tail-piece","tail-spin","take-off","take-out","tap-room","tap-root","task-master","team-mate","dairy-maid","tea-spoon","daisy-wheel","show-place","tell-tale","tender-foot","ten-fold","short-bread","tea-pot","time-saving","time-share","fire-water","air-men","share-cropper","sheep-skin","moon-scape","school-work","news-caster","news-print","here-upon","weather-cock","turn-around","turn-buckle","hand-cuff","head-dress","stage-hand","space-walk","house-top","for-ever","turn-key","turn-off","tail-coat","bed-clothes","come-back","cab-driver","up-standing","fish-eye","table-top","table-ware","after-glow","high-land","sand-lot","snow-bird","sister-hood","sky-lark","fish-hook","fish-bowl","waist-line","walk-ways","tail-light","tail-like","wall-eyed","wall-paper","take-off","take-out","ward-room","ware-house","task-master","war-like","warm-blooded","tea-spoon","daisy-wheel","war-path","tell-tale","tender-foot","ten-fold","a-round","wash-bowl","fisher-man","school-bus","ash-tray","wash-board","beach-comb","wash-out","black-ball","up-market","wash-tub","waste-basket","sun-roof","sun-down","snow-shovel","sun-up","up-set","waste-water","super-impose","watch-band","jet-liner","dog-wood","down-beat","back-lash","watch-man","be-low","jet-port","board-walk","jack-pot","ball-park","watch-tower","time-pieces","water-color","water-cooler","gum-ball","good-bye","never-more","coffee-maker","water-craft","back-stroke","water-front","water-log","moon-walk","wood-shop","jelly-fish","water-fowl","up-hold","water-mark","fish-monger","water-power","ship-bottom","good-night","nut-cracker","racquet-ball","water-scape","news-letter","water-side","water-spout","scare-crow","tool-box","gear-shift","tail-bone","water-tight","water-works","water-wheel","wave-length","thunder-bird","bug-spray","over-shoes","pay-check","wave-like","war-fare","wax-work","way-bill","bow-tie","crew-cut","type-writer","jump-shot","way-farer","way-laid","way-ward","way-side","dead-end","ear-drum","post-card","fruit-cup","over-board","jelly-bean","center-cut","rubber-band","sun-ray","clock-wise","down-under","ear-ache","turn-table","drive-way","match-box","motor-cycle","night-fall","grave-yard","car-rack","door-stop","tad-pole","egg-shell","stop-watch","lime-light","iron-work","cat-tail","nurse-maid","sun-glasses","wipe-out","egg-head","ear-drop","earth-bound","day-bed","ear-ring","house-work","hair-cut","blow-gun","fore-thought","up-scale","duck-weed","fore-warn","up-stroke","bow-legs","fore-knowledge","up-town","fore-brain","fore-gone","wash-house","fore-feet","fore-shadow","wash-rag","fore-foot","fore-told","fore-go","fore-word","fore-ground","grass-land","butter-ball","horse-man","fore-castle","horse-radish","fore-most","moon-lit","fore-paws","cat-walk","card-stock","new-born","fore-doom","news-person","fore-stall","rain-water"];
+
+var numberOfWords = 6;
+
+var changeNumberOfWords = function() {
+    numberOfWords = parseInt($("#numberofwords").val());
+    buildWordBlocks();  
+    if (numberOfWords > 10) {
+        $("li").removeClass("lismall").removeClass("lilarge").addClass("lilarger");
+    } else if (numberOfWords > 8) {
+        $("li").removeClass("lismall").removeClass("lilarger").addClass("lilarge");
+    } else {
+        $("li").removeClass("lilarge").removeClass("lilarger").addClass("lismall");
+    }
+}
+
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    //audioElement.setAttribute('autoplay', 'autoplay');
+    $.get();
+    //audioElement.addEventListener("load", function() {
+    //    audioElement.play();
+    //}, true);
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( "li" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+            $(this).children("span").css('background-color', randColor);
+            $(this).children("span").css('color', 'white');
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( "li" ).each(function( index ) {
+            $(this).css('background-color', "");
+            $(this).children("span").css('background-color', "");
+            $(this).children("span").css('color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+var randwords;
+var buildWordBlocks = function() {
+    var wordparts = [];
+    randwords = [];
+    // get words, place them in an array & randomize the order
+    for (var i = 0; i < numberOfWords; i++) {
+      var word = words[Math.floor(Math.random()*words.length)];
+      //Prevent adding duplicate words to the array.
+      var notInArray = false;
+      while (!notInArray) {
+        if ($.inArray(word, randwords) != -1) {
+          word = words[Math.floor(Math.random()*words.length)];
+        }
+        else {
+          notInArray = true;
+        }
+      }
+      randwords.push(word);
+      wordparts.push(word.split("-")[0]);
+      wordparts.push(word.split("-")[1]);
+    }
+    randomizeWords();
+
+    // output words then hide them
+    var output = "<ol>"; 
+    for (var i = 0; i < (numberOfWords*2); i++) { 
+      output += "<li>";
+      output += "<span>" + wordparts[i] + "</span>";
+      output += "</li>";
+
+    }
+    output += "</ol>";
+
+    $("#container").html(output);
+    //$("span").hide();
+
+    var guess1 = "";
+    var guess2 = "";
+    var count = 0;
+
+    $("li").click(function() {
+      if ((count < 2) && ($(this).children("span").hasClass("face-up")) === false) {
+        
+        // increment guess count, show image, mark it as face up
+        count++;
+        //$(this).children("span").show();
+        $(this).children("span").addClass("face-up");
+        $(this).addClass("face-up");
+        
+        //guess #1
+        if (count === 1 ) { 
+          guess1 = $(this).children("span").html(); 
+          speakWord(guess1);
+        }   
+        
+        //guess #2
+        else { 
+          guess2 = $(this).children("span").html();
+          speakWord(guess2);
+
+          // since it's the 2nd guess check for match
+          if ($.inArray(guess1 + "-" + guess2, randwords) != -1) {
+            $("li").children("span.face-up").addClass("match");
+            $("li").children("span.face-up").parent().addClass("match");
+            count = 0;
+            compound = guess1+guess2;
+            speakWord(compound);
+            $("#sentence").html("<a href=\"http://www.dictionary.com/browse/" + compound + "\" target=\"_blank\">" + compound + "</a>");
+            if ($("span").length == $("span.match").length) {
+                winAnimation();
+            }
+          }
+          // else it's a miss
+          else { 
+            setTimeout(function() {
+              //$("span").not(".match").hide();
+              $("span").not(".match").removeClass("face-up");
+              $("span").not(".match").parent().removeClass("face-up");
+              count = 0;
+            }, 2000);
+          }
+        }
+      }
+    });
+
+    // randomize array of words
+    function randomizeWords() {
+      Array.prototype.randomize = function()
+      {
+        var i = this.length, j, temp;
+        while ( --i )
+        {
+          j = Math.floor( Math.random() * (i - 1) );
+          temp = this[i];
+          this[i] = this[j];
+          this[j] = temp;
+        }
+      };
+      
+      wordparts.randomize();
+      winAnimation();
+    }
+}
+
+$(document).ready(function() {
+    buildWordBlocks();
+    $("#wordgroup").change(function() {
+        changeWordArray();
+    });
+    $("#numberofwords").change(function() {
+        changeNumberOfWords();
+    });
+});
+
+</script>
+</head>
+<body>
+<div id="container" class="containersmall"></div>
+<div id="footer">
+    <h1 id="sentence">Compound Words Game</h1>
+    <form >
+      <select id="numberofwords">
+          <option value="4">4 Words</option>
+          <option value="6" selected>6 Words</option>
+          <option value="8">8 Words</option>
+          <option value="10">10 Words</option>
+          <option value="12">12 Words</option>
+      </select><br/>
+      <input type="button" value="New Game" onclick="buildWordBlocks();" class="myButton" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
+      <h5>Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
+    </form>
+</div>
+</body>
+</html>

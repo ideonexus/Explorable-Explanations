@@ -16,6 +16,7 @@
 	body {
 		background-color: #000033;
 		font-family: arial;
+		color: #ffffff;
 	}
 
 	canvas {
@@ -27,6 +28,10 @@
 		max-width: 75px;
 		max-height: 75px;
 		vertical-align: middle;
+	}
+
+	a {
+		color: lightblue;
 	}
 
 	a.downloadlink {
@@ -233,6 +238,7 @@ $(window).load(function () {
 		<input type="button" value="Zoom In" class="myButton" onclick="zoomIt(1.1);" />
 		<a href="javascript:void(0);" class="downloadlink" onclick="downloadCanvas(this);" />Download Image</a>
 		<input type="button" value="Zoom Out" class="myButton" onclick="zoomIt(0.9);" />
+		<h5>Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
 	</div>
 </body>
 </html>
