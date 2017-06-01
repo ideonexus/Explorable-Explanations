@@ -2,7 +2,7 @@
 <head>
 <style>
     body {
-        background-color: firebrick;
+        background-color: rgb(0, 102, 255);
         color: white;
     }
 
@@ -53,7 +53,7 @@
       height: 20%;
       line-height: 100%;
       text-align: center;
-      background-color: darkred;
+      background-color: violet;
     }
 
     span { 
@@ -64,12 +64,12 @@
     }
 
     .face-up {
-        background-color: mediumvioletred;
+        background-color: crimson;
         color: white;
     }
 
     .match {
-        background-color: aqua;
+        background-color: yellow;
         color: black;
     }
 
@@ -230,20 +230,99 @@
   }
 }
 
+.operation {
+  width: 20%;
+  display: inline-block;
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.checkboxlabel {
+  font-size: 1.5em;
+}
+
+/**
+ * Start by hiding the checkboxes
+ */
+input[type=checkbox] {
+  visibility: hidden;
+}
+/**
+ * Checkbox Three
+ */
+.checkboxThree {
+  width: 75px;
+  height: 20px;
+  background: #333;
+  margin: auto;
+  border-radius: 50px;
+  position: relative;
+}
+/**
+ * Create the text for the On position
+ */
+.checkboxThree:before {
+  content: 'On';
+  position: absolute;
+  left: 10px;
+  top: 1px;
+  height: 2px;
+  color: aqua;
+  font-size: 16px;
+}
+/**
+ * Create the label for the off position
+ */
+.checkboxThree:after {
+  content: 'Off';
+  position: absolute;
+  left: 45px;
+  top: 1px;
+  height: 2px;
+  color: #cccccc;
+  font-size: 16px;
+}
+/**
+ * Create the pill to click
+ */
+.checkboxThree label {
+  display: block;
+  width: 30px;
+  height: 15px;
+  border-radius: 50px;
+
+  transition: all .5s ease;
+  cursor: pointer;
+  position: absolute;
+  top: 2px;
+  z-index: 1;
+  left: 5px;
+  background: #ddd;
+}
+
+/**
+ * Create the checkbox event for the label
+ */
+.checkboxThree input[type=checkbox]:checked + label {
+  left: 40px;
+  background: aqua;
+}
+
 </style>
 
 <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-<script src="js/wordfamilies.js"></script>
 <script>
 
 //http://www.mrsperkins.com/files/dolch_book.pdf
 
-var numberOfWords = 12;
-var currentWordArray, currentWordArrayKey;
+var numberofboxes = 12;
+var currentNumberRangeCeiling, currentNumberRangeFloor;
+var operations = ['addition','subtraction','multiplication','division'];
 
-var changeNumberOfWords = function() {
-    numberOfWords = parseInt($("#numberofwords").val());
-    buildWordBlocks();  
+var changeNumberofBoxes = function() {
+    numberofboxes = parseInt($("#numberofboxes").val());
+    buildNumberBlocks();  
 }
 
 var soundOn = true;
@@ -307,68 +386,115 @@ var winAnimation = function() {
     }, 5000);
 }
 
-var getRandomWordArray = function(setdefault) {
-    if (setdefault)
-    {
-        currentWordArrayKey = Object.keys(families)[Math.floor(Math.random()*Object.keys(families).length)];
-        return families[currentWordArrayKey];
-    }
-
-    return families[Object.keys(families)[Math.floor(Math.random()*Object.keys(families).length)]];
+var setOperations = function() {
+  operations = [];
+  if ($("#addition").is(":checked")) operations.push('addition');
+  if ($("#subtraction").is(":checked")) operations.push('subtraction');
+  if ($("#multiplication").is(":checked")) operations.push('multiplication');
+  if ($("#division").is(":checked")) operations.push('division');
+  buildNumberBlocks();
 }
 
-var changeWordArray = function() {
-    if ($("#wordfamilies").val() == "random")
-    {
-        currentWordArray = getRandomWordArray(true);
-    }
-    else
-    {
-        currentWordArray = families[$("#wordfamilies").val()];
-    }
-    buildWordBlocks();
+var changeNumberRange = function() {
+  currentNumberRangeFloor = 1;
+  currentNumberRangeCeiling = parseInt($("#numberranges").val());
+  buildNumberBlocks();
 }
 
-var categorywords;
-var buildWordBlocks = function() {
-    var allwords = [];
-    categorywords = [];
-    var catwordlimit = (numberOfWords / 4) * 3;
-    if (catwordlimit > currentWordArray.length) catwordlimit = currentWordArray.length;
+var getRandomFactor = function(num) {
+    var half = Math.floor(num / 2), // Ensures a whole number <= num.
+        arr = [1], // 1 will be a part of every solution.
+        i, j;
+
+    // Determine our increment value for the loop and starting point.
+    num % 2 === 0 ? (i = 2, j = 1) : (i = 3, j = 2);
+
+    for (i; i <= half; i += j) {
+        num % i === 0 ? arr.push(i) : false;
+    }
+
+    arr.push(num); // Always include the original number.
+    return arr[Math.floor(Math.random()*arr.length)];
+}
+
+var getRandomEquation = function(num) {
+    var equation = '';
+    //Get Random Operation
+    switch(operations[Math.floor(Math.random()*operations.length)]) {
+        case 'addition': //Addition
+            var num1 = Math.floor(Math.random()*num);
+            var num2 = num - num1;
+            equation = num1 + " + " + num2;
+            break;
+        case 'subtraction': //Subtraction
+            var num1 = Math.floor(Math.random()*num);
+            var num2 = num + num1;
+            equation = num2 + " - " + num1;
+            break;
+        case 'multiplication': //Multiplication
+            var num1 = getRandomFactor(num);
+            var num2 = num/num1;
+            equation = num1 + " * " + num2;
+            break;
+        case 'division': //Division
+            var num1 = getRandomFactor(num);
+            var num2 = num*num1;
+            equation = num2 + " / " + num1;
+    }
+    return equation;
+}
+
+var correctanswers;
+
+var buildNumberBlocks = function() {
+    var allanswers = [];
+    correctanswers = [];
+    var correctanswerlimit = (numberofboxes / 2);
+    var currentnumber = Math.floor(Math.random()*(currentNumberRangeCeiling-currentNumberRangeFloor)) + currentNumberRangeFloor;
+    if (correctanswerlimit > (currentnumber*2)) correctanswerlimit = (currentnumber*2);
+    
     // get words, place them in an array & randomize the order
-    for (var i = 0; i < numberOfWords; i++) {
-      var word;
-      if (i >= catwordlimit)
+    for (var i = 0; i < numberofboxes; i++) {
+      var iterateNumber = currentnumber;
+      var equation;
+      if (i >= correctanswerlimit)
       {
-        var randomWordArray = getRandomWordArray(false);
-        word = randomWordArray[Math.floor(Math.random()*randomWordArray.length)];
-      }
-      else
-      {
-        word = currentWordArray[Math.floor(Math.random()*currentWordArray.length)];
-        //Prevent adding duplicate words to the array.
-        var notInArray = false;
-        while (!notInArray) {
-          if ($.inArray(word, categorywords) != -1) {
-            word = currentWordArray[Math.floor(Math.random()*currentWordArray.length)];
+          while (iterateNumber == currentnumber) {
+            iterateNumber = Math.floor(Math.random()*(currentNumberRangeCeiling-currentNumberRangeFloor)) + currentNumberRangeFloor;
           }
-          else {
-            notInArray = true;
-          }
-        }        
-        categorywords.push(word);
       }
-      allwords.push(word);
+      
+      equation = getRandomEquation(iterateNumber);
+      //Prevent adding duplicate words to the array.
+      var notInArray = false;
+      var iterateCount = 0;
+      while (!notInArray) {
+        if ($.inArray(equation, allanswers) != -1) {
+          equation = getRandomEquation(iterateNumber);
+        }
+        else {
+          notInArray = true;
+        }
+
+        if (iterateCount > 20) break; //Give up!!!
+        iterateCount++;
+      }
+
+      if (i < correctanswerlimit) {
+        correctanswers.push(equation);
+      }
+
+      allanswers.push(equation);
     }
-    randomizeWords();
+
+    randomizeAnswers();
 
     // output words then hide them
     var output = "<ol>"; 
-    for (var i = 0; i < numberOfWords; i++) { 
+    for (var i = 0; i < numberofboxes; i++) { 
       output += "<li>";
-      output += "<span>" + allwords[i] + "</span>";
+      output += "<span>" + allanswers[i] + "</span>";
       output += "</li>";
-
     }
     output += "</ol>";
 
@@ -383,16 +509,16 @@ var buildWordBlocks = function() {
         $(this).addClass("face-up");
         
           guess = $(this).children("span").html();
-          speakWord(guess);
+          //speakWord(guess);
 
           // since it's the 2nd guess check for match
-          if ($.inArray(guess, categorywords) != -1) {
+          if ($.inArray(guess, correctanswers) != -1) {
             $("li").children("span.face-up").addClass("match");
             $("li").children("span.face-up").parent().addClass("match");
-            categorywords = $.grep(categorywords, function(value) {
+            correctanswers = $.grep(correctanswers, function(value) {
               return value != guess;
             });
-            if (categorywords.length === 0) {
+            if (correctanswers.length === 0) {
                 winAnimation();
             }
           }
@@ -407,7 +533,7 @@ var buildWordBlocks = function() {
       });
 
     // randomize array of words
-    function randomizeWords() {
+    function randomizeAnswers() {
       Array.prototype.randomize = function()
       {
         var i = this.length, j, temp;
@@ -420,14 +546,14 @@ var buildWordBlocks = function() {
         }
       };
 
-      allwords.randomize();
-      $('#sentence').html("Find all the '" + currentWordArrayKey + "' words.");
+      allanswers.randomize();
+      $('#sentence').html("Find all the '" + currentnumber + "' equivalents.");
       //winAnimation();
     }
 
-    if (numberOfWords > 16) {
+    if (numberofboxes > 16) {
         $("li").removeClass("lismall").removeClass("lilarge").addClass("lilarger");
-    } else if (numberOfWords > 8) {
+    } else if (numberofboxes > 8) {
         $("li").removeClass("lismall").removeClass("lilarger").addClass("lilarge");
     } else {
         $("li").removeClass("lilarge").removeClass("lilarger").addClass("lismall");
@@ -436,19 +562,12 @@ var buildWordBlocks = function() {
 }
 
 $(document).ready(function() {
-    $.each(families, function (i, item) {
-        $('#wordfamilies').append($('<option>', { 
-            value: i,
-            text : i
-        }));
+    changeNumberRange();
+    $("#numberranges").change(function() {
+        changeNumberRange();
     });
-
-    changeWordArray();
-    $("#wordfamilies").change(function() {
-        changeWordArray();
-    });
-    $("#numberofwords").change(function() {
-        changeNumberOfWords();
+    $("#numberofboxes").change(function() {
+        changeNumberofBoxes();
     });
 });
 
@@ -457,19 +576,57 @@ $(document).ready(function() {
 <body>
 <div id="container" class="containersmall"></div>
 <div id="footer">
-    <h1 id="sentence">Word Categories Game</h1>
+    <h1 id="sentence">Equivalency Hunt Game</h1>
     <form >
-      <select id="wordfamilies">
-          <option value="random">Random Category</option>
+      <select id="numberranges">
+          <option value="10">1-10</option>
+          <option value="20" selected>1-20</option>
+          <option value="100">1-100</option>
+          <option value="1000">1-1000</option>
       </select>
-      <select id="numberofwords">
-          <option value="8">8 Words</option>
-          <option value="12" selected>12 Words</option>
-          <option value="16">16 Words</option>
-          <option value="20">20 Words</option>
-          <option value="24">24 Words</option>
+      <select id="numberofboxes">
+          <option value="8">8 Boxes</option>
+          <option value="12" selected>12 Boxes</option>
+          <option value="16">16 Boxes</option>
+          <option value="20">20 Boxes</option>
+          <option value="24">24 Boxes</option>
       </select><br/>
-      <input type="button" value="New Game" onclick="changeWordArray();" class="myButton" />
+
+      <div>
+        <div class="operation">
+          <div class="checkboxlabel">Addition</div>
+          <div class="checkboxThree">
+              <input type="checkbox" value="addition" id="addition" onClick="setOperations();" checked />
+              <label for="addition"></label>
+          </div>
+        </div>
+
+        <div class="operation">
+          <div class="checkboxlabel">Subtraction</div>
+          <div class="checkboxThree">
+              <input type="checkbox" value="subtraction" id="subtraction" onClick="setOperations();" checked />
+              <label for="subtraction"></label>
+          </div>
+        </div>
+
+        <div class="operation">
+          <div class="checkboxlabel">Multiplication</div>
+          <div class="checkboxThree">
+              <input type="checkbox" value="multiplication" id="multiplication" onClick="setOperations();" checked />
+              <label for="multiplication"></label>
+          </div>
+        </div>
+
+        <div class="operation">
+          <div class="checkboxlabel">Division</div>
+          <div class="checkboxThree">
+              <input type="checkbox" value="division" id="division" onClick="setOperations();" checked />
+              <label for="division"></label>
+          </div>
+        </div>
+      </div>
+
+      <input type="button" value="New Game" onclick="buildNumberBlocks();" class="myButton" />
       <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /><br/>
       <h5 class="info">Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
     </form>
