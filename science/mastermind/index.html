@@ -1,0 +1,503 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: darkblue;
+        color: white;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    }
+
+    a {
+      color: lemonchiffon;
+    }
+
+    #container { 
+        width: 70%;
+        height: 70%;
+        /*position: absolute;*/
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        white-space: nowrap;
+
+        margin: auto;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    /*ul { 
+        padding: 0;
+        margin: 0;
+    }*/
+
+    li {
+      padding: 0;
+      float: left;
+      margin: 10px;
+      list-style: none;
+      outline: solid;
+      /*width: 150px;
+      height: 150px;*/
+      width: 14%;
+      height: 7%;
+      line-height: 130%;
+      text-align: center;
+      background-color: white;
+      color: black;
+      font-size: 2em;
+      display: inline-block;
+    }
+
+    span { 
+      font-size: 1.5em;
+      font-weight: bold;
+      color: white;
+      position: relative;
+      top: 25%;
+    }
+
+    h1 {
+      line-height: .10em;
+    }
+
+    .hint {
+        background-color: lightblue;
+    }
+
+    .coordhint {
+        background-color: goldenrod;
+    }
+
+    .label {
+        background-color: purple;
+        color: white;
+        font-weight: bold;
+        font-size: 2em;
+    }
+
+    .label > span {
+        color: white;
+    }
+
+    .eliminated {
+        background-color: crimson;
+        color: white;
+    }
+
+    .guessed {
+        background-color: yellow;
+        color: black;
+    }
+
+    .clear {
+        clear: both;
+    }
+
+    input
+    {
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+    select
+    {   
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 100% !important;
+        height: 100%;
+        text-indent: 5px;
+    }
+
+    .colorselector {
+      font-size: 1em;
+      text-indent: 5px;
+    }
+
+    .optionselect { 
+      font-size: 1.5em;
+      width: 150px !important;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .lismall {
+        width: 10%;
+        font-size: 1.6em;
+        line-height: 150%;
+    }
+
+    .lismall.hint {
+        font-size: 1em;
+        line-height: 200%;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.formelements {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+#factor {
+    width: 100px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:30px;
+}
+
+#factorfields {
+    display: none;
+    font-size: 28px;
+}
+
+    @media only screen and (max-width: 1250px) {
+      li {
+        width: 10%;
+        height: 5%;
+        line-height: 90%;
+        font-size: 1.5em;
+      }
+
+      .label {
+        font-size: 1.5em;
+        line-height: 100%;
+      }
+
+      .lismall {
+        line-height: 150%;
+        font-size: 1.1em;
+        width: 8%;
+
+      }
+
+      .colorselector {
+          font-size: 0.8em;
+          text-indent: 3px;
+      }
+
+      input {
+        font-size: .75em;
+      }
+    }
+
+    @media only screen and (max-width: 1000px) {
+      #container { 
+        width: 80%;
+      }
+    }
+
+    @media only screen and (max-width: 800px) {
+      #container { 
+        width: 80%;
+      }
+    }
+
+    @media only screen and (max-width: 650px) {
+      #container { 
+        width: 100%;
+      }
+    }
+
+</style>
+
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+
+var soundOn = true;
+var colors = ["red","orange","yellow","green","blue","violet"];
+var output = "";
+var round = 0;
+var currentsolution;
+var numberofcolors = 6;
+var numberofcolumns = 4;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+var readSentence = function(sentence) {
+    $("#sentence").html(sentence);
+    speakWord(sentence);
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    $.get();
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( "li" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+            $(this).children("span").css('background-color', randColor);
+            $(this).children("span").css('color', 'white');
+        });
+    },100);
+
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        audioElement.pause();
+        $("#container").html(output);
+    }, 5000);
+}
+
+var changeNumberOfColors = function() {
+    numberofcolors = parseInt($("#numberofcolors").val());
+    buildMastermind();
+}
+
+var changeNumberOfColumns = function() {
+    numberofcolumns = parseInt($("#numberofcolumns").val());
+    buildMastermind();
+}
+
+var changeColor = function(sel) {
+    $(sel).parent().css("background-color",$(sel).val());
+    $(sel).css("background-color",$(sel).val());
+}
+
+var checkForWin = function() {
+    // You get one small black peg for a guess of the right colour in the right location
+    var rightColorRightPosition = 0;
+    // One small white peg for a guess of of the right colour but in the wrong position.
+    var rightColorWrongPosition = 0;
+
+    var hint = "<li class=\"label hint\">";
+
+    for (var i = 1; i <= numberofcolumns; i++) {
+      if (currentsolution[i-1] == $("#color" + i).val())
+      {
+          rightColorRightPosition++;
+          hint += "+";
+      }
+      else
+      {
+        for (var j = 1; j <= numberofcolumns; j++) {
+            if (j != i && currentsolution[j-1] == $("#color" + i).val())
+            {
+                rightColorWrongPosition++;
+                hint += "-";
+            }
+        }
+      }
+
+      // Replace the current row with locked-in answers
+      $("#color" + i).replaceWith($("#color" + i).val());
+    }
+    hint += "</li>";
+
+    $("#result").replaceWith(hint);
+
+    output = $("#container").html();
+
+    if (rightColorRightPosition == 4)
+    {
+        $("#sentence").html("WIN " + currentsolution.join("-"));
+        winAnimation();
+    } else if (round == 10)
+    {
+        $("#sentence").html("LOSS " + currentsolution.join("-"));
+    } else {
+        //No win, add new row if < 10 tries.
+        addRow();
+    }
+}
+
+var generateSolution = function() {
+  currentsolution = [];
+  for (var i = 1; i <= numberofcolumns; i++) {
+    currentsolution.push(colors[Math.floor(Math.random()*numberofcolors)])
+  }
+  //$("#sentence").html(currentsolution.join("-"));
+}
+
+var addRow = function() {
+    round++;
+    output += "<ol class=\"clear\"><li class=\"label\">" + round + "</li>";
+
+    for (var i = 1; i <= numberofcolumns; i++)
+    {
+        output += "<li><select id=\"color" + i + "\" class=\"colorselector\"><option value=\"none\">&nbsp;</option>";
+        for (var j = 0; j < numberofcolors; j++) 
+        {
+            output += "<option value=\"" + colors[j] + "\" class=\"coloroption\" style=\"background:" + colors[j] + "\">" + colors[j] + "</option>";
+        }
+        output += "</select></li>";
+    }
+
+    output += "<li id=\"result\"><input type=\"button\" value=\"TEST\" id=\"testbutton\" /></li></ol>";
+
+    $("#container").html(output);
+    $(".colorselector").change(function() { changeColor(this); });
+    $("#testbutton").click(function() { checkForWin(); });
+
+    if (numberofcolumns > 4) {
+        $("li").addClass("lismall");
+    } else {
+        $("li").removeClass("lismall");
+    }
+}
+
+var buildMastermind = function() {
+    $("#sentence").html("Guess the Color Sequence");
+    round = 0;
+
+    output = "<ol class=\"clear\"><li class=\"label\">Try</li>";
+    for (var i = 1; i <= numberofcolumns; i++)
+    {
+      output += "<li class=\"label\">" + i + "</li>";
+    }
+    output += "<li class=\"label\">Result</li></ol>";
+
+    addRow();
+
+    //Set the random sequence to guess.
+    generateSolution();
+}
+
+$(document).ready(function() {
+    buildMastermind();
+
+    $("#numberofcolors").change(function() {
+        changeNumberOfColors();
+    });
+
+    $("#numberofcolumns").change(function() {
+        changeNumberOfColumns();
+    });
+});
+
+</script>
+</head>
+<body>
+<div id="container"></div>
+<div id="footer">
+    <h1 id="sentence">Guess the Color Sequence</h1>
+    <form>
+      <div class="formelements" id="labelToFind"></div>
+      <select id="numberofcolors" class="optionselect">
+          <option value="2">2 Colors</option>
+          <option value="3">3 Colors</option>
+          <option value="4">4 Colors</option>
+          <option value="5">5 Colors</option>
+          <option value="6" selected>6 Colors</option>
+      </select>
+      <select id="numberofcolumns" class="optionselect">
+          <option value="2">2 Columns</option>
+          <option value="3">3 Columns</option>
+          <option value="4" selected>4 Columns</option>
+          <option value="5">5 Columns</option>
+          <option value="6">6 Columns</option>
+      </select><br/>
+      <input type="button" value="New Game" onclick="buildMastermind();" class="myButton" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+      <h5>+ means right color right placement. - means right color wrong placement.<br/>Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
+    </form>
+</div>
+</body>
+</html>
