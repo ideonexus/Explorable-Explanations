@@ -1,0 +1,444 @@
+<html>
+<head>
+<title>24</title>
+<style>
+    body {
+        background-color: purple;
+        color: white;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    }
+
+    #targetNumber {
+        width: 100%;
+        text-align: center;
+        font-size: 3em;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    .i1000 {
+        width: 30%;
+    }
+
+    .i100  {
+        width: 45%;
+    }
+
+    .i10 {
+        width: 25%;
+    }
+
+    .i1 {
+        width: 15%;
+    }
+
+    .baseCount {
+        font-size: 2em;
+    }
+
+    .numberImage, .numberAdjustor {
+        width: 24.75%;
+        text-align: center;
+        float: left;
+    }
+    .numberImage {
+        height: 60%;
+        border: solid 1px white;
+    }
+
+    a {
+      color: pink;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.formelements {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.decrement, .increment
+{
+    font-size:30px;
+    width: 40px;
+    height: 50px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+input, select
+{
+    font-size:28px;
+    font-weight: bold;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:30px;
+}
+
+
+</style>
+
+<script src="js/jquery-1.9.1.min.js"></script>
+<script>
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    $.get();
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( ".numberImage" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( ".numberImage" ).each(function( index ) {
+            $(this).css('background-color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+//Array of arrays for dynamic assignments
+var integers = [];
+integers[1] = [];
+integers[2] = [];
+integers[3] = [];
+
+var operations = ["+","-","*","/"];
+
+var clearEquations = function() {
+    $('#nums').html('');
+    $('#eq1').html('');
+    $('#eq2').html('');
+    $('#eq3').html('');
+    $('#ans1').html('');
+    $('#ans2').html('');
+    $('#ans3').html('');
+    $('#solutions').html('');
+}
+
+var buildSelector = function(id, cssclass, array) {
+    var selector = $('<select>');
+    selector.attr("id", id);
+    selector.addClass(cssclass);
+    if (!id.startsWith("op")) selector.addClass("selnum");
+    selector.append($('<option/>').val("").html(""));
+    for (var i=0;i<array.length;i++){
+       selector.append($('<option/>').val(array[i]).html(array[i]));
+    }
+
+    return selector.prop('outerHTML');
+}
+
+var buildEquationString = function(row, integers) {
+    return buildSelector("intA" + row, "eq" + row, integers)
+        + " " + buildSelector("op" + row, "eq" + row, operations)
+        + " " + buildSelector("intB" + row, "eq" + row, integers);
+}
+
+var buildEquationRow = function(row) {
+    $('#eq' + row).html(buildEquationString(row, integers[row]));
+    $(".eq" + row).change(function(e) {
+        evaluate(e, row);
+    });
+}
+
+var evaluate = function(e, row) {
+
+    var result;
+    if ($("#intA" + row).val() != "" && $("#op" + row).val() != "" && $("#intB" + row).val() != "")
+    {
+        result = eval($("#intA" + row).val() + $("#op" + row).val() + $("#intB" + row).val());
+        $('#ans' + row).html(" = " + result);
+        if (row < 3)
+        {
+            var nextrow = row + 1;
+            integers[nextrow] = [];
+            for (var i=0;i<integers[row].length;i++) {
+                integers[nextrow].push(integers[row][i]);
+            }
+            integers[nextrow].push(result);
+            buildEquationRow(nextrow);
+
+            if (nextrow == 2)
+            {
+                $('#eq3').html('');
+                $('#ans3').html('');
+            } else if (nextrow == 3)
+            {
+                $('#ans3').html('');
+            }
+        }
+        else
+        {
+            //check for win.
+            if (result == 24)
+            {
+                winAnimation();
+            }
+        }
+    }
+
+    //Prevent options from being used more than once.
+    var integersUsed = [];
+    var integersDisabled = [];
+    var intUsedIndex = 0;
+
+    //Reenable all options
+    $(".selnum").each(function() {
+        $(this).children("option").attr('disabled',false);
+        //Build array of all selected options.
+        if ($(this).val() != "") {
+            integersUsed[intUsedIndex] = [$(this).attr("id"), $(this).val()];
+            intUsedIndex++;
+        }
+    });
+
+    //Disable selected Option for other selectors.
+    for (var i=0;i<integersUsed.length;i++) {
+      var selectid = integersUsed[i][0];
+      var selectedValue = integersUsed[i][1];
+
+      integersDisabled.push(selectedValue);
+      var numOccurences = ($.grep(integersDisabled, function (elem) {
+          return elem === selectedValue;
+      }).length) - 1;
+
+      $(".selnum").each(function() {
+          if ($(this).attr("id") != selectid) {
+              //$(this).children("option[value='" + selectedValue +"']").first().attr('disabled','disabled');
+              $(this).children("option[value='" + selectedValue +"']").filter(":eq(" + numOccurences + ")").attr('disabled','disabled');
+          }
+      });
+    }
+}
+
+var newGame = function() {
+    clearEquations();
+    integers[1] = [];
+    integers[2] = [];
+    integers[3] = [];
+
+    integers[1].push(Math.floor(Math.random() * 9) + 1);
+    integers[1].push(Math.floor(Math.random() * 9) + 1);
+    integers[1].push(Math.floor(Math.random() * 9) + 1);
+    integers[1].push(Math.floor(Math.random() * 9) + 1);
+    //integers[1] = [5,9,5,9];
+
+    $("#nums").html("{" + integers[1].join(",") + "}");
+
+    //BuildSelectors
+    buildEquationRow(1);
+}
+
+//Links with ways to solve sets of numbers.
+//http://scripts.cac.psu.edu/staff/r/j/rjg5/scripts/Math24.pl?a=7&b=9&c=1&d=3
+//https://www.cs.bu.edu/~hwxi/academic/courses/CS320/Spring02/assignments/01/table-for-game-of-24.txt
+//https://rosettacode.org/wiki/24_game/Solve#JavaScript
+var findTwentyFour = function() {
+    var equation;
+    var solutions = [];
+
+    //TODO: This doesn't render?
+    //$("#solutions").html("Finding Solutions.");
+
+    //Integers are easy, because we only use each one once.
+    for (var a=0, i=0; i<integers[1].length; a++, i++) {
+    for (var b=1, j=0; j<integers[1].length; b++, j++) {
+    for (var c=2, k=0; k<integers[1].length; c++, k++) {
+    for (var d=3, l=0; l<integers[1].length; d++, l++) {
+
+        //Prevent duplicates
+        if (a != b && a != c && a != d && b != c && b !=d && c != d)
+        {
+
+            //Operations are harder, because they can be used multiple times.
+            for (var x=0;x<operations.length;x++) {
+
+                equation = "((" + integers[1][a] + " " + operations[x] + " " + integers[1][b] + ") "
+                  + operations[x] + " " + integers[1][c] + ") "
+                  + operations[x] + " " + integers[1][d];
+                
+                if ($.inArray(equation,solutions) == -1 && eval(equation) == 24) solutions.push(equation);
+
+                equation = "(" + integers[1][a] + " " + operations[x] + " " + integers[1][b] + ") "
+                  + operations[x] 
+                  + " (" + integers[1][c] + operations[x] + " " + integers[1][d] + ")";
+                
+                if ($.inArray(equation,solutions) == -1 && eval(equation) == 24) solutions.push(equation);
+
+                for (var y=0;y<operations.length;y++) {
+
+                    equation = "((" + integers[1][a] + " " + operations[x] + " " + integers[1][b] + ") "
+                      + operations[y] + " " + integers[1][c] + ") "
+                      + operations[y] + " " + integers[1][d];
+                    
+                    if ($.inArray(equation,solutions) == -1 && eval(equation) == 24) solutions.push(equation);
+
+                    equation = "(" + integers[1][a] + " " + operations[x] + " " + integers[1][b] + ") "
+                      + operations[y] 
+                      + " (" + integers[1][c] + operations[y] + " " + integers[1][d] + ")";
+                    
+                    if ($.inArray(equation,solutions) == -1 && eval(equation) == 24) solutions.push(equation);
+
+                    for (var z=0;z<operations.length;z++) {
+
+                        equation = "((" + integers[1][a] + " " + operations[x] + " " + integers[1][b] + ") "
+                          + operations[y] + " " + integers[1][c] + ") "
+                          + operations[z] + " " + integers[1][d];
+                        
+                        if ($.inArray(equation,solutions) == -1 && eval(equation) == 24) solutions.push(equation);
+
+                        equation = "(" + integers[1][a] + " " + operations[x] + " " + integers[1][b] + ") "
+                          + operations[y] 
+                          + " (" + integers[1][c] + operations[z] + " " + integers[1][d] + ")";
+                        
+                        if ($.inArray(equation,solutions) == -1 && eval(equation) == 24) solutions.push(equation);
+
+                    }
+                }
+            }
+
+        }
+
+        if (b == integers[1].length) b = 0;
+        if (c == integers[1].length) c = 0;
+        if (d == integers[1].length) d = 0;
+    }}}} //integer loops
+
+    if (solutions.length > 0)
+    {
+        $("#solutions").html(solutions.join("<br/>"));
+    } else {
+        $("#solutions").html("No solutions found!");
+    }
+}
+
+$(document).ready(function() {
+    newGame();
+});
+
+
+</script>
+</head>
+<body>
+<div>
+    <div id="nums"></div>
+    <div id="row1"><span id="eq1"></span><span id="ans1"></span></div>
+    <div id="row2"><span id="eq2"></span><span id="ans2"></span></div>
+    <div id="row3"><span id="eq3"></span><span id="ans3"></span></div>
+    <div id="solutions"></div>
+</div>
+
+<div id="footer">
+    <h1 id="feedback">24</h1>
+    <form>
+      <input type="button" id="giveup" onclick="findTwentyFour();" value="I Give Up" />
+      <input type="button" id="newgame" onclick="newGame();" value="New Game" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+    </form>
+    <p>Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</p>
+</div>
+</body>
+</html>
