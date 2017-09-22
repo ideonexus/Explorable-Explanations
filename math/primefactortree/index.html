@@ -189,6 +189,21 @@ p {
 <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
 
 <script type="text/javascript">
+var polygon = function(ctx, x, y, radius, sides, startAngle, anticlockwise) {
+    if (sides < 3) return;
+    var a = (Math.PI * 2)/sides;
+    a = anticlockwise?-a:a;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(startAngle);
+    ctx.moveTo(radius,0);
+    for (var i = 1; i < sides; i++) {
+      ctx.lineTo(radius*Math.cos(a*i),radius*Math.sin(a*i));
+    }
+    ctx.closePath();
+    ctx.restore();
+}
+
 // Simple trial-division factoring
 var factor = function(n){
     var factors = [];
@@ -311,7 +326,14 @@ var recursiveRender = function(node, x, y){
   // Draw label background
   var textWidth = context.measureText(numberWithCommas(node.value)).width;
   context.fillStyle = options.colors.label.background;
-  context.fillRect(x + options.center.x - textWidth / 2 - options.padding, y + options.center.y - options.fontSize / 2 - options.padding, textWidth + options.padding * 2, options.fontSize + options.padding * 2);
+  if (parseInt(node.value) > 2)
+  {
+      polygon(context, (x + options.center.x), (y + options.center.y), (options.fontSize + options.padding), node.value, -Math.PI/2);
+      context.fill();
+  } else {
+      context.fillRect(x + options.center.x - textWidth / 2 - options.padding, y + options.center.y - options.fontSize / 2 - options.padding, textWidth + options.padding * 2, options.fontSize + options.padding * 2);
+  }
+
   // Draw label text
   context.fillStyle = options.colors.label.text;
   context.font = "bold " + options.fontSize + "px sans-serif";
