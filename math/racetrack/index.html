@@ -1,0 +1,760 @@
+<html>
+<head>
+<title>Racetrack</title>
+<!--
+  TODO:
+  - Make finish line triangles
+  - Handle when finish line is projected.
+  - Add track selections.
+  - Option to load track from coords
+//-->
+<style>
+    html,body {
+		width: 100%;
+		height: 100%;
+		margin: 0px;
+		border: 0;
+		background-color: purple;
+		color: white;
+		font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    }
+
+	canvas {
+    width: 1200px;
+    height: 600px;
+		/**width: 100%;
+		height: 75%;**/
+		background-color: navy;
+	}
+
+	a {
+		color: pink;
+	}
+
+  .coordinatespopup {
+      display: none;
+      float: left;
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      background-color: aqua;
+      color: black;
+      font-size: 0.75em;
+  }
+
+  .coordinatespopup > .center {
+      text-align: center;
+  }
+  .center a {
+    color: darkblue;
+  }
+
+    .stage {
+        width: 100%;
+        text-align: center;
+        font-size: 3em;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.formelements {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+input, select
+{
+
+    font-size:32px;
+    font-weight: bold;
+}
+
+select
+{
+  font-size:20px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:30px;
+}
+
+
+</style>
+
+<script src="js/jquery-1.9.1.min.js"></script>
+<script src="js/tracks.js"></script>
+<script>
+var soundOn = true;
+var drawTrack = false
+
+var hideCoordinates = function() {
+    $('.coordinatespopup').hide();
+}
+
+function toggleDrawTrack() {
+    if (drawTrack) {
+        drawTrack = false;
+        $("#drawToggle").prop('value', "Draw Track");
+
+        //Write coordinates to the log
+        var trackCoordinates = "";
+        for (var i = 0; i < coordinates.length; i++) {
+            if (coordinates[i].isTrack) {
+                trackCoordinates +=  ',"' + coordinates[i].id +'"';
+            }
+        }
+
+        trackCoordinates = trackCoordinates.substring(1); //Remove first comma.
+        $('#coordinatesoutput').html(trackCoordinates)
+        $('.coordinatespopup').show();
+    } else {
+        drawTrack = true;
+        $("#drawToggle").prop('value', "Get Coordinates");
+    }
+}
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    $.get();
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( ".numberImage" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( ".numberImage" ).each(function( index ) {
+            $(this).css('background-color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+var canvas, ctx, canvasOffset, offsetX, offsetY, currentTrack, crashed, finishLineCrossed;
+
+//Track each Coordinate in an object to identify them.
+//Code by m1erickson: http://jsfiddle.net/m1erickson/sAFku/
+var coordinates = [];
+var coord = (function () {
+    // constructor
+    function coord(id, x, y) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        //Keep height/width ratio 1/3
+        this.w = 9;
+        this.h = 3;
+        this.fill = "skyblue";
+        this.stroke = "black";
+        this.strokewidth = 5;
+        this.isTrack = false;
+        this.isFinish = false;
+        this.highlighted = false;
+        this.projected = false;
+        this.draw(false);
+        return (this);
+    }
+
+    //
+    coord.prototype.highlight = function (x, y) {
+        if (!this.isTrack && !this.isFinish)
+        {
+            this.draw(true);
+        } else {
+            this.draw(false); //to prevent blinking
+        }
+        return (this);
+    }
+
+    coord.prototype.setHighlighted = function (highlighted) {
+        if (!this.isTrack && !this.isFinish)
+        {
+            this.highlighted = highlighted;
+            console.log(this.id);
+            this.draw(true);
+        }
+        return (this);
+    }
+
+    coord.prototype.setProjected = function (projected) {
+        if (!this.isTrack)
+        {
+            this.projected = projected;
+            this.draw(false);
+        }
+        return (this);
+    }
+
+    coord.prototype.setTrack = function (istrack) {
+        this.isTrack = istrack;
+        this.projected = false;
+        this.highlighted = false;
+        this.draw(false);
+        return (this);
+    }
+
+    coord.prototype.setFinish = function (isfinish) {
+        this.isFinish = isfinish;
+        this.projected = false;
+        this.highlighted = false;
+        this.draw(false);
+        return (this);
+    }
+
+    //
+    coord.prototype.draw = function (hightlight) {
+        ctx.save();
+        ctx.beginPath();
+
+        var height = this.h;
+        var width = this.w;
+        ctx.fillStyle = this.fill;
+        ctx.strokeStyle = this.stroke;
+        ctx.lineWidth = this.strokewidth;
+
+        if (hightlight == true || this.highlighted == true || this.projected)
+        {
+	        height = height * 2;
+	        width = width * 2;
+        }
+
+        if (hightlight == true || this.highlighted == true)
+        {
+          ctx.fillStyle = "yellow";
+          ctx.strokeStyle = "yellow";
+        }
+
+        if (this.projected && hightlight != true)
+        {
+          ctx.globalAlpha = 0.3;
+          ctx.fillStyle = "lavender";
+          ctx.strokeStyle = "lavender";
+        }
+
+        if (!this.isTrack && !this.isFinish)
+        {
+      	    // to increase visiblity, and for
+      	    // aesthetics make the dots a small crosshair
+      	    ctx.fillRect(this.x-height, this.y, width, height);
+      	    ctx.fillRect(this.x, this.y-height, height, width);
+        } else {
+            if (this.isFinish)
+            {
+              ctx.globalAlpha = 0.3;
+              ctx.fillStyle = "red";
+              ctx.strokeStyle = "red";
+            } else {
+              ctx.fillStyle = "lime";
+              ctx.strokeStyle = "lime";              
+            }
+            var offset = width * 2
+            ctx.fillRect(this.x-(offset/3), this.y-(offset/3), offset, offset);
+        }
+
+        ctx.stroke();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    //
+    coord.prototype.isPointInside = function (x, y) {
+  		return (
+  			x >= this.x - (this.h*2)
+  			&& y >= this.y - (this.h*2)
+  			&& x <= this.x + this.w
+  			&& y <= this.y + this.w
+  		);
+    }
+
+    coord.prototype.isPointInsideProjected = function (x, y) {
+      // Beware Ye! Approximated math follows here!
+      // These variables were assigned via experimentation.
+      var fudge = 6;
+      var morefudge = 15;
+      return (
+        x + morefudge >= this.x - (this.h * fudge)
+        && y + morefudge >= this.y - (this.h * fudge)
+        && x + morefudge <= this.x + (this.w * fudge)
+        && y + morefudge <= this.y + (this.w * fudge)
+      );
+    }
+
+    return coord;
+})();
+
+//Track Paths drawn to maintain them.
+var paths = [];
+var path = (function () {
+    // constructor
+    function path(id, originx, originy, destinationx, destinationy, projected) {
+        var offs = 3; //Because the point isn't in the middle of the coord.
+        this.id = id;
+        this.originx = originx + offs;
+        this.originy = originy + offs;
+        this.destinationx = destinationx + offs;
+        this.destinationy = destinationy + offs;
+        this.projected = false;
+        if (projected)
+        {
+          this.projected = true;
+          this.stroke = "lavender";
+        } else {
+          this.stroke = "yellow";
+        }
+        this.strokewidth = 5;
+        this.draw(this.x, this.y);
+        return (this);
+    }
+
+    //
+    path.prototype.draw = function () {
+        ctx.save();
+        ctx.beginPath();
+
+        //Draw line between two clicked points.
+        ctx.moveTo(this.originx,this.originy);
+        ctx.lineTo(this.destinationx,this.destinationy);
+        ctx.strokeStyle = this.stroke;
+        ctx.lineWidth = this.strokewidth;
+        if (this.projected)
+        {
+            ctx.globalAlpha = 0.75;
+
+        }
+
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    return path;
+})();
+
+//Using the Bresenham Algorithm
+//https://stackoverflow.com/questions/4672279/bresenham-algorithm-in-javascript
+var getPointsFromStraightLine = function(originX, originY, destinationX, destinationY) {
+    var coordinatesArray = new Array();
+    // Translate coordinates
+    var x1 = originX;
+    var y1 = originY;
+    var x2 = destinationX;
+    var y2 = destinationY;
+    // Define differences and error check
+    var dx = Math.abs(x2 - x1);
+    var dy = Math.abs(y2 - y1);
+    var sx = (x1 < x2) ? 1 : -1;
+    var sy = (y1 < y2) ? 1 : -1;
+    var err = dx - dy;
+    // Set first coordinates
+    coordinatesArray.push([x1, y1]);
+    // Main loop
+    while (!((x1 == x2) && (y1 == y2))) {
+      var e2 = err << 1;
+      if (e2 > -dy) {
+        err -= dy;
+        x1 += sx;
+      }
+      if (e2 < dx) {
+        err += dx;
+        y1 += sy;
+      }
+      // Set coordinates
+      coordinatesArray.push([x1, y1]);
+    }
+    // Return the result
+    return coordinatesArray;
+}
+
+var lastCoordinate; //Id of the last-clicked coordinate
+var finishLineCrossed = 0;
+var drawPathBetweenCoordinates = function(newCoordinate) {
+    if (lastCoordinate)
+    {
+        var origin = lastCoordinate.split("-");
+        var destination = newCoordinate.split("-");
+        var originX = parseInt(origin[0]);
+        var originY = parseInt(origin[1]);
+        var destinationX = parseInt(destination[0]);
+        var destinationY = parseInt(destination[1]);
+
+        //Is the selected coordinate valid?
+        var clickedCoordinate;
+        for (var i = 0; i < coordinates.length; i++) {
+            if (coordinates[i].isPointInside(destinationX, destinationY)) {
+                clickedCoordinate =  coordinates[i];
+                break; //We found the coordinate, no need to continue.
+            }
+        }
+
+        if (clickedCoordinate && !clickedCoordinate.projected)
+        {
+            $("#feedback").html("Invalid coordinate!");
+            clickedCoordinate.setHighlighted(false);
+            return false;
+        } else {
+            clickedCoordinate.setHighlighted(true);
+        }
+
+        //Delete last projected path
+        paths.pop();
+        for (var i = 0; i < coordinates.length; i++) {
+            coordinates[i].setProjected(false);
+        }
+
+        //Draw line between two clicked points.
+        paths.push(new path("path-" + paths.length, originX, originY,destinationX,destinationY));
+
+        //Check if line crosses track or finish.
+        var pointsArray = getPointsFromStraightLine(originX, originY,destinationX,destinationY);
+        for (var k = 0; k < pointsArray.length; k++) {
+          for (var i = 0; i < coordinates.length; i++) {
+              if (coordinates[i].isTrack && coordinates[i].isPointInside(pointsArray[k][0], pointsArray[k][1])) {
+                  crashed = true;
+              }
+
+              if (paths.length > 3 
+                && coordinates[i].isFinish && coordinates[i].isPointInside(pointsArray[k][0], pointsArray[k][1])) {
+                  finishLineCrossed = true;
+              }
+          }
+        }
+
+        if (crashed) {
+            $("#feedback").html("CRASH!");
+        }
+        else if (finishLineCrossed) {
+            $("#feedback").html("WIN IN " + (paths.length + 1) +  " CLICKS!");
+            //winAnimation();
+        }
+
+        //Project velocity line to determine valid clickable points
+        var deltaX = destinationX - originX;
+        var deltaY = destinationY - originY;
+        var projectedX = destinationX + deltaX;
+        var projectedY = destinationY + deltaY;
+        paths.push(new path("path-temp",destinationX,destinationY,projectedX,projectedY,true));
+
+        var projectedCoordinate;
+        for (var i = 0; i < coordinates.length; i++) {
+            if (coordinates[i].isPointInside(projectedX, projectedY)) {
+                projectedCoordinate =  coordinates[i];
+                break; //We found the coordinate, no need to continue.
+            }
+        }
+
+        if (projectedCoordinate) {
+            //Find the surrounding coordinates and project them too.
+            for (var i = 0; i < coordinates.length; i++) {
+                if (coordinates[i].isPointInsideProjected(projectedX, projectedY)) {
+                    coordinates[i].setProjected(true);
+                }
+            }
+        }
+
+        //If no clickable points, CRASH!
+        var projectedFound = false;
+        for (var i = 0; i < coordinates.length; i++) {
+            if (coordinates[i].projected) {
+                projectedFound = true;
+                break;
+            }
+        }
+
+        if (!projectedFound) {
+            crashed = true;
+            $("#feedback").html("CRASH!");
+        } 
+
+        //ctx.restore();
+    }
+
+    lastCoordinate = newCoordinate;
+}
+
+function handleMouseClick(e) {
+
+    if (!crashed && !finishLineCrossed)
+    {
+        mouseX = parseInt(e.clientX - offsetX);
+        mouseY = parseInt(e.clientY - offsetY);
+
+        var clicked = "";
+        for (var i = 0; i < coordinates.length; i++) {
+            if (coordinates[i].isPointInside(mouseX, mouseY)) {
+                clicked =  coordinates[i];
+                break; //We found the coordinate, no need to continue.
+            }
+        }
+        if (clicked != "") {
+
+            if (!drawTrack)
+            {
+                drawPathBetweenCoordinates(clicked.id);
+                //clicked.setHighlighted(true);
+            } else {
+                if (clicked.isTrack)
+                {
+                    clicked.setTrack(false);
+                }
+                else
+                {
+                    clicked.setTrack(true);
+                }
+            }
+            //alert("Clicked coordinate: " + clicked.id);
+        }
+    }
+
+}
+
+//
+function handleMouseHover(e) {
+    mouseX = parseInt(e.clientX - offsetX);
+    mouseY = parseInt(e.clientY - offsetY);
+
+    // Put your mousemove stuff here
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < coordinates.length; i++) {
+        if (coordinates[i].isPointInside(mouseX, mouseY)) {
+            coordinates[i].highlight();
+        } else {
+            coordinates[i].draw();
+        }
+    }
+
+    for (var i = 0; i < paths.length; i++) {
+        paths[i].draw();
+    }
+}
+
+// Grid by Cthulahoop:
+// https://codepen.io/Cthulahoop/pen/sxqpL
+var drawGrid = function(canvas) {
+	var cw = canvas.width; //= window.innerWidth;
+	var ch = canvas.height; //= window.innerHeight;
+
+	// you don't draw to a canvas, you draw to a context (2d or 3d)
+	// this clears out the context
+	ctx.clearRect(0,0,cw,ch);
+
+	// here we set styles for fill and stroke
+	ctx.fillStyle = 'black';
+
+	// these variables define our grid
+	var gridSize = 20;
+	var offset = gridSize / 2;
+	var gCol = Math.ceil(cw/gridSize);
+	var gRow = Math.ceil(ch/gridSize);
+
+	for(var x = 0; x < gCol; x++) {
+	  for(var y = 0; y < gRow; y++) {
+	    // multiply x * y by gridSize to
+	    // get position of grid squares.
+	    // add offset so we don't have dots
+	    // along the top and left edge.
+	    var gx = (x * gridSize) + offset;
+	    var gy = (y * gridSize) + offset;
+
+      var newcoord = new coord(gx + "-" + gy, gx, gy);
+      if (jQuery.inArray(newcoord.id, tracks[currentTrack]) > -1)
+      {
+          newcoord.setTrack(true);
+      }
+
+      if (jQuery.inArray(newcoord.id, finishes[currentTrack]) > -1)
+      {
+          newcoord.setFinish(true);
+      }
+
+      coordinates.push(newcoord);
+	  }
+	}
+}
+
+var newGame = function() {
+    $("#feedback").html("Racetrack");
+    crashed = false;
+    finishLineCrossed = false;
+    paths = [];
+    coordinates = [];
+    drawGrid(canvas);
+
+    //Set the starting point.
+    var startingPoint = $.grep(coordinates, function(e){ return e.id == starts[currentTrack]; })[0];
+    startingPoint.setHighlighted(true);
+    lastCoordinate = startingPoint.id;
+    //Find the surrounding coordinates and project them too.
+    for (var i = 0; i < coordinates.length; i++) {
+        if (coordinates[i].isPointInsideProjected(startingPoint.x, startingPoint.y)) {
+            coordinates[i].setProjected(true);
+        }
+    }
+}
+
+var changeTrack = function() {
+    currentTrack = $('#racetracks').val();
+    newGame();
+}
+
+//To support percentage width/height settings for 
+//the canvas without distorting the context.
+function resizeCanvas() {
+    canvas.width = 1200; //window.innerWidth;
+    canvas.height = 600; //window.innerHeight * 0.75;
+}
+
+$(document).ready(function() {
+  	canvas = $("#canvas")[0];
+  	ctx = canvas.getContext('2d');
+  	canvasOffset = $("#canvas").offset();
+    offsetX = canvasOffset.left;
+    offsetY = canvasOffset.top;
+
+  	resizeCanvas();
+  	//window.addEventListener('resize', resizeCanvas, false);
+
+    $.each(tracks, function (i, item) {
+        $('#racetracks').append($('<option>', { 
+            value: i,
+            text : 'Track: ' + i
+        }));
+    });
+
+    $("#racetracks").val('Easy');
+
+    changeTrack();
+    $("#racetracks").change(function() {
+        changeTrack();
+    });
+
+    $("#canvas").click(handleMouseClick);
+    $("#canvas").mousemove(handleMouseHover);
+});
+
+
+</script>
+</head>
+<body>
+<div class="coordinatespopup">
+  <div id="coordinatesoutput"></div>
+  <p class="center">Copy the above coordinates to your local computer.</p>
+  <p class="center"><a href="javascript:hideCoordinates();">Close</a></p>
+</div>
+
+<div class="stage">
+  <canvas id="canvas"></canvas>
+</div>
+
+<div id="footer">
+    <h1 id="feedback">Racetrack</h1>
+
+    <form>
+      <select id="racetracks"></select>
+      <input type="button" id="newgame" onclick="newGame();" value="New Game" class="myButton" />
+      <input type="button" value="Draw Track" onclick="toggleDrawTrack();" class="myButton" id="drawToggle" />
+      <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+    </form>
+    <p>The graph-paper game <a href="https://en.wikipedia.org/wiki/Racetrack_(game)">Racetrack</a> with code snippets from <a href="http://jsfiddle.net/m1erickson/sAFku/">m1erickson</a>, <a href="https://stackoverflow.com/questions/4672279/bresenham-algorithm-in-javascript">Boris Hamanov/Bresenham</a>, and <a href="https://codepen.io/Cthulahoop/pen/sxqpL">Cthulahoop</a>. Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</p>
+</div>
+</body>
+</html>
