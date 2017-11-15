@@ -1,15 +1,15 @@
 <html>
 <head>
-<title>Racetrack</title>
+<title>Vector Racer</title>
 <!--
   TODO:
-  - Make finish line triangles
-  - Handle when finish line is projected.
-  - Add track selections.
+  - Move starting points onto finish line.
+  - Draw Track: Draw finish line, starting point, output track code.
   - Option to load track from coords
 //-->
 <style>
-    html,body {
+  
+  html,body {
 		width: 100%;
 		height: 100%;
 		margin: 0px;
@@ -17,13 +17,11 @@
 		background-color: purple;
 		color: white;
 		font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-    }
+  }
 
 	canvas {
     width: 1200px;
     height: 600px;
-		/**width: 100%;
-		height: 75%;**/
 		background-color: navy;
 	}
 
@@ -31,39 +29,44 @@
 		color: pink;
 	}
 
-  .coordinatespopup {
+  .coordinatespopup, .loadtrackpopup {
       display: none;
       float: left;
+      width: 375px;
       position: absolute;
-      left: 0px;
-      top: 0px;
+      top: 0;
+      left: 0;
+      right: 0;
+      margin: auto;
       background-color: aqua;
       color: black;
       font-size: 0.75em;
-  }
-
-  .coordinatespopup > .center {
       text-align: center;
   }
-  .center a {
+
+  #drawtype {
+      display: none;    
+  }
+
+  .coordinatespopup a {
     color: darkblue;
   }
 
-    .stage {
-        width: 100%;
-        text-align: center;
-        font-size: 3em;
-    }
+  .stage {
+      width: 100%;
+      text-align: center;
+      font-size: 3em;
+  }
 
-    #footer {
-        width: 90%;
-        text-align: center;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-    }
+  #footer {
+      width: 90%;
+      text-align: center;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: auto;
+  }
 
 .myButton {
   -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
@@ -152,31 +155,61 @@ input::-webkit-inner-spin-button {
 <script src="js/tracks.js"></script>
 <script>
 var soundOn = true;
-var drawTrack = false
+var drawTrack = false;
+var loadTrackPopup = false;
 
 var hideCoordinates = function() {
     $('.coordinatespopup').hide();
+    $('#drawtype').hide();
+    drawTrack = false;
 }
 
-function toggleDrawTrack() {
+var hideLoadTrack = function() {
+    $('.loadtrackpopup').hide();
+    loadTrackPopup = false;
+}
+
+var toggleDrawTrack = function() {
     if (drawTrack) {
         drawTrack = false;
         $("#drawToggle").prop('value', "Draw Track");
 
-        //Write coordinates to the log
-        var trackCoordinates = "";
+        var trackid = getRandomColor();//Random hexadecimal id for track
+
+        var trackCoordinates = finishCoordinates = startCoordinates = "";
         for (var i = 0; i < coordinates.length; i++) {
             if (coordinates[i].isTrack) {
-                trackCoordinates +=  ',"' + coordinates[i].id +'"';
+                trackCoordinates += ',"' + coordinates[i].id + '"';
+            } else if (coordinates[i].isFinish) {
+                finishCoordinates += ',"' + coordinates[i].id + '"';
+            } else if (coordinates[i].isStart) {
+                startCoordinates = '"' + coordinates[i].id + '"';
             }
         }
 
-        trackCoordinates = trackCoordinates.substring(1); //Remove first comma.
-        $('#coordinatesoutput').html(trackCoordinates)
+        //Remove first comma.
+        trackCoordinates = trackCoordinates.substring(1); 
+        finishCoordinates = finishCoordinates.substring(1);
+
+        var trackCode = "starts[\"" + trackid + "\"] = " + startCoordinates + ";\n"
+            + "tracks[\"" + trackid + "\"] = [ " + trackCoordinates + " ];\n"
+            + "finishes[\"" + trackid + "\"] = [ " + finishCoordinates + " ];\n";
+
+        $('#coordinatesoutput').val(trackCode);
         $('.coordinatespopup').show();
     } else {
         drawTrack = true;
         $("#drawToggle").prop('value', "Get Coordinates");
+        $('#drawtype').show();
+    }
+}
+
+var toggleLoadTrack = function() {
+    if (loadTrackPopup) {
+        loadTrackPopup = false;
+    } else {
+        loadTrackPopup = true;
+        $('.loadtrackpopup').show();
     }
 }
 
@@ -230,6 +263,21 @@ var winAnimation = function() {
     }, 5000);
 }
 
+var polygon = function(ctx, x, y, radius, sides, startAngle, anticlockwise) {
+    if (sides < 3) return;
+    var a = (Math.PI * 2)/sides;
+    a = anticlockwise?-a:a;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(startAngle);
+    ctx.moveTo(radius,0);
+    for (var i = 1; i < sides; i++) {
+      ctx.lineTo(radius*Math.cos(a*i),radius*Math.sin(a*i));
+    }
+    ctx.closePath();
+    ctx.restore();
+}
+
 var canvas, ctx, canvasOffset, offsetX, offsetY, currentTrack, crashed, finishLineCrossed;
 
 //Track each Coordinate in an object to identify them.
@@ -249,6 +297,7 @@ var coord = (function () {
         this.strokewidth = 5;
         this.isTrack = false;
         this.isFinish = false;
+        this.isStart = false;
         this.highlighted = false;
         this.projected = false;
         this.draw(false);
@@ -287,16 +336,21 @@ var coord = (function () {
 
     coord.prototype.setTrack = function (istrack) {
         this.isTrack = istrack;
-        this.projected = false;
-        this.highlighted = false;
+        this.projected = this.highlighted = false;
         this.draw(false);
         return (this);
     }
 
     coord.prototype.setFinish = function (isfinish) {
         this.isFinish = isfinish;
-        this.projected = false;
-        this.highlighted = false;
+        this.isTrack = this.projected = this.highlighted = false;
+        this.draw(false);
+        return (this);
+    }
+
+    coord.prototype.setStart = function (isstart) {
+        this.isStart = isstart;
+        this.isTrack = this.projected = this.highlighted = false;
         this.draw(false);
         return (this);
     }
@@ -318,7 +372,7 @@ var coord = (function () {
 	        width = width * 2;
         }
 
-        if (hightlight == true || this.highlighted == true)
+        if (hightlight == true || this.highlighted == true || this.isStart)
         {
           ctx.fillStyle = "yellow";
           ctx.strokeStyle = "yellow";
@@ -331,24 +385,27 @@ var coord = (function () {
           ctx.strokeStyle = "lavender";
         }
 
-        if (!this.isTrack && !this.isFinish)
-        {
-      	    // to increase visiblity, and for
-      	    // aesthetics make the dots a small crosshair
-      	    ctx.fillRect(this.x-height, this.y, width, height);
-      	    ctx.fillRect(this.x, this.y-height, height, width);
-        } else {
-            if (this.isFinish)
-            {
-              ctx.globalAlpha = 0.3;
-              ctx.fillStyle = "red";
-              ctx.strokeStyle = "red";
-            } else {
-              ctx.fillStyle = "lime";
-              ctx.strokeStyle = "lime";              
-            }
-            var offset = width * 2
+        if (this.isFinish) {
+            ctx.fillStyle = "red";
+            ctx.strokeStyle = "red";
+            var offset = width;
+            polygon(ctx, this.x, this.y, (offset/2), 3, 1, 0);
+            //ctx.fillRect(this.x-(offset/3), this.y-(offset/3), offset, offset);            
+        }
+        else if (this.isTrack) {
+            ctx.fillStyle = "lime";
+            ctx.strokeStyle = "lime";              
+            var offset = width * 2;
             ctx.fillRect(this.x-(offset/3), this.y-(offset/3), offset, offset);
+        } 
+        else if (this.isStart) {         
+            var offset = width;
+            ctx.arc(this.x+(offset/5),this.y+(offset/5),(width/3),0,2*Math.PI);
+        } else {
+            // to increase visiblity, and for
+            // aesthetics make the dots a small crosshair
+            ctx.fillRect(this.x-height, this.y, width, height);
+            ctx.fillRect(this.x, this.y-height, height, width);
         }
 
         ctx.stroke();
@@ -592,13 +649,22 @@ function handleMouseClick(e) {
                 drawPathBetweenCoordinates(clicked.id);
                 //clicked.setHighlighted(true);
             } else {
-                if (clicked.isTrack)
-                {
-                    clicked.setTrack(false);
-                }
-                else
-                {
-                    clicked.setTrack(true);
+                switch ($('#drawtype').val()) {
+                  case "start":
+                    //There can be only one start point.
+                    for (var i = 0; i < coordinates.length; i++) {
+                        if (coordinates[i].isStart) {
+                            coordinates[i].setStart(false);
+                            break;
+                        }
+                    }
+                    clicked.setStart(true);
+                    break
+                  case "finish":
+                    if (clicked.isFinish) { clicked.setFinish(false); } else { clicked.setFinish(true); }
+                    break;
+                  default:
+                    if (clicked.isTrack) { clicked.setTrack(false); } else { clicked.setTrack(true); }
                 }
             }
             //alert("Clicked coordinate: " + clicked.id);
@@ -607,7 +673,6 @@ function handleMouseClick(e) {
 
 }
 
-//
 function handleMouseHover(e) {
     mouseX = parseInt(e.clientX - offsetX);
     mouseY = parseInt(e.clientY - offsetY);
@@ -666,13 +731,18 @@ var drawGrid = function(canvas) {
           newcoord.setFinish(true);
       }
 
+      if (newcoord.id == starts[currentTrack])
+      {
+          newcoord.setStart(true);
+      }
+
       coordinates.push(newcoord);
 	  }
 	}
 }
 
 var newGame = function() {
-    $("#feedback").html("Racetrack");
+    $("#feedback").html("Vector Racer");
     crashed = false;
     finishLineCrossed = false;
     paths = [];
@@ -689,6 +759,19 @@ var newGame = function() {
             coordinates[i].setProjected(true);
         }
     }
+}
+
+var loadTrack = function() {
+    var trackCode = $('#trackinput').val();
+    eval(trackCode);
+
+    var init = trackCode.indexOf('starts["');
+    var fin = trackCode.indexOf('"] =');
+    currentTrack = trackCode.substr(init+8,fin-init-8);;
+
+    $('.loadtrackpopup').hide();
+    loadTrackPopup = false;
+    newGame();
 }
 
 var changeTrack = function() {
@@ -731,14 +814,20 @@ $(document).ready(function() {
     $("#canvas").mousemove(handleMouseHover);
 });
 
-
 </script>
 </head>
 <body>
 <div class="coordinatespopup">
-  <div id="coordinatesoutput"></div>
-  <p class="center">Copy the above coordinates to your local computer.</p>
-  <p class="center"><a href="javascript:hideCoordinates();">Close</a></p>
+  <textarea id="coordinatesoutput" rows="20" cols="50"></textarea>
+  <p>Copy the above coordinates to your local computer.</p>
+  <p><a href="javascript:hideCoordinates();">Close</a></p>
+</div>
+
+<div class="loadtrackpopup">
+  <textarea id="trackinput" rows="20" cols="50"></textarea>
+  <p>Paste your track into the above input.</p>
+  <p><a href="javascript:loadTrack();">Load</a>
+  <a href="javascript:hideLoadTrack();">Close</a></p>
 </div>
 
 <div class="stage">
@@ -746,12 +835,18 @@ $(document).ready(function() {
 </div>
 
 <div id="footer">
-    <h1 id="feedback">Racetrack</h1>
+    <h1 id="feedback">Vector Racer</h1>
 
     <form>
       <select id="racetracks"></select>
       <input type="button" id="newgame" onclick="newGame();" value="New Game" class="myButton" />
       <input type="button" value="Draw Track" onclick="toggleDrawTrack();" class="myButton" id="drawToggle" />
+      <input type="button" value="Load Track" onclick="toggleLoadTrack();" class="myButton" id="loadTrackToggle" />
+      <select id="drawtype">
+        <option value="track">Draw: track</option>
+        <option value="finish">Draw: finish</option>
+        <option value="start">Draw: start</option>
+      </select>
       <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
     </form>
     <p>The graph-paper game <a href="https://en.wikipedia.org/wiki/Racetrack_(game)">Racetrack</a> with code snippets from <a href="http://jsfiddle.net/m1erickson/sAFku/">m1erickson</a>, <a href="https://stackoverflow.com/questions/4672279/bresenham-algorithm-in-javascript">Boris Hamanov/Bresenham</a>, and <a href="https://codepen.io/Cthulahoop/pen/sxqpL">Cthulahoop</a>. Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</p>
