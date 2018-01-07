@@ -93,10 +93,21 @@
   top:1px;
 }
 
+.colorlabel, .statuslabel {
+    font-size: 2em;
+}
+
+.decimalvalue {
+    font-size: 1.5em;
+}
+
 .colorblend {
     width: 600px;
-    height: 100px;
+    height: 50px;
     border: 0px;
+    font-size: 3em;
+    padding-top: 25px;
+    padding-bottom: 25px;
 }
 
 .colorbox {
@@ -139,6 +150,7 @@
 
 </style>
 <script type='text/javascript' src='js/jquery-1.9.1.min.js'></script>
+<script type='text/javascript' src='js/ntc.js'></script>
 <script>
 
 var soundOn = true;
@@ -183,6 +195,17 @@ function getRandomColor() {
     return color;
 }
 
+//W3C Algorithm
+//http://www.w3.org/TR/AERT#color-contrast
+//https://stackoverflow.com/questions/11867545/change-text-color-based-on-brightness-of-the-covered-background-area
+function getContrast(r, g, b) {
+  // http://www.w3.org/TR/AERT#color-contrast
+  var o = Math.round(((parseInt(r) * 299) +
+                      (parseInt(g) * 587) +
+                      (parseInt(b) * 114)) / 1000);
+  return (o > 125) ? '#000000' : '#ffffff';
+}
+
 var startGame = function(random = true) {
     if (random) colorToGuess = getRandomColor().replace("#", "");
 
@@ -195,6 +218,13 @@ var startGame = function(random = true) {
     $("#color6").html("0");
     colorMain = "000000";
     $("body").css('background-color', "#" + colorToGuess);
+
+    var redValue = parseInt(colorToGuess.substring(0,2), 16);
+    var greenValue = parseInt(colorToGuess.substring(2,4), 16);
+    var blueValue = parseInt(colorToGuess.substring(4,6), 16);
+    var newForeground = getContrast(redValue, greenValue, blueValue);
+    $(".colorlabel, .decimalvalue, .statuslabel").css("color",newForeground);
+
     updateBlendColor();
 }
 
@@ -204,37 +234,56 @@ var setColor = function() {
     $("body").css('background-color', "#" + colorToGuess);
 }
 
-var colorCompare = function(colorGuessedInt, colorToGuessInt, a, b) {
-    if (colorGuessedInt == colorToGuessInt) {//Within 10 points.
+var colorCompare = function(colorGuessedInt, colorToGuessInt, a, b, colorname) {
+    var colorstatusid = "#" + colorname + "status";
+    var colordecimalid = "#" + colorname + "decimal";
+    $(colordecimalid).html(colorGuessedInt);
+
+    if (colorGuessedInt == colorToGuessInt) {//Match
         $("#color" + a).css('border-color', "lime");
         $("#color" + b).css('border-color', "lime");
+        $(colorstatusid).html("Match!");
     }
     else if ((Math.abs(colorGuessedInt - colorToGuessInt)/256)*100 < 4) {//Within 10 points.
         $("#color" + a).css('border-color', "red");
         $("#color" + b).css('border-color', "red");
+        $(colorstatusid).html("Hot");
     }
     else if ((Math.abs(colorGuessedInt - colorToGuessInt)/256)*100 < 25) {//Withing 64 points.
         $("#color" + a).css('border-color', "orange");
         $("#color" + b).css('border-color', "orange");
+        $(colorstatusid).html("Warm");
     }
     else {
         $("#color" + a).css('border-color', "white");
         $("#color" + b).css('border-color', "white");
+        $(colorstatusid).html("Cold");
     }
 }
 
 var winCheck = function() {
+    var redValue, greeValue, blueValue;
+
+    var colorGuessName = "red";
     var colorGuessedInt = parseInt(color1 + color2, 16);
     var colorToGuessInt = parseInt(colorToGuess.substring(0, 2), 16);
-    colorCompare(colorGuessedInt, colorToGuessInt, 1, 2)
+    colorCompare(colorGuessedInt, colorToGuessInt, 1, 2, colorGuessName)
+    redValue = colorGuessedInt;
 
+    colorGuessName = "green";
     colorGuessedInt = parseInt(color3 + color4, 16);
     colorToGuessInt = parseInt(colorToGuess.substring(2, 4), 16);
-    colorCompare(colorGuessedInt, colorToGuessInt, 3, 4)
+    colorCompare(colorGuessedInt, colorToGuessInt, 3, 4, colorGuessName)
+    greenValue = colorGuessedInt;
 
+    colorGuessName = "blue";
     colorGuessedInt = parseInt(color5 + color6, 16);
     colorToGuessInt = parseInt(colorToGuess.substring(4, 6), 16);
-    colorCompare(colorGuessedInt, colorToGuessInt, 5, 6)
+    colorCompare(colorGuessedInt, colorToGuessInt, 5, 6, colorGuessName)
+    blueValue = colorGuessedInt;
+
+    var newForeground = getContrast(redValue, greenValue, blueValue);
+    $(".colorblend").css("color",newForeground);
 
     if (colorMain.toUpperCase() == colorToGuess.toUpperCase()) {
         winAnimation();
@@ -248,8 +297,15 @@ var updateBlendColor = function() {
     $("#color4").css('background-color', "#00" + color3 + color4 + "00");
     $("#color5").css('background-color', "#0000" + color5 + color6);
     $("#color6").css('background-color', "#0000" + color5 + color6);
-    colorMain = color1 + color2 + color3 + color4 + color5 + color6;
-    $("#colorblend").css('background-color', "#" + colorMain);
+    colorMain = "#" + color1 + color2 + color3 + color4 + color5 + color6;
+    $("#colorblend").css('background-color', colorMain);
+
+    var n_match  = ntc.name(colorMain);
+    n_rgb        = n_match[0]; // RGB value of closest match
+    n_name       = n_match[1]; // Text string: Color name
+    n_exactmatch = n_match[2]; // True if exact color match
+    $("#colorblend").html(n_name);
+
     winCheck();
 }
 
@@ -260,8 +316,8 @@ var incrementHexvalue = function(color, step){
     
     if (newIndex < 0)
         newIndex = 0;
-    else if (newIndex > letters.length)
-        newIndex = letters.length;
+    else if (newIndex > (letters.length - 1))
+        newIndex = (letters.length - 1);
 
     $("#color" + color).html(letters[newIndex]);
     this['color' + color] = letters[newIndex];
@@ -311,34 +367,49 @@ $( document ).ready(function() {
     <div class="colorblend inline" id="colorblend"></div>
     <br/>
     <div class="inline">
-        <div class="arrow-up" id="color1up"></div>
-        <div class="colorbox" id="color1"></div>
-        <div class="arrow-down" id="color1down"></div>
+        <div class="colorlabel">Red</div>
+        <div class="decimalvalue" id="reddecimal"></div>
+        <div class="inline">
+            <div class="arrow-up" id="color1up"></div>
+            <div class="colorbox" id="color1"></div>
+            <div class="arrow-down" id="color1down"></div>
+        </div>
+        <div class="inline">
+            <div class="arrow-up" id="color2up"></div>
+            <div class="colorbox" id="color2"></div>
+            <div class="arrow-down" id="color2down"></div>
+        </div>
+        <div class="statuslabel"><span id="redstatus"></span></div>
     </div>
     <div class="inline">
-        <div class="arrow-up" id="color2up"></div>
-        <div class="colorbox" id="color2"></div>
-        <div class="arrow-down" id="color2down"></div>
+        <div class="colorlabel">Green</div>
+        <div class="decimalvalue" id="greendecimal"></div>
+        <div class="inline">
+            <div class="arrow-up" id="color3up"></div>
+            <div class="colorbox" id="color3"></div>
+            <div class="arrow-down" id="color3down"></div>
+        </div>
+        <div class="inline">
+            <div class="arrow-up" id="color4up"></div>
+            <div class="colorbox" id="color4"></div>
+            <div class="arrow-down" id="color4down"></div>
+        </div>
+        <div class="statuslabel"><span id="greenstatus"></span></div>
     </div>
     <div class="inline">
-        <div class="arrow-up" id="color3up"></div>
-        <div class="colorbox" id="color3"></div>
-        <div class="arrow-down" id="color3down"></div>
-    </div>
-    <div class="inline">
-        <div class="arrow-up" id="color4up"></div>
-        <div class="colorbox" id="color4"></div>
-        <div class="arrow-down" id="color4down"></div>
-    </div>
-    <div class="inline">
-        <div class="arrow-up" id="color5up"></div>
-        <div class="colorbox" id="color5"></div>
-        <div class="arrow-down" id="color5down"></div>
-    </div>
-    <div class="inline">
-        <div class="arrow-up" id="color6up"></div>
-        <div class="colorbox" id="color6"></div>
-        <div class="arrow-down" id="color6down"></div>
+        <div class="colorlabel">Blue</div>
+        <div class="decimalvalue" id="bluedecimal"></div>
+        <div class="inline">
+            <div class="arrow-up" id="color5up"></div>
+            <div class="colorbox" id="color5"></div>
+            <div class="arrow-down" id="color5down"></div>
+        </div>
+        <div class="inline">
+            <div class="arrow-up" id="color6up"></div>
+            <div class="colorbox" id="color6"></div>
+            <div class="arrow-down" id="color6down"></div>
+        </div>
+        <div class="statuslabel"><span id="bluestatus"></span></div>
     </div>
 </div>
 
@@ -349,7 +420,7 @@ $( document ).ready(function() {
         <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
         Set Color: <input type="color" id="choosecolor" onchange="setColor();" class="form-field" value="#ffffff" />
     </p>
-    <p>Inspired by <a href="https://github.com/LeaVerou/whathecolor">What the Color</a> by <a href="http://lea.verou.me/">Lea Verou</a>.</p>
+    <p>Inspired by <a href="https://github.com/LeaVerou/whathecolor">What the Color</a> by <a href="http://lea.verou.me/">Lea Verou</a>. Color name from hexadecimal value code by <a href="http://chir.ag/projects/ntc/">Chirag Mehta</a>.</p>
 </form>
 </div>
 
