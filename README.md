@@ -1,58 +1,16 @@
 # Explorable Explanations #
 
-Here is an evolving list of one-shot standalone educational toys.
+**Hello Parents!** Here you will find a growing collection of javascript apps I have built or built-upon to help explain concepts and tutor my two boys in math, literacy, and other subjects. 
 
-## Word Families ##
+## [Browse the projects here.](http://ideonexus.github.io/Explorable-Explanations/) ##
 
-JavaScript Word Families flashcard page for teaching my kids.
+Because several of the projects in this collection build-upon existing projects with varying licenses, this collection is licensed [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/). If you like this collection, please fork it and make it your own (just please keep the 3rd-party attributions in place)!
 
-[See it in action here.] (http://htmlpreview.github.io/?https://github.com/ideonexus/Code-in-the-Classroom/blob/master/ExplorableExplanations/reading/wordfamilies.html)
+## Some Programming Principles ##
 
-Licensed [CC BY-NC 3.0 US](https://creativecommons.org/licenses/by-nc/3.0/us/)
+* I try to keep them mobile-friendly as young children can interact with touch-screens easier than with a mouse and keyboard.
 
-![Image of WordFamilies](images/wordfamilies.png)
+* I put all of the main javascript, css, and html into the index.html file so that new and younger programmers can see everything in one place.
 
-## Number Line ##
-
-Numberline Navigator page for teaching addition, subtraction, multiplication, and division.
-
-[See it in action here.] (http://htmlpreview.github.io/?https://github.com/ideonexus/Code-in-the-Classroom/blob/master/ExplorableExplanations/math/numberline.html)
-
-Licensed [CC BY-NC 3.0 US](https://creativecommons.org/licenses/by-nc/3.0/us/)
-
-![Image of WordFamilies](images/numberline.png)
-
-## Number Mandela ##
-
-Generates a number mandela for exploring primes and factors.
-
-[See it in action here.] (http://htmlpreview.github.io/?https://github.com/ideonexus/Code-in-the-Classroom/blob/master/ExplorableExplanations/math/numbermandala.html)
-
-Licensed [CC BY-NC 3.0 US](https://creativecommons.org/licenses/by-nc/3.0/us/)
-
-![Image of WordFamilies](images/numbermandela.png)
-
-## Simplify Spelling ##
-
-This is a bookmarklet that will simplify the spelling of web pages when clicked.
-
-[See it in action here.] (http://htmlpreview.github.io/?https://github.com/ideonexus/Code-in-the-Classroom/blob/master/ExplorableExplanations/reading/simplifyspelling.html)
-
-Licensed [CC BY-NC 3.0 US](https://creativecommons.org/licenses/by-nc/3.0/us/)
-
-## Working Folder ##
-
-The following are works in progress:
-
-### Alphabet Race ###
-
-### Alphabet Board ###
-
-### Noosphere ###
-
-### What's the Color ###
-
-[LeaVerou] (https://github.com/LeaVerou/whathecolor)
-
-
+* With a few exceptions, all of these are capable of loading into a browser from the local drive. This way new and budding hackers don't need to mess with setting up web servers or needing an internet connection to run them and can develop in a text editor.
 
