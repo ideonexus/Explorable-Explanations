@@ -1,0 +1,278 @@
+<html>
+<head>
+<title>Fraction Visualizer</title>
+<style>
+    body {
+        background-color: darkblue;
+        color: white;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    }
+
+    a {
+      color: lightblue;
+    }
+
+.header {
+    width: 100%;
+    text-align: center;
+}
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.decrement, .increment
+{
+    font-size:20px;
+    width: 30px;
+    height: 30px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.row {
+    vertical-align: middle;
+    text-align: center;
+    width: 100%;
+    margin-top: 10px;
+    white-space: nowrap;
+    height: 75px;
+}
+
+.numerator, .denominator {
+    font-weight: bold;
+}
+
+.seperator {
+    border-top: 2px solid white;
+    padding-top: 5px;
+}
+
+.aboveseperator {
+    margin-bottom: 5px;
+}
+
+.controls {
+    float: left;
+    width: 100px;
+}
+
+.fraction span:nth-child(1) {
+    margin-left: 5px;
+}
+
+.segment {
+    border: 1px solid white;
+    height: 75px;
+    display: inline-block;
+    float: left;
+    margin-left: -1px;
+}
+
+.representations {
+    float: right;
+    margin-top: 20px;
+    margin-right: 5px;
+    font-size: 2em;
+}
+</style>
+
+<script src="js/jquery-1.9.1.min.js"></script>
+<script>
+
+function getBrightHex() {
+    var hexvals = ["8", "9", "A", "B", "C", "D", "E", "F"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
+var cloneCount = 0;
+var addRow = function() {
+    cloneCount++;
+    var newRowId = 'row'+ cloneCount;
+    $('#row0')
+        .clone()
+        .attr('id', newRowId)
+        .insertAfter('[id^=row]:last');
+
+    var rowHtml = $('#'+newRowId).html();
+    var replaceword = 'data-row="0"';
+    var replacement = 'data-row="' + cloneCount + '"';
+    while(rowHtml.indexOf(replaceword) != -1)
+    {
+        rowHtml = rowHtml.replace(replaceword, replacement)
+    }
+    $('#'+newRowId).html(rowHtml);
+
+    // This button will increment the value
+    $('#'+newRowId+' .increment').click(function(e){
+        increment(this);
+    });
+
+    // This button will decrement the value till 0
+    $('#'+newRowId+' .decrement').click(function(e) {
+        decrement(this);
+    });
+
+}
+
+var buildFraction = function(row) {
+    var numerator = parseInt($('#row'+row+" .numerator").text());
+    var denominator = parseFloat($('#row'+row+" .denominator").text());
+
+    //Build the fraction display
+    var sectWidth = (((1/denominator)*0.6)*100) + "%";
+    var fractionString = "";
+    var backgroundcolor = getBrightHex();
+    var backgroundstring = "";
+    for (i=0; i < denominator; i++) {
+        backgroundstring = "";
+        if (i < numerator) {
+            backgroundstring = "background-color:"+backgroundcolor+";";
+        }
+        fractionString += "<span class=\"segment\"" +
+            " style=\"" + backgroundstring +
+            "width:" + sectWidth + ";\">&nbsp;</span>";
+    }
+    $('#row'+row+" .fraction").html(fractionString);
+
+    //Set the representations
+    var displayDecimal = (numerator/denominator).toFixed(3);
+    var displayPercentage = (displayDecimal*100).toFixed(1) + "%";
+    var displayFraction = numerator + "/" + denominator;
+    $('#row'+row+" .representations").text(displayPercentage + " " + displayDecimal + " " + displayFraction)
+}
+
+var increment = function(instance) {
+    // Stop acting like a button
+    //instance.preventDefault();
+    // Get the row
+    var row = $(instance).attr('data-row');
+    var numdem = $(instance).attr('data-numdem');
+    var field = '#row'+row+" ."+numdem;
+    // Get its current value
+    var currentVal = parseInt($('#row'+row+" ."+numdem).text());
+    // If it isn't undefined
+    if (!isNaN(currentVal)) {
+        // Decrement one
+        $(field).text(currentVal + 1);
+    } else {
+        if (numdem == "denominator")
+            $(field).text(1);
+        else // Otherwise put a 0 there
+            $(field).text(0);
+    }
+    buildFraction(row);    
+}
+
+var decrement = function(instance) {
+    // Stop acting like a button
+    //instance.preventDefault();
+    // Get the row
+    var row = $(instance).attr('data-row');
+    var numdem = $(instance).attr('data-numdem');
+    var field = '#row'+row+" ."+numdem;
+    // Get its current value
+    var currentVal = parseInt($('#row'+row+" ."+numdem).text());
+    // If it isn't undefined
+    if (!isNaN(currentVal) 
+      && ((numdem == "denominator" && currentVal > 1) || (numdem == "numerator" && currentVal > 0)))
+    {
+        // Decrement one
+        $(field).text(currentVal - 1);
+    } else {
+        if (numdem == "denominator")
+            $(field).text(1);
+        else // Otherwise put a 0 there
+            $(field).text(0);
+    }
+    buildFraction(row);
+}
+
+$(document).ready(function() {
+
+    $("#addRow").click(function() {
+        addRow();
+    });
+
+    // This button will increment the value
+    $('.increment').click(function(e){
+        increment(this);
+    });
+
+    // This button will decrement the value till 0
+    $(".decrement").click(function(e) {
+        decrement(this);
+    });
+});
+
+</script>
+</head>
+<body>
+<div class="header">
+  <input type="button" value="Add Row" id="addRow" class="myButton" />
+</div>
+<div id="stage">
+    <div class="row" id="row0">
+        <div class="controls">
+            <div class="aboveseperator">
+              <input type="button" value="-" class="decrement" data-row="0" data-numdem="numerator" />
+              <span class="numerator">1</span>
+              <input type="button" value="+" class="increment" data-row="0" data-numdem="numerator" />
+            </div>
+            <div class="seperator">
+                <input type="button" value="-" class="decrement" data-row="0" data-numdem="denominator" />
+                <span class="denominator">2</span>
+                <input type="button" value="+" class="increment" data-row="0" data-numdem="denominator" />
+            </div>
+        </div>
+        <span class="fraction">
+            <span class="segment" style="background-color:#8C8DED;width:30%;">&nbsp;</span><span class="segment" style="width:30%;">&nbsp;</span>
+        </span>
+        <span class="representations">50% 0.5 1/2</span>
+    </div>
+</div>
+</body>
+</html>
