@@ -183,6 +183,75 @@ input::-webkit-inner-spin-button {
     border-radius: 5px;
     margin-top: 5px;
 }
+
+/**
+ * Start by hiding the checkboxes
+ */
+input[type=checkbox] {
+  visibility: hidden;
+}
+/**
+ * Checkbox Three
+ */
+.checkboxThree {
+  width: 120px;
+  height: 40px;
+  background: #333;
+  margin: 20px 60px;
+
+  border-radius: 50px;
+  position: relative;
+}
+/**
+ * Create the text for the On position
+ */
+.checkboxThree:before {
+  content: 'On';
+  position: absolute;
+  top: 12px;
+  left: 13px;
+  height: 2px;
+  color: #26ca28;
+  font-size: 16px;
+}
+/**
+ * Create the label for the off position
+ */
+.checkboxThree:after {
+  content: 'Off';
+  position: absolute;
+  top: 12px;
+  left: 84px;
+  height: 2px;
+  color: #111;
+  font-size: 16px;
+}
+/**
+ * Create the pill to click
+ */
+.checkboxThree label {
+  display: block;
+  width: 52px;
+  height: 22px;
+  border-radius: 50px;
+
+  transition: all .5s ease;
+  cursor: pointer;
+  position: absolute;
+  top: 9px;
+  z-index: 1;
+  left: 12px;
+  background: #ddd;
+}
+
+/**
+ * Create the checkbox event for the label
+ */
+.checkboxThree input[type=checkbox]:checked + label {
+  left: 60px;
+  background: #26ca28;
+}
+
 </style>
 <script type='text/javascript' src='js/jquery-1.9.1.min.js'></script>
 <script>
@@ -244,13 +313,13 @@ var mapheight = 50;
 //http://jsfiddle.net/AyexeM/zMZ9y/
 var seedMap = function() {
 	//Produces 0.29 albedo, same as Earth
-	var landMassSize = 3;
+	var landMassSize = 7;
     var whiteCount = 0;
 
 	for (var i=0; i < (mapWidth*mapheight); i++) {
 
 		//Higher probability = more white daisies
-		var probability = 10;
+		var probability = 5;
 
 		// Only conform to previous elements in array
 		// First two rows are seed data for whole image.
@@ -279,11 +348,13 @@ var seedMap = function() {
 	        whiteCount++;
 		}
 	}
-	planetaryAlbedo = Math.abs(Math.round((whiteCount / (mapWidth*mapheight)) * 100)/100);
+	//planetaryAlbedo = Math.abs(Math.round((whiteCount / (mapWidth*mapheight)) * 100)/100);
+	planetaryAlbedo = parseFloat((whiteCount / (mapWidth*mapheight))).toFixed(4);
 }
 
 var iterateMap = function() {
 
+	var totalPixels = (tileArray.length-1);
 	var whiteDaisies = 0.29;
 
 	//Big Temperature changes trigger destabilization and daisy growth.
@@ -298,35 +369,81 @@ var iterateMap = function() {
 	//}
 	whiteDaisies = whiteDaisies + albedoAdjustment;
 
-	for (var i=0; i < (mapWidth*mapheight); i++) {
+	for (var i=0; i < totalPixels; i++) {
 
 		var conformity = 0;
 
-		conformity += (tileArray[i+1] == (tileArray[i]));
+		//conformity += (tileArray[i+1] == (tileArray[i]));
 
-		if (i > 0) {
+		//Left Pixel
+		if (i == 0) {
+			conformity += (tileArray[totalPixels] == (tileArray[i]));
+		} else {
 			conformity += (tileArray[i-1] == (tileArray[i]));
 		}
 
-		if (i > ((mapWidth*2)+2)) {
-			conformity += (tileArray[i-mapWidth-1] == (tileArray[i]))
-				+ (tileArray[i-mapWidth] == (tileArray[i]))
-				+ (tileArray[i-mapWidth+1] == (tileArray[i]));
+		//Right Pixel
+		if (i == totalPixels) {
+			conformity += (tileArray[0] == (tileArray[i]));
+		} else {
+			conformity += (tileArray[i+1] == (tileArray[i]));
 		}
 
-		if (i < ((mapWidth*mapheight)-((mapWidth*2)-2))) {
-			conformity += (tileArray[i+mapWidth-1] == (tileArray[i]))
-				+ (tileArray[i+mapWidth] == (tileArray[i]))
-				+ (tileArray[i+mapWidth+1] == (tileArray[i]));
+		var iMinusMapWidth = (i-mapWidth);
+
+		//Top Left Pixel
+		if ((iMinusMapWidth-1) < 0) {
+			conformity += (tileArray[totalPixels+(iMinusMapWidth-1)] == (tileArray[i]))
+		} else {
+			conformity += (tileArray[iMinusMapWidth-1] == (tileArray[i]))
 		}
 
-		// get the probability of what type of tile this would be based on its surroundings 
+		//Top Pixel
+		if (iMinusMapWidth < 0) {
+			conformity += (tileArray[totalPixels+iMinusMapWidth] == (tileArray[i]))
+		} else {
+			conformity += (tileArray[iMinusMapWidth] == (tileArray[i]))
+		}
+
+		//Top Right Pixel
+		if ((iMinusMapWidth+1) < 0) {
+			conformity += (tileArray[totalPixels+iMinusMapWidth+1] == (tileArray[i]))
+		} else {
+			conformity += (tileArray[iMinusMapWidth+1] == (tileArray[i]))
+		}
+
+		var iPlusMapWidth = (i+mapWidth);
+		var iRemainder = (totalPixels - i);
+
+		//Bottom Left Pixel
+		if ((iPlusMapWidth-1) > totalPixels) {
+			conformity += (tileArray[iRemainder-1] == (tileArray[i]))
+		} else {
+			conformity += (tileArray[iPlusMapWidth-1] == (tileArray[i]))
+		}
+
+		//Bottom Pixel
+		if (iPlusMapWidth > totalPixels) {
+			conformity += (tileArray[iRemainder] == (tileArray[i]))
+		} else {
+			conformity += (tileArray[iPlusMapWidth] == (tileArray[i]))
+		}
+
+		//Bottom Right Pixel
+		if ((iPlusMapWidth+1) > totalPixels) {
+			conformity += (tileArray[iRemainder+1] == (tileArray[i]))
+		} else {
+			conformity += (tileArray[iPlusMapWidth+1] == (tileArray[i]))
+		}
+
+		// get the probability of what type of tile this would be based on its surroundings
 		// % of 8 surrounding pixels conforming
- 		// 0.1% chance for mutations
-		var nonconformity = (1.001-(conformity/8));
- 		//Bias to the mean because conformity favors majority
- 		var biasToTheMean = (1-planetaryAlbedo)/3.3;
+ 		// 0.1% chance for mutations or 0% chance.
+ 		var baseProbability = ($('#mutations').is(':checked')) ? 1.001 : 1;
+		var nonconformity = (baseProbability-(conformity/8));
 		if (Math.random() < nonconformity) {
+	 		//Bias to the mean because conformity favors majority
+	 		var biasToTheMean = (1-planetaryAlbedo)/3.3;
  			tileArray[i] = (Math.random() < (whiteDaisies+biasToTheMean));
  		}
 	}
@@ -351,7 +468,8 @@ var iterateMap = function() {
 		}
 	}
 
-	planetaryAlbedo = Math.abs(Math.round((whiteCount / (mapWidth*mapheight)) * 100)/100);
+	//planetaryAlbedo = Math.abs(Math.round((whiteCount / (mapWidth*mapheight)) * 100)/100);
+	planetaryAlbedo = parseFloat((whiteCount / (mapWidth*mapheight))).toFixed(4);
 	return mapCanvas.toDataURL();
 }
 
@@ -600,6 +718,15 @@ $( document ).ready(function() {
             <p><b>Planetary Temperature:</b> <span id="planetaryTemperatureDisplay"></span></p>
             <p><b>Habital Zone:</b> <span id="habitalZoneDisplay"></span></p>
           </div>
+        <div>
+            <div class="inline">
+            	<b>Mutations</b>
+            </div>
+            <div class="checkboxThree inline">
+                <input type="checkbox" value="1" id="mutations" name="" />
+                <label for="mutations"></label>
+            </div>
+        </div>
       </form>
     </div>
 <div style="text-align: center;clear: both;">
