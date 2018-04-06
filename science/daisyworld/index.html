@@ -1,0 +1,609 @@
+<html>
+<head>
+<style>
+body {
+	margin:0;
+	padding:0;
+	background:#000;
+    font-family: arial;
+    color: white;
+}
+
+canvas {
+	display:block;
+}
+
+a {
+	color: lightpink;
+	text-decoration: none;
+}
+
+.form-container-container {
+  margin: auto;
+  width:750px;
+}
+
+.form-container {
+   border: 5px solid #000000;
+   background: #04baab;
+   background: -webkit-gradient(linear, left top, left bottom, from(#0009ff), to(#04baab));
+   background: -webkit-linear-gradient(top, #0009ff, #04baab);
+   background: -moz-linear-gradient(top, #0009ff, #04baab);
+   background: -ms-linear-gradient(top, #0009ff, #04baab);
+   background: -o-linear-gradient(top, #0009ff, #04baab);
+   background-image: -ms-linear-gradient(top, #0009ff 0%, #04baab 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   -moz-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   font-family: 'Helvetica Neue',Helvetica,sans-serif;
+   font-size: 1em;
+   text-decoration: none;
+   vertical-align: middle;
+   padding:30px;
+   width:700px;
+   text-align: left;
+}
+
+.slider {
+    position: relative;
+    top: 5px;
+}
+
+input, select
+{
+    font-weight: bold;
+}
+
+select {
+    -webkit-appearance: none;
+    width: 100px !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.right {
+    float: right;
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   width:50px;
+}
+
+.form-field:focus {
+   background: #c4f0ff;
+   color: #ff00e1;
+}
+
+.form-container h2 {
+   text-shadow: #595959 0 1px 0;
+   margin: 0 0 10px 0;
+   font-weight:bold;
+   text-align:center;
+}
+
+.form-title {
+   margin-bottom:10px;
+   color: #ffffff;
+   text-shadow: #595959 0 1px 0;
+}
+
+.submit-container {
+   margin:8px 0;
+   text-align:right;
+}
+
+.submit-button {
+   border: 5px solid #000000;
+   background: #4f024f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#bf5abc), to(#4f024f));
+   background: -webkit-linear-gradient(top, #bf5abc, #4f024f);
+   background: -moz-linear-gradient(top, #bf5abc, #4f024f);
+   background: -ms-linear-gradient(top, #bf5abc, #4f024f);
+   background: -o-linear-gradient(top, #bf5abc, #4f024f);
+   background-image: -ms-linear-gradient(top, #bf5abc 0%, #4f024f 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   text-shadow: #000000 0 1px 0;
+   color: #000000;
+   font-family: helvetica, serif;
+   padding: 8.5px 18px;
+   font-size: 1.5em;
+   text-decoration: none;
+   vertical-align: middle;
+}
+
+.submit-button:hover {
+   border: 5px solid #ffffff;
+   text-shadow: #ffffff 0 1px 0;
+   background: #1a011f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#4d0448), to(#1a011f));
+   background: -webkit-linear-gradient(top, #4d0448, #1a011f);
+   background: -moz-linear-gradient(top, #4d0448, #1a011f);
+   background: -ms-linear-gradient(top, #4d0448, #1a011f);
+   background: -o-linear-gradient(top, #4d0448, #1a011f);
+   background-image: -ms-linear-gradient(top, #4d0448 0%, #1a011f 100%);
+   color: #fff;
+}
+
+.submit-button:active {
+   text-shadow: #ffffff 0 1px 0;
+   border: 5px solid #ffffff;
+   background: #190121;
+   background: -webkit-gradient(linear, left top, left bottom, from(#41024d), to(#1a011f));
+   background: -webkit-linear-gradient(top, #41024d, #190121);
+   background: -moz-linear-gradient(top, #41024d, #190121);
+   background: -ms-linear-gradient(top, #41024d, #190121);
+   background: -o-linear-gradient(top, #41024d, #190121);
+   background-image: -ms-linear-gradient(top, #41024d 0%, #190121 100%);
+   color: #fff;
+}
+
+.statsdisplay {
+	padding-left: 20px;
+	top: -10px;
+    position: relative;}
+
+.inline {
+  display: inline-block;
+}
+
+.label {
+	width: 135px;
+}
+
+.decrement, .increment
+{
+    font-size: 20px;
+    width: 30px;
+    height: 30px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+</style>
+<script type='text/javascript' src='js/jquery-1.9.1.min.js'></script>
+<script>
+
+//Global Variables
+var solarDistance, solarLuminosity, earthGreenhouses; 
+var planetaryAlbedo = 0.29;
+var sphereRotation = 0.01;
+var kelvinTemp = 0;
+var kelvinTempTarget = 0;
+var calculateTemperature = function() {
+	earthGreenhouses = parseFloat($('#greenhouse').val());
+	solarDistance = parseFloat($('#solarDistance').val());
+	solarLuminosity = parseFloat($('#solarLuminosity').val());
+	$('#planetaryAlbedoDisplay').html(planetaryAlbedo);
+	$('#greenhouseValue').html(earthGreenhouses + ' Earths');
+	$('#solarDistanceValue').html(solarDistance + ' AU');
+	$('#solarLuminosityValue').html(solarLuminosity + ' Suns');
+
+	//https://astronomy.stackexchange.com/questions/10113/how-to-calculate-the-expected-surface-temperature-of-a-planet
+	var distance               = 149000000000 * solarDistance;
+	var luminosity             = 3.846 * Math.pow(10, 26) * solarLuminosity;
+	var greenhouse             = 1.6 * earthGreenhouses; //1.6 guestimated to get Earth's 15C.
+	var albedo                 = planetaryAlbedo; //Earth is 0.29
+	var stefanBoltzmanConstant = 5.670373 * Math.pow(10, -8)
+	
+	var numerator = (luminosity * (1-albedo));
+	var denominator = (16*Math.PI) * (Math.pow(distance,2)) * (stefanBoltzmanConstant);
+	var t4 = (numerator / denominator) * greenhouse;
+	kelvinTempTarget = (Math.round(Math.pow(t4, 0.25)*10)/10);
+	
+	if (kelvinTemp == 0) {
+		kelvinTemp = Math.round((kelvinTempTarget)*10)/10;
+	} else {
+		var kelvinTempAdjustment;
+		if (kelvinTemp > kelvinTempTarget) {
+			kelvinTempAdjustment = (kelvinTemp - kelvinTempTarget)/10;
+			kelvinTemp -= kelvinTempAdjustment;
+		} else if (kelvinTemp < kelvinTempTarget) {
+			kelvinTempAdjustment = (kelvinTempTarget - kelvinTemp)/10;
+			kelvinTemp += kelvinTempAdjustment;
+		}
+	}
+	$('#planetaryTemperatureDisplay').html(Math.round((kelvinTemp)*10)/10 + ' K / ' + Math.round((kelvinTemp-273.15)*10)/10 + ' C');
+
+	var habital = 'Goldilocks Zone';
+	if (kelvinTemp < 273) {
+		habital = 'Too Cold';
+	} else if (kelvinTemp > 373) {
+		habital = 'Too Hot';
+	}
+
+	$('#habitalZoneDisplay').html(habital);
+}
+
+var tileArray = new Array();
+var mapWidth = 100;
+var mapheight = 50;
+//http://jsfiddle.net/AyexeM/zMZ9y/
+var seedMap = function() {
+	//Produces 0.29 albedo, same as Earth
+	var landMassSize = 3;
+    var whiteCount = 0;
+
+	for (var i=0; i < (mapWidth*mapheight); i++) {
+
+		//Higher probability = more white daisies
+		var probability = 10;
+
+		// Only conform to previous elements in array
+		// First two rows are seed data for whole image.
+		if (i > ((mapWidth*2)+2)){
+			// Conform the tile upwards and to the left to its surroundings 
+			var conformity =
+				  (tileArray[i-mapWidth-1] == (tileArray[i-(mapWidth*2)-1])) 
+				+ (tileArray[i-mapWidth-1] == (tileArray[i-mapWidth]))
+				+ (tileArray[i-mapWidth-1] == (tileArray[i-1]))
+				+ (tileArray[i-mapWidth-1] == (tileArray[i-mapWidth-2]));
+
+			if (conformity < 2)
+			{
+				//Backpropagates previous tiles into conformance.
+				tileArray[i-mapWidth-1] = !tileArray[i-mapWidth-1];
+			}
+		}
+
+		// get the probability of what type of tile this would be based on its surroundings 
+ 		var probabilityModifier = (tileArray[i-1] + tileArray[i-mapWidth] + tileArray[i-mapWidth+1])
+ 			* (19 + (landMassSize * 1.4));
+
+ 		tileArray[i] = ((Math.random()*101) < (probability+probabilityModifier));
+
+		if (tileArray[i]){
+	        whiteCount++;
+		}
+	}
+	planetaryAlbedo = Math.abs(Math.round((whiteCount / (mapWidth*mapheight)) * 100)/100);
+}
+
+var iterateMap = function() {
+
+	var whiteDaisies = 0.29;
+
+	//Big Temperature changes trigger destabilization and daisy growth.
+	var idealTemp = 288;
+	var albedoAdjustment = (kelvinTemp - idealTemp)/100;
+	//var tempDeviation = (kelvinTemp - idealTemp);
+	//if(tempDeviation > 0)
+	//{
+	// 	albedoAdjustment = 
+	//} else if(tempDeviation < 0) {
+	//	albedoAdjustment = -((kelvinTemp - idealTemp)/100);
+	//}
+	whiteDaisies = whiteDaisies + albedoAdjustment;
+
+	for (var i=0; i < (mapWidth*mapheight); i++) {
+
+		var conformity = 0;
+
+		conformity += (tileArray[i+1] == (tileArray[i]));
+
+		if (i > 0) {
+			conformity += (tileArray[i-1] == (tileArray[i]));
+		}
+
+		if (i > ((mapWidth*2)+2)) {
+			conformity += (tileArray[i-mapWidth-1] == (tileArray[i]))
+				+ (tileArray[i-mapWidth] == (tileArray[i]))
+				+ (tileArray[i-mapWidth+1] == (tileArray[i]));
+		}
+
+		if (i < ((mapWidth*mapheight)-((mapWidth*2)-2))) {
+			conformity += (tileArray[i+mapWidth-1] == (tileArray[i]))
+				+ (tileArray[i+mapWidth] == (tileArray[i]))
+				+ (tileArray[i+mapWidth+1] == (tileArray[i]));
+		}
+
+		// get the probability of what type of tile this would be based on its surroundings 
+		// % of 8 surrounding pixels conforming
+ 		// 0.1% chance for mutations
+		var nonconformity = (1.001-(conformity/8));
+ 		//Bias to the mean because conformity favors majority
+ 		var biasToTheMean = (1-planetaryAlbedo)/3.3;
+		if (Math.random() < nonconformity) {
+ 			tileArray[i] = (Math.random() < (whiteDaisies+biasToTheMean));
+ 		}
+	}
+
+	//Draw a landmass image from the array.
+    var whiteCount = 0;
+	var mapCanvas = document.createElement('canvas');
+	mapCanvas.width = mapWidth;
+	mapCanvas.height = mapheight;
+	var ctx = mapCanvas.getContext("2d");
+	ctx.clearRect(0,0,mapWidth,mapheight);
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "white";
+	var i = 0;
+	for(var y = 0; y < mapheight; y++) {
+  		for(var x = 0; x < mapWidth; x++) {
+			if (tileArray[i]){
+		        ctx.fillRect(x, y, 1, 1);
+		        whiteCount++;
+			}
+			i++;
+		}
+	}
+
+	planetaryAlbedo = Math.abs(Math.round((whiteCount / (mapWidth*mapheight)) * 100)/100);
+	return mapCanvas.toDataURL();
+}
+
+//https://codepen.io/HowToDevCode/pen/ORzzJm
+var renderDaisyWorld = function() {
+	var canvas = document.createElement('canvas');
+	//document.body.appendChild(canvas);
+	$('#stage').html(canvas);
+	canvas.id = "canvas";
+	var ctx = canvas.getContext("2d");
+	var spheres = [];
+	var imgdata = [];
+	canvas.width = window.innerWidth;
+	canvas.height = (window.innerHeight*0.75);
+	var imgWidth = 100;
+	var imgHeight = 50;
+	var screenX = canvas.width / 2;
+	var screenY = canvas.height / 2;
+	var screenScale = 1000;
+	var rotation = 0;
+	var isReadyAnimation = false;
+	var isReadyIterateSphere = false;
+
+	var Vector = function (x, y, z) {
+	    this.x = x;
+	    this.y = y;
+	    this.z = z;
+	}
+
+	var Particle = function (x, y, z,colorsArrIndex) {
+	    this.pos = new Vector(x, y, z);
+	    this.posModel = new Vector(x, y, z);
+	    this.GenerateColorFromImgIndex(colorsArrIndex);
+	}
+
+	Particle.prototype.GenerateColorFromImgIndex = function (i) {
+	    this.r = imgdata[i * 4 + 0];
+	    this.g = imgdata[i * 4 + 1];
+	    this.b = imgdata[i * 4 + 2];
+	    this.a = 0;
+	    if (this.r == 0 && this.g == 0 && this.b == 0)
+	    {
+	    	this.r = 0;
+	    	this.g = 50;
+	    	this.b = 100;
+	    }
+	}
+
+	var Sphere = function (x,y, radius, numPointsX, numPointsY) {
+	    this.pos = new Vector(x, y, 1);
+	    this.particles = [];
+	    this.GeneratePoints(x, y, radius, numPointsX, numPointsY);
+	}
+
+	function CreateColorsArr() {
+	    var canvasimg = document.createElement('canvas');
+	    var ctximg = canvasimg.getContext("2d");
+	    var img = new Image();
+	    img.crossOrigin = "";
+	    //img.src = "img/worldmapsmall_bw9sas.png";
+	    img.src = iterateMap();
+	    var ctximg = canvasimg.getContext("2d");
+	    img.onload = function () {
+	        ctximg.translate(imgWidth, imgHeight);
+	        ctximg.scale(-1, -1);
+	        ctximg.drawImage(img, 0, 0);
+	        imgdata = ctximg.getImageData(0, 0, imgWidth, imgHeight).data;
+	        ctximg.clearRect(0, 0, imgWidth, imgHeight);
+	        spheres.push(new Sphere(0, 0, canvas.height / 4, imgWidth,imgHeight));
+	        isReadyAnimation = true;
+	        if (spheres.length > 1) {
+	        	isReadyIterateSphere = true;
+	        }
+	    }
+	}
+
+	Sphere.prototype.GeneratePoints = function (x, y, radius, num, num2) {
+	    x = x / 2;
+	    y = y / 2;
+	    num = Math.floor(num);
+	    var angle = 2 * Math.PI / num;
+	    var angle2 = Math.PI / num2;
+	    var modrad = 1.5;
+	    for (var j = 0; j <= num2; j++) {
+	    for (var i = 0; i < num; i++) {
+	            var rx = radius * Math.cos(angle * i) * Math.sin(angle2 * j) * modrad;
+	            var rz = radius * Math.sin(angle * i) * Math.sin(angle2 * j) * modrad;
+	            var ry = radius * Math.cos(angle2 * j) * modrad;
+	            this.particles.push(new Particle(x + rx, y + ry, rz, j * imgWidth + i));
+	        }
+	    }
+	}
+
+	Sphere.prototype.RotateAxisY = function (angle) {
+	    for (var i = 0; i < this.particles.length; i++) {
+	        this.particles[i].posModel.x = this.particles[i].pos.x * Math.cos(angle) + this.particles[i].pos.z * (-1) * Math.sin(angle);
+	        this.particles[i].posModel.y = this.particles[i].pos.y;
+	        this.particles[i].posModel.z = this.particles[i].pos.x * Math.sin(angle) + this.particles[i].pos.z * Math.cos(angle);
+	    }
+	}
+
+	Sphere.prototype.Draw = function (ctx) {
+	    ctx.beginPath();
+	    for (var i = 0; i < this.particles.length; i++) {
+	        var z = this.particles[i].posModel.z;
+	            var x = this.particles[i].posModel.x * screenScale / (z*(-1) + screenScale) + screenX;
+	            var y = this.particles[i].posModel.y * screenScale / (z*(-1) + screenScale) + screenY;;
+	            var a = (this.particles[i].posModel.z + (imgWidth / 2)) / imgWidth;
+	            if (a > 0.2) {
+	                ctx.fillStyle = "rgba(" + this.particles[i].r + "," + this.particles[i].g + "," + this.particles[i].b + "," + a + ")";
+	                ctx.fillRect(this.pos.x + x, this.pos.y + y, 5, 5);
+	            }
+	        }
+	}
+
+	var loopCount = 0;
+	var sphereCount = 0;
+	function loop() {
+	    ctx.clearRect(0, 0, canvas.width, canvas.height);
+	    if (isReadyAnimation) {
+	    	//Rotate first, then draw to avoid flickering.
+		    spheres[sphereCount].RotateAxisY(rotation);
+		    spheres[sphereCount].Draw(ctx);
+		    rotation += sphereRotation;
+
+	        //Refresh the image based on variable changes
+	        loopCount++;
+	        if (loopCount > 100)
+	        {
+				loopCount = 0;
+	        	CreateColorsArr();
+				calculateTemperature();
+	        }
+
+        	if (isReadyIterateSphere) {
+        		sphereCount++;
+        		isReadyIterateSphere = false;
+        	}
+	    }
+	    requestAnimationFrame(loop);
+	}
+	CreateColorsArr();
+	loop();
+}
+
+var incrementDecrement = function(button, incdec) {
+    // Get the field name
+    var fieldName = $(button).attr('field');
+    var field = $('#'+fieldName);
+    // Get increment/decrement value
+    var precision = 0;
+    if (typeof(field.attr("data-precision")) != "undefined")
+    {
+      precision = parseFloat(field.attr("data-precision"));
+    }
+    var amt = parseFloat(field.attr("data-incdec"));
+    // Get its current value
+    var currentVal = parseFloat(field.val());
+    // If it isn't undefined
+    if (!isNaN(currentVal)) {
+        if (incdec == "-")
+        {
+          // Decrement one
+          newValue = parseFloat(currentVal - amt).toFixed(precision);
+          if (newValue < 0) {
+              newValue = 0;
+          }
+        }
+        else
+        {
+          // Increment one
+          newValue = parseFloat(currentVal + amt).toFixed(precision);
+        }
+    } else {
+        // Otherwise put a 0 there
+        newValue = 0;
+    }
+
+    field.val(newValue);
+    calculateTemperature();
+}
+
+$( document ).ready(function() {
+    // This button will increment the value
+    $('.increment').click(function(e){
+        // Stop acting like a button
+        e.preventDefault();
+        incrementDecrement(this, "+");
+    });
+
+    // This button will decrement the value till 0
+    $(".decrement").click(function(e) {
+        // Stop acting like a button
+        e.preventDefault();
+        incrementDecrement(this, "-");
+    });
+
+    calculateTemperature();
+    seedMap();
+    renderDaisyWorld();
+});
+
+</script>
+</head>
+<body>
+	<div id="stage"></div>
+    <div class="form-container-container">
+      <form class="form-container">
+          <div class="variables inline">
+            <div>
+              <div class="inline label">
+              	<b>Greenhouse</b>
+              </div>
+              <div class="inline">
+	            <input type='button' value='-' class='decrement' field='greenhouse' />
+	            <input class="form-field" type="number" id="greenhouse" data-incdec="0.1" data-precision="1" value="1.0"  />
+	            <input type='button' value='+' class='increment' field='greenhouse' />
+                <span id="greenhouseValue"></span>
+              </div>
+            </div>
+            <div>
+              <div class="inline label">
+              	<b>Solar Distance</b>
+              </div>
+              <div class="inline">
+	            <input type='button' value='-' class='decrement' field='solarDistance' />
+	            <input class="form-field" type="number" id="solarDistance" data-incdec="0.1" data-precision="1" value="1.0"  />
+	            <input type='button' value='+' class='increment' field='solarDistance' />
+                <span id="solarDistanceValue"></span>
+              </div>
+            </div>
+            <div>
+              <div class="inline label">
+              	<b>Solar Luminosity</b>
+              </div>
+              <div class="inline">
+	            <input type='button' value='-' class='decrement' field='solarLuminosity' />
+	            <input class="form-field" type="number" id="solarLuminosity" data-incdec="0.1" data-precision="1" value="1.0"  />
+	            <input type='button' value='+' class='increment' field='solarLuminosity' />
+                <span id="solarLuminosityValue"></span>
+              </div>
+            </div>
+          </div>
+          <div class="statsdisplay inline">
+            <p><b>Planetary Albedo:</b> <span id="planetaryAlbedoDisplay"></span></p>
+            <p><b>Planetary Temperature:</b> <span id="planetaryTemperatureDisplay"></span></p>
+            <p><b>Habital Zone:</b> <span id="habitalZoneDisplay"></span></p>
+          </div>
+      </form>
+    </div>
+<div style="text-align: center;clear: both;">
+<h5 style="color: #CCCCCC;"><a href="https://en.wikipedia.org/wiki/Daisyworld">Daisyworld Simulation</a>. Credit to <a href="http://www.gingerbooth.com/flash/daisyball/daisyworldmath.html">Ginger Booth's mathematical explanations</a>, <a href="https://astronomy.stackexchange.com/questions/10113/how-to-calculate-the-expected-surface-temperature-of-a-planet">Irigi</a> temperature explanations, <a href="http://jsfiddle.net/AyexeM/zMZ9y/">AyexeM</a> random map generation, and <a href="https://codepen.io/HowToDevCode/pen/ORzzJm">HowToDevCode</a> map on a rotating sphere projection. Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of virtual manipulatives.</h5>
+</div>
+</body>
+</html>
