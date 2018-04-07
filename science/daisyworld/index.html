@@ -369,7 +369,7 @@ var iterateMap = function() {
 	//}
 	whiteDaisies = whiteDaisies + albedoAdjustment;
 
-	for (var i=0; i < totalPixels; i++) {
+	for (var i=0; i <= totalPixels; i++) {
 
 		var conformity = 0;
 
@@ -413,10 +413,12 @@ var iterateMap = function() {
 		}
 
 		var iPlusMapWidth = (i+mapWidth);
-		var iRemainder = (totalPixels - i);
+		//var iRemainder = (totalPixels - i);
+		var iRemainder = (i % mapWidth);
 
 		//Bottom Left Pixel
 		if ((iPlusMapWidth-1) > totalPixels) {
+			//conformity += (tileArray[iRemainder-1] == (tileArray[i]))
 			conformity += (tileArray[iRemainder-1] == (tileArray[i]))
 		} else {
 			conformity += (tileArray[iPlusMapWidth-1] == (tileArray[i]))
@@ -424,6 +426,7 @@ var iterateMap = function() {
 
 		//Bottom Pixel
 		if (iPlusMapWidth > totalPixels) {
+			//conformity += (tileArray[iRemainder] == (tileArray[i]))
 			conformity += (tileArray[iRemainder] == (tileArray[i]))
 		} else {
 			conformity += (tileArray[iPlusMapWidth] == (tileArray[i]))
@@ -431,6 +434,7 @@ var iterateMap = function() {
 
 		//Bottom Right Pixel
 		if ((iPlusMapWidth+1) > totalPixels) {
+			//conformity += (tileArray[iRemainder+1] == (tileArray[i]))
 			conformity += (tileArray[iRemainder+1] == (tileArray[i]))
 		} else {
 			conformity += (tileArray[iPlusMapWidth+1] == (tileArray[i]))
