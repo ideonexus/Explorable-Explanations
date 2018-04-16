@@ -1,0 +1,632 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Kaleidostrobe</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="js/jquery-1.9.1.min.js"></script>
+    <script src="js/two.min.js"></script>
+<style>
+body {
+  margin:0;
+  padding:0;
+  background:#000;
+    font-family: arial;
+    color: white;
+}
+
+#stagecontainer, #stage {
+  width: 100%;
+  height: 75%;
+}
+
+a {
+  color: lightpink;
+  text-decoration: none;
+}
+
+.form-container-container {
+  margin: auto;
+  width:750px;
+}
+
+.form-container {
+   border: 5px solid #000000;
+   background: #04baab;
+   background: -webkit-gradient(linear, left top, left bottom, from(#0009ff), to(#04baab));
+   background: -webkit-linear-gradient(top, #0009ff, #04baab);
+   background: -moz-linear-gradient(top, #0009ff, #04baab);
+   background: -ms-linear-gradient(top, #0009ff, #04baab);
+   background: -o-linear-gradient(top, #0009ff, #04baab);
+   background-image: -ms-linear-gradient(top, #0009ff 0%, #04baab 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   -moz-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   font-family: 'Helvetica Neue',Helvetica,sans-serif;
+   font-size: 1em;
+   text-decoration: none;
+   vertical-align: middle;
+   padding: 10px 30px 0px 30px;
+   width:750px;
+   text-align: left;
+}
+
+.slider {
+    position: relative;
+    top: 5px;
+}
+
+input, select {
+    font-weight: bold;
+}
+
+
+select
+{
+    font-size:1.2em;
+    font-weight: bold;
+    -webkit-appearance: none;
+    width: 100px !important;
+}
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.right {
+    float: right;
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   width:50px;
+   position: relative;
+   top: -3px;
+}
+
+.form-field:focus {
+   background: #c4f0ff;
+   color: #ff00e1;
+}
+
+.submit-container {
+    position: relative;
+    top: -40px;
+    width: 100%;
+    text-align: right;
+}
+
+.submit-button {
+   border: 5px solid #000000;
+   background: #4f024f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#bf5abc), to(#4f024f));
+   background: -webkit-linear-gradient(top, #bf5abc, #4f024f);
+   background: -moz-linear-gradient(top, #bf5abc, #4f024f);
+   background: -ms-linear-gradient(top, #bf5abc, #4f024f);
+   background: -o-linear-gradient(top, #bf5abc, #4f024f);
+   background-image: -ms-linear-gradient(top, #bf5abc 0%, #4f024f 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   text-shadow: #000000 0 1px 0;
+   color: #000000;
+   font-family: helvetica, serif;
+   padding: 4px 9px;
+   font-size: 1.25em;
+   text-decoration: none;
+   vertical-align: middle;
+}
+
+.submit-button:hover {
+   border: 5px solid #ffffff;
+   text-shadow: #ffffff 0 1px 0;
+   background: #1a011f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#4d0448), to(#1a011f));
+   background: -webkit-linear-gradient(top, #4d0448, #1a011f);
+   background: -moz-linear-gradient(top, #4d0448, #1a011f);
+   background: -ms-linear-gradient(top, #4d0448, #1a011f);
+   background: -o-linear-gradient(top, #4d0448, #1a011f);
+   background-image: -ms-linear-gradient(top, #4d0448 0%, #1a011f 100%);
+   color: #fff;
+}
+
+.submit-button:active {
+   text-shadow: #ffffff 0 1px 0;
+   border: 5px solid #ffffff;
+   background: #190121;
+   background: -webkit-gradient(linear, left top, left bottom, from(#41024d), to(#1a011f));
+   background: -webkit-linear-gradient(top, #41024d, #190121);
+   background: -moz-linear-gradient(top, #41024d, #190121);
+   background: -ms-linear-gradient(top, #41024d, #190121);
+   background: -o-linear-gradient(top, #41024d, #190121);
+   background-image: -ms-linear-gradient(top, #41024d 0%, #190121 100%);
+   color: #fff;
+}
+
+.statsdisplay {
+  padding-left: 20px;
+  top: -10px;
+    position: relative;}
+
+.inline {
+  display: inline-block;
+}
+
+.decrement, .increment, .addbutton
+{
+    font-size: 20px;
+    width: 30px;
+    height: 30px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.addbutton {
+    font-size: 15px;
+    width: 50px;    
+}
+
+.more
+{
+    font-size: 30px;
+    width: 35px;
+    height: 35px;
+    position: relative;
+    top: 5px;
+}
+
+.displaynone {
+    display: none;
+}
+
+.variables-container {
+    position: relative;
+    top: -35px;
+}
+</style>
+<script>
+var getRandomColor = function() {
+    var letters = '3456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var replaceAll = function(text, replaceword, replacement) {
+    while(text.indexOf(replaceword) != -1)
+    {
+        text = text.replace(replaceword, replacement)
+    }
+    return text;
+}
+
+var cloneCount = 0;
+var addRow = function(shape) {
+    cloneCount++;
+    var newRowId = 'row'+ cloneCount;
+    $('#row')
+        .clone()
+        .attr('id', newRowId)
+        .insertAfter('[id^=row]:last');
+
+    var rowHtml = $('#'+newRowId).html();
+
+    rowHtml = rowHtml.replace('baselevel','level' + cloneCount);
+    rowHtml = rowHtml.replace('canvascolor','color' + cloneCount);
+    rowHtml = rowHtml.replace('#000000',getRandomColor());
+    rowHtml = replaceAll(rowHtml, 'rotationRateGroup', 'rotationRate' + cloneCount);
+    rowHtml = replaceAll(rowHtml, 'radiusGroup', 'radius' + cloneCount);
+    rowHtml = replaceAll(rowHtml, 'displaynone', '');
+
+    $('#'+newRowId).html(rowHtml);
+    $('#'+newRowId+' .shapename').html($("#addshape option[value=" + shape + "]").text());
+    $('#'+newRowId).show();
+
+    $('#'+newRowId+' .increment').on('mousedown', function () {
+        var that = this;
+        interv = setInterval(function(){
+            incrementDecrement(that, "+");
+        }, 100);
+    });
+
+    $('#'+newRowId+' .increment').on('mouseup', function () {
+        clearInterval(interv);
+    });
+
+    // This button will decrement the value till 0
+    $('#'+newRowId+' .decrement').on('mousedown', function () {
+        var that = this;
+        interv = setInterval(function(){
+            incrementDecrement(that, "-");
+        }, 100);
+    });
+
+    $('#'+newRowId+' .decrement').on('mouseup', function () {
+        clearInterval(interv);
+    });
+    
+    $('#'+newRowId+' .colorfield').change(function(e) {
+        renderShapes();
+    });
+
+    $('#'+newRowId+' .removeshape').click(function(e) {
+        removeShape(this);
+    });
+    return cloneCount;
+}
+
+var shapes = [];
+var addShape = function() {
+    var shapetype = $("#addshape").val()
+    var newShape = {
+        type: shapetype,
+        row: addRow(shapetype)
+    };
+    shapes.push(newShape);
+    renderShapes();
+}
+
+var removeShape = function(row) {
+    var row = $(row).attr('level').replace('level','');
+    $('#row'+row).remove();
+    for (var i=0; i < shapes.length; i++) {
+        if (shapes[i].row == row) {
+           shapes.splice(i,1);
+           break;
+        }
+    }
+    renderShapes();
+}
+
+var getShape = function(two, level) {
+    
+    var size = parseInt($('#radius'+shapes[level].row).val());
+
+    var newShape;
+    var x = 0 - (level*parseInt($('#spacing').val()));
+    var y = 0;
+    var width = size*2;
+    var height = size*2;
+    var radius = size;
+
+    switch(shapes[level].type) {
+        case "line":
+            newShape = two.makeLine((x-50), 0, (x+50), 0);
+            break;
+        case "square":
+            newShape = two.makeRectangle(x, y, width, height);
+            break;
+        case "rectangle":
+            newShape = two.makeRectangle(x, y, width, (height/2));
+            break;
+        case "circle":
+            newShape = two.makeCircle(x, y, radius);
+            break;
+        case "ellipse":
+            newShape = two.makeEllipse(x, y, radius, (radius/2));
+            break;
+        case "triangle":
+            newShape = two.makePolygon(x, y, (radius/2), 3);
+            break;
+        case "pentagon":
+            newShape = two.makePolygon(x, y, (radius/2), 5);
+            break;
+        case "hexagon":
+            newShape = two.makePolygon(x, y, (radius/2), 6);
+            break;
+        case "octagon":
+            newShape = two.makePolygon(x, y, (radius/2), 8);
+            break;
+        case "fiveptstar":
+            newShape = two.makeStar(x, y, (radius-30), radius, 5);
+            break;
+        case "sixptstar":
+            newShape = two.makeStar(x, y, (radius-30), radius, 6);
+            break;
+        default:
+            //??????
+    }
+
+    return newShape;
+}
+
+//https://two.js.org/#documentation
+var two;
+var animation;
+var renderedShapes = [];
+var renderShapes = function() {
+    clearInterval(animation);
+    $('#stage').html('');
+    var elem = $('#stage')[0];
+    var width = window.innerWidth;
+    var height = (window.innerHeight*0.75);
+    $('#stagecontainer').width(width);
+    $('#stagecontainer').height(height);
+    two = new Two({ width: width, height: height }).appendTo(elem);
+
+    renderedShapes = [];
+    for (var level=0; level < shapes.length; level++) {
+        var newShape = getShape(two, level);
+        newShape.stroke = $('#color' + shapes[level].row).val();
+        newShape.fill = $('#color' + shapes[level].row).val();
+        renderedShapes.push(newShape);
+    }
+
+    if (renderedShapes.length > 0)
+    {
+        var maingroup = two.makeGroup(renderedShapes);
+        maingroup.translation.set(two.width / 2, two.height / 2);
+        maingroup.scale = 1;
+        maingroup.noStroke();
+
+        // Bind a function to scale and rotate the group
+        // to the animation loop.
+        var strobe = 0;
+        two.bind('update', function() {
+            // This code is called everytime two.update() is called.
+            // Effectively 60 times per second.
+            //if (maingroup.scale > 0.9999) {
+            //  maingroup.scale = maingroup.rotation = 0;
+            //}
+            //var t = (1 - maingroup.scale) * 0.005;
+            //maingroup.scale += t;
+            var rot = parseFloat($('#rotationRateGroup').val());
+            if (isNaN(rot)) rot = 0;
+            maingroup.rotation += rot * Math.PI;
+            for (var level=0; level < renderedShapes.length; level++) {
+                var rotinner = parseFloat($('#rotationRate' + shapes[level].row).val());
+                if (isNaN(rotinner)) rotinner = 0;
+                renderedShapes[level].rotation += rotinner * Math.PI;
+            }
+
+            if (parseInt($('#strobeffect').val()) > 0 && strobe < parseInt($('#strobeffect').val())) {
+                strobe++;
+                $('#stage').hide();
+            } else {
+                strobe = 0;
+                $('#stage').show();
+            }
+        });  
+
+        two.play();// Finally, start the animation loop
+    }
+}
+
+var reset = function() {
+    $('.removeshape').each(function() {
+        removeShape(this);
+    });
+    $('#strobeffect').val('0');
+    $('#spacing').val('70');
+    $('#rotationRateGroup').val('0.001');
+}
+
+var posneg = function() {
+    return Math.random() < 0.5 ? -1 : 1;
+}
+
+var randomize = function() {
+    reset();
+
+    shapeOptions = [];
+    $('#addshape option').each(function() {
+        shapeOptions.push($(this).val());
+    });
+
+    var numOfShapes = (Math.floor(Math.random() * 4)+1);
+    for (var i = 0; i < numOfShapes; i++) {
+        var shapetype = shapeOptions[Math.floor(Math.random() * shapeOptions.length)];
+        var newShape = {
+            type: shapetype,
+            row: addRow(shapetype)
+        };
+        shapes.push(newShape);
+        $('#rotationRate' + shapes[i].row).val(((Math.floor(Math.random() * 80000) / 1000)*posneg()));
+    }
+
+
+    $('#rotationRateGroup').val(((Math.floor(Math.random() * 80000) / 1000)*posneg()));
+    $('#spacing').val(((Math.floor(Math.random() * 80) + 20)*posneg()));
+
+    renderShapes();
+}
+
+var incrementDecrement = function(button, incdec) {
+    // Get the field name
+    var amt = parseFloat($(button).attr("data-incdec"));
+    var fieldName = $(button).attr('field');
+    var field = $('#'+fieldName);
+    // Get increment/decrement value
+    var precision = 0;
+    if (typeof(field.attr("data-precision")) != "undefined")
+    {
+      precision = parseFloat(field.attr("data-precision"));
+    }
+    // Get its current value
+    var currentVal = parseFloat(field.val());
+    // If it isn't undefined
+    if (!isNaN(currentVal)) {
+        if (incdec == "-")
+        {
+          // Decrement one
+          newValue = parseFloat(currentVal - amt).toFixed(precision);
+          //if (newValue < 0) {
+          //    newValue = 0;
+          //}
+        }
+        else
+        {
+          // Increment one
+          newValue = parseFloat(currentVal + amt).toFixed(precision);
+        }
+    } else {
+        // Otherwise put a 0 there
+        newValue = 0;
+    }
+
+    field.val(newValue);
+
+    if (fieldName.indexOf('radius') > -1 || fieldName.indexOf('spacing') > -1) {
+        renderShapes();
+    }
+}
+
+var interv;
+
+$( document ).ready(function() {
+    
+    $(".increment").on('mousedown', function () {
+        var that = this;
+        interv = setInterval(function(){
+            incrementDecrement(that, "+");
+        }, 100);
+    });
+
+    $(".increment").on('mouseup', function () {
+        clearInterval(interv);
+    });
+
+    // This button will decrement the value till 0
+    $(".decrement").on('mousedown', function () {
+        var that = this;
+        interv = setInterval(function(){
+            incrementDecrement(that, "-");
+        }, 100);
+    });
+
+    $(".decrement").on('mouseup', function () {
+        clearInterval(interv);
+    });
+
+    $(".addbutton").click(function(e) {
+        e.preventDefault();
+        addShape();
+    });
+
+    $('.colorfield').change(function(e) {
+        renderShapes();
+    });
+
+    $('.removeshape').click(function(e) {
+        removeShape(this);
+    });
+
+    $('.reset').click(function(e) {
+        reset();
+    });
+
+    $('.randomize').click(function(e) {
+        randomize();
+    });
+
+    renderShapes();
+});
+
+</script>
+  </head>
+  <body>
+  <div id="stagecontainer">
+    <div id="stage"></div>
+  </div>
+  <div class="form-container-container">
+    <form class="form-container">
+        <div class="submit-container">
+          <input class="submit-button randomize" type="button" value="Randomize" />
+          <input class="submit-button reset" type="button" value="Reset" />
+        </div>
+        <div class="variables-container">
+        <div class="variables">
+          <div class="inline label">
+            <input type='button' value="Add" class="addbutton" />
+            <select id="addshape">
+              <!--option value="line">line</option -->
+              <option value="square">Square</option>
+              <option value="rectangle">Rectangle</option>
+              <option value="circle">Circle</option>
+              <option value="ellipse">Ellipse</option>
+              <option value="triangle">Triangle</option>
+              <option value="pentagon">Pentagon</option>
+              <option value="hexagon">Hexagon</option>
+              <option value="octagon">Octagon</option>
+              <option value="fiveptstar">5pt Star</option>
+              <option value="sixptstar">6pt Star</option>
+            </select>
+            
+          </div>
+          <div class="inline label">
+            <b>Strobe:</b>
+          </div>
+          <div class="inline">
+              <input type='button' value='-' class='decrement' field='strobeffect' data-incdec="1" />
+              <input class="form-field" type="number" id="strobeffect" data-precision="0" value="0"  />
+              <input type='button' value='+' class='increment' field='strobeffect' data-incdec="1" />
+          </div>
+          <div class="inline label">
+            <b>Spacing:</b>
+          </div>
+          <div class="inline">
+              <input type='button' value='-' class='decrement' field='spacing' data-incdec="1" />
+              <input class="form-field" type="number" id="spacing" data-precision="0" value="70"  />
+              <input type='button' value='+' class='increment' field='spacing' data-incdec="1" />
+          </div>
+        </div>
+        <div id="row" class="variables">
+          <div class="inline label displaynone">
+            <b><a href="javascript:void(0);" class="removeshape" level="baselevel">X</a></b>
+          </div>
+          <div class="inline label">
+            <b><span class="shapename">Canvas</span> Rotation:</b>
+          </div>
+          <div class="inline">
+              <input type='button' value='-' class='decrement more' field='rotationRateGroup' data-incdec="0.01" />
+              <input type='button' value='-' class='decrement' field='rotationRateGroup' data-incdec="0.001" />
+              <input class="form-field" type="number" id="rotationRateGroup" data-precision="3" value="0.001"  />
+              <input type='button' value='+' class='increment' field='rotationRateGroup' data-incdec="0.001" />
+              <input type='button' value='+' class='increment more' field='rotationRateGroup' data-incdec="0.01" />
+          </div>
+          <div class="inline label displaynone">
+            <b>Radius:</b>
+          </div>
+          <div class="inline displaynone">
+              <input type='button' value='-' class='decrement' field='radiusGroup' data-incdec="1" />
+              <input class="form-field" type="number" id="radiusGroup" data-precision="0" value="50"  />
+              <input type='button' value='+' class='increment' field='radiusGroup' data-incdec="1" />
+          </div>
+          <div class="inline label displaynone">
+            <div class="inline label">Color</div>
+            <div class="inline">
+              <input type="color" id="canvascolor" class="form-field colorfield" value="#000000" />
+            </div>
+          </div>
+        </div>
+        </div>
+    </form>
+  </div>
+<div style="text-align: center;clear: both;">
+<h5 style="color: #CCCCCC;">Built with <a href="https://two.js.org/">two.js</a>. Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of virtual manipulatives.</h5>
+</div>
+  </body>
+</html>
