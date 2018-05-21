@@ -1,0 +1,590 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: rgb(135, 24, 181);
+        color: white;
+        font-family: arial, helvetica, sans-serif;
+    }
+
+    a {
+      color: hotpink;
+    }
+
+    .containersmall { 
+        width: 80%;
+        height: 80%;
+        /*position: absolute;*/
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        margin: auto;
+    }
+
+    .containerlarge { 
+        width: 95%;
+        height: 95%;
+    }
+
+    #sentence {
+      line-height: 0.5em;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    li {
+      padding: 0;
+      float: left;
+      margin: 10px;
+      list-style: none;
+      outline: solid;
+      min-width: 30%;
+      height: 25%;
+      line-height: 100%;
+      text-align: center;
+      background-color: #1c02af;
+    }
+
+    span { 
+      font-size: 4em;
+      font-weight: bold;
+      position: relative;
+      top: 50%;
+    }
+
+    label {
+      font-size: 2em;
+    }
+
+    .face-up {
+        background-color: deepskyblue;
+        color: black;
+    }
+
+    .face-up.p2 {
+        background-color: crimson;
+        color: white;
+    }
+
+    .def {
+        font-size: 0.5em;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:1.5em;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.lismall {
+  min-width: 8%;
+}
+
+.formrow {
+  margin-bottom: 10px;
+}
+
+@media only screen and (max-height : 800px) {
+  span {
+    font-size: 4em;
+    line-height: 0.5em;
+    top: 40%;
+  }
+  select {
+    font-size: 1.5em;
+  }
+  .lismall {
+    height: 20%;
+  }
+  #footer {
+    font-size: 0.75em;
+  }
+}
+
+
+@media only screen and (max-height : 600px) {
+  span {
+    line-height: 0.5em;
+    top: 25%;
+  }
+  .lismall {
+    height: 20%;
+  }
+  #footer {
+    font-size: 0.75em;
+  }
+  .info {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .containersmall {
+    width: 98%;
+  }
+  li {
+    min-width: 28%;
+  }
+  .lismall {
+    min-width: 7%;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  span {
+    font-size: 3em;
+  }
+  li {
+    min-width: 25%;
+  }
+  .lismall {
+    font-size: .5em;
+    min-width: 6%;
+  }
+}
+
+</style>
+
+<script src="js/jquery-1.9.1.min.js"></script>
+<script>
+
+var numberofboxes = 9;
+var currentNumberRangeCeiling, currentNumberRangeFloor;
+
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    //audioElement.setAttribute('autoplay', 'autoplay');
+    $.get();
+    //audioElement.addEventListener("load", function() {
+    //    audioElement.play();
+    //}, true);
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( "li" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+            $(this).children("span").css('background-color', randColor);
+            $(this).children("span").css('color', 'white');
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( "li" ).each(function( index ) {
+            $(this).css('background-color', "");
+            $(this).children("span").css('background-color', "");
+            $(this).children("span").css('color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+var copyArray = function(oldarray) {
+    return oldarray.map(function(arr) {
+        return arr.slice();
+    });
+
+}
+
+// A clever algorithm for checking all combinations of values in an array
+// https://stackoverflow.com/questions/32808465/javascript-function-to-determine-if-number-any-combination-of-numbers-in-array-a
+function checkWin(arr) {
+    //var arrMax = Math.max.apply(Math, arr);
+    var arrMax = parseInt($('#target').val());
+    var found = false;
+
+    function recArrAdd(sub, arr) {
+        if (found) return true;
+        if (arr.length > 0) {
+            if (sub.length === 2) { // Only check three-number combinations
+                var arrSum = sub.concat(arr[0]).reduce(function(prev, curr) { return prev + curr;});
+                if (arrSum === arrMax) {
+                    found = true;
+                    return found;
+                };
+            }
+            recArrAdd(sub.concat(arr[0]), arr.slice(1));
+            recArrAdd(sub, arr.slice(1));
+        }
+        return found;
+    }
+
+    return recArrAdd([], arr);
+}
+
+// AI minmax search for best numbers.
+// Built from numerous online examples and adapted to choice arrays VS boards.
+var numNodes = 0;
+var allchoices = [];
+var playerchoices = [[],[]];
+var activeplayer = 0;
+var maxdepth = null;
+
+function recurseMinimax(possibleplayerchoices, player, depth) {
+    //console.log("max/depth: " + maxdepth + ":" + depth);
+    if (maxdepth != null && depth > maxdepth) return [0, possibleplayerchoices];
+    var notplayer = (1 - player); //Switches player for next recursive call.
+
+    //See if the last move won.
+    if (checkWin(possibleplayerchoices[notplayer])) {
+        if (notplayer == activeplayer) {
+            // AI wins. Sooner the win, higher the score.
+            return [10-depth, possibleplayerchoices];
+        } else {
+            // opponent wins. Sooner the win, lower the score.
+            return [depth-10, possibleplayerchoices];
+        }
+    } else if ((possibleplayerchoices[0].length + possibleplayerchoices[1].length) == allchoices.length) {
+         return [0, possibleplayerchoices]; //Tie
+    } else {
+        numNodes++;
+        var scores = new Array();
+        var moves = new Array();
+
+        // Filter out the taken numbers from all choices.
+        var remainingchoices = allchoices.slice().filter(function(el) {
+            return !possibleplayerchoices[0].includes(el) && !possibleplayerchoices[1].includes(el);
+        });
+
+        // Loop through what's left to choose.
+        for (var move = 0; move < remainingchoices.length; move++) {
+            possibleplayerchoices[player].push(remainingchoices[move]);
+            
+            // Capture the score for the current move.
+            var nextdepth = depth + 1;
+            var copiedarray = copyArray(possibleplayerchoices);
+            scores.push(recurseMinimax(copiedarray, notplayer, nextdepth)[0]);
+            moves.push(copiedarray);
+            
+            // Undo the last move to explore other branches.
+            var index = possibleplayerchoices[player].indexOf(remainingchoices[move]);
+            possibleplayerchoices[player].splice(index, 1);
+        }
+
+        var max_score, max_score_index;
+        var min_score, min_score_index;
+        var score, choice;
+        //Take the move with the best score if current player.
+        if (player === activeplayer) {
+            max_score = Math.max.apply(Math, scores);
+            max_score_index = scores.indexOf(max_score);
+            choice = moves[max_score_index];
+            score = scores[max_score_index];
+        } else {
+        //Take the move with the worse score if opponent.
+            min_score = Math.min.apply(Math, scores);
+            min_score_index = scores.indexOf(min_score);
+            choice = moves[min_score_index];
+            score = scores[min_score_index];
+        }
+
+        return [score, choice];
+    }
+}
+
+function minimaxMove(depth) {
+    maxdepth = depth;
+    numNodes = 0;
+    var possibleplayerchoices = copyArray(playerchoices);
+    //This will return an array of the optimal path the algorithm finds.
+    var nextplayerchoices = recurseMinimax(possibleplayerchoices, activeplayer, 0)[1];
+    //Grab the first move not already made as the AI's next move.
+    var nextmove = nextplayerchoices[activeplayer].filter(function(x) {  return !playerchoices[activeplayer].includes(x); })[0];
+    //console.log("nextmove: " + nextmove);
+    console.log("numNodes: " + numNodes);
+    window.setTimeout(function() {
+        $( "span:contains('" + nextmove + "')" ).parent().trigger( "click" );
+    }, 1000);
+}
+
+function randomMove() {
+    options = allchoices.filter(function(el) {
+      return !playerchoices[0].includes(el) && !playerchoices[1].includes(el);
+    });
+    var nextmove = options[Math.floor(Math.random() * options.length)];
+    window.setTimeout(function() {
+        $( "span:contains('" + nextmove + "')" ).parent().trigger( "click" );
+    }, 1000);
+}
+
+// The following is based on the mathematical explanations from:
+// http://www.durangobill.com/MagicSquares.html
+var generateMagicSquare = function() {
+    var basesquare = [
+        [ 8, 1, 6 ]
+       ,[ 3, 5, 7 ]
+       ,[ 4, 9, 2 ]
+    ];
+    var centersquare = basesquare[1][1];
+    var winvalue = parseInt($('#target').val());
+    var modifier = ((winvalue/3)-centersquare);
+
+    var playsquare = [];
+    allchoices = [];
+
+    // Copy the array and add the center factor value
+    for(var x = 0; x < basesquare.length; x++)
+    {
+      playsquare[x] = [];
+        for(var y = 0; y < basesquare[x].length; y++)
+        {
+            playsquare[x][y] = basesquare[x][y] + modifier;
+            allchoices.push(playsquare[x][y]);
+            //console.log(x+','+y+' = '+basesquare[x][y]);
+        }
+    }
+
+    // Rotate the square randomly
+    var flipvert = Math.floor(Math.random() * 2);
+    var fliphorz = Math.floor(Math.random() * 2);
+
+    if (flipvert == 1) {
+      playsquare.reverse();
+    }
+
+    if (fliphorz == 1) {
+      for(var x = 0; x < playsquare.length; x++)
+      {
+        playsquare[x].reverse();
+      }
+    }
+
+    return playsquare;
+}
+
+var buildNumberBlocks = function() {
+    $('#sentence').html("Magic Square Tic-Tac-Toe");
+    var magicsquare = generateMagicSquare();
+    playerchoices = [[],[]];
+    activeplayer = 0;
+
+    // html for the board
+    var output = "<ol>"; 
+    for(var x = 0; x < magicsquare.length; x++)
+    {
+        for(var y = 0; y < magicsquare[x].length; y++)
+        {
+            output += "<li>";
+            output += "<span>" + magicsquare[x][y] + "</span>";
+            output += "</li>";
+        }
+    }
+    output += "</ol>";
+
+    $("#container").html(output);
+
+    if (!grid) {
+        $("li").addClass("lismall");        
+    }
+
+    $("li").click(function() {
+        if ($(this).children("span").hasClass("face-up") === false) {
+            var playerclass = "p1";
+            if (activeplayer == 1)
+            {
+                playerclass = "p2";
+            }
+            $(this).children("span").addClass("face-up " + playerclass);
+            $(this).addClass("face-up " + playerclass);
+          
+            var move = parseInt($(this).children("span").html());
+            playerchoices[activeplayer].push(move);
+            if (checkWin(playerchoices[activeplayer])) {
+                $('#sentence').html("Player " + (activeplayer+1) + " wins!");
+                winAnimation();
+            } else {
+                activeplayer = 1 - activeplayer;
+                if ($('#player' + activeplayer).val() != 'human') {
+                    if ($('#player' + activeplayer).val() == "0") {
+                        randomMove();
+                    } else {
+                        minimaxMove(parseInt($('#player' + activeplayer).val()));
+                    }
+                }
+            }
+        }
+    });
+
+    //If player 0 is the AI, make a move.
+    if ($('#player' + activeplayer).val() != 'human') {
+        //Make first move random to make winning at hard level possible
+        if ($('#player' + activeplayer).val() == "0" 
+          || (parseInt($('#player' + activeplayer).val()) < 10 && playerchoices[activeplayer].length == 0)) {
+            randomMove();
+        } else {
+            minimaxMove(parseInt($('#player' + activeplayer).val()));
+        }
+    }
+    //FUTURE: 4n, 5n, etc magic squares
+    //if (numberofboxes > 16) {
+    //    $("li").removeClass("lismall").removeClass("lilarge").addClass("lilarger");
+    //} else if (numberofboxes > 8) {
+    //    $("li").removeClass("lismall").removeClass("lilarger").addClass("lilarge");
+    //} else {
+    //    $("li").removeClass("lilarge").removeClass("lilarger").addClass("lismall");
+    //}
+}
+
+var grid = true;
+var toggleGrid = function() {
+    if (grid) {
+        $("#container").removeClass("containersmall").addClass("containerlarge");
+        $("li").addClass("lismall");
+        $("#gridToggle").val("Grid On");
+    } else {
+        $("#container").removeClass("containerlarge").addClass("containersmall");
+        $("li").removeClass("lismall");
+        $("#gridToggle").val("Grid Off");        
+    }
+
+    grid = !grid;
+}
+
+var buildTargetSelector = function() {
+    for (var i=0; i <= 20; i++) {
+        var opt = i*3;
+        $('#target').append($('<option/>').attr({ 'value': opt }).text(opt + " points"))
+    }
+    $('#target').val("15");
+}
+
+$(document).ready(function() {
+    $("#target").change(function() {
+        buildNumberBlocks();
+    });
+    buildTargetSelector();
+    buildNumberBlocks();
+});
+
+</script>
+</head>
+<body>
+<div id="container" class="containersmall"></div>
+<div id="footer">
+    <h1 id="sentence">Magic Square Tic-Tac-Toe</h1>
+    <form >
+      <div class="formrow">
+          <label for="target">Target</label> <select id="target"></select>
+          <select id="player0">
+              <option value="human">P1: Human</option>
+              <option value="0">P1: Easy Computer</option>
+              <option value="2">P1: Moderate Computer</option>
+              <option value="4">P1: Hard Computer</option>
+              <option value="10">P1: Unbeatable Computer</option>
+          </select>
+          <select id="player1">
+              <option value="human">P2: Human</option>
+              <option value="0" selected>P2: Easy Computer</option>
+              <option value="2">P2: Moderate Computer</option>
+              <option value="4">P2: Hard Computer</option>
+              <option value="10">P2: Unbeatable Computer</option>
+          </select>
+      </div>
+      <div class="formrow">
+          <input type="button" value="New Game" onclick="buildNumberBlocks();" class="myButton" />
+          <input type="button" value="Grid Off" onclick="toggleGrid();" class="myButton" id="gridToggle" />
+          <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+      </div>
+      <h5 class="info">Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
+    </form>
+</div>
+</body>
+</html>
