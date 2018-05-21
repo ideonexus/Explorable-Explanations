@@ -1,0 +1,146 @@
+
+
+// The following is based on the mathematical explanations from:
+// http://www.durangobill.com/MagicSquares.html
+
+var basesquare = [
+    [ 1, 6, 7 ]
+   ,[ 8, 5, 2 ]
+   ,[ 3, 4, 9 ]
+];
+
+var centersquare = basesquare[1][1];
+var winvalue = parseInt();
+var modifier = (centersquare - (winvalue/3));
+
+var playsquare = [];
+
+// Copy the array and add the center factor value
+for(var x=0; x<basesquare.length; x++)
+{
+	playsquare[x] = [];
+    for(var y=0; y<basesquare[x].length; y++)
+    {
+        playsquare[x][y] = basesquare[x][y] + 
+        console.log(x+','+y+' = '+basesquare[x][y]);
+    }
+}
+
+// Rotate the square randomly
+var flipvert = Math.floor(Math.random() * 2);
+var fliphorz = Math.floor(Math.random() * 2);
+
+if (flipvert == 1) {
+	playsquare.reverse();
+}
+
+if (fliphorz == 1) {
+	for(var x=0; x<playsquare.length; x++)
+	{
+		playsquare[x].reverse();
+	}
+}
+
+- Select values are multiples of 3
+3,6,9,12,15,18
+
+// AI minmax search for best numbers
+// https://blog.vivekpanyam.com/how-to-build-an-ai-that-wins-the-basics-of-minimax-search/
+function getWinner(board) {
+
+    // Check if someone won
+    vals = [true, false];
+    var allNotNull = true;
+    for (var k = 0; k < vals.length; k++) {
+        var value = vals[k];
+
+        // Check rows, columns, and diagonals
+        var diagonalComplete1 = true;
+        var diagonalComplete2 = true;
+        for (var i = 0; i < 3; i++) {
+            if (board[i][i] != value) {
+                diagonalComplete1 = false;
+            }
+            if (board[2 - i][i] != value) {
+                diagonalComplete2 = false;
+            }
+            var rowComplete = true;
+            var colComplete = true;
+            for (var j = 0; j < 3; j++) {
+                if (board[i][j] != value) {
+                    rowComplete = false;
+                }
+                if (board[j][i] != value) {
+                    colComplete = false;
+                }
+                if (board[i][j] == null) {
+                    allNotNull = false;
+                }
+            }
+            if (rowComplete || colComplete) {
+                return value ? 1 : 0;
+            }
+        }
+        if (diagonalComplete1 || diagonalComplete2) {
+            return value ? 1 : 0;
+        }
+    }
+    if (allNotNull) {
+        return -1;
+    }
+    return null;
+}
+
+var numNodes = 0;
+
+function recurseMinimax(board, player) {
+    numNodes++;
+    var winner = getWinner(board);
+    if (winner != null) {
+        switch(winner) {
+            case 1:
+                // AI wins
+                return [1, board]
+            case 0:
+                // opponent wins
+                return [-1, board]
+            case -1:
+                // Tie
+                return [0, board];
+        }
+    } else {
+        // Next states
+        var nextVal = null;
+        var nextBoard = null;
+
+        for (var i = 0; i < 3; i++) {
+            for (var j = 0; j < 3; j++) {
+                if (board[i][j] == null) {
+                    board[i][j] = player;
+                    var value = recurseMinimax(board, !player)[0];
+                    if ((player && (nextVal == null || value > nextVal)) || (!player && (nextVal == null || value < nextVal))) {
+                        nextBoard = board.map(function(arr) {
+                            return arr.slice();
+                        });
+                        nextVal = value;
+                    }
+                    board[i][j] = null;
+                }
+            }
+        }
+        return [nextVal, nextBoard];
+    }
+}
+
+function makeMove() {
+    board = minimaxMove(board);
+    console.log(numNodes);
+    myMove = false;
+    updateMove();
+}
+
+function minimaxMove(board) {
+    numNodes = 0;
+    return recurseMinimax(board, true)[1];
+}
+
