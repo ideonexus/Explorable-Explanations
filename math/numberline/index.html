@@ -43,7 +43,7 @@ body {
 
 .arrow-up {
     margin-bottom: 5px;
-    margin-left: 5px;
+    margin-left: 22px;
     width: 0; 
     height: 0; 
     border-left: 45px solid transparent;
@@ -54,7 +54,7 @@ body {
 
 .arrow-down {
     margin-top: 5px;
-    margin-left: 5px;
+    margin-left: 22px;
     width: 0; 
     height: 0; 
     border-left: 45px solid transparent;
@@ -96,7 +96,7 @@ input::-webkit-inner-spin-button {
    -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
    box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
    padding:8px;
-   width:75px;
+   width:110px;
 }
 
 .form-field:focus {
@@ -195,8 +195,8 @@ function renderCanvas() {
     var ctx = canvas.getContext('2d');
     
     //Pull inputs from form.
-    var starti = -10;//Number($("#rangestart").val());
-    var endi = 10;//Number($("#rangeend").val());
+    var rangestart = -10;
+    var rangeend = 10;
     var start = Number($('#start').val());
     var modifier = Number($("#modifier").val());
     var op = $('#operation').val();
@@ -213,13 +213,6 @@ function renderCanvas() {
         ctx.fillStyle = 'purple';
         ctx.fillText("THPPPT!!!",(canvas.width/2)-110,(canvas.height/2)+125);
         return;
-    }
-
-    //Extend Range if Calculation goes out of bounds.
-    if (start < starti) {
-        starti = start;
-    } else if (start > endi) {
-        endi = start;
     }
 
     var output;
@@ -242,10 +235,18 @@ function renderCanvas() {
             break;
     }
     
-    if (output > endi) {
-        endi = output;
-    }else if (output < starti) {
-        starti = output;
+    //Extend Range if Calculation goes out of bounds.
+    if (start < rangestart) {
+        rangestart = start;
+    } else if (start > rangeend) {
+        rangeend = start;
+    }
+
+    if (output > rangeend) {
+        rangeend = output;
+        rangestart = (rangeend - output);
+    }else if (output < rangestart) {
+        rangestart = output;
     }
 
     if (op == "/")
@@ -253,7 +254,7 @@ function renderCanvas() {
     else
       $('#answer').html(" = " + output);
 
-    var totRange = endi - starti;
+    var totRange = rangeend - rangestart;
     //Offset h to push numberline to bottom of canvas.
     h = h + 150;
     var x0 = w/2;
@@ -408,18 +409,18 @@ function renderCanvas() {
         stroke();
 
         var k = Math.round((totRange/2)-totRange);
-        for(var i = starti;i <= endi; i++) {
+        for(var i = rangestart;i <= rangeend; i++) {
             beginPath();
             strokeStyle = '#0f0';
             lineWidth = 4;
             fillStyle = '#0f0';
             if(i == start) {
-                //Highlight the Starting Point
+                //Highlight the rangestartng Point
                 lineWidth = 7;
                 strokeStyle = '#ff0';
                 fillStyle = '#ff0';
                 if (op != '*') {
-                  //Set x0 to starting point
+                  //Set x0 to rangestartng point
                   x0 = (h/2, w/2 + k * interval);
                 }
             }
@@ -496,6 +497,7 @@ $(window).load(function(){
             // Otherwise put a 0 there
             $('#'+fieldName).val(0);
         }
+        renderCanvas();
     });
     // This button will decrement the value till 0
     $(".decrement").click(function(e) {
@@ -513,6 +515,11 @@ $(window).load(function(){
             // Otherwise put a 0 there
             $('#'+fieldName).val(0);
         }
+        renderCanvas();
+    });
+
+    $(".form-field").change(function(e) {
+        renderCanvas();
     });
 });
 
@@ -542,24 +549,11 @@ $(window).load(function(){
           </div>
           <div class="inline" id="answer">
           </div>
-          <div>
-            <!--div class="right">
-              <div class="form-title">Range End</div>
-              <input type='button' value='-' class='decrement' field='rangeend' />
-              <input class="form-field" type="number" id="rangeend" value="20"  />
-              <input type='button' value='+' class='increment' field='rangeend' />
-              <br />
-            </div>
-            <div class="form-title">Range Start</div>
-              <input type='button' value='-' class='decrement' field='rangestart' />
-            <input class="form-field" type="number" id="rangestart" value="0"  />
-            <input type='button' value='+' class='increment' field='rangestart' />
-            <br />
-          </div-->
+          <!--div>
             <div class="submit-container right">
               <input class="submit-button" type="button" value="Calculate" onclick="renderCanvas();" />
             </div>
-          </div>
+          </div-->
       </form>
     </div>
 <div style="text-align: center;clear: both; padding-top: 10px;">
