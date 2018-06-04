@@ -25,10 +25,14 @@ a {
   color: lightblue;
 }
 
-#playermessage, #aimessage {
+#playermessage {
   font-size: 2em;
     width: 100%;
     text-align: center;  
+}
+
+.number {
+    font-size: 2em;
 }
 
 #recon {
@@ -47,6 +51,151 @@ a {
     margin: auto;
 }
 
+.form-container-container {
+  margin: auto;
+  width:600px;
+}
+
+.form-container {
+   border: 5px solid #000000;
+   background: #04baab;
+   background: -webkit-gradient(linear, left top, left bottom, from(#0009ff), to(#04baab));
+   background: -webkit-linear-gradient(top, #0009ff, #04baab);
+   background: -moz-linear-gradient(top, #0009ff, #04baab);
+   background: -ms-linear-gradient(top, #0009ff, #04baab);
+   background: -o-linear-gradient(top, #0009ff, #04baab);
+   background-image: -ms-linear-gradient(top, #0009ff 0%, #04baab 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   -moz-box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   box-shadow: rgba(000,000,000,0.9) 0 1px 2px, inset rgba(255,255,255,0.4) 0 0px 0;
+   font-family: 'Helvetica Neue',Helvetica,sans-serif;
+   font-size: 2em;
+   text-decoration: none;
+   vertical-align: middle;
+   padding:30px;
+   width:400px;
+   text-align: center;
+   margin: auto;
+}
+
+input, select
+{
+    font-size:1em;
+    font-weight: bold;
+}
+
+select {
+    -webkit-appearance: none;
+    width: 65px !important;
+    position: relative;
+    top: -10px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.right {
+    float: right;
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   width:75px;
+}
+
+.form-field:focus {
+   background: #c4f0ff;
+   color: #ff00e1;
+}
+
+.form-container h2 {
+   text-shadow: #595959 0 1px 0;
+   font-size: 3em;
+   margin: 0 0 10px 0;
+   font-weight:bold;
+   text-align:center;
+}
+
+.form-title {
+   margin-bottom:10px;
+   color: #ffffff;
+   text-shadow: #595959 0 1px 0;
+}
+
+.submit-container {
+   margin:8px 0;
+   text-align:right;
+}
+
+.submit-button {
+   border: 5px solid #000000;
+   background: #4f024f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#bf5abc), to(#4f024f));
+   background: -webkit-linear-gradient(top, #bf5abc, #4f024f);
+   background: -moz-linear-gradient(top, #bf5abc, #4f024f);
+   background: -ms-linear-gradient(top, #bf5abc, #4f024f);
+   background: -o-linear-gradient(top, #bf5abc, #4f024f);
+   background-image: -ms-linear-gradient(top, #bf5abc 0%, #4f024f 100%);
+   -webkit-border-radius: 30px;
+   -moz-border-radius: 30px;
+   border-radius: 30px;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   text-shadow: #000000 0 1px 0;
+   color: #000000;
+   font-family: helvetica, serif;
+   padding: 8.5px 18px;
+   font-size: 1em;
+   text-decoration: none;
+   vertical-align: middle;
+}
+
+.submit-button:hover {
+   border: 5px solid #ffffff;
+   text-shadow: #ffffff 0 1px 0;
+   background: #1a011f;
+   background: -webkit-gradient(linear, left top, left bottom, from(#4d0448), to(#1a011f));
+   background: -webkit-linear-gradient(top, #4d0448, #1a011f);
+   background: -moz-linear-gradient(top, #4d0448, #1a011f);
+   background: -ms-linear-gradient(top, #4d0448, #1a011f);
+   background: -o-linear-gradient(top, #4d0448, #1a011f);
+   background-image: -ms-linear-gradient(top, #4d0448 0%, #1a011f 100%);
+   color: #fff;
+}
+
+.submit-button:active {
+   text-shadow: #ffffff 0 1px 0;
+   border: 5px solid #ffffff;
+   background: #190121;
+   background: -webkit-gradient(linear, left top, left bottom, from(#41024d), to(#1a011f));
+   background: -webkit-linear-gradient(top, #41024d, #190121);
+   background: -moz-linear-gradient(top, #41024d, #190121);
+   background: -ms-linear-gradient(top, #41024d, #190121);
+   background: -o-linear-gradient(top, #41024d, #190121);
+   background-image: -ms-linear-gradient(top, #41024d 0%, #190121 100%);
+   color: #fff;
+}
+
+.inline {
+  display: inline-block;
+}
 .myButton {
   -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
   -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
@@ -214,16 +363,10 @@ a {
   width: 50%;
 }
 #player {
-  float: left;
-}
-#ai {
-  float: right;
+    margin: auto;
 }
 #player .hexLink {
   background-color: darkblue;
-}
-#ai .hexLink {
-  background-color: darkred;
 }
 </style>
 
@@ -231,33 +374,52 @@ a {
 
 <script type="text/javascript">
 
-var playerPosition, aiPosition, playerLastPosition, aiLastPosition;
-var playerLastAction = '';
-var hexText = '<h1>#</h1><h2>Click to Evade</h2>';
-var paused = false;
-
-var aiscore, playerscore;
-aiscore = playerscore = 0;
-
-var adjacentHexes = [];
-adjacentHexes[0] = [];
-adjacentHexes[1] = [2,3,4];
-adjacentHexes[2] = [1,4,5];
-adjacentHexes[3] = [1,4,6];
-adjacentHexes[4] = [1,2,3,5,6,7];
-adjacentHexes[5] = [2,4,7];
-adjacentHexes[6] = [3,4,7];
-adjacentHexes[7] = [4,5,6];
-
-var updateScore = function() {
-  scoreboard
-  $('#scoreboard').stop();
-  $('#scoreboard').html("Player: " + playerscore 
-    + "&nbsp;&nbsp;&nbsp;&nbsp;AI: " + aiscore);
-  $('#scoreboard').fadeOut(300).fadeIn(300)
-    .fadeOut(300).fadeIn(300)
-    .fadeOut(300).fadeIn(300);
+// http://www.javascripter.net/faq/numberisprime.htm
+function isPrime(n) {
+    // Make sure n:
+    // is a number,
+    // is finite,
+    // is divisble by 1 without a remainder (% is the modulus operator),
+    // and is not less than 2
+    if (isNaN(n) || !isFinite(n) || n % 1 || n < 2) {
+        return false; 
+    }
+    // Eliminate even numbers
+    if (n % 2 == 0) {
+        return (n == 2);
+    }
+    // Eliminate numbers divisible by 3
+    if (n % 3 == 0) {
+        return (n == 3);
+    }
+    // m is the upper-bound of numbers we will test, no need to go higher than the square root.
+    var m = Math.sqrt(n);
+    // Since we have eliminated even numbers and numbers divisible by 3...
+    // Loop through every number between 5 and m, incrementing by 6 each loop, so {5,11,17,23,29...}
+    for (var i = 5; i <= m; i += 6) {
+        if (n % i == 0) {
+            return false;
+        }
+        if (n % (i + 2) == 0) {
+            return false;
+        }
+    }
+    return true;
 }
+
+var numbertypes = [
+    ,["natural","Positive whole numbers not including 0.","((n > 0) && (n % 1 === 0))"]
+    ,["whole","Positive number without fractions including 0.","((n > -1) && (n % 1 === 0))"]
+    ,["integer","Positive and negative numbers.","(n % 1 === 0)"]
+    ,["positive","A number greater than 0.","(n > 0)"]
+    ,["negative","A number less than 0.","(n < 0)"]
+    //,["rational","Can be expressed as a ratio of an integer to a non-zero integer.",""]
+    ,["even","A number divisible by 2.","(n % 2 === 0)"]
+    ,["odd","A number not even.","(n % 2 !== 0)"]
+    ,["prime","A number divisible by only itself and 1.","isPrime(n)"]
+    ,["composite","A number divisible by itself, 1, and additional numbers.","!(isPrime(n))"]
+    ,["fraction","Number that is part of a whole.","(n % 1 !== 0)"]
+];
 
 var playerMessage = function(message)
 {
@@ -268,56 +430,24 @@ var playerMessage = function(message)
     .fadeOut(300).fadeIn(300);
 }
 
-var aiMessage = function(message)
-{
-  $('#aimessage').stop();
-  $('#aimessage').html(message);
-  $('#aimessage').fadeOut(300).fadeIn(300)
-    .fadeOut(300).fadeIn(300)
-    .fadeOut(300).fadeIn(300);
+var numberone, numbertwo, product;
+var evaluateEquation = function() {
+    product = eval(numberone + $('#operation').val() + numbertwo);
+    $('#answer').html(" = " + product);
+    playerMessage("What type of number is " + product + "?");
 }
 
-var showAI = function(hex)
-{
-  $("#ai a[data-position='" + hex + "'] img").fadeIn(300).fadeOut(300)
-    .fadeIn(300).fadeOut(300)
-    .fadeIn(300).fadeOut(300);
-}
-
-var showUser = function(hex)
-{
-  $("#player a[data-position='" + hex + "'] img").fadeIn(300).fadeOut(300)
-    .fadeIn(300).fadeOut(300)
-    .fadeIn(300).fadeOut(300);
+var newNumbers = function(){
+    numberone = Math.floor(Math.random() * 11) - 1;
+    numbertwo = Math.floor(Math.random() * 11) - 1;
+    $('#numberone').html(numberone);
+    $('#numbertwo').html(numberone);
+    evaluateEquation();
 }
 
 var newGame = function()
 {
-  //Force player to choose a hex.
-  playerPosition = aiPosition = playerLastPosition = aiLastPosition = 0;
-  aiPosition = (Math.floor(Math.random() * 7) + 1);
-  playerMessage("Choose your initial placement.");
-  aiMessage('&nbsp;');
-  paused = false;
-}
-
-var recon = function()
-{
-  //If the user hasn't set their placement.
-  if (playerPosition == 0) {
-    playerMessage("Choose your initial placement.");
-    return;
-  }
-
-  if (paused) return;
-  aiMessage('&nbsp;');
-
-  showAI(aiPosition);
-  aiLastPosition = aiPosition;
-  playerMessage("The AI is at hex " + aiPosition + ".");
-
-  paused = true;
-  setTimeout(aiMove, 2000);
+  newNumbers();
 }
 
 var test = function(hex)
@@ -352,6 +482,10 @@ $(document).ready(function() {
     // Stop acting like a button
     e.preventDefault();
     test(this);
+  });
+
+  $('#operation').change(function(){
+      evaluateEquation();
   });
 
   newGame();
@@ -430,17 +564,30 @@ $(document).ready(function() {
       <div id="playermessage">&nbsp;</div>
     </div>
 
-    <div id="recon">
-      <form>
-        <input type="button" id="Reconnoiter" value="Reconnoiter" onclick="recon();" class="myButton" /><br/>
+    <div class="form-container-container">
+      <form class="form-container">
+          <div class="number inline" id="numberone"></div>
+          <div class="inline">
+            <select id="operation" class="form-field" />
+              <option value="+">&nbsp;+ </option>
+              <option value="-">&nbsp;- </option>
+              <option value="*">&nbsp;* </option>
+              <option value="/">&nbsp;/ </option>
+            </select>
+          </div>
+          <div class="number inline" id="numbertwo"></div>
+          <div class="number inline" id="answer">
+          </div>
+          <div>
+            <div class="submit-container right">
+              <input type="button" value="New" onclick="newNumbers();" class="submit-button" />
+              <input type="button" value="Restart" onclick="newGame();" class="submit-button" />
+             </div>
+          </div>
       </form>
     </div>
 <div id="footer">
     <h1 id="scoreboard">Number Types</h1>
-    <form>
-      <input type="button" value="New Game" onclick="newGame();" class="myButton" />
-    </form>
-    <p></p><br/>
 </div>
   </body>
 </html>
