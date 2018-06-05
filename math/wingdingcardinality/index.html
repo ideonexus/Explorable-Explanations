@@ -213,6 +213,11 @@ var buildWingdingGrid = function() {
     }
 
     var numberRangeTop = Number($("#rangestart").val());
+    if ($('#incrementtype').val() == 'squares') {
+        numberRangeTop = Math.pow(numberRangeTop, 2);
+    } else if ($('#incrementtype').val() == 'exponents') {
+        numberRangeTop = Math.pow(2, numberRangeTop);
+    }
 
     var wingding = $("#wingdings option:selected").text();
     var groupBy = $("#groupby").val();
@@ -292,6 +297,17 @@ var buildWingdingGrid = function() {
 $(document).ready(function() {
     
     $('#wingdings').click(function() {
+        buildWingdingGrid();
+    });
+
+    $('#incrementtype').change(function() {
+        if ($('#incrementtype').val() != 'ones') {
+            $("#incdecammount").val('1');
+            $("#incdecammount").prop('disabled', true);
+        } else {
+            $("#incdecammount").val('1');
+            $("#incdecammount").prop('disabled', false);
+        }
         buildWingdingGrid();
     });
 
@@ -392,6 +408,14 @@ $(document).ready(function() {
         <div class="inline">
           <div class="form-title">Increment:</div>
           <input class="form-field numbersmall" type="number" id="incdecammount" value="1" />
+        </div>
+        <div class="inline">
+          <div class="form-title">Type:</div>
+          <select id="incrementtype" class="form-field">
+            <option value="ones">Ones</option>
+            <option value="squares">Squares</option>
+            <option value="exponents">Exponents</option>
+          </select>
         </div>
         <div class="inline">
           <div class="form-title">Group By:</div>
