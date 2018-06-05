@@ -220,29 +220,59 @@ var buildWingdingGrid = function() {
     }
 
     var wingding = $("#wingdings option:selected").text();
-    var groupBy = $("#groupby").val();
-    var breakRowsBy = $("#breakrowsby").val();
+    var groupBy = Number($("#groupby").val());
+    //var breakRowsBy = $("#breakrowsby").val();
     var squareRoot = Math.floor(Math.sqrt(numberRangeTop));
     var groupInt = 0;
 
     var output = "<div id=\"container-inner\">";
 
+    var rowblock = "";
+    var iterate = 1;
     if (groupBy > 1) {
-      output += "<div class=\"group\">";
+        groupSquareRoot = Math.floor(Math.sqrt(groupBy));
+        rowblock += "<div class=\"group\">";
+        for (var i = 1; i <= groupBy; i++) {
+            rowblock += wingding;
+            if (i % groupSquareRoot == 0) {
+                rowblock += "<br/>";
+            }
+        }
+        rowblock += "</div>";
+        iterate = groupBy;
+    } else {
+        for (var i = 1; i <= squareRoot; i++) {
+            rowblock += wingding;
+        }
+        rowblock += "<br/>";
+        iterate = squareRoot;
     }
 
-    for (var i = 1; i < (numberRangeTop+1); i++) { 
-      output += wingding;
-      groupInt++;
-      if (groupBy == 1 && (i % squareRoot) == 0) {
-        output += "<br/>";
-      } else if (groupBy > 1 && (i % groupBy) == 0 && i != (numberRangeTop)) {
-        output += "</div><div class=\"group\">";
-        groupInt = 0;
-      } else if (groupBy > 1 && (groupInt % breakRowsBy) == 0) {
-        output += "<br/>";
-      }
+    for (var i = 1; i <= numberRangeTop; i+=iterate) {
+        if ((i+iterate) > (numberRangeTop+1)) {
+            for (var j = i; j <= numberRangeTop; j++) {
+                output += wingding;
+            }
+            i+=iterate;
+        } else {
+            output += rowblock;
+        }
     }
+
+    // Old Way of building display, very innefficient.
+    // I reserve the right to be smarter today than I was yesterday.
+    //for (var i = 1; i < (numberRangeTop+1); i++) { 
+    //    output += wingding;
+    //    groupInt++;
+    //    if (groupBy == 1 && (i % squareRoot) == 0) {
+    //        output += "<br/>";
+    //    } else if (groupBy > 1 && (i % groupBy) == 0 && i != (numberRangeTop)) {
+    //        output += "</div><div class=\"group\">";
+    //        groupInt = 0;
+    //    } else if (groupBy > 1 && (groupInt % breakRowsBy) == 0) {
+    //        output += "<br/>";
+    //    }
+    //}
 
     if (groupBy > 1) {
       output += "</div>";
@@ -319,9 +349,9 @@ $(document).ready(function() {
         buildWingdingGrid();
     });
 
-    $('#breakrowsby').change(function() {
-        buildWingdingGrid();
-    });
+    //$('#breakrowsby').change(function() {
+    //    buildWingdingGrid();
+    //});
 
     // This button will increment the value
     $('.increment').click(function(e){
@@ -421,10 +451,10 @@ $(document).ready(function() {
           <div class="form-title">Group By:</div>
           <input class="form-field numbersmall" type="number" id="groupby" value="1" />
         </div>
-        <div class="inline">
+        <!--div class="inline">
           <div class="form-title">Break Rows:</div>
           <input class="form-field numbersmall" type="number" id="breakrowsby" value="0" />
-        </div>
+        </div-->
         <div class="buttonrow">
           <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
         </div>
