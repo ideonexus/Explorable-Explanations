@@ -37,7 +37,7 @@ body {
    text-decoration: none;
    vertical-align: middle;
    padding:30px;
-   width:600px;
+   width:650px;
    text-align: center;
 }
 
@@ -244,9 +244,25 @@ function renderCanvas() {
 
     if (output > rangeend) {
         rangeend = output;
-        rangestart = (rangeend - output);
     }else if (output < rangestart) {
         rangestart = output;
+    }
+
+    if (Math.abs(rangestart - rangeend) > 20) {
+         if (start < output) {
+              rangestart = start;
+              rangeend = output;
+          } else {
+              rangestart = output;
+              rangeend = start;            
+          }
+
+          //Pad numberline if < 20
+          if (Math.abs(rangestart - rangeend) < 20) {
+              var padding = Math.floor((20-Math.abs(rangestart - rangeend))/2);
+              rangestart = rangestart - padding;
+              rangeend = rangeend + padding;
+          }
     }
 
     if (op == "/")
@@ -432,7 +448,20 @@ function renderCanvas() {
             moveTo(w/2 + k * interval, h/2 - 15);
             lineTo(w/2 + k * interval, h/2 + 15);
             //Line numbers.
-            fillText(i, (w/2 + k * interval ) - 10, h/2 + 50);
+            
+            var drawlabel = true;
+            if (i != rangestart && i != rangeend) {
+                if ((totRange > 20 && i % 2 != 0) 
+                  || (totRange > 40 && i % 4 != 0)
+                  || (totRange > 60 && i % 6 != 0)) {
+                    drawlabel = false;
+                }
+            }
+
+            if (drawlabel) {
+                fillText(i, (w/2 + k * interval ) - 10, h/2 + 50);
+            }
+
             fill();
             stroke();
             k++
@@ -491,8 +520,10 @@ $(window).load(function(){
         var currentVal = parseInt($('#'+fieldName).val());
         // If is not undefined
         if (!isNaN(currentVal)) {
-            // Increment
-            $('#'+fieldName).val(currentVal + 1);
+            if (currentVal < 99) {
+                // Increment
+                $('#'+fieldName).val(currentVal + 1);
+            }
         } else {
             // Otherwise put a 0 there
             $('#'+fieldName).val(0);
@@ -509,8 +540,10 @@ $(window).load(function(){
         var currentVal = parseInt($('#'+fieldName).val());
         // If it isn't undefined
         if (!isNaN(currentVal)) {
-            // Decrement one
-            $('#'+fieldName).val(currentVal - 1);
+            if (currentVal > -99) {
+                // Decrement one
+                $('#'+fieldName).val(currentVal - 1);
+            }
         } else {
             // Otherwise put a 0 there
             $('#'+fieldName).val(0);
