@@ -16,7 +16,7 @@
 }
 
 body {
-    background-color: RebeccaPurple;
+    background-color: #c4f0ff;
     color: white;
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
@@ -27,8 +27,9 @@ a {
 
 #playermessage {
   font-size: 2em;
-    width: 100%;
-    text-align: center;  
+  width: 100%;
+  text-align: center;
+  color: black;
 }
 
 .number {
@@ -308,7 +309,7 @@ input::-webkit-inner-spin-button {
   width: 100%;
   padding: 5%;
   box-sizing:border-box;
-  background-color: rgba(0, 128, 128, 0.8);
+  background-color: rgba(40, 4, 76, 0.8);
   font-weight: 300;
   -webkit-transition:  -webkit-transform .2s ease-out, opacity .3s ease-out;
           transition:          transform .2s ease-out, opacity .3s ease-out;
@@ -367,7 +368,7 @@ input::-webkit-inner-spin-button {
     margin: auto;
 }
 #player .hexLink {
-  background-color: darkblue;
+  background-color: #00a6dc;
 }
 </style>
 
@@ -431,9 +432,10 @@ var playerMessage = function(message)
     .fadeOut(300).fadeIn(300);
 }
 
-var numberone, numbertwo, product;
+var numberone, numbertwo, product, correctCount;
 var evaluateEquation = function() {
     product = eval(numberone + $('#operation').val() + numbertwo);
+    product = Math.round(product * 100) / 100
     $('#answer').html(" = " + product);
     playerMessage("What type of number is " + product + "?");
 }
@@ -448,6 +450,10 @@ var newNumbers = function(){
 
 var newGame = function()
 {
+    correctCount = 0;
+    $(".hexLink").removeClass("focused");
+    $(".hexLink").children("img").fadeOut(300);
+
     var numbertypechoices = [];
     // get random types
     for (var i = 0; i < 7; i++) {
@@ -489,7 +495,10 @@ var test = function(hex)
       //var linkid = $(hex).children(".hexLink").attr('id')
       $(hex).addClass("focused");
       $(hex).children("img").fadeIn(300);
-     //newNumbers();
+      correctCount++;
+      if (correctCount > 6) {
+          playerMessage("Congratulations Winner!");
+      }
   } else {
       playerMessage("Sorry. " + product + " is not " + selected + ".");
   }
@@ -602,8 +611,8 @@ $(document).ready(function() {
           </div>
           <div>
             <div class="submit-container right">
-              <input type="button" value="New" onclick="newNumbers();" class="submit-button" />
-              <input type="button" value="Restart" onclick="newGame();" class="submit-button" />
+              <input type="button" value="New #s" onclick="newNumbers();" class="submit-button" />
+              <input type="button" value="New Game" onclick="newGame();" class="submit-button" />
              </div>
           </div>
       </form>
