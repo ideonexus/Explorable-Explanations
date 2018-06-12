@@ -316,7 +316,7 @@ input::-webkit-inner-spin-button {
 .hex h1 {
   bottom: 50%;
   padding-top:50%;
-  font-size: 1.5em;
+  font-size: 2em;
   z-index: 1;
   -webkit-transform:translate3d(0,-100%,0);
       -ms-transform:translate3d(0,-100%,0);
@@ -342,7 +342,8 @@ input::-webkit-inner-spin-button {
 
 /*** HOVER EFFECT  **********************************************************************/
 .hexLink:hover h1, .hexLink:focus h1,
-.hexLink:hover h2, .hexLink:focus h2{
+.hexLink:hover h2, .hexLink:focus h2,
+.hexLink.focused h1, .hexLink.focused h2 {
   -webkit-transform:translate3d(0,0,0);
       -ms-transform:translate3d(0,0,0);
           transform:translate3d(0,0,0);
@@ -408,7 +409,7 @@ function isPrime(n) {
 }
 
 var numbertypes = [
-    ,["natural","Positive whole numbers not including 0.","((n > 0) && (n % 1 === 0))"]
+    ["natural","Positive whole numbers not including 0.","((n > 0) && (n % 1 === 0))"]
     ,["whole","Positive number without fractions including 0.","((n > -1) && (n % 1 === 0))"]
     ,["integer","Positive and negative numbers.","(n % 1 === 0)"]
     ,["positive","A number greater than 0.","(n > 0)"]
@@ -441,39 +442,60 @@ var newNumbers = function(){
     numberone = Math.floor(Math.random() * 11) - 1;
     numbertwo = Math.floor(Math.random() * 11) - 1;
     $('#numberone').html(numberone);
-    $('#numbertwo').html(numberone);
+    $('#numbertwo').html(numbertwo);
     evaluateEquation();
 }
 
 var newGame = function()
 {
-  newNumbers();
+    var numbertypechoices = [];
+    // get random types
+    for (var i = 0; i < 7; i++) {
+      var numbertype = numbertypes[Math.floor(Math.random()*numbertypes.length)];
+      //Prevent adding duplicate types to the array.
+      var notInArray = false;
+      while (!notInArray) {
+        if ($.inArray(numbertype, numbertypechoices) != -1) {
+          numbertype = numbertypes[Math.floor(Math.random()*numbertypes.length)];
+        } else {
+          notInArray = true;
+        }
+      }
+      numbertypechoices.push(numbertype);
+    }
+    
+    //Assign types to hexes
+    for (var i = 0; i < 7; i++) {
+      $("#hex" + (i+1)).children(".type").html(numbertypechoices[i][0]);
+      $("#hex" + (i+1)).children(".description").html(numbertypechoices[i][1]);
+    }
+
+    newNumbers();
 }
 
 var test = function(hex)
 {
-  //Move focus to show blinking stickfigure
-  $("#Reconnoiter").focus();
-  if (paused) return;
-  aiMessage('&nbsp;');
+  var selected = $(hex).children(".type").html();
 
-  var move = parseInt($(hex).attr("data-position"));
+  var type = jQuery.grep(numbertypes, function(n,i) {
+      return n[0] == selected;
+  });
 
-  //Verify this is a legal move.
-  if (playerPosition == 0 || move == playerPosition || adjacentHexes[playerPosition].indexOf[move] != -1)
-  {
-    playerPosition = move;
-    showUser(playerPosition);
-    playerMessage("You moved to hex " + playerPosition + ".");
-    paused = true;
-    setTimeout(aiMove, 2000);
+  var re = new RegExp('n', 'g');
+  var typeEquation = type[0][2].replace(re, product);
+
+  if (eval(typeEquation)) {
+      playerMessage("Correct! " + product + " is " + selected + "!");
+      //var linkid = $(hex).children(".hexLink").attr('id')
+      $(hex).addClass("focused");
+      $(hex).children("img").fadeIn(300);
+     //newNumbers();
+  } else {
+      playerMessage("Sorry. " + product + " is not " + selected + ".");
   }
-  else
-  {
-    //return error
-    showUser(playerPosition);
-    playerMessage("You may only move to an adjacent place.");
-  }
+
+
+
 }
 
 $(document).ready(function() {
@@ -499,64 +521,64 @@ $(document).ready(function() {
       <ul id="hexGrid">
         <li class="hex">
           <div class="hexIn">
-            <a class="hexLink" href="javascript:void(0);" data-position="1">
-              <img src="img/stickfigure.png" style="display: none;" />
-              <h1>1</h1>
-              <h2>Click to Evade</h2>
+            <a class="hexLink" href="javascript:void(0);" id="hex1">
+              <img src="img/checkmark.png" style="display: none;" />
+              <h1 class="type"></h1>
+              <h2 class="description"></h2>
             </a>
           </div>
         </li>
         <li class="hex">
           <div class="hexIn">
-            <a class="hexLink" href="javascript:void(0);" data-position="2">
-              <img src="img/stickfigure.png" style="display: none;" />
-              <h1>2</h1>
-              <h2>Click to Evade</h2>
+            <a class="hexLink" href="javascript:void(0);" id="hex2">
+              <img src="img/checkmark.png" style="display: none;" />
+              <h1 class="type"></h1>
+              <h2 class="description"></h2>
             </a>
           </div>
         </li>
         <li class="hex">
           <div class="hexIn">
-            <a class="hexLink" href="javascript:void(0);" data-position="3">
-              <img src="img/stickfigure.png" style="display: none;" />
-              <h1>3</h1>
-              <h2>Click to Evade</h2>
+            <a class="hexLink" href="javascript:void(0);" id="hex3">
+              <img src="img/checkmark.png" style="display: none;" />
+              <h1 class="type"></h1>
+              <h2 class="description"></h2>
             </a>
           </div>
         </li>
         <li class="hex">
           <div class="hexIn">
-            <a class="hexLink" href="javascript:void(0);" data-position="4">
-              <img src="img/stickfigure.png" style="display: none;" />
-              <h1>4</h1>
-              <h2>Click to Evade</h2>
+            <a class="hexLink" href="javascript:void(0);" id="hex4">
+              <img src="img/checkmark.png" style="display: none;" />
+              <h1 class="type"></h1>
+              <h2 class="description"></h2>
             </a>
           </div>
         </li>
         <li class="hex">
           <div class="hexIn">
-            <a class="hexLink" href="javascript:void(0);" data-position="5">
-              <img src="img/stickfigure.png" style="display: none;" />
-              <h1>5</h1>
-              <h2>Click to Evade</h2>
+            <a class="hexLink" href="javascript:void(0);" id="hex5">
+              <img src="img/checkmark.png" style="display: none;" />
+              <h1 class="type"></h1>
+              <h2 class="description"></h2>
             </a>
           </div>
         </li>
         <li class="hex">
           <div class="hexIn">
-            <a class="hexLink" href="javascript:void(0);" data-position="6">
-              <img src="img/stickfigure.png" style="display: none;" />
-              <h1>6</h1>
-              <h2>Click to Evade</h2>
+            <a class="hexLink" href="javascript:void(0);" id="hex6">
+              <img src="img/checkmark.png" style="display: none;" />
+              <h1 class="type"></h1>
+              <h2 class="description"></h2>
             </a>
           </div>
         </li>
         <li class="hex">
           <div class="hexIn">
-            <a class="hexLink" href="javascript:void(0);" data-position="7">
-              <img src="img/stickfigure.png" style="display: none;" />
-              <h1>7</h1>
-              <h2>Click to Evade</h2>
+            <a class="hexLink" href="javascript:void(0);" id="hex7">
+              <img src="img/checkmark.png" style="display: none;" />
+              <h1 class="type"></h1>
+              <h2 class="description"></h2>
             </a>
           </div>
         </li>
@@ -586,8 +608,8 @@ $(document).ready(function() {
           </div>
       </form>
     </div>
-<div id="footer">
+<!--div id="footer">
     <h1 id="scoreboard">Number Types</h1>
-</div>
+</div-->
   </body>
 </html>
