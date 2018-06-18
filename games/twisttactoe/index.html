@@ -12,7 +12,7 @@
     }
 
     .containersmall { 
-        width: 80%;
+        width: 65%;
         height: 80%;
         /*position: absolute;*/
         top:0;
@@ -43,12 +43,12 @@
     }
 
     li {
-      padding: 0;
+      padding: 15px 15px 15px 15px;
       float: left;
       margin: 10px;
       list-style: none;
       outline: solid;
-      min-width: 30%;
+      min-width: 25%;
       height: 25%;
       line-height: 100%;
       text-align: center;
@@ -59,7 +59,10 @@
       font-size: 4em;
       font-weight: bold;
       position: relative;
-      top: 50%;
+    }
+
+    img {
+      height: 100%;
     }
 
     label {
@@ -153,7 +156,6 @@
   span {
     font-size: 4em;
     line-height: 0.5em;
-    top: 40%;
   }
   select {
     font-size: 1.5em;
@@ -284,210 +286,188 @@ var copyArray = function(oldarray) {
 
 }
 
-// A clever algorithm for checking all combinations of values in an array
-// https://stackoverflow.com/questions/32808465/javascript-function-to-determine-if-number-any-combination-of-numbers-in-array-a
-function checkWin(arr) {
-    //var arrMax = Math.max.apply(Math, arr);
-    var arrMax = parseInt($('#target').val());
-    var found = false;
-
-    function recArrAdd(sub, arr) {
-        if (found) return true;
-        if (arr.length > 0) {
-            if (sub.length === 2) { // Only check three-number combinations
-                var arrSum = sub.concat(arr[0]).reduce(function(prev, curr) { return prev + curr;});
-                if (arrSum === arrMax) {
-                    found = true;
-                    return found;
-                };
-            }
-            recArrAdd(sub.concat(arr[0]), arr.slice(1));
-            recArrAdd(sub, arr.slice(1));
-        }
-        return found;
-    }
-
-    return recArrAdd([], arr);
-}
-
 // AI minmax search for best numbers.
-// Built from numerous online examples and adapted to choice arrays VS boards.
+// Built from numerous online examples, but Vivek Panyam's is the most intuitive:
+// https://blog.vivekpanyam.com/how-to-build-an-ai-that-wins-the-basics-of-minimax-search/
 var numNodes = 0;
 var allchoices = [];
-var playerchoices = [[],[]];
+var playertilecoordinates = [[],[]];
+var playertileorientations = [[],[]];
 var activeplayer = 0;
 var maxdepth = null;
 
-function recurseMinimax(possibleplayerchoices, player, depth) {
-    //console.log("max/depth: " + maxdepth + ":" + depth);
-    if (maxdepth != null && depth > maxdepth) return [0, possibleplayerchoices];
-    var notplayer = (1 - player); //Switches player for next recursive call.
+var board = [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null]
+]
 
-    //See if the last move won.
-    if (checkWin(possibleplayerchoices[notplayer])) {
+var checkWin = function(board) {
+
+    // Check if someone won
+    vals = [0, 1];
+    var allNotNull = true;
+    for (var k = 0; k < vals.length; k++) {
+        var value = vals[k];
+
+        // Check rows, columns, and diagonals
+        var diagonalComplete1 = true;
+        var diagonalComplete2 = true;
+        for (var i = 0; i < 3; i++) {
+            if (board[i][i] != value) {
+                diagonalComplete1 = false;
+            }
+            if (board[2 - i][i] != value) {
+                diagonalComplete2 = false;
+            }
+            var rowComplete = true;
+            var colComplete = true;
+            for (var j = 0; j < 3; j++) {
+                if (board[i][j] != value) {
+                    rowComplete = false;
+                }
+                if (board[j][i] != value) {
+                    colComplete = false;
+                }
+                if (board[i][j] == null) {
+                    allNotNull = false;
+                }
+            }
+            if (rowComplete || colComplete) {
+                return true;
+            }
+        }
+        if (diagonalComplete1 || diagonalComplete2) {
+            return true;
+        }
+    }
+    if (allNotNull) {
+        return false;
+    }
+    return null;
+}
+
+var recurseMinimax = function(possibleplayertilecoordinates, player, depth) {
+    //console.log("max/depth: " + maxdepth + ":" + depth);
+    if (maxdepth != null && depth > maxdepth) return [0, possibleplayertilecoordinates];
+    var notplayer = (1 - player); //Switches player for next recursive call.
+    numNodes++;
+    var wincheck = checkWin(possibleplayertilecoordinates);
+    if (wincheck === false) {
+         return [0, possibleplayertilecoordinates]; //Tie
+    } else if (wincheck === true) {
         if (notplayer == activeplayer) {
             // AI wins. Sooner the win, higher the score.
-            return [10-depth, possibleplayerchoices];
+            return [10-depth, possibleplayertilecoordinates];
         } else {
             // opponent wins. Sooner the win, lower the score.
-            return [depth-10, possibleplayerchoices];
+            return [depth-10, possibleplayertilecoordinates];
         }
-    } else if ((possibleplayerchoices[0].length + possibleplayerchoices[1].length) == allchoices.length) {
-         return [0, possibleplayerchoices]; //Tie
     } else {
-        numNodes++;
-        var scores = new Array();
-        var moves = new Array();
+        // Next states
+        var nextVal = null;
+        var nextBoard = null;
 
-        // Filter out the taken numbers from all choices.
-        var remainingchoices = allchoices.slice().filter(function(el) {
-            return !possibleplayerchoices[0].includes(el) && !possibleplayerchoices[1].includes(el);
-        });
-
-        // Loop through what's left to choose.
-        for (var move = 0; move < remainingchoices.length; move++) {
-            possibleplayerchoices[player].push(remainingchoices[move]);
-            
-            // Capture the score for the current move.
-            var nextdepth = depth + 1;
-            var copiedarray = copyArray(possibleplayerchoices);
-            scores.push(recurseMinimax(copiedarray, notplayer, nextdepth)[0]);
-            moves.push(copiedarray);
-            
-            // Undo the last move to explore other branches.
-            var index = possibleplayerchoices[player].indexOf(remainingchoices[move]);
-            possibleplayerchoices[player].splice(index, 1);
+        for (var i = 0; i < 3; i++) {
+            for (var j = 0; j < 3; j++) {
+                if (possibleplayertilecoordinates[i][j] == null) {
+                    possibleplayertilecoordinates[i][j] = player;
+                    var value = recurseMinimax(possibleplayertilecoordinates, notplayer, depth)[0];
+                    if ((player && (nextVal == null || value > nextVal)) || (notplayer && (nextVal == null || value < nextVal))) {
+                        nextBoard = possibleplayertilecoordinates.map(function(arr) {
+                            return arr.slice();
+                        });
+                        nextVal = value;
+                    }
+                    possibleplayertilecoordinates[i][j] = null;
+                }
+            }
         }
-
-        var max_score, max_score_index;
-        var min_score, min_score_index;
-        var score, choice;
-        //Take the move with the best score if current player.
-        if (player === activeplayer) {
-            max_score = Math.max.apply(Math, scores);
-            max_score_index = scores.indexOf(max_score);
-            choice = moves[max_score_index];
-            score = scores[max_score_index];
-        } else {
-        //Take the move with the worse score if opponent.
-            min_score = Math.min.apply(Math, scores);
-            min_score_index = scores.indexOf(min_score);
-            choice = moves[min_score_index];
-            score = scores[min_score_index];
-        }
-
-        return [score, choice];
+        return [nextVal, nextBoard];
     }
 }
 
-function minimaxMove(depth) {
+var minimaxMove = function(depth) {
     maxdepth = depth;
     numNodes = 0;
-    var possibleplayerchoices = copyArray(playerchoices);
+    var possibleplayertilecoordinates = copyArray(board);
     //This will return an array of the optimal path the algorithm finds.
-    var nextplayerchoices = recurseMinimax(possibleplayerchoices, activeplayer, 0)[1];
+    var nextboard = recurseMinimax(possibleplayertilecoordinates, activeplayer, 0)[1];
     //Grab the first move not already made as the AI's next move.
-    var nextmove = nextplayerchoices[activeplayer].filter(function(x) {  return !playerchoices[activeplayer].includes(x); })[0];
-    //console.log("nextmove: " + nextmove);
-    console.log("numNodes: " + numNodes);
-    window.setTimeout(function() {
-        $( "span:contains('" + nextmove + "')" ).parent().trigger( "click" );
-    }, 1000);
-}
-
-function randomMove() {
-    options = allchoices.filter(function(el) {
-      return !playerchoices[0].includes(el) && !playerchoices[1].includes(el);
-    });
-    var nextmove = options[Math.floor(Math.random() * options.length)];
-    window.setTimeout(function() {
-        $( "span:contains('" + nextmove + "')" ).parent().trigger( "click" );
-    }, 1000);
-}
-
-// The following is based on the mathematical explanations from:
-// http://www.durangobill.com/MagicSquares.html
-var generateMagicSquare = function() {
-    var basesquare = [
-        [ 8, 1, 6 ]
-       ,[ 3, 5, 7 ]
-       ,[ 4, 9, 2 ]
-    ];
-    var centersquare = basesquare[1][1];
-    var winvalue = parseInt($('#target').val());
-    var modifier = ((winvalue/3)-centersquare);
-
-    var playsquare = [];
-    allchoices = [];
-
-    // Copy the array and add the center factor value
-    for(var x = 0; x < basesquare.length; x++)
-    {
-      playsquare[x] = [];
-        for(var y = 0; y < basesquare[x].length; y++)
-        {
-            playsquare[x][y] = basesquare[x][y] + modifier;
-            allchoices.push(playsquare[x][y]);
-            //console.log(x+','+y+' = '+basesquare[x][y]);
-        }
-    }
-
-    // Rotate the square randomly
-    var flipvert = Math.floor(Math.random() * 2);
-    var fliphorz = Math.floor(Math.random() * 2);
-
-    if (flipvert == 1) {
-      playsquare.reverse();
-    }
-
-    if (fliphorz == 1) {
-      for(var x = 0; x < playsquare.length; x++)
-      {
-        playsquare[x].reverse();
+    var nextmove = []
+    for (var i = 0; i < 3; i++) {
+      for (var j = 0; j < 3; j++) {
+          if (board[i][j] !== nextboard[i][j]) {
+              nextmove.push(i + "-" + j)
+          }
       }
     }
 
-    return playsquare;
+    console.log("numNodes: " + numNodes);
+    window.setTimeout(function() {
+        $( "#" + nextmove).trigger( "click" );
+    }, 1000);
 }
 
-var buildNumberBlocks = function() {
-    $('#sentence').html("Magic Square Tic-Tac-Toe");
-    var magicsquare = generateMagicSquare();
-    playerchoices = [[],[]];
+var randomMove = function() {
+    options = [];
+    for (var i = 0; i < 3; i++) {
+      for (var j = 0; j < 3; j++) {
+          if (board[i][j] == null) {
+              options.push(i + "-" + j)
+          }
+      }
+    }
+    var nextmove = options[Math.floor(Math.random() * options.length)];
+    window.setTimeout(function() {
+        $( "#" + nextmove).trigger( "click" );
+    }, 1000);
+}
+
+var newGame = function() {
+    $('#sentence').html("Twist-Tac-Toe");
+    board = [
+        [null, null, null],
+        [null, null, null],
+        [null, null, null]
+    ];
     activeplayer = 0;
 
     // html for the board
     var output = "<ol>"; 
-    for(var x = 0; x < magicsquare.length; x++)
+    for(var x = 0; x < board.length; x++)
     {
-        for(var y = 0; y < magicsquare[x].length; y++)
+        for(var y = 0; y < board[x].length; y++)
         {
-            output += "<li>";
-            output += "<span>" + magicsquare[x][y] + "</span>";
-            output += "</li>";
+            output += "<li id=\"" + x + "-" + y + "\"><span></span></li>";
         }
     }
     output += "</ol>";
 
     $("#container").html(output);
 
-    if (!grid) {
-        $("li").addClass("lismall");        
-    }
-
     $("li").click(function() {
-        if ($(this).children("span").hasClass("face-up") === false) {
-            var playerclass = "p1";
-            if (activeplayer == 1)
-            {
-                playerclass = "p2";
-            }
-            $(this).children("span").addClass("face-up " + playerclass);
+
+        var playerclass = "p1";
+        var imgSrc = "x";
+        if (activeplayer == 1)
+        {
+            playerclass = "p2";
+            imgSrc = "o";
+        }
+
+        if ($(this).children("span").hasClass("face-up") === false && playertilecoordinates[activeplayer].length < 3) {
+            var coords = $(this).attr('id').split("-");
+            playertilecoordinates[activeplayer].push(coords);
+            //TODO: how to set straight/diagonal on initial placement?????
+            playertileorientations[activeplayer].push(1); // 0-straight, 1-diagonal
+            board[coords[0]][coords[1]] = activeplayer;
+
+            $(this).children("span").addClass("face-up " + playerclass)
+                .prepend($('<img>',{src:'img/' + imgSrc + '.png'}));
             $(this).addClass("face-up " + playerclass);
-          
-            var move = parseInt($(this).children("span").html());
-            playerchoices[activeplayer].push(move);
-            if (checkWin(playerchoices[activeplayer])) {
+            
+            if (checkWin(board)) {
                 $('#sentence').html("Player " + (activeplayer+1) + " wins!");
                 winAnimation();
             } else {
@@ -500,6 +480,9 @@ var buildNumberBlocks = function() {
                     }
                 }
             }
+        } else if ($(this).children("span").hasClass("face-up") && $(this).children("span").hasClass(playerclass)) {
+            // Highlight legal moves
+
         }
     });
 
@@ -507,51 +490,16 @@ var buildNumberBlocks = function() {
     if ($('#player' + activeplayer).val() != 'human') {
         //Make first move random to make winning at hard level possible
         if ($('#player' + activeplayer).val() == "0" 
-          || (parseInt($('#player' + activeplayer).val()) < 10 && playerchoices[activeplayer].length == 0)) {
+          || (parseInt($('#player' + activeplayer).val()) < 10 && playertilecoordinates[activeplayer].length == 0)) {
             randomMove();
         } else {
             minimaxMove(parseInt($('#player' + activeplayer).val()));
         }
     }
-    //FUTURE: 4n, 5n, etc magic squares
-    //if (numberofboxes > 16) {
-    //    $("li").removeClass("lismall").removeClass("lilarge").addClass("lilarger");
-    //} else if (numberofboxes > 8) {
-    //    $("li").removeClass("lismall").removeClass("lilarger").addClass("lilarge");
-    //} else {
-    //    $("li").removeClass("lilarge").removeClass("lilarger").addClass("lismall");
-    //}
-}
-
-var grid = true;
-var toggleGrid = function() {
-    if (grid) {
-        $("#container").removeClass("containersmall").addClass("containerlarge");
-        $("li").addClass("lismall");
-        $("#gridToggle").val("Grid On");
-    } else {
-        $("#container").removeClass("containerlarge").addClass("containersmall");
-        $("li").removeClass("lismall");
-        $("#gridToggle").val("Grid Off");        
-    }
-
-    grid = !grid;
-}
-
-var buildTargetSelector = function() {
-    for (var i=0; i <= 20; i++) {
-        var opt = i*3;
-        $('#target').append($('<option/>').attr({ 'value': opt }).text(opt + " points"))
-    }
-    $('#target').val("15");
 }
 
 $(document).ready(function() {
-    $("#target").change(function() {
-        buildNumberBlocks();
-    });
-    buildTargetSelector();
-    buildNumberBlocks();
+    newGame();
 });
 
 </script>
@@ -559,10 +507,9 @@ $(document).ready(function() {
 <body>
 <div id="container" class="containersmall"></div>
 <div id="footer">
-    <h1 id="sentence">Magic Square Tic-Tac-Toe</h1>
+    <h1 id="sentence">Twist-Tac-Toe</h1>
     <form >
       <div class="formrow">
-          <label for="target">Target</label> <select id="target"></select>
           <select id="player0">
               <option value="human">P1: Human</option>
               <option value="0">P1: Easy Computer</option>
@@ -579,8 +526,7 @@ $(document).ready(function() {
           </select>
       </div>
       <div class="formrow">
-          <input type="button" value="New Game" onclick="buildNumberBlocks();" class="myButton" />
-          <input type="button" value="Grid Off" onclick="toggleGrid();" class="myButton" id="gridToggle" />
+          <input type="button" value="New Game" onclick="newGame();" class="myButton" />
           <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
       </div>
       <h5 class="info">Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
