@@ -113,7 +113,7 @@ select {
 }
 
 input.number {
-  width:200px;
+  width: 230px;
   text-align: right;
 }
 
@@ -133,6 +133,11 @@ input.numbersmall {
    -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
    box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
 
+}
+
+div.displayvalue {
+    font-size: 3em;
+    color: #ffffff;
 }
 
 div.inline {
@@ -187,8 +192,9 @@ function getRandomColor() {
 
 var buildWingdingGrid = function() {
 
-    if (Number($("#rangestart").val()) > 100000){
-        $("#rangestart").val(100000);
+    // Numbers above 1 million can crash the browser.
+    if (Number($("#rangestart").val()) > 1000000){
+        $("#rangestart").val(1000000);
     }
     else if (Number($("#rangestart").val()) < 0)
     {
@@ -196,6 +202,7 @@ var buildWingdingGrid = function() {
     }
 
     var numberRangeTop = Number($("#rangestart").val());
+    // Add commas to the number display
     if ($('#incrementtype').val() == 'squares') {
         numberRangeTop = Math.pow(numberRangeTop, 2);
     } else if ($('#incrementtype').val() == 'exponents') {
@@ -203,6 +210,7 @@ var buildWingdingGrid = function() {
     } else if ($('#incrementtype').val() == 'powersoften') {
         numberRangeTop = Math.pow(10, numberRangeTop);
     }
+    $(".displayvalue").html(numberRangeTop.toLocaleString());
 
     var wingding = $("#wingdings option:selected").text();
     var groupBy = Number($("#groupby").val());
@@ -210,7 +218,7 @@ var buildWingdingGrid = function() {
     var squareRoot = Math.floor(Math.sqrt(numberRangeTop));
     var groupInt = 0;
 
-    var output = "<div id=\"container-inner\">";
+    //var output = "";
 
     var rowblock = "";
     var iterate = 1;
@@ -233,14 +241,28 @@ var buildWingdingGrid = function() {
         iterate = squareRoot;
     }
 
-    for (var i = 1; i <= numberRangeTop; i+=iterate) {
-        if ((i+iterate) > (numberRangeTop+1)) {
-            for (var j = i; j <= numberRangeTop; j++) {
+    var overcount = false;
+    var wdcount = iterate;
+    var output = rowblock;
+    if (wdcount < numberRangeTop) {
+        while (!overcount) {
+            if ((wdcount*2) <= numberRangeTop) {
+                //Grow exponentially
+                wdcount += wdcount;
+                output += output;
+            } else if ((wdcount+iterate) <= numberRangeTop) {
+                //Grow line-by-line
+                wdcount += iterate;
+                output += rowblock;
+            } else {
+                //Grow one-by-one
+                wdcount += 1;
                 output += wingding;
             }
-            i+=iterate;
-        } else {
-            output += rowblock;
+
+            if (wdcount >= numberRangeTop) {
+                overcount = true;
+            }
         }
     }
 
@@ -263,8 +285,9 @@ var buildWingdingGrid = function() {
       output += "</div>";
     }
 
-    output += "</div>";
+    output = "<div id=\"container-inner\">" + output + "</div>";
 
+    // TODO: must be a way to turn this into an equation...
     if (numberRangeTop > 9312) {
       $("#container").css("font-size", "0.3em");
     } else if (numberRangeTop > 5256) {
@@ -311,7 +334,7 @@ var buildWingdingGrid = function() {
 
 $(document).ready(function() {
     
-    $('#wingdings').click(function() {
+    $('#wingdings').change(function() {
         buildWingdingGrid();
     });
 
