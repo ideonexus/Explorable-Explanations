@@ -79,6 +79,10 @@
         color: white;
     }
 
+    .highlighted {
+        color: yellow;
+    }
+
     .def {
         font-size: 0.5em;
     }
@@ -294,7 +298,8 @@ var allchoices = [];
 var playertilecoordinates = [[],[]];
 var playertileorientations = [[],[]];
 var activeplayer = 0;
-var maxdepth = null;
+var maxdepth = 10;
+var coords, moveindex;
 
 var board = [
     [null, null, null],
@@ -302,11 +307,46 @@ var board = [
     [null, null, null]
 ]
 
+var getValidMoves = function(coords, orient, board) {
+    
+    var validmoves = [];
+    validmoves.push(coords);
+
+    for (var i = 0; i < 3; i++) {
+        for (var j = 0; j < 3; j++) {
+            var elementid = '#' + i + '-' + j;
+            if (board[i][j] === null)
+            {
+                // Highlight legal moves
+                // 0-straight, 1-diagonal
+                if (orient === 0 && (coords[0] == i || coords[1] == j)) { 
+                    //Straight: Highlight open tiles left/right and above/below
+                    validmoves.push([i,j]);
+                } else if (orient === 1 && (
+                        (coords[0] == (i-2) && coords[1] == (j-2))
+                        || (coords[0] == (i-1) && coords[1] == (j-1))
+                        || (coords[0] == (i-1) && coords[1] == (j+1))
+                        || (coords[0] == (i+1) && coords[1] == (j-1))
+                        || (coords[0] == (i+1) && coords[1] == (j+1))
+                        || (coords[0] == (i+2) && coords[1] == (j+2))
+                        || (coords[0] == (i-2) && coords[1] == (j+2))
+                        || (coords[0] == (i+2) && coords[1] == (j-2))
+                    )
+                  ) { 
+                    //Diagonal: Highlight open tiles above/below-left, above/below-right.
+                    validmoves.push([i,j]);
+                }
+            }
+        }
+    }
+
+    return validmoves;
+}
+
 var checkWin = function(board) {
 
     // Check if someone won
     vals = [0, 1];
-    var allNotNull = true;
     for (var k = 0; k < vals.length; k++) {
         var value = vals[k];
 
@@ -329,9 +369,6 @@ var checkWin = function(board) {
                 if (board[j][i] != value) {
                     colComplete = false;
                 }
-                if (board[i][j] == null) {
-                    allNotNull = false;
-                }
             }
             if (rowComplete || colComplete) {
                 return true;
@@ -341,87 +378,252 @@ var checkWin = function(board) {
             return true;
         }
     }
-    if (allNotNull) {
-        return false;
-    }
+
     return null;
 }
 
-var recurseMinimax = function(possibleplayertilecoordinates, player, depth) {
-    //console.log("max/depth: " + maxdepth + ":" + depth);
-    if (maxdepth != null && depth > maxdepth) return [0, possibleplayertilecoordinates];
+var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, player, depth) {
+    //Note: It's impossible to tie in twist-tac-toe.
+    if (depth > maxdepth || numNodes > 100000) return [0, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
     var notplayer = (1 - player); //Switches player for next recursive call.
     numNodes++;
-    var wincheck = checkWin(possibleplayertilecoordinates);
-    if (wincheck === false) {
-         return [0, possibleplayertilecoordinates]; //Tie
-    } else if (wincheck === true) {
+    var wincheck = checkWin(possibleboards);
+    if (wincheck === true) {
         if (notplayer == activeplayer) {
             // AI wins. Sooner the win, higher the score.
-            return [10-depth, possibleplayertilecoordinates];
+            return [10-depth, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
         } else {
             // opponent wins. Sooner the win, lower the score.
-            return [depth-10, possibleplayertilecoordinates];
+            return [depth-10, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
         }
     } else {
         // Next states
         var nextVal = null;
-        var nextBoard = null;
+        var nextboard = null;
+        var nextplayertilecoordinates = null;
+        var nextpossibleplayertileorientations = null;
+        var nextdepth = depth + 1;
 
-        for (var i = 0; i < 3; i++) {
-            for (var j = 0; j < 3; j++) {
-                if (possibleplayertilecoordinates[i][j] == null) {
-                    possibleplayertilecoordinates[i][j] = player;
-                    var value = recurseMinimax(possibleplayertilecoordinates, notplayer, depth)[0];
-                    if ((player && (nextVal == null || value > nextVal)) || (notplayer && (nextVal == null || value < nextVal))) {
-                        nextBoard = possibleplayertilecoordinates.map(function(arr) {
-                            return arr.slice();
-                        });
-                        nextVal = value;
+        //First check all possible tile moves
+        for (var i = 0; i < possibleplayertilecoordinates[player].length; i++) {
+            var possiblemoves = getValidMoves(possibleplayertilecoordinates[player][i], possibleplayertileorientations[player][i], possibleboards);
+            for (var p = 0; p < possiblemoves.length; p++) {
+                var tempmove = possibleplayertilecoordinates[player][i];
+                var temporient = possibleplayertileorientations[player][i];
+                if (possiblemoves[p][0] == possibleplayertilecoordinates[player][i][0] && possiblemoves[p][1] == possibleplayertilecoordinates[player][i][1]) {
+                    //Reorient
+                    possibleplayertileorientations[player][i] = 1 - possibleplayertileorientations[player][i];
+                } else {
+                    //Move
+                    possibleboards[possibleplayertilecoordinates[player][i][0]][possibleplayertilecoordinates[player][i][1]] = null;
+                    possibleplayertilecoordinates[player][i] = possiblemoves[p];
+                    possibleboards[possibleplayertilecoordinates[player][i][0]][possibleplayertilecoordinates[player][i][1]] = player;
+                }
+
+                var value = recurseMinimax(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, notplayer, nextdepth)[0];
+                if ((player && (nextVal == null || value > nextVal)) || (notplayer && (nextVal == null || value < nextVal))) {
+                    nextboard = possibleboards.map(function(arr) {
+                        return arr.slice();
+                    });
+                    nextplayertilecoordinates = possibleplayertilecoordinates.map(function(arr) {
+                        return arr.slice();
+                    });
+                    nextpossibleplayertileorientations = possibleplayertileorientations.map(function(arr) {
+                        return arr.slice();
+                    });
+                    nextVal = value;
+                }
+
+                //IMPORTANT: Reset values for exploring other branches.
+                possibleplayertilecoordinates[player][i] = tempmove;
+                possibleplayertileorientations[player][i] = temporient;
+                possibleboards[tempmove[0]][tempmove[1]] = player;
+                possibleboards[possiblemoves[p][0]][possiblemoves[p][1]] = null;
+            }
+        }
+
+        //The check all possible tile placements
+        if (possibleplayertilecoordinates[player].length < 3) {
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    if (possibleboards[i][j] == null) {
+                        possibleboards[i][j] = player;
+                        possibleplayertilecoordinates[player].push([i,j]);
+                        possibleplayertileorientations[player].push(0);
+                        var value = recurseMinimax(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, notplayer, nextdepth)[0];
+                        if ((player && (nextVal == null || value > nextVal)) || (notplayer && (nextVal == null || value < nextVal))) {
+                            nextboard = possibleboards.map(function(arr) {
+                                return arr.slice();
+                            });
+                            nextplayertilecoordinates = possibleplayertilecoordinates.map(function(arr) {
+                                return arr.slice();
+                            });
+                            nextpossibleplayertileorientations = possibleplayertileorientations.map(function(arr) {
+                                return arr.slice();
+                            });
+                            nextVal = value;
+                        }
+
+                        //Test other orientation.
+                        possibleplayertileorientations[player].pop();
+                        possibleplayertileorientations[player].push(1);
+                        value = recurseMinimax(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, notplayer, nextdepth)[0];
+                        if ((player && (nextVal == null || value > nextVal)) || (notplayer && (nextVal == null || value < nextVal))) {
+                            nextboard = possibleboards.map(function(arr) {
+                                return arr.slice();
+                            });
+                            nextplayertilecoordinates = possibleplayertilecoordinates.map(function(arr) {
+                                return arr.slice();
+                            });
+                            nextpossibleplayertileorientations = possibleplayertileorientations.map(function(arr) {
+                                return arr.slice();
+                            });
+                            nextVal = value;
+                        }
+
+                        //Important: Set everything back
+                        possibleboards[i][j] = null;
+                        possibleplayertilecoordinates[player].pop();
+                        possibleplayertileorientations[player].pop();
                     }
-                    possibleplayertilecoordinates[i][j] = null;
                 }
             }
         }
-        return [nextVal, nextBoard];
+
+        return [nextVal, nextboard, nextplayertilecoordinates, nextpossibleplayertileorientations];
     }
 }
 
 var minimaxMove = function(depth) {
     maxdepth = depth;
     numNodes = 0;
-    var possibleplayertilecoordinates = copyArray(board);
+    var possibleboards = copyArray(board);
+    var possibleplayertilecoordinates = copyArray(playertilecoordinates);
+    var possibleplayertileorientations = copyArray(playertileorientations);
     //This will return an array of the optimal path the algorithm finds.
-    var nextboard = recurseMinimax(possibleplayertilecoordinates, activeplayer, 0)[1];
+    var nextstate = recurseMinimax(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, activeplayer, 0);
     //Grab the first move not already made as the AI's next move.
-    var nextmove = []
-    for (var i = 0; i < 3; i++) {
-      for (var j = 0; j < 3; j++) {
-          if (board[i][j] !== nextboard[i][j]) {
-              nextmove.push(i + "-" + j)
-          }
-      }
+    possibleplayertilecoordinates = nextstate[2];
+    possibleplayertileorientations = nextstate[3];
+    var currmoveid, nextmoveid, nextorient;
+    if (possibleplayertilecoordinates[activeplayer].length > playertilecoordinates[activeplayer].length) {
+        //New Tile Placed.
+        var lastcoords = possibleplayertilecoordinates[activeplayer].pop();
+        nextmoveid = lastcoords[0] + "-" + lastcoords[1];
+        nextorient = possibleplayertileorientations[activeplayer].pop();
+        $('#' + nextmoveid).trigger( "click" );
+        if (nextorient != 0) {
+            window.setTimeout(function() {
+                $( "#" + nextmoveid).trigger( "click" );
+            }, 500);            
+        } else {
+            window.setTimeout(function() {
+                passTurn();
+            }, 500);
+        }
+    } else {
+        //Find the modified move.
+        for (var i = 0; i < possibleplayertilecoordinates[activeplayer].length; i++) {
+            if (playertilecoordinates[activeplayer][i] != possibleplayertilecoordinates[activeplayer][i]
+                || playertileorientations[activeplayer][i] != possibleplayertileorientations[activeplayer][i]) {
+                currmoveid = playertilecoordinates[activeplayer][i][0] + "-" + playertilecoordinates[activeplayer][i][1];
+                nextmoveid = possibleplayertilecoordinates[activeplayer][i][0] + "-" + possibleplayertilecoordinates[activeplayer][i][1];
+
+                $('#' + currmoveid).trigger( "click" );
+
+                if (currmoveid != nextmoveid) {
+                    window.setTimeout(function() {
+                        $( "#" + nextmoveid).trigger( "click" );
+                    }, 500);
+                }
+            }
+
+            if (playertileorientations[activeplayer][i] != possibleplayertileorientations[activeplayer][i]) {
+                window.setTimeout(function() {
+                    $( "#" + nextmoveid).trigger( "click" );
+                }, 500);
+            } else if (playertilecoordinates[activeplayer][i] != possibleplayertilecoordinates[activeplayer][i]) {
+                window.setTimeout(function() {
+                    passTurn();
+                }, 500);
+            }
+        }
     }
 
     console.log("numNodes: " + numNodes);
-    window.setTimeout(function() {
-        $( "#" + nextmove).trigger( "click" );
-    }, 1000);
+
 }
 
+
 var randomMove = function() {
-    options = [];
-    for (var i = 0; i < 3; i++) {
-      for (var j = 0; j < 3; j++) {
-          if (board[i][j] == null) {
-              options.push(i + "-" + j)
-          }
-      }
+    var nextmove = null;
+    var highlighted = $(".highlighted").length;
+    if (highlighted) {
+        //Select a random highlighted square
+        var options = [];
+        $(".highlighted").each(function(){
+            options.push($(this).attr('id'));
+        });
+
+        if (options.length == 1) {
+            // 50/50 chance of reorienting
+            if (Math.random() >= 0.5) {
+                nextmove = options[0];
+            }
+        } else {
+            nextmove = options[Math.floor(Math.random() * options.length)];
+        }
+    } else {
+        if(playertilecoordinates[activeplayer].length < 3) {
+            //Add a piece to a random square.
+            var options = [];
+            for (var i = 0; i < 3; i++) {
+              for (var j = 0; j < 3; j++) {
+                  if (board[i][j] == null) {
+                      options.push(i + "-" + j);
+                  }
+              }
+            }
+
+            nextmove = options[Math.floor(Math.random() * options.length)];
+        } else {
+            //Select a random piece to move.
+            var nextmovecoords = playertilecoordinates[activeplayer][Math.floor(Math.random() * playertilecoordinates[activeplayer].length)];
+            nextmove = nextmovecoords[0] + "-" + nextmovecoords[1];
+        }
     }
-    var nextmove = options[Math.floor(Math.random() * options.length)];
+
     window.setTimeout(function() {
-        $( "#" + nextmove).trigger( "click" );
-    }, 1000);
+      if (nextmove != null) {
+          $( "#" + nextmove).trigger( "click" );
+      } else {
+          passTurn();
+      }
+    }, 500);
+}
+
+var passTurn = function() {
+    $("li").removeClass("highlighted");
+    $("span").removeClass("highlighted");
+    coords = null;
+    moveindex = null;
+    
+    if (checkWin(board)) {
+        $('#sentence').html("Player " + (activeplayer+1) + " wins!");
+        winAnimation();
+    } else {
+        activeplayer = 1 - activeplayer;
+        if ($('#player' + activeplayer).val() != 'human') {
+              $("#sentence").html("Computer moving.");
+             if ($('#player' + activeplayer).val() == "0") {
+                randomMove();
+            } else {
+                minimaxMove(parseInt($('#player' + activeplayer).val()));
+            }
+        } else {
+            $("#sentence").html("Human moving.");
+        }
+    }
 }
 
 var newGame = function() {
@@ -432,6 +634,8 @@ var newGame = function() {
         [null, null, null]
     ];
     activeplayer = 0;
+    playertilecoordinates = [[],[]];
+    playertileorientations = [[],[]];
 
     // html for the board
     var output = "<ol>"; 
@@ -439,7 +643,7 @@ var newGame = function() {
     {
         for(var y = 0; y < board[x].length; y++)
         {
-            output += "<li id=\"" + x + "-" + y + "\"><span></span></li>";
+            output += "<li id=\"" + x + "-" + y + "\"></li>";
         }
     }
     output += "</ol>";
@@ -456,34 +660,82 @@ var newGame = function() {
             imgSrc = "o";
         }
 
-        if ($(this).children("span").hasClass("face-up") === false && playertilecoordinates[activeplayer].length < 3) {
-            var coords = $(this).attr('id').split("-");
+        if ($(this).hasClass("highlighted")) {
+            
+            //Second Click
+            var newcoords = $.map($(this).attr('id').split("-"), function(value) {
+                return parseInt(value);
+            });
+
+            if (newcoords[0] == coords[0] && newcoords[1] == coords[1]) {
+                //Reorient
+                orient = 1 - playertileorientations[activeplayer][moveindex];
+                playertileorientations[activeplayer][moveindex] = orient;
+                $(this).html($('<img>',{src:'img/' + imgSrc + orient + '.png'}));
+                passTurn();
+                return;
+            } else {
+                //Move
+                $("li").removeClass("highlighted");
+                var coordid = '#' + coords[0] + '-' + coords[1];
+                $(coordid).removeClass("face-up");
+                $(coordid).removeClass(playerclass);
+                $(coordid).html("");
+
+                board[coords[0]][coords[1]] = null;
+                coords = newcoords;
+                board[coords[0]][coords[1]] = activeplayer;
+                playertilecoordinates[activeplayer][moveindex] = coords;
+                orient = playertileorientations[activeplayer][moveindex];
+                $(this).addClass("highlighted");
+                $(this).addClass("face-up " + playerclass);
+                $(this).html($('<img>',{src:'img/' + imgSrc + orient + '.png'}));
+            }
+
+        } else if (!$(".highlighted").length && $(this).hasClass("face-up") === false && playertilecoordinates[activeplayer].length < 3) {
+            
+            coords = $.map($(this).attr('id').split("-"), function(value){
+                return parseInt(value);
+            });
+
             playertilecoordinates[activeplayer].push(coords);
-            //TODO: how to set straight/diagonal on initial placement?????
-            playertileorientations[activeplayer].push(1); // 0-straight, 1-diagonal
+            //Click again to change orientation or pass turn. - Pass Turn button.
+            var orient = 0;
+            playertileorientations[activeplayer].push(orient); // 0-straight, 1-diagonal
+            moveindex = (playertileorientations[activeplayer].length - 1);
             board[coords[0]][coords[1]] = activeplayer;
 
-            $(this).children("span").addClass("face-up " + playerclass)
-                .prepend($('<img>',{src:'img/' + imgSrc + '.png'}));
+            $(this).html($('<img>',{src:'img/' + imgSrc + orient + '.png'}));
             $(this).addClass("face-up " + playerclass);
             
-            if (checkWin(board)) {
-                $('#sentence').html("Player " + (activeplayer+1) + " wins!");
-                winAnimation();
-            } else {
-                activeplayer = 1 - activeplayer;
-                if ($('#player' + activeplayer).val() != 'human') {
-                    if ($('#player' + activeplayer).val() == "0") {
-                        randomMove();
-                    } else {
-                        minimaxMove(parseInt($('#player' + activeplayer).val()));
-                    }
+            $(this).addClass("highlighted");
+            $("#sentence").html("Click again to reorient or click pass turn.");
+
+        } else if ($(this).hasClass("face-up") && $(this).hasClass(playerclass)) {
+            
+            coords = $.map($(this).attr('id').split("-"), function(value) {
+                return parseInt(value);
+            });
+
+            for (var i = 0; i < playertilecoordinates[activeplayer].length; i++) {
+                if (playertilecoordinates[activeplayer][i][0] == coords[0]
+                    && playertilecoordinates[activeplayer][i][1] == coords[1]) {
+                    moveindex = i;
                 }
             }
-        } else if ($(this).children("span").hasClass("face-up") && $(this).children("span").hasClass(playerclass)) {
-            // Highlight legal moves
+
+            var orient = playertileorientations[activeplayer][moveindex];
+
+            var validmoves = getValidMoves(coords, orient, board);
+
+            for (var i = 0; i < validmoves.length; i++) {
+                $('#' + validmoves[i][0] + '-' + validmoves[i][1]).addClass("highlighted");
+            }
+
+            $("#sentence").html("Click again to reorient or click an empty square to move.");
 
         }
+
     });
 
     //If player 0 is the AI, make a move.
@@ -513,19 +765,20 @@ $(document).ready(function() {
           <select id="player0">
               <option value="human">P1: Human</option>
               <option value="0">P1: Easy Computer</option>
-              <option value="2">P1: Moderate Computer</option>
-              <option value="4">P1: Hard Computer</option>
-              <option value="10">P1: Unbeatable Computer</option>
+              <option value="4">P1: Moderate Computer</option>
+              <option value="5">P1: Hard Computer</option>
+              <option value="7">P1: Unbeatable Computer</option>
           </select>
           <select id="player1">
               <option value="human">P2: Human</option>
-              <option value="0" selected>P2: Easy Computer</option>
-              <option value="2">P2: Moderate Computer</option>
-              <option value="4">P2: Hard Computer</option>
-              <option value="10">P2: Unbeatable Computer</option>
+              <option value="0">P2: Easy Computer</option>
+              <option value="4" selected>P2: Moderate Computer</option>
+              <option value="5">P2: Hard Computer</option>
+              <option value="7">P2: Unbeatable Computer</option>
           </select>
       </div>
       <div class="formrow">
+          <input type="button" value="Pass Turn" onclick="passTurn();" class="myButton" />
           <input type="button" value="New Game" onclick="newGame();" class="myButton" />
           <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
       </div>
