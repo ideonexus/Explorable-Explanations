@@ -293,6 +293,8 @@ var copyArray = function(oldarray) {
 // AI minmax search for best numbers.
 // Built from numerous online examples, but Vivek Panyam's is the most intuitive:
 // https://blog.vivekpanyam.com/how-to-build-an-ai-that-wins-the-basics-of-minimax-search/
+// and diegocasmo's is my favorite:
+// https://github.com/diegocasmo/tic-tac-toe-minimax/blob/master/js/main.js
 var numNodes = 0;
 var allchoices = [];
 var playertilecoordinates = [[],[]];
@@ -382,119 +384,130 @@ var checkWin = function(board) {
     return null;
 }
 
+var maxscore = null;
+var maxscoremove = null;
+
 var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, player, depth) {
     //Note: It's impossible to tie in twist-tac-toe.
-    if (depth > maxdepth || numNodes > 100000) return [0, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
-    var notplayer = (1 - player); //Switches player for next recursive call.
+    if (depth > maxdepth || numNodes > 200000) {
+        return [0, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
+    }
+
     numNodes++;
+    //WinCheck the last board state for a win before continuing
+    //to check new states.
     var wincheck = checkWin(possibleboards);
     if (wincheck === true) {
-        if (notplayer == activeplayer) {
-            // AI wins. Sooner the win, higher the score.
-            return [10-depth, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
+        if (player !== activeplayer) {
+            // Active player wins. Sooner the win, higher the score.
+            return [maxdepth+depth, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
         } else {
             // opponent wins. Sooner the win, lower the score.
-            return [depth-10, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
+            return [depth-maxdepth, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
         }
     } else {
         // Next states
-        var nextVal = null;
-        var nextboard = null;
-        var nextplayertilecoordinates = null;
-        var nextpossibleplayertileorientations = null;
+        var notplayer = (1 - player); //Switches player for next recursive call.
+        var scores = [];
+        var states = [];
         var nextdepth = depth + 1;
+        var copypossibleplayertilecoordinates;
+        var copypossibleplayertileorientations;
+        var copypossibleboards;
 
-        //First check all possible tile moves
-        for (var i = 0; i < possibleplayertilecoordinates[player].length; i++) {
-            var possiblemoves = getValidMoves(possibleplayertilecoordinates[player][i], possibleplayertileorientations[player][i], possibleboards);
-            for (var p = 0; p < possiblemoves.length; p++) {
-                var tempmove = possibleplayertilecoordinates[player][i];
-                var temporient = possibleplayertileorientations[player][i];
-                if (possiblemoves[p][0] == possibleplayertilecoordinates[player][i][0] && possiblemoves[p][1] == possibleplayertilecoordinates[player][i][1]) {
-                    //Reorient
-                    possibleplayertileorientations[player][i] = 1 - possibleplayertileorientations[player][i];
-                } else {
-                    //Move
-                    possibleboards[possibleplayertilecoordinates[player][i][0]][possibleplayertilecoordinates[player][i][1]] = null;
-                    possibleplayertilecoordinates[player][i] = possiblemoves[p];
-                    possibleboards[possibleplayertilecoordinates[player][i][0]][possibleplayertilecoordinates[player][i][1]] = player;
-                }
-
-                var value = recurseMinimax(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, notplayer, nextdepth)[0];
-                if ((player && (nextVal == null || value > nextVal)) || (notplayer && (nextVal == null || value < nextVal))) {
-                    nextboard = possibleboards.map(function(arr) {
-                        return arr.slice();
-                    });
-                    nextplayertilecoordinates = possibleplayertilecoordinates.map(function(arr) {
-                        return arr.slice();
-                    });
-                    nextpossibleplayertileorientations = possibleplayertileorientations.map(function(arr) {
-                        return arr.slice();
-                    });
-                    nextVal = value;
-                }
-
-                //IMPORTANT: Reset values for exploring other branches.
-                possibleplayertilecoordinates[player][i] = tempmove;
-                possibleplayertileorientations[player][i] = temporient;
-                possibleboards[tempmove[0]][tempmove[1]] = player;
-                possibleboards[possiblemoves[p][0]][possiblemoves[p][1]] = null;
-            }
-        }
-
-        //The check all possible tile placements
+        //Prioritize tile placements.
         if (possibleplayertilecoordinates[player].length < 3) {
             for (var i = 0; i < 3; i++) {
                 for (var j = 0; j < 3; j++) {
                     if (possibleboards[i][j] == null) {
-                        possibleboards[i][j] = player;
-                        possibleplayertilecoordinates[player].push([i,j]);
-                        possibleplayertileorientations[player].push(0);
-                        var value = recurseMinimax(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, notplayer, nextdepth)[0];
-                        if ((player && (nextVal == null || value > nextVal)) || (notplayer && (nextVal == null || value < nextVal))) {
-                            nextboard = possibleboards.map(function(arr) {
-                                return arr.slice();
-                            });
-                            nextplayertilecoordinates = possibleplayertilecoordinates.map(function(arr) {
-                                return arr.slice();
-                            });
-                            nextpossibleplayertileorientations = possibleplayertileorientations.map(function(arr) {
-                                return arr.slice();
-                            });
-                            nextVal = value;
-                        }
+                        copypossibleplayertilecoordinates = copyArray(possibleplayertilecoordinates);
+                        copypossibleplayertileorientations = copyArray(possibleplayertileorientations);
+                        copypossibleboards = copyArray(possibleboards);
+
+                        copypossibleboards[i][j] = player;
+                        copypossibleplayertilecoordinates[player].push([i,j]);
+                        copypossibleplayertileorientations[player].push(0);
+                        
+                        scores.push(recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth)[0]);
+                        states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
 
                         //Test other orientation.
-                        possibleplayertileorientations[player].pop();
-                        possibleplayertileorientations[player].push(1);
-                        value = recurseMinimax(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, notplayer, nextdepth)[0];
-                        if ((player && (nextVal == null || value > nextVal)) || (notplayer && (nextVal == null || value < nextVal))) {
-                            nextboard = possibleboards.map(function(arr) {
-                                return arr.slice();
-                            });
-                            nextplayertilecoordinates = possibleplayertilecoordinates.map(function(arr) {
-                                return arr.slice();
-                            });
-                            nextpossibleplayertileorientations = possibleplayertileorientations.map(function(arr) {
-                                return arr.slice();
-                            });
-                            nextVal = value;
-                        }
+                        copypossibleplayertileorientations[player].pop();
+                        copypossibleplayertileorientations[player].push(1);
 
-                        //Important: Set everything back
-                        possibleboards[i][j] = null;
-                        possibleplayertilecoordinates[player].pop();
-                        possibleplayertileorientations[player].pop();
+                        scores.push(recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth)[0]);
+                        states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
                     }
                 }
             }
         }
 
-        return [nextVal, nextboard, nextplayertilecoordinates, nextpossibleplayertileorientations];
+        //Then check all possible tile moves
+        for (var i = 0; i < possibleplayertilecoordinates[player].length; i++) {
+            var possiblemoves = getValidMoves(possibleplayertilecoordinates[player][i], possibleplayertileorientations[player][i], possibleboards);
+            for (var p = 0; p < possiblemoves.length; p++) {
+                copypossibleplayertilecoordinates = copyArray(possibleplayertilecoordinates);
+                copypossibleplayertileorientations = copyArray(possibleplayertileorientations);
+                copypossibleboards = copyArray(possibleboards);
+
+                if (copypossibleplayertilecoordinates[player][i] == possiblemoves[p]) {
+                    //Reorient
+                    copypossibleplayertileorientations[player][i] = 1 - copypossibleplayertileorientations[player][i];
+                } else {
+                    //Move
+                    copypossibleboards[copypossibleplayertilecoordinates[player][i][0]][copypossibleplayertilecoordinates[player][i][1]] = null;
+                    copypossibleplayertilecoordinates[player][i] = possiblemoves[p];
+                    copypossibleboards[copypossibleplayertilecoordinates[player][i][0]][copypossibleplayertilecoordinates[player][i][1]] = player;
+                }
+
+                scores.push(recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth)[0]);
+                states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
+            }
+        }
+
+        var max_score, max_score_index;
+        var min_score, min_score_index;
+        var score, choice;
+        //Take the move with the best score if current player.
+        if (player === activeplayer) {
+            max_score = Math.max.apply(Math, scores);
+            max_score_index = scores.indexOf(max_score);
+            choice = states[max_score_index];
+            score = scores[max_score_index];
+        } else {
+        //Take the move with the worse score if opponent.
+            min_score = Math.min.apply(Math, scores);
+            min_score_index = scores.indexOf(min_score);
+            choice = states[min_score_index];
+            score = scores[min_score_index];
+        }
+
+        //TEMPORARY KLUGE ALERT ----------------------------
+        //SCORE IS ALWAYS GETTING SET TO TIE VALUE
+        if (maxscore == null) {
+            maxscore = score;
+            maxscoremove = [score, choice[0], choice[1], choice[2]];
+        }
+
+        //if (score != 0) {
+        //    if (score > maxscore) {
+        //        console.log(score + ":"+maxscore+":"+depth+"\n");
+        //        maxscore = score;
+        //        maxscoremove = [score, choice[0], choice[1], choice[2]];
+        //    }
+        //    else if (score < maxscore) {
+        //        console.log(score + ":"+maxscore+":"+depth+"\n");
+        //    }
+        //}
+        //END TEMPORARY KLUGE ALERT ----------------------------
+
+        return [score, choice[0], choice[1], choice[2]];
     }
 }
 
 var minimaxMove = function(depth) {
+    maxscore = null;
+    maxscoremove = null;
     maxdepth = depth;
     numNodes = 0;
     var possibleboards = copyArray(board);
@@ -502,6 +515,7 @@ var minimaxMove = function(depth) {
     var possibleplayertileorientations = copyArray(playertileorientations);
     //This will return an array of the optimal path the algorithm finds.
     var nextstate = recurseMinimax(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, activeplayer, 0);
+    //nextstate = maxscoremove;
     //Grab the first move not already made as the AI's next move.
     possibleplayertilecoordinates = nextstate[2];
     possibleplayertileorientations = nextstate[3];
@@ -532,20 +546,20 @@ var minimaxMove = function(depth) {
                 $('#' + currmoveid).trigger( "click" );
 
                 if (currmoveid != nextmoveid) {
-                    window.setTimeout(function() {
+                    //window.setTimeout(function() {
                         $( "#" + nextmoveid).trigger( "click" );
-                    }, 500);
+                    //}, 500);
                 }
             }
 
             if (playertileorientations[activeplayer][i] != possibleplayertileorientations[activeplayer][i]) {
-                window.setTimeout(function() {
+                //window.setTimeout(function() {
                     $( "#" + nextmoveid).trigger( "click" );
-                }, 500);
+                //}, 500);
             } else if (playertilecoordinates[activeplayer][i] != possibleplayertilecoordinates[activeplayer][i]) {
-                window.setTimeout(function() {
+                //window.setTimeout(function() {
                     passTurn();
-                }, 500);
+                //}, 500);
             }
         }
     }
@@ -557,49 +571,47 @@ var minimaxMove = function(depth) {
 
 var randomMove = function() {
     var nextmove = null;
-    var highlighted = $(".highlighted").length;
-    if (highlighted) {
-        //Select a random highlighted square
+
+    if(playertilecoordinates[activeplayer].length < 3) {
+        //Add a piece to a random square.
         var options = [];
-        $(".highlighted").each(function(){
-            options.push($(this).attr('id'));
-        });
-
-        if (options.length == 1) {
-            // 50/50 chance of reorienting
-            if (Math.random() >= 0.5) {
-                nextmove = options[0];
-            }
-        } else {
-            nextmove = options[Math.floor(Math.random() * options.length)];
-        }
-    } else {
-        if(playertilecoordinates[activeplayer].length < 3) {
-            //Add a piece to a random square.
-            var options = [];
-            for (var i = 0; i < 3; i++) {
-              for (var j = 0; j < 3; j++) {
-                  if (board[i][j] == null) {
-                      options.push(i + "-" + j);
-                  }
+        for (var i = 0; i < 3; i++) {
+          for (var j = 0; j < 3; j++) {
+              if (board[i][j] == null) {
+                  options.push(i + "-" + j);
               }
-            }
-
-            nextmove = options[Math.floor(Math.random() * options.length)];
-        } else {
-            //Select a random piece to move.
-            var nextmovecoords = playertilecoordinates[activeplayer][Math.floor(Math.random() * playertilecoordinates[activeplayer].length)];
-            nextmove = nextmovecoords[0] + "-" + nextmovecoords[1];
+          }
         }
+
+        nextmove = options[Math.floor(Math.random() * options.length)];
+        window.setTimeout(function() {
+            $( "#" + nextmove).trigger( "click" );
+            if (Math.random() >= 0.5) {
+                $( "#" + nextmove).trigger( "click" );
+            } else {
+                passTurn();
+            }
+        }, 500);
+    } else {
+        //Select a random piece to move.
+        var tileindex = Math.floor(Math.random() * playertilecoordinates[activeplayer].length);
+        var curmovecoords = playertilecoordinates[activeplayer][tileindex];
+        var curmoveid = curmovecoords[0] + "-" + curmovecoords[1];
+        var curmoveorient = playertileorientations[activeplayer][tileindex];
+        var validmoves = getValidMoves(curmovecoords, curmoveorient, board);
+        var validmoveindex = Math.floor(Math.random() * validmoves.length);
+        nextmove = validmoves[validmoveindex][0] + "-" + validmoves[validmoveindex][1];
+        $( "#" + curmoveid).trigger( "click" );
+        window.setTimeout(function() {
+            $( "#" + nextmove).trigger( "click" );
+            if (curmoveid != nextmove && Math.random() >= 0.5) {
+                $( "#" + nextmove).trigger( "click" );
+            } else {
+                passTurn();
+            }
+        }, 500);
     }
 
-    window.setTimeout(function() {
-      if (nextmove != null) {
-          $( "#" + nextmove).trigger( "click" );
-      } else {
-          passTurn();
-      }
-    }, 500);
 }
 
 var passTurn = function() {
@@ -741,8 +753,7 @@ var newGame = function() {
     //If player 0 is the AI, make a move.
     if ($('#player' + activeplayer).val() != 'human') {
         //Make first move random to make winning at hard level possible
-        if ($('#player' + activeplayer).val() == "0" 
-          || (parseInt($('#player' + activeplayer).val()) < 10 && playertilecoordinates[activeplayer].length == 0)) {
+        if ($('#player' + activeplayer).val() == "0") {
             randomMove();
         } else {
             minimaxMove(parseInt($('#player' + activeplayer).val()));
@@ -763,7 +774,7 @@ $(document).ready(function() {
     <form >
       <div class="formrow">
           <select id="player0">
-              <option value="human">P1: Human</option>
+              <option value="human" selected>P1: Human</option>
               <option value="0">P1: Easy Computer</option>
               <option value="4">P1: Moderate Computer</option>
               <option value="5">P1: Hard Computer</option>
@@ -772,9 +783,9 @@ $(document).ready(function() {
           <select id="player1">
               <option value="human">P2: Human</option>
               <option value="0">P2: Easy Computer</option>
-              <option value="4" selected>P2: Moderate Computer</option>
-              <option value="5">P2: Hard Computer</option>
-              <option value="7">P2: Unbeatable Computer</option>
+              <option value="5" selected>P2: Moderate Computer</option>
+              <option value="7">P2: Hard Computer</option>
+              <option value="12">P2: Unbeatable Computer</option>
           </select>
       </div>
       <div class="formrow">
