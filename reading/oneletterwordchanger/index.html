@@ -142,7 +142,38 @@ wordgroups["u"] = shortU;
 
 var currentWordGroup = shortA;
 
-var soundOn = true;
+var uppercase = true;
+
+function toggleCase() {
+    if (uppercase) {
+        uppercase = false;
+        $("#caseToggle").prop("value","Toggle UpperCase");
+        $("#letterone > option").each(function() {
+            this.text = this.text.toLowerCase();
+        });
+        $("#wordgroup > option").each(function() {
+            this.text = this.text.toLowerCase();
+        });
+        $("#letterthree > option").each(function() {
+            this.text = this.text.toLowerCase();
+        });
+    } else {
+        uppercase = true;
+        $("#caseToggle").prop("value","Toggle LowerCase");
+        $("#letterone > option").each(function() {
+            this.text = this.text.toUpperCase();
+        });
+        $("#wordgroup > option").each(function() {
+            this.text = this.text.toUpperCase();
+        });
+        $("#letterthree > option").each(function() {
+            this.text = this.text.toUpperCase();
+        });
+    }
+    if (soundOn) speakWord(baseWord);
+}
+
+var soundOn = false;
 
 var toggleSound = function() {
     if (soundOn) {
@@ -204,7 +235,9 @@ var changeWordGroup = function() {
         {
             selected = ' selected';
         }
-        option += '<option value="'+ letterOneOptions[i] + '"' + selected + '>' + letterOneOptions[i].toUpperCase() + '</option>';
+        var letteroption = letterOneOptions[i].toUpperCase();
+        if (!uppercase) { letteroption = letteroption.toLowerCase(); }
+        option += '<option value="'+ letterOneOptions[i] + '"' + selected + '>' + letteroption + '</option>';
         selected = '';
     }
     $('#letterone').find('option').remove().end().append(option);
@@ -216,7 +249,9 @@ var changeWordGroup = function() {
         {
             selected = ' selected';
         }
-        option += '<option value="'+ letterThreeOptions[i] + '"' + selected + '>' + letterThreeOptions[i].toUpperCase() + '</option>';
+        var letteroption = letterThreeOptions[i].toUpperCase();
+        if (!uppercase) { letteroption = letteroption.toLowerCase(); }
+        option += '<option value="'+ letterThreeOptions[i] + '"' + selected + '>' + letteroption + '</option>';
         selected = '';
     }
     $('#letterthree').find('option').remove().end().append(option);
@@ -225,7 +260,9 @@ var changeWordGroup = function() {
 var populateWordgroupSelector = function() {
     var option = '';
     for (var key in wordgroups) {
-       option += '<option value="'+ key + '">' + key.toUpperCase() + '</option>';
+        var letteroption = key.toUpperCase();
+        if (!uppercase) { letteroption = letteroption.toLowerCase(); }
+        option += '<option value="'+ key + '">' + letteroption + '</option>';
     }
     $('#wordgroup').append(option);
     $('#wordgroup').change(function() {
@@ -313,8 +350,8 @@ $( document ).ready(function() {
 
 <div class="footer">
 <form>
-    <p><input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" /></p>
-    <p>Word Groups from <a href="http://www.montessorimom.com/phonetic-word-list/">Montessori Mom Phonentic Word List</a></p>
+    <p><input type="button" value="Toggle Lowercase" onclick="toggleCase();" class="myButton" id="caseToggle" /><input type="button" value="Sound On" onclick="toggleSound();" class="myButton" id="soundToggle" /></p>
+    <p>Word Groups from <a href="http://www.montessorimom.com/phonetic-word-list/">Montessori Mom Phonentic Word List</a>. Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational virtual manipulatives.</p>
 </form>
 </div>
 
