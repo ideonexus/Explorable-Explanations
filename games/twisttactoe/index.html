@@ -391,12 +391,13 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
         return [0, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
     }
 
+    var maximizingplayer = (player === activeplayer);
     numNodes++;
     //WinCheck the last board state for a win before continuing
     //to check new states.
     var wincheck = checkWin(possibleboards);
     if (wincheck === true) {
-        if (player !== activeplayer) {
+        if (!maximizingplayer) {
             // Active player wins. Sooner the win, higher the score.
             return [maxdepth-depth, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
         } else {
@@ -407,7 +408,7 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
         // Alpha/Beta Pruning to kill branches and improve algorithm efficiency.
         // https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/
         var best;
-        if (player === activeplayer) {
+        if (maximizingplayer) {
             best = MIN;
         } else {
             best = MAX;
@@ -435,14 +436,17 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
                         copypossibleplayertilecoordinates[player].push([i,j]);
                         copypossibleplayertileorientations[player].push(0);
                         
-                        scores.push(recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0]);
+                        var score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
+                        //Give slight edge to tile-placement.
+                        //score += (maximizingplayer) ? 0.5 : -0.5;
+                        scores.push(score);
                         states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
 
-                        if (player === activeplayer) {
-                            best = Math.max(best, scores[scores.length-1]);
+                        if (maximizingplayer) {
+                            best = Math.max(best, score);
                             alpha = Math.max(alpha, best);
                         } else {
-                            best = Math.min(best, scores[scores.length-1]);
+                            best = Math.min(best, score);
                             beta = Math.min(beta, best);
                         }
 
@@ -454,14 +458,16 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
                         copypossibleplayertileorientations[player].pop();
                         copypossibleplayertileorientations[player].push(1);
 
-                        scores.push(recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0]);
+                        score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
+                        score += (maximizingplayer) ? 0.5 : -0.5;
+                        scores.push(score);
                         states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
 
-                        if (player === activeplayer) {
-                            best = Math.max(best, scores[scores.length-1]);
+                        if (maximizingplayer) {
+                            best = Math.max(best, score);
                             alpha = Math.max(alpha, best);
                         } else {
-                            best = Math.min(best, scores[scores.length-1]);
+                            best = Math.min(best, score);
                             beta = Math.min(beta, best);
                         }
 
@@ -471,40 +477,58 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
                     }
                 }
             }
-        }
-
-        //Then check all possible tile moves
-        for (var i = 0; i < possibleplayertilecoordinates[player].length; i++) {
-            var possiblemoves = getValidMoves(possibleplayertilecoordinates[player][i], possibleplayertileorientations[player][i], possibleboards);
-            for (var p = 0; p < possiblemoves.length; p++) {
-                copypossibleplayertilecoordinates = copyArray(possibleplayertilecoordinates);
-                copypossibleplayertileorientations = copyArray(possibleplayertileorientations);
-                copypossibleboards = copyArray(possibleboards);
-
-                if (copypossibleplayertilecoordinates[player][i] == possiblemoves[p]) {
-                    //Reorient
-                    copypossibleplayertileorientations[player][i] = 1 - copypossibleplayertileorientations[player][i];
+        } else {
+            //Then check all possible tile moves
+            for (var i = 0; i < possibleplayertilecoordinates[player].length; i++) {
+                if (maximizingplayer) {
+                    best = MIN;
                 } else {
-                    //Move
-                    copypossibleboards[copypossibleplayertilecoordinates[player][i][0]][copypossibleplayertilecoordinates[player][i][1]] = null;
-                    copypossibleplayertilecoordinates[player][i] = possiblemoves[p];
-                    copypossibleboards[copypossibleplayertilecoordinates[player][i][0]][copypossibleplayertilecoordinates[player][i][1]] = player;
+                    best = MAX;
+                }
+                var possiblemoves = getValidMoves(possibleplayertilecoordinates[player][i], possibleplayertileorientations[player][i], possibleboards);
+                for (var p = 0; p < possiblemoves.length; p++) {
+                    copypossibleplayertilecoordinates = copyArray(possibleplayertilecoordinates);
+                    copypossibleplayertileorientations = copyArray(possibleplayertileorientations);
+                    copypossibleboards = copyArray(possibleboards);
+
+                    if (copypossibleplayertilecoordinates[player][i] == possiblemoves[p]) {
+                        //Reorient
+                        copypossibleplayertileorientations[player][i] = 1 - copypossibleplayertileorientations[player][i];
+                    } else {
+                        //Move
+                        copypossibleboards[copypossibleplayertilecoordinates[player][i][0]][copypossibleplayertilecoordinates[player][i][1]] = null;
+                        copypossibleplayertilecoordinates[player][i] = possiblemoves[p];
+                        copypossibleboards[copypossibleplayertilecoordinates[player][i][0]][copypossibleplayertilecoordinates[player][i][1]] = player;
+                    }
+
+                    var score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
+                    scores.push(score);
+                    states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
+
+                    if (maximizingplayer) {
+                        best = Math.max(best, score);
+                        alpha = Math.max(alpha, best);
+                    } else {
+                        best = Math.min(best, score);
+                        beta = Math.min(beta, best);
+                    }
+
+                    if (beta <= alpha) { 
+                        //break; 
+                    }
                 }
 
-                scores.push(recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0]);
-                states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
-
-                if (player === activeplayer) {
-                    best = Math.max(best, scores[scores.length-1]);
-                    alpha = Math.max(alpha, best);
-                } else {
-                    best = Math.min(best, scores[scores.length-1]);
-                    beta = Math.min(beta, best);
-                }
-
-                if (beta <= alpha) { 
-                    break; 
-                }
+                //if (maximizingplayer) {
+                //    best = Math.max(best, Math.max.apply(Math, scores));
+                //    alpha = Math.max(alpha, best);
+                //} else {
+                //    best = Math.min(best, Math.min.apply(Math, scores));
+                //    beta = Math.min(beta, best);
+                //}
+                //
+                //if (beta <= alpha) { 
+                //    break;
+                //}
             }
         }
 
@@ -512,7 +536,7 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
         var min_score, min_score_index;
         var score, choice;
         //Take the move with the best score if current player.
-        if (player === activeplayer) {
+        if (maximizingplayer) {
             max_score = Math.max.apply(Math, scores);
             if (depth === 0) {
                 //Grab a random move with best score
@@ -662,14 +686,14 @@ var passTurn = function() {
     } else {
         activeplayer = 1 - activeplayer;
         if ($('#player' + activeplayer).val() != 'human') {
-              $("#sentence").html("Computer moving.");
+              $("#sentence").html("P" + (activeplayer+1) + " Computer moving.");
              if ($('#player' + activeplayer).val() == "0") {
                 randomMove();
             } else {
                 minimaxMove(parseInt($('#player' + activeplayer).val()));
             }
         } else {
-            $("#sentence").html("Human moving.");
+            $("#sentence").html("P" + (activeplayer+1) + " Human moving.");
         }
     }
 }
@@ -812,16 +836,16 @@ $(document).ready(function() {
           <select id="player0">
               <option value="human" selected>P1: Human</option>
               <option value="0">P1: Easy Computer</option>
-              <option value="3">P1: Moderate Computer</option>
-              <option value="5">P1: Hard Computer</option>
-              <option value="6">P1: Unbeatable Computer?</option>
+              <option value="3">P1: 3-Depth Computer</option>
+              <option value="5">P1: 5-Depth Computer</option>
+              <!--option value="8">P1: Unbeatable Computer?</option-->
           </select>
           <select id="player1">
               <option value="human">P2: Human</option>
-              <option value="0">P2: Easy Computer</option>
-              <option value="3" selected>P2: Moderate Computer</option>
-              <option value="5">P2: Hard Computer</option>
-              <option value="6">P2: Unbeatable Computer?</option>
+              <option value="0">P2: Random Computer</option>
+              <option value="3" selected>P2: 3-Depth Computer</option>
+              <option value="5">P2: 5-Depth Computer</option>
+              <!--option value="8">P2: 8-Depth Computer?</option-->
           </select>
       </div>
       <div class="formrow">
