@@ -396,7 +396,7 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
     //WinCheck the last board state for a win before continuing
     //to check new states.
     var wincheck = checkWin(possibleboards);
-    if (wincheck === true) {
+    if (wincheck === true) { //Leaf node, return result.
         if (!maximizingplayer) {
             // Active player wins. Sooner the win, higher the score.
             return [maxdepth-depth, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
@@ -407,12 +407,21 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
     } else {
         // Alpha/Beta Pruning to kill branches and improve algorithm efficiency.
         // https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/
-        var best;
-        if (maximizingplayer) {
-            best = MIN;
-        } else {
-            best = MAX;
-        }
+
+//**************************************************************************************    
+// PROBLEM: Alpha-Beta pruning works wonders for algorithm efficiency, making computer
+// responses near-instantaneous, but the algorithm is also causing the computer to see some
+// obvious opponent wins as having the same score as tie results. Not sure why. I believe
+// it has something to do with the many places the pruning occurs.
+//**************************************************************************************    
+
+        //Alpha-Beta Pruning
+        //var best;
+        //if (maximizingplayer) {
+        //    best = MIN;
+        //} else {
+        //    best = MAX;
+        //}
 
         // Next states
         var notplayer = (1 - player); //Switches player for next recursive call.
@@ -428,6 +437,9 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
             for (var i = 0; i < 3; i++) {
                 for (var j = 0; j < 3; j++) {
                     if (possibleboards[i][j] == null) {
+
+                        //Branch One: Place tile on space oriented linearly.
+                        
                         copypossibleplayertilecoordinates = copyArray(possibleplayertilecoordinates);
                         copypossibleplayertileorientations = copyArray(possibleplayertileorientations);
                         copypossibleboards = copyArray(possibleboards);
@@ -437,63 +449,65 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
                         copypossibleplayertileorientations[player].push(0);
                         
                         var score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
-                        //Give slight edge to tile-placement.
-                        //score += (maximizingplayer) ? 0.5 : -0.5;
                         scores.push(score);
                         states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
 
-                        if (maximizingplayer) {
-                            best = Math.max(best, score);
-                            alpha = Math.max(alpha, best);
-                        } else {
-                            best = Math.min(best, score);
-                            beta = Math.min(beta, best);
-                        }
+                        //Alpha-Beta Pruning
+                        //if (maximizingplayer) {
+                        //    best = Math.max(best, score);
+                        //    alpha = Math.max(alpha, best);
+                        //} else {
+                        //    best = Math.min(best, score);
+                        //    beta = Math.min(beta, best);
+                        //}
+                        //
+                        //if (beta <= alpha) { 
+                        //    break; 
+                        //}
 
-                        if (beta <= alpha) { 
-                            break; 
-                        }
+                        //Branch Two: Place tile on space oriented diagonally.
 
-                        //Test other orientation.
                         copypossibleplayertileorientations[player].pop();
                         copypossibleplayertileorientations[player].push(1);
-
+                        
                         score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
-                        score += (maximizingplayer) ? 0.5 : -0.5;
                         scores.push(score);
                         states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
 
-                        if (maximizingplayer) {
-                            best = Math.max(best, score);
-                            alpha = Math.max(alpha, best);
-                        } else {
-                            best = Math.min(best, score);
-                            beta = Math.min(beta, best);
-                        }
+                        //Alpha-Beta Pruning
+                        //if (maximizingplayer) {
+                        //    best = Math.max(best, score);
+                        //    alpha = Math.max(alpha, best);
+                        //} else {
+                        //    best = Math.min(best, score);
+                        //    beta = Math.min(beta, best);
+                        //}
+                        //
+                        //if (beta <= alpha) { 
+                        //    break; 
+                        //}
 
-                        if (beta <= alpha) { 
-                            break; 
-                        }
                     }
                 }
             }
         } else {
             //Then check all possible tile moves
             for (var i = 0; i < possibleplayertilecoordinates[player].length; i++) {
-                if (maximizingplayer) {
-                    best = MIN;
-                } else {
-                    best = MAX;
-                }
                 var possiblemoves = getValidMoves(possibleplayertilecoordinates[player][i], possibleplayertileorientations[player][i], possibleboards);
                 for (var p = 0; p < possiblemoves.length; p++) {
+
+                    //Branch Three: possible tile movements.
+
                     copypossibleplayertilecoordinates = copyArray(possibleplayertilecoordinates);
                     copypossibleplayertileorientations = copyArray(possibleplayertileorientations);
                     copypossibleboards = copyArray(possibleboards);
 
+                    var tilemoved = true;
                     if (copypossibleplayertilecoordinates[player][i] == possiblemoves[p]) {
-                        //Reorient
+                        //Reorient in place.
                         copypossibleplayertileorientations[player][i] = 1 - copypossibleplayertileorientations[player][i];
+
+                        tilemoved = false;
                     } else {
                         //Move
                         copypossibleboards[copypossibleplayertilecoordinates[player][i][0]][copypossibleplayertilecoordinates[player][i][1]] = null;
@@ -505,19 +519,30 @@ var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, pos
                     scores.push(score);
                     states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
 
-                    if (maximizingplayer) {
-                        best = Math.max(best, score);
-                        alpha = Math.max(alpha, best);
-                    } else {
-                        best = Math.min(best, score);
-                        beta = Math.min(beta, best);
+                    //Test other orientation on move.
+                    if (tilemoved)
+                    {
+                        copypossibleplayertileorientations[player][i] = 1 - copypossibleplayertileorientations[player][i];
+                        score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
+                        scores.push(score);
+                        states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
                     }
 
-                    if (beta <= alpha) { 
-                        //break; 
-                    }
+                    //Alpha-Beta Pruning
+                    //if (maximizingplayer) {
+                    //    best = Math.max(best, score);
+                    //    alpha = Math.max(alpha, best);
+                    //} else {
+                    //    best = Math.min(best, score);
+                    //    beta = Math.min(beta, best);
+                    //}
+                    //
+                    //if (beta <= alpha) { 
+                    //    break; 
+                    //}
                 }
 
+                //Alpha-Beta Pruning
                 //if (maximizingplayer) {
                 //    best = Math.max(best, Math.max.apply(Math, scores));
                 //    alpha = Math.max(alpha, best);
@@ -580,6 +605,13 @@ var minimaxMove = function(depth) {
     possibleplayertilecoordinates = nextstate[2];
     possibleplayertileorientations = nextstate[3];
     var currmoveid, nextmoveid, nextorient;
+
+//**************************************************************************************    
+// PROBLEM: animating the computer movements with setTimeouts very quickly
+// starts messing up the sequence of operations, causing the computer to take
+// multiple moves or move for the human player. This is why setTimeouts are commented out.
+//**************************************************************************************    
+
     if (possibleplayertilecoordinates[activeplayer].length > playertilecoordinates[activeplayer].length) {
         //New Tile Placed.
         var lastcoords = possibleplayertilecoordinates[activeplayer].pop();
@@ -837,6 +869,7 @@ $(document).ready(function() {
               <option value="human" selected>P1: Human</option>
               <option value="0">P1: Easy Computer</option>
               <option value="3">P1: 3-Depth Computer</option>
+              <option value="4">P1: 4-Depth Computer</option>
               <option value="5">P1: 5-Depth Computer</option>
               <!--option value="8">P1: Unbeatable Computer?</option-->
           </select>
@@ -844,6 +877,7 @@ $(document).ready(function() {
               <option value="human">P2: Human</option>
               <option value="0">P2: Random Computer</option>
               <option value="3" selected>P2: 3-Depth Computer</option>
+              <option value="4">P2: 4-Depth Computer</option>
               <option value="5">P2: 5-Depth Computer</option>
               <!--option value="8">P2: 8-Depth Computer?</option-->
           </select>
@@ -853,7 +887,7 @@ $(document).ready(function() {
           <input type="button" value="New Game" onclick="newGame();" class="myButton" />
           <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
       </div>
-      <h5 class="info">Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
+      <h5 class="info">Variation on the game tic-tac-toe, "<a href="https://boardgamegeek.com/boardgame/11557/chung-toi">Chung Toi</a>." Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
     </form>
 </div>
 </body>
