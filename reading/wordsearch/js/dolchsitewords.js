@@ -230,6 +230,8 @@ sentences["together"] = ["Let's play together."];
 sentences["try"] = ["Please try to be quiet."];
 sentences["warm"] = ["The soup is warm."];
 
+var kindergartenWords = ["a","all","an","at","be","big","but","can","come","did","for","go","have","here","I","in","is","it","make","me","my","no","like","little","look","on","one","play","get","not","saw","say","see","she","so","the","to","up","us","was","we","went","were","what","will","with","yes","you"]
+
 var prePrimerWords = ["a","and","away","big","blue","can","come","down","find","for","funny","go","help","here","I","in","is","it","jump","little","look","make","me","my","not","one","play","red","run","said","see","the","three","to","two","up","we","where","yellow","you"];
 
 var primerWords = ["all","am","are","at","ate","be","black","brown","but","came","did","do","eat","four","get","good","have","he","into","like","must","new","no","now","on","our","out","please","pretty","ran","ride","saw","say","she","so","soon","that","there","they","this","too","under","want","was","well","went","what","white","who","will","with","yes"];
@@ -241,6 +243,7 @@ var secondGradeWords = ["always","around","because","been","before","best","both
 var thirdGradeWords = ["about","better","bring","carry","clean","cut","done","draw","drink","eight","fall","far","full","got","grow","hold","hot","hurt","if","own","keep","kind","laugh","light","long","much","myself","never","only","seven","shall","show","six","small","start","ten","today","together","try","warm","pick"]
 
 var wordArrays = [];
+wordArrays["kindergartenWords"] = kindergartenWords;
 wordArrays["prePrimerWords"] = prePrimerWords;
 wordArrays["primerWords"] = primerWords;
 wordArrays["firstGradeWords"] = firstGradeWords;
