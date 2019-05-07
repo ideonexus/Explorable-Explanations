@@ -230,7 +230,7 @@ sentences["together"] = ["Let's play together."];
 sentences["try"] = ["Please try to be quiet."];
 sentences["warm"] = ["The soup is warm."];
 
-var kindergartenWords = ["a","all","an","at","be","big","but","can","come","did","for","go","have","here","I","in","is","it","make","me","my","no","like","little","look","on","one","play","get","not","saw","say","see","she","so","the","to","up","us","was","we","went","were","what","will","with","yes","you"]
+var kindergartenWords = ["a","all","an","at","be","big","but","can","come","did","for","go","have","here","I","in","is","it","make","me","my","no","like","little","look","on","one","play","get","not","saw","say","see","she","so","the","to","up","us","was","we","went","were","what","will","with","yes","you","help","funny","find","down","away","said","where","two","three","jump","ate","came","four","good","into","must","new","now","want","our","eat","out","they","that","who","under","this","soon"]
 
 var prePrimerWords = ["a","and","away","big","blue","can","come","down","find","for","funny","go","help","here","I","in","is","it","jump","little","look","make","me","my","not","one","play","red","run","said","see","the","three","to","two","up","we","where","yellow","you"];
 
