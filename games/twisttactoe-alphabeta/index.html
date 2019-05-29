@@ -1,0 +1,894 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: rgb(135, 24, 181);
+        color: white;
+        font-family: arial, helvetica, sans-serif;
+    }
+
+    a {
+      color: hotpink;
+    }
+
+    .containersmall { 
+        width: 65%;
+        height: 80%;
+        /*position: absolute;*/
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        margin: auto;
+    }
+
+    .containerlarge { 
+        width: 95%;
+        height: 95%;
+    }
+
+    #sentence {
+      line-height: 0.5em;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    li {
+      padding: 15px 15px 15px 15px;
+      float: left;
+      margin: 10px;
+      list-style: none;
+      outline: solid;
+      min-width: 25%;
+      height: 25%;
+      line-height: 100%;
+      text-align: center;
+      background-color: #1c02af;
+    }
+
+    span { 
+      font-size: 4em;
+      font-weight: bold;
+      position: relative;
+    }
+
+    img {
+      height: 100%;
+    }
+
+    label {
+      font-size: 2em;
+    }
+
+    .face-up {
+        background-color: deepskyblue;
+    }
+
+    .face-up.p2 {
+        background-color: crimson;
+    }
+
+    .highlighted {
+        color: yellow;
+    }
+
+    .def {
+        font-size: 0.5em;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:1.5em;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+.lismall {
+  min-width: 8%;
+}
+
+.formrow {
+  margin-bottom: 10px;
+}
+
+@media only screen and (max-height : 800px) {
+  span {
+    font-size: 4em;
+    line-height: 0.5em;
+  }
+  select {
+    font-size: 1.5em;
+  }
+  .lismall {
+    height: 20%;
+  }
+  #footer {
+    font-size: 0.75em;
+  }
+}
+
+
+@media only screen and (max-height : 600px) {
+  span {
+    line-height: 0.5em;
+    top: 25%;
+  }
+  .lismall {
+    height: 20%;
+  }
+  #footer {
+    font-size: 0.75em;
+  }
+  .info {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .containersmall {
+    width: 98%;
+  }
+  li {
+    min-width: 28%;
+  }
+  .lismall {
+    min-width: 7%;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  span {
+    font-size: 3em;
+  }
+  li {
+    min-width: 25%;
+  }
+  .lismall {
+    font-size: .5em;
+    min-width: 6%;
+  }
+}
+
+</style>
+
+<script src="js/jquery-1.9.1.min.js"></script>
+<script>
+
+var numberofboxes = 9;
+var currentNumberRangeCeiling, currentNumberRangeFloor;
+
+var soundOn = true;
+
+function toggleSound() {
+    if (soundOn) {
+        soundOn = false;
+        $("#soundToggle").prop('value', "Sound On");
+    } else {
+        soundOn = true;
+        $("#soundToggle").prop('value', "Sound Off");
+    }
+}
+
+function speakWord(word) {
+    if('speechSynthesis' in window && soundOn) {
+      var speech = new SpeechSynthesisUtterance(word);
+      speech.lang = 'en-US';
+      window.speechSynthesis.speak(speech);
+    }
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'mp3/tada.mp3');
+    //audioElement.setAttribute('autoplay', 'autoplay');
+    $.get();
+    //audioElement.addEventListener("load", function() {
+    //    audioElement.play();
+    //}, true);
+
+    window.setTimeout(function(){
+        audioElement.play();
+    }, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( "li" ).each(function( index ) {
+            var randColor = getRandomColor();
+            $(this).css('background-color', randColor);
+            $(this).children("span").css('background-color', randColor);
+            $(this).children("span").css('color', 'white');
+        });
+    },100);
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( "li" ).each(function( index ) {
+            $(this).css('background-color', "");
+            $(this).children("span").css('background-color', "");
+            $(this).children("span").css('color', "");
+        });
+        audioElement.pause();
+    }, 5000);
+}
+
+var copyArray = function(oldarray) {
+    return oldarray.map(function(arr) {
+        return arr.slice();
+    });
+
+}
+
+// AI minmax search for best numbers.
+// Built from numerous online examples, but Vivek Panyam's is the most intuitive:
+// https://blog.vivekpanyam.com/how-to-build-an-ai-that-wins-the-basics-of-minimax-search/
+// and diegocasmo's is my favorite:
+// https://github.com/diegocasmo/tic-tac-toe-minimax/blob/master/js/main.js
+var numNodes = 0;
+var allchoices = [];
+var playertilecoordinates = [[],[]];
+var playertileorientations = [[],[]];
+var activeplayer = 0;
+var maxdepth = 10;
+var coords, moveindex;
+
+var board = [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null]
+]
+
+var getValidMoves = function(coords, orient, board) {
+    
+    var validmoves = [];
+    validmoves.push(coords);
+
+    for (var i = 0; i < 3; i++) {
+        for (var j = 0; j < 3; j++) {
+            var elementid = '#' + i + '-' + j;
+            if (board[i][j] === null)
+            {
+                // Highlight legal moves
+                // 0-straight, 1-diagonal
+                if (orient === 0 && (coords[0] == i || coords[1] == j)) { 
+                    //Straight: Highlight open tiles left/right and above/below
+                    validmoves.push([i,j]);
+                } else if (orient === 1 && (
+                        (coords[0] == (i-2) && coords[1] == (j-2))
+                        || (coords[0] == (i-1) && coords[1] == (j-1))
+                        || (coords[0] == (i-1) && coords[1] == (j+1))
+                        || (coords[0] == (i+1) && coords[1] == (j-1))
+                        || (coords[0] == (i+1) && coords[1] == (j+1))
+                        || (coords[0] == (i+2) && coords[1] == (j+2))
+                        || (coords[0] == (i-2) && coords[1] == (j+2))
+                        || (coords[0] == (i+2) && coords[1] == (j-2))
+                    )
+                  ) { 
+                    //Diagonal: Highlight open tiles above/below-left, above/below-right.
+                    validmoves.push([i,j]);
+                }
+            }
+        }
+    }
+
+    return validmoves;
+}
+
+var checkWin = function(board) {
+
+    // Check if someone won
+    vals = [0, 1];
+    for (var k = 0; k < vals.length; k++) {
+        var value = vals[k];
+
+        // Check rows, columns, and diagonals
+        var diagonalComplete1 = true;
+        var diagonalComplete2 = true;
+        for (var i = 0; i < 3; i++) {
+            if (board[i][i] != value) {
+                diagonalComplete1 = false;
+            }
+            if (board[2 - i][i] != value) {
+                diagonalComplete2 = false;
+            }
+            var rowComplete = true;
+            var colComplete = true;
+            for (var j = 0; j < 3; j++) {
+                if (board[i][j] != value) {
+                    rowComplete = false;
+                }
+                if (board[j][i] != value) {
+                    colComplete = false;
+                }
+            }
+            if (rowComplete || colComplete) {
+                return true;
+            }
+        }
+        if (diagonalComplete1 || diagonalComplete2) {
+            return true;
+        }
+    }
+
+    return null;
+}
+
+var MIN = -1000;
+var MAX = 1000;
+
+var recurseMinimax = function(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, player, depth, alpha, beta) {
+    //Note: It's impossible to tie in twist-tac-toe.
+    if (depth > maxdepth || numNodes > 200000) {
+        return [0, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
+    }
+
+    var maximizingplayer = (player === activeplayer);
+    numNodes++;
+    //WinCheck the last board state for a win before continuing
+    //to check new states.
+    var wincheck = checkWin(possibleboards);
+    if (wincheck === true) { //Leaf node, return result.
+        if (!maximizingplayer) {
+            // Active player wins. Sooner the win, higher the score.
+            return [maxdepth-depth, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
+        } else {
+            // opponent wins. Sooner the win, lower the score.
+            return [depth-maxdepth, possibleboards, possibleplayertilecoordinates, possibleplayertileorientations];
+        }
+    } else {
+        // Alpha/Beta Pruning to kill branches and improve algorithm efficiency.
+        // https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/
+
+//**************************************************************************************    
+// PROBLEM: Alpha-Beta pruning works wonders for algorithm efficiency, making computer
+// responses near-instantaneous, but the algorithm is also causing the computer to see some
+// obvious opponent wins as having the same score as tie results. Not sure why. I believe
+// it has something to do with the many places the pruning occurs.
+//**************************************************************************************    
+
+        //Alpha-Beta Pruning
+        var best;
+        if (maximizingplayer) {
+            best = MIN;
+        } else {
+            best = MAX;
+        }
+
+        // Next states
+        var notplayer = (1 - player); //Switches player for next recursive call.
+        var scores = [];
+        var states = [];
+        var nextdepth = depth + 1;
+        var copypossibleplayertilecoordinates;
+        var copypossibleplayertileorientations;
+        var copypossibleboards;
+
+        //Prioritize tile placements.
+        if (possibleplayertilecoordinates[player].length < 3) {
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    if (possibleboards[i][j] == null) {
+
+                        //Branch One: Place tile on space oriented linearly.
+                        
+                        copypossibleplayertilecoordinates = copyArray(possibleplayertilecoordinates);
+                        copypossibleplayertileorientations = copyArray(possibleplayertileorientations);
+                        copypossibleboards = copyArray(possibleboards);
+
+                        copypossibleboards[i][j] = player;
+                        copypossibleplayertilecoordinates[player].push([i,j]);
+                        copypossibleplayertileorientations[player].push(0);
+                        
+                        var score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
+                        scores.push(score);
+                        states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
+
+                        //Alpha-Beta Pruning
+                        if (maximizingplayer) {
+                            best = Math.max(best, score);
+                            alpha = Math.max(alpha, best);
+                        } else {
+                            best = Math.min(best, score);
+                            beta = Math.min(beta, best);
+                        }
+                        
+                        if (beta <= alpha) { 
+                            break; 
+                        }
+
+                        //Branch Two: Place tile on space oriented diagonally.
+
+                        copypossibleplayertileorientations[player].pop();
+                        copypossibleplayertileorientations[player].push(1);
+                        
+                        score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
+                        scores.push(score);
+                        states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
+
+                        //Alpha-Beta Pruning
+                        if (maximizingplayer) {
+                            best = Math.max(best, score);
+                            alpha = Math.max(alpha, best);
+                        } else {
+                            best = Math.min(best, score);
+                            beta = Math.min(beta, best);
+                        }
+                        
+                        if (beta <= alpha) { 
+                            break; 
+                        }
+
+                    }
+                }
+            }
+        } else {
+            //Then check all possible tile moves
+            for (var i = 0; i < possibleplayertilecoordinates[player].length; i++) {
+                var possiblemoves = getValidMoves(possibleplayertilecoordinates[player][i], possibleplayertileorientations[player][i], possibleboards);
+                for (var p = 0; p < possiblemoves.length; p++) {
+
+                    //Branch Three: possible tile movements.
+
+                    copypossibleplayertilecoordinates = copyArray(possibleplayertilecoordinates);
+                    copypossibleplayertileorientations = copyArray(possibleplayertileorientations);
+                    copypossibleboards = copyArray(possibleboards);
+
+                    var tilemoved = true;
+                    if (copypossibleplayertilecoordinates[player][i] == possiblemoves[p]) {
+                        //Reorient in place.
+                        copypossibleplayertileorientations[player][i] = 1 - copypossibleplayertileorientations[player][i];
+
+                        tilemoved = false;
+                    } else {
+                        //Move
+                        copypossibleboards[copypossibleplayertilecoordinates[player][i][0]][copypossibleplayertilecoordinates[player][i][1]] = null;
+                        copypossibleplayertilecoordinates[player][i] = possiblemoves[p];
+                        copypossibleboards[copypossibleplayertilecoordinates[player][i][0]][copypossibleplayertilecoordinates[player][i][1]] = player;
+                    }
+
+                    var score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
+                    scores.push(score);
+                    states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
+
+                    //Test other orientation on move.
+                    if (tilemoved)
+                    {
+                        copypossibleplayertileorientations[player][i] = 1 - copypossibleplayertileorientations[player][i];
+                        score = recurseMinimax(copypossibleboards, copypossibleplayertilecoordinates, copypossibleplayertileorientations, notplayer, nextdepth, alpha, beta)[0];
+                        scores.push(score);
+                        states.push([copyArray(copypossibleboards),copyArray(copypossibleplayertilecoordinates),copyArray(copypossibleplayertileorientations)]);
+                    }
+
+                    //Alpha-Beta Pruning
+                    if (maximizingplayer) {
+                        best = Math.max(best, score);
+                        alpha = Math.max(alpha, best);
+                    } else {
+                        best = Math.min(best, score);
+                        beta = Math.min(beta, best);
+                    }
+                    
+                    if (beta <= alpha) { 
+                        break; 
+                    }
+                }
+
+                //Alpha-Beta Pruning
+                if (maximizingplayer) {
+                    best = Math.max(best, Math.max.apply(Math, scores));
+                    alpha = Math.max(alpha, best);
+                } else {
+                    best = Math.min(best, Math.min.apply(Math, scores));
+                    beta = Math.min(beta, best);
+                }
+                
+                if (beta <= alpha) { 
+                    break;
+                }
+            }
+        }
+
+        var max_score, max_score_index;
+        var min_score, min_score_index;
+        var score, choice;
+        //Take the move with the best score if current player.
+        if (maximizingplayer) {
+            max_score = Math.max.apply(Math, scores);
+            if (depth === 0) {
+                //Grab a random move with best score
+                var bestscoreindexes = [];
+                for (var i = 0; i < scores.length; i++) {
+                    if (max_score === scores[i]) {
+                        bestscoreindexes.push(i);
+                    }
+                }
+                var randomindex = bestscoreindexes[Math.floor(Math.random() * bestscoreindexes.length)];
+                choice = states[randomindex];
+                score = scores[randomindex];
+            } else {
+                max_score_index = scores.indexOf(max_score);
+                choice = states[max_score_index];
+                score = scores[max_score_index];
+            }
+        } else {
+        //Take the move with the worse score if opponent.
+            min_score = Math.min.apply(Math, scores);
+            min_score_index = scores.indexOf(min_score);
+            choice = states[min_score_index];
+            score = scores[min_score_index];
+        }
+
+        return [score, choice[0], choice[1], choice[2]];
+    }
+}
+
+var minimaxMove = function(depth) {
+    maxscore = null;
+    maxscoremove = null;
+    maxdepth = depth;
+    numNodes = 0;
+    var possibleboards = copyArray(board);
+    var possibleplayertilecoordinates = copyArray(playertilecoordinates);
+    var possibleplayertileorientations = copyArray(playertileorientations);
+    //This will return an array of the optimal path the algorithm finds.
+    var nextstate = recurseMinimax(possibleboards, possibleplayertilecoordinates, possibleplayertileorientations, activeplayer, 0, MIN, MAX);
+    //Grab the first move not already made as the AI's next move.
+    possibleplayertilecoordinates = nextstate[2];
+    possibleplayertileorientations = nextstate[3];
+    var currmoveid, nextmoveid, nextorient;
+
+//**************************************************************************************    
+// PROBLEM: animating the computer movements with setTimeouts very quickly
+// starts messing up the sequence of operations, causing the computer to take
+// multiple moves or move for the human player. This is why setTimeouts are commented out.
+//**************************************************************************************    
+
+    if (possibleplayertilecoordinates[activeplayer].length > playertilecoordinates[activeplayer].length) {
+        //New Tile Placed.
+        var lastcoords = possibleplayertilecoordinates[activeplayer].pop();
+        nextmoveid = lastcoords[0] + "-" + lastcoords[1];
+        nextorient = possibleplayertileorientations[activeplayer].pop();
+        $('#' + nextmoveid).trigger( "click" );
+        if (nextorient != 0) {
+            //window.setTimeout(function() {
+                $( "#" + nextmoveid).trigger( "click" );
+            //}, 500);            
+        } else {
+            //window.setTimeout(function() {
+                passTurn();
+            //}, 500);
+        }
+    } else {
+        //Find the modified move.
+        for (var i = 0; i < possibleplayertilecoordinates[activeplayer].length; i++) {
+            if (playertilecoordinates[activeplayer][i] != possibleplayertilecoordinates[activeplayer][i]
+                || playertileorientations[activeplayer][i] != possibleplayertileorientations[activeplayer][i]) {
+                currmoveid = playertilecoordinates[activeplayer][i][0] + "-" + playertilecoordinates[activeplayer][i][1];
+                nextmoveid = possibleplayertilecoordinates[activeplayer][i][0] + "-" + possibleplayertilecoordinates[activeplayer][i][1];
+
+                $('#' + currmoveid).trigger( "click" );
+
+                if (currmoveid != nextmoveid) {
+                    //window.setTimeout(function() {
+                        $( "#" + nextmoveid).trigger( "click" );
+                    //}, 500);
+                }
+            }
+
+            if (playertileorientations[activeplayer][i] != possibleplayertileorientations[activeplayer][i]) {
+                //window.setTimeout(function() {
+                    $( "#" + nextmoveid).trigger( "click" );
+                //}, 500);
+            } else if (playertilecoordinates[activeplayer][i] != possibleplayertilecoordinates[activeplayer][i]) {
+                //window.setTimeout(function() {
+                    passTurn();
+                //}, 500);
+            }
+        }
+    }
+
+    console.log("numNodes: " + numNodes);
+
+}
+
+
+var randomMove = function() {
+    var nextmove = null;
+
+    if(playertilecoordinates[activeplayer].length < 3) {
+        //Add a piece to a random square.
+        var options = [];
+        for (var i = 0; i < 3; i++) {
+          for (var j = 0; j < 3; j++) {
+              if (board[i][j] == null) {
+                  options.push(i + "-" + j);
+              }
+          }
+        }
+
+        nextmove = options[Math.floor(Math.random() * options.length)];
+        window.setTimeout(function() {
+            $( "#" + nextmove).trigger( "click" );
+            if (Math.random() >= 0.5) {
+                $( "#" + nextmove).trigger( "click" );
+            } else {
+                passTurn();
+            }
+        }, 500);
+    } else {
+        //Select a random piece to move.
+        var tileindex = Math.floor(Math.random() * playertilecoordinates[activeplayer].length);
+        var curmovecoords = playertilecoordinates[activeplayer][tileindex];
+        var curmoveid = curmovecoords[0] + "-" + curmovecoords[1];
+        var curmoveorient = playertileorientations[activeplayer][tileindex];
+        var validmoves = getValidMoves(curmovecoords, curmoveorient, board);
+        var validmoveindex = Math.floor(Math.random() * validmoves.length);
+        nextmove = validmoves[validmoveindex][0] + "-" + validmoves[validmoveindex][1];
+        $( "#" + curmoveid).trigger( "click" );
+        window.setTimeout(function() {
+            $( "#" + nextmove).trigger( "click" );
+            if (curmoveid != nextmove && Math.random() >= 0.5) {
+                $( "#" + nextmove).trigger( "click" );
+            } else {
+                passTurn();
+            }
+        }, 500);
+    }
+
+}
+
+var passTurn = function() {
+    $("li").removeClass("highlighted");
+    $("span").removeClass("highlighted");
+    coords = null;
+    moveindex = null;
+    
+    if (checkWin(board)) {
+        $('#sentence').html("Player " + (activeplayer+1) + " wins!");
+        winAnimation();
+    } else {
+        activeplayer = 1 - activeplayer;
+        if ($('#player' + activeplayer).val() != 'human') {
+              $("#sentence").html("P" + (activeplayer+1) + " Computer moving.");
+             if ($('#player' + activeplayer).val() == "0") {
+                randomMove();
+            } else {
+                minimaxMove(parseInt($('#player' + activeplayer).val()));
+            }
+        } else {
+            $("#sentence").html("P" + (activeplayer+1) + " Human moving.");
+        }
+    }
+}
+
+var newGame = function() {
+    $('#sentence').html("Twist-Tac-Toe");
+    board = [
+        [null, null, null],
+        [null, null, null],
+        [null, null, null]
+    ];
+    activeplayer = 0;
+    playertilecoordinates = [[],[]];
+    playertileorientations = [[],[]];
+
+    // html for the board
+    var output = "<ol>"; 
+    for(var x = 0; x < board.length; x++)
+    {
+        for(var y = 0; y < board[x].length; y++)
+        {
+            output += "<li id=\"" + x + "-" + y + "\"></li>";
+        }
+    }
+    output += "</ol>";
+
+    $("#container").html(output);
+
+    $("li").click(function() {
+
+        var playerclass = "p1";
+        var imgSrc = "x";
+        if (activeplayer == 1)
+        {
+            playerclass = "p2";
+            imgSrc = "o";
+        }
+
+        if ($(this).hasClass("highlighted")) {
+            
+            //Second Click
+            var newcoords = $.map($(this).attr('id').split("-"), function(value) {
+                return parseInt(value);
+            });
+
+            if (newcoords[0] == coords[0] && newcoords[1] == coords[1]) {
+                //Reorient
+                orient = 1 - playertileorientations[activeplayer][moveindex];
+                playertileorientations[activeplayer][moveindex] = orient;
+                $(this).html($('<img>',{src:'img/' + imgSrc + orient + '.png'}));
+                passTurn();
+                return;
+            } else {
+                //Move
+                $("li").removeClass("highlighted");
+                var coordid = '#' + coords[0] + '-' + coords[1];
+                $(coordid).removeClass("face-up");
+                $(coordid).removeClass(playerclass);
+                $(coordid).html("");
+
+                board[coords[0]][coords[1]] = null;
+                coords = newcoords;
+                board[coords[0]][coords[1]] = activeplayer;
+                playertilecoordinates[activeplayer][moveindex] = coords;
+                orient = playertileorientations[activeplayer][moveindex];
+                $(this).addClass("highlighted");
+                $(this).addClass("face-up " + playerclass);
+                $(this).html($('<img>',{src:'img/' + imgSrc + orient + '.png'}));
+            }
+
+        } else if (!$(".highlighted").length && $(this).hasClass("face-up") === false && playertilecoordinates[activeplayer].length < 3) {
+            
+            coords = $.map($(this).attr('id').split("-"), function(value){
+                return parseInt(value);
+            });
+
+            playertilecoordinates[activeplayer].push(coords);
+            //Click again to change orientation or pass turn. - Pass Turn button.
+            var orient = 0;
+            playertileorientations[activeplayer].push(orient); // 0-straight, 1-diagonal
+            moveindex = (playertileorientations[activeplayer].length - 1);
+            board[coords[0]][coords[1]] = activeplayer;
+
+            $(this).html($('<img>',{src:'img/' + imgSrc + orient + '.png'}));
+            $(this).addClass("face-up " + playerclass);
+            
+            $(this).addClass("highlighted");
+            $("#sentence").html("Click again to reorient or click pass turn.");
+
+        } else if ($(this).hasClass("face-up") && $(this).hasClass(playerclass)) {
+            
+            coords = $.map($(this).attr('id').split("-"), function(value) {
+                return parseInt(value);
+            });
+
+            for (var i = 0; i < playertilecoordinates[activeplayer].length; i++) {
+                if (playertilecoordinates[activeplayer][i][0] == coords[0]
+                    && playertilecoordinates[activeplayer][i][1] == coords[1]) {
+                    moveindex = i;
+                }
+            }
+
+            var orient = playertileorientations[activeplayer][moveindex];
+
+            var validmoves = getValidMoves(coords, orient, board);
+
+            for (var i = 0; i < validmoves.length; i++) {
+                $('#' + validmoves[i][0] + '-' + validmoves[i][1]).addClass("highlighted");
+            }
+
+            $("#sentence").html("Click again to reorient or click an empty square to move.");
+
+        }
+
+    });
+
+    //If player 0 is the AI, make a move.
+    if ($('#player' + activeplayer).val() != 'human') {
+        //Make first move random to make winning at hard level possible
+        if ($('#player' + activeplayer).val() == "0") {
+            randomMove();
+        } else {
+            minimaxMove(parseInt($('#player' + activeplayer).val()));
+        }
+    }
+}
+
+$(document).ready(function() {
+    newGame();
+});
+
+</script>
+</head>
+<body>
+<div id="container" class="containersmall"></div>
+<div id="footer">
+    <h1 id="sentence">Twist-Tac-Toe</h1>
+    <form >
+      <div class="formrow">
+          <select id="player0">
+              <option value="human" selected>P1: Human</option>
+              <option value="0">P1: Easy Computer</option>
+              <option value="3">P1: 3-Depth Computer</option>
+              <option value="4">P1: 4-Depth Computer</option>
+              <option value="5">P1: 5-Depth Computer</option>
+              <!--option value="8">P1: Unbeatable Computer?</option-->
+          </select>
+          <select id="player1">
+              <option value="human">P2: Human</option>
+              <option value="0">P2: Random Computer</option>
+              <option value="3" selected>P2: 3-Depth Computer</option>
+              <option value="4">P2: 4-Depth Computer</option>
+              <option value="5">P2: 5-Depth Computer</option>
+              <!--option value="8">P2: 8-Depth Computer?</option-->
+          </select>
+      </div>
+      <div class="formrow">
+          <input type="button" value="Pass Turn" onclick="passTurn();" class="myButton" />
+          <input type="button" value="New Game" onclick="newGame();" class="myButton" />
+          <input type="button" value="Sound Off" onclick="toggleSound();" class="myButton" id="soundToggle" />
+      </div>
+      <h5 class="info">Variation on the game tic-tac-toe, "<a href="https://boardgamegeek.com/boardgame/11557/chung-toi">Chung Toi</a>." Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
+    </form>
+</div>
+</body>
+</html>
