@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Zeckendorf's Theorem</title>
+  <script type='text/javascript' src='js/jquery-1.9.1.min.js'></script>
+
+<style type='text/css'>
+    body {
+        background-color: darkred;
+        font-family: arial;
+        color: white;
+    	font-size: 4em;
+    }
+
+    div {
+    	text-align: center;
+    	width: 100%;
+    }
+
+    .target {
+    	font-size: 2em;
+    }
+
+    .info {
+    	font-size: 0.5em;
+    }
+
+    .info a {
+    	color: lightblue;
+    }
+
+    .choiceMenu {
+    	display: inline;
+    	text-decoration: none;
+    	padding: 10px;
+    	margin: 3px;
+    	line-height: 1.8em;
+    	border: 3px solid white;
+    	border-radius: 5px 5px 5px;
+    }
+
+    .chosen {
+    	border: 8px solid yellow;
+    }
+
+    .myButton {
+		box-shadow: 0px 0px 0px 2px #9fb4f2;
+		background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%);
+		background-color:#7892c2;
+		border-radius:20px;
+		border:1px solid #4e6096;
+		display:inline-block;
+		cursor:pointer;
+		color:#ffffff;
+		font-family:Arial;
+		font-size:19px;
+		padding:13px 37px;
+		text-decoration:none;
+		text-shadow:0px 1px 0px #283966;
+	}
+	.myButton:hover {
+		background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%);
+		background-color:#476e9e;
+	}
+	.myButton:active {
+		position:relative;
+		top:1px;
+	}
+</style>
+
+<script>
+
+// TODO:
+// Link to Theorem
+// Detect win, set success message.
+
+
+// Zeckendorf's Theorem
+// https://en.wikipedia.org/wiki/Zeckendorf%27s_theorem
+
+// Public Scope Variables
+var fib = [];
+var target = 0;
+var chosen = [];
+
+function getRandomColor() {
+    var letters = '0123456789'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 10)];
+    }
+    return color;
+}
+
+var winAnimation = function() {
+    //var audioElement = document.createElement('audio');
+    //audioElement.setAttribute('src', 'mp3/tada.mp3');
+    //$.get();
+    //window.setTimeout(function(){
+    //    audioElement.play();
+    //}, 3000);
+
+    var animationInterval = setInterval(function(){
+        $( ".choiceMenu" ).each(function( index ) {
+            var randColor = getRandomColor();
+            console.log(randColor);
+            $(this).css('background-color', randColor);
+        });
+    },100);
+
+    window.setTimeout(function(){
+        window.clearInterval(animationInterval);
+        $( ".choiceMenu" ).each(function( index ) {
+            //$(this).css('background-color', "");
+            console.log("end");
+        });
+        //audioElement.pause();
+    }, 5000);
+}
+
+// Some different ways to generate a fibonacci set
+// https://medium.com/developers-writing/fibonacci-sequence-algorithm-in-javascript-b253dc7e320e
+// https://stackoverflow.com/questions/7944239/generating-fibonacci-sequence
+var fibonacci = function(max) {
+	var i;
+	fib = []; // Initialize array!
+
+	fib[0] = 0;
+	fib[1] = 1;
+	i = 1;
+	do {
+	  i++
+	  // Next fibonacci number = previous + one before previous
+	  if ((fib[i - 2] + fib[i - 1]) < max) {
+	  	fib[i] = fib[i - 2] + fib[i - 1];
+	  }
+	  console.log(fib[i]);
+	}
+	while (fib[i] < max)
+}
+
+// Render Fibonacci Sequence in HTML
+var renderFibonnacci = function() {
+	// Generate the HTML with OnClick Events
+    $.each(fib, function(index, value) {
+        $("#choices").append( "<div id=\"choice" + index + "\" onclick=\"updateSelection('" + index + "');\" class=\"choiceMenu\" style=\"background: " + getRandomColor() + "\">" + value + "</div> ");
+    });
+}
+
+var updateSelection = function(index) {
+	$("#message").html("");
+	//First check for neighbors selected
+	index = parseInt(index);
+	if ($.inArray(fib[index-1], chosen) != -1 || $.inArray(fib[index+1], chosen) != -1) {
+		$("#message").html("Cannot select set neighbors.");
+		return false;
+	}
+
+	//Toggle
+	if ($.inArray(fib[index], chosen) != -1) {
+		chosen.splice($.inArray(fib[index], chosen), 1);
+		$("#choice" + index).removeClass("chosen");
+	} else {
+		chosen.push(fib[index]);
+		$("#choice" + index).addClass("chosen");
+	}
+
+	if (chosen.length > 0) {
+		chosen.sort(function(a, b){return a-b});
+		//chosen.sort();
+
+		//Show selected values
+		var chosenhtml = "[";
+		$.each(chosen, function(index, value) {
+			if (value !== undefined) {
+				chosenhtml += value + ", ";
+			}
+		});
+		chosenhtml = chosenhtml.substring(0, chosenhtml.length - 2);
+		var sum = chosen.reduce((a, b) => a + b, 0);
+		chosenhtml += "]";
+		var equiv = target > sum ? " > " : " < ";
+		$("#chosen").html(chosenhtml);
+
+		if (sum == target) {
+			equiv = " = ";
+			$("#message").html("You found the solution!");
+			winAnimation();
+		}
+
+		$("#target").html(target + equiv + sum);
+	} else {
+		$("#chosen").html("");
+	}
+}
+
+var newGame = function() {
+	chosen = [];
+	$("#chosen").html("");
+	$("#choices").html("");
+	$("#message").html("");
+	// Generate random number
+	target = Math.floor(Math.random() * 1000000) + 1;
+	fibonacci(target);
+	renderFibonnacci();
+	$("#target").html(target);
+}
+
+// Assign Onclick
+$(document).ready(function() {
+    newGame();
+});
+
+
+</script>
+</head>
+<body>
+
+<div id="target" class="target"></div>
+<div id="choices"></div>
+<div id="chosen"></div>
+<div id="message"></div>
+<div id="buttons">
+	<p><href class="myButton" onclick="newGame()">New Game</a></p>
+	<p class="info">Select the Fibonacci numbers that sum to the target per <a href="https://en.wikipedia.org/wiki/Zeckendorf%27s_theorem" target="_blank">Zeckendorf's theorem</a></p>
+</div>
+
+</body>
+</html>
