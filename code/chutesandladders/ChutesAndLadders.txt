@@ -3,7 +3,7 @@
 var players = [
 	["Ada",0]
 	,["Alan",0]
-	,["Claude",0]
+	,["Clarence",0]
 	,["Grace",0]
 ];
 var winner = "nobody";
