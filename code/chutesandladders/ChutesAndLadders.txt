@@ -1,0 +1,38 @@
+
+//An array of arrays naming our players and their scores.
+var players = [
+	["Ada",0]
+	,["Alan",0]
+	,["Claude",0]
+	,["Grace",0]
+];
+var winner = "nobody";
+//Keep playing until we have a winnner.
+while (winner == "nobody") {
+	//Loop through Ada, Alan, Claude, and Grace
+	players.forEach(function(player) {
+		//Role a 6-sided die.
+		var spin = Math.floor(Math.random() * 6) + 1;
+		var value = player[1] + spin;
+		console.log(player[0] + " " + player[1] + " -> " + value);
+		//Check for Snakes and Ladders
+		if (value == 3) value = 17;
+		else if (value == 20) value = 33;
+		else if (value == 22) value = 36;
+		else if (value == 25) value = 11;
+		else if (value == 32) value = 16;
+		else if (value == 38) value = 46;
+		else if (value == 47) value = 61;
+		else if (value == 48) value = 34;
+		else if (value == 58) value = 45;
+		//Assign new value to player
+		player[1] = value;
+		console.log(player[0] + " " + player[1]);
+		//Check for winner
+		if (player[1] >= 63 && winner == "nobody") {
+			winner = player[0];
+		}
+	});
+}
+//Tell us who won.
+console.log("The winner is " + winner + "!");
