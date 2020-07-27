@@ -147,66 +147,35 @@ input::-webkit-inner-spin-button {
 
 <script src="js/jquery-1.9.1.min.js"></script>
 <script src="js/tracks.js"></script>
+
 <script>
+
+// Public variables, defined here to be shared in any function.
+// Be careful when using variables with this scope because they
+// can be difficult to debug.
 var soundOn = true;
 var drawTrack = false;
 var loadTrackPopup = false;
+// The ctx variable is the canvas context, which renders our drawing.
+var ctx, canvas;
+// Variables to hold where the canvas element is on the page,
+// and the x/y offset coordinates, used later when tracking mouse clicks.
+var canvasOffset, offsetX, offsetY;
+// ID of the current track array.
+var currentTrack;
+// Did the user crash?
+var crashed;
+// Has the user won?
+var finishLineCrossed = 0;
+// coordinates array stores all our coord objects.
+var coordinates = [];
+// paths array to maintain the lines of where the user has been.
+var paths = [];
+// Id of the last-clicked coordinate
+var lastCoordinate;
+// End: Public Variables
 
-var hideCoordinates = function() {
-    $('.coordinatespopup').hide();
-    $('#drawtype').hide();
-    drawTrack = false;
-}
-
-var hideLoadTrack = function() {
-    $('.loadtrackpopup').hide();
-    loadTrackPopup = false;
-}
-
-var toggleDrawTrack = function() {
-    if (drawTrack) {
-        drawTrack = false;
-        $("#drawToggle").prop('value', "Draw Track");
-
-        var trackid = getRandomColor();//Random hexadecimal id for track
-
-        var trackCoordinates = finishCoordinates = startCoordinates = "";
-        for (var i = 0; i < coordinates.length; i++) {
-            if (coordinates[i].isTrack) {
-                trackCoordinates += ',"' + coordinates[i].id + '"';
-            } else if (coordinates[i].isFinish) {
-                finishCoordinates += ',"' + coordinates[i].id + '"';
-            } else if (coordinates[i].isStart) {
-                startCoordinates = '"' + coordinates[i].id + '"';
-            }
-        }
-
-        //Remove first comma.
-        trackCoordinates = trackCoordinates.substring(1); 
-        finishCoordinates = finishCoordinates.substring(1);
-
-        var trackCode = "starts[\"" + trackid + "\"] = " + startCoordinates + ";\n"
-            + "tracks[\"" + trackid + "\"] = [ " + trackCoordinates + " ];\n"
-            + "finishes[\"" + trackid + "\"] = [ " + finishCoordinates + " ];\n";
-
-        $('#coordinatesoutput').val(trackCode);
-        $('.coordinatespopup').show();
-    } else {
-        drawTrack = true;
-        $("#drawToggle").prop('value', "Get Coordinates");
-        $('#drawtype').show();
-    }
-}
-
-var toggleLoadTrack = function() {
-    if (loadTrackPopup) {
-        loadTrackPopup = false;
-    } else {
-        loadTrackPopup = true;
-        $('.loadtrackpopup').show();
-    }
-}
-
+// Toggle the sound on/off
 function toggleSound() {
     if (soundOn) {
         soundOn = false;
@@ -217,6 +186,8 @@ function toggleSound() {
     }
 }
 
+// Checks if the browser supports text-to-speech
+// and proceeds to speak the "word" variable sent to it.
 function speakWord(word) {
     if('speechSynthesis' in window && soundOn) {
       var speech = new SpeechSynthesisUtterance(word);
@@ -225,6 +196,7 @@ function speakWord(word) {
     }
 }
 
+// Generates a random hexadecimal color (ie "#ffffff" for white)
 function getRandomColor() {
     var letters = '0123456789ABCDEF'.split('');
     var color = '#';
@@ -234,6 +206,9 @@ function getRandomColor() {
     return color;
 }
 
+// A function to play a "TaDa!" sound and flash the
+// browser background in a winning celebration when
+// the user crosses the finish line.
 var winAnimation = function() {
     var audioElement = document.createElement('audio');
     audioElement.setAttribute('src', 'mp3/tada.mp3');
@@ -257,6 +232,77 @@ var winAnimation = function() {
     }, 5000);
 }
 
+var hideCoordinates = function() {
+    $('.coordinatespopup').hide();
+    $('#drawtype').hide();
+    drawTrack = false;
+}
+
+var hideLoadTrack = function() {
+    $('.loadtrackpopup').hide();
+    loadTrackPopup = false;
+}
+
+// Toggles the track into an editable mode,
+// The variable name "track" is not the best
+// because it actually defines the walls of the track
+// not the road itself, but "notTrack" bugged me too much.
+var toggleDrawTrack = function() {
+    if (drawTrack) {
+        drawTrack = false;
+        $("#drawToggle").prop('value', "Draw Track");
+
+        // Funny way to generate a unique id for the user's new track.
+        // I'm simultaneously marveling at this and horrified by it.
+        var trackid = getRandomColor();
+
+        // Build a string of our coordinates as an array that our 
+        // code can read.
+        var trackCoordinates = finishCoordinates = startCoordinates = "";
+        for (var i = 0; i < coordinates.length; i++) {
+            if (coordinates[i].isTrack) {
+                trackCoordinates += ',"' + coordinates[i].id + '"';
+            } else if (coordinates[i].isFinish) {
+                finishCoordinates += ',"' + coordinates[i].id + '"';
+            } else if (coordinates[i].isStart) {
+                startCoordinates = '"' + coordinates[i].id + '"';
+            }
+        }
+
+        //Remove first comma.
+        trackCoordinates = trackCoordinates.substring(1); 
+        finishCoordinates = finishCoordinates.substring(1);
+
+        var trackCode = "starts[\"" + trackid + "\"] = " + startCoordinates + ";\n"
+            + "tracks[\"" + trackid + "\"] = [ " + trackCoordinates + " ];\n"
+            + "finishes[\"" + trackid + "\"] = [ " + finishCoordinates + " ];\n";
+        // END: Coordinate array string building.
+
+        $('#coordinatesoutput').val(trackCode);
+        $('.coordinatespopup').show();
+    } else {
+        drawTrack = true;
+        $("#drawToggle").prop('value', "Get Coordinates");
+        $('#drawtype').show();
+    }
+}
+
+// Opens the Load Track pop-up window
+// allowing users to paste track coordinates
+var toggleLoadTrack = function() {
+    if (loadTrackPopup) {
+        loadTrackPopup = false;
+    } else {
+        loadTrackPopup = true;
+        $('.loadtrackpopup').show();
+    }
+}
+
+// Super-Duper-Useful function found at:
+// http://krazydad.com/tutorials/circles/
+// Takes a context, x/y coordinates, radius for size of the shape,
+// how many sides, and outputs the resulting polygon shape.
+// I reuse this in so many apps.
 var polygon = function(ctx, x, y, radius, sides, startAngle, anticlockwise) {
     if (sides < 3) return;
     var a = (Math.PI * 2)/sides;
@@ -272,13 +318,12 @@ var polygon = function(ctx, x, y, radius, sides, startAngle, anticlockwise) {
     ctx.restore();
 }
 
-var canvas, ctx, canvasOffset, offsetX, offsetY, currentTrack, crashed, finishLineCrossed;
-
-//Track each Coordinate in an object to identify them.
-//Code by m1erickson: http://jsfiddle.net/m1erickson/sAFku/
-var coordinates = [];
+// Track each Coordinate in an object to identify and customize individually.
+// Code by m1erickson: http://jsfiddle.net/m1erickson/sAFku/
 var coord = (function () {
-    // constructor
+    
+    // constructor: instantiates the object
+    // and sets the default values.
     function coord(id, x, y) {
         this.id = id;
         this.x = x;
@@ -298,7 +343,7 @@ var coord = (function () {
         return (this);
     }
 
-    //
+    // 
     coord.prototype.highlight = function (x, y) {
         if (!this.isTrack && !this.isFinish)
         {
@@ -309,6 +354,9 @@ var coord = (function () {
         return (this);
     }
 
+    // The "set" functions set the properties that are
+    // used to highlight the current position, track blocks,
+    // non-track blocks, and finish line.
     coord.prototype.setHighlighted = function (highlighted) {
         if (!this.isTrack && !this.isFinish)
         {
@@ -348,8 +396,12 @@ var coord = (function () {
         this.draw(false);
         return (this);
     }
+    // END: set Property functions
 
-    //
+
+    // Renders the coordinate according to its properties
+    // the variable "highlight" here is passed in as a temporary
+    // property when handling mouseover events.
     coord.prototype.draw = function (hightlight) {
         ctx.save();
         ctx.beginPath();
@@ -433,8 +485,8 @@ var coord = (function () {
     return coord;
 })();
 
-//Track Paths drawn to maintain them.
-var paths = [];
+// Each path gets its own object, which is placed into
+// an array to track the history of paths through the track.
 var path = (function () {
     // constructor
     function path(id, originx, originy, destinationx, destinationy, projected) {
@@ -457,12 +509,11 @@ var path = (function () {
         return (this);
     }
 
-    //
+    //Draw line between two clicked points.
     path.prototype.draw = function () {
         ctx.save();
         ctx.beginPath();
 
-        //Draw line between two clicked points.
         ctx.moveTo(this.originx,this.originy);
         ctx.lineTo(this.destinationx,this.destinationy);
         ctx.strokeStyle = this.stroke;
@@ -516,8 +567,6 @@ var getPointsFromStraightLine = function(originX, originY, destinationX, destina
     return coordinatesArray;
 }
 
-var lastCoordinate; //Id of the last-clicked coordinate
-var finishLineCrossed = 0;
 var drawPathBetweenCoordinates = function(newCoordinate) {
     if (lastCoordinate)
     {
@@ -653,14 +702,23 @@ function handleMouseClick(e) {
                         }
                     }
                     clicked.setStart(true);
-                    break
+                    break;
                   case "finish":
-                    if (clicked.isFinish) { clicked.setFinish(false); } else { clicked.setFinish(true); }
+                    if (clicked.isFinish) { 
+                      clicked.setFinish(false); 
+                    } else { 
+                      clicked.setFinish(true); 
+                    }
                     break;
                   default:
-                    if (clicked.isTrack) { clicked.setTrack(false); } else { clicked.setTrack(true); }
+                    if (clicked.isTrack) { 
+                      clicked.setTrack(false); 
+                    } else { 
+                      clicked.setTrack(true); 
+                    }
                 }
             }
+            //For debugging, uncomment this to get the coordinate id clicked.
             //alert("Clicked coordinate: " + clicked.id);
         }
     }
@@ -776,8 +834,10 @@ var changeTrack = function() {
 //To support percentage width/height settings for 
 //the canvas without distorting the context.
 function resizeCanvas() {
-    canvas.width = 1200; //window.innerWidth;
-    canvas.height = 600; //window.innerHeight * 0.75;
+    canvas.width = 1200; 
+    canvas.height = 600; 
+    //window.innerWidth;
+    //window.innerHeight * 0.5;
 }
 
 $(document).ready(function() {
