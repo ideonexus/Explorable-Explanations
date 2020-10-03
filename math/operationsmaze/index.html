@@ -1,0 +1,796 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: rgb(50, 0, 50);
+        color: white;
+    }
+
+    a {
+      color: hotpink;
+    }
+
+    .containersmall { 
+        width: 80%;
+        height: 80%;
+        /*position: absolute;*/
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        margin: auto;
+    }
+
+    #sentence {
+      line-height: 1.5em;
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    /*ul { 
+        padding: 0;
+        margin: 0;
+    }*/
+
+    li {
+      padding: 0;
+      float: left;
+      margin: 10px;
+      list-style: none;
+      outline: solid;
+      /*width: 150px;
+      height: 150px;*/
+      /*min-width: 18%;
+      height: 20%;*/
+      line-height: 100%;
+      text-align: center;
+      background-color: darkorchid;
+    }
+
+    span { 
+      font-size: 3em;
+      font-weight: bold;
+      line-height: normal;
+      width: 100%;
+    }
+
+    /*span.foot {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        font-size: 0.25em;
+    }*/
+
+    .clear {
+        clear: both;
+    }
+
+    .face-up {
+        background-color: darkblue;
+        color: white;
+    }
+
+    .match {
+        background-color: yellow;
+        color: black;
+    }
+
+    .def {
+        font-size: 0.5em;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 40%;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+
+.lithree {
+  width: 30%;
+  font-size: 2em;
+  height: 20%;
+}
+
+.lifour {
+  width: 22%;
+  font-size: 1.5em;
+  height: 15%;
+}
+
+.lifive {
+  width: 17%;
+  font-size: 1.5em;
+}
+
+.lisix {
+  width: 12%;
+  font-size: 1em;
+}
+
+@media only screen and (max-height : 800px) {
+  span {
+    font-size: 2em;
+    line-height: 1em;
+    top: 25%;
+  }
+  h1 {
+    font-size: 2.5em;
+  }
+  select {
+    font-size: 1.5em;
+  }
+  #footer {
+    font-size: 0.75em;
+  }
+  .myButton {
+    font-size: 12px;
+    padding:3px 12px;
+  }
+}
+
+
+@media only screen and (max-height : 600px) {
+  span {
+    font-size: 1.5em !important;
+    line-height: 0.5em;
+    top: 25%;
+  }
+  li {
+    height: 10%;
+  }
+  #footer {
+    font-size: 0.75em;
+  }
+  .myButton {
+    font-size: 12px;
+    padding:3px 12px;
+  }
+  .info {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .containersmall {
+    width: 98%;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  span {
+    font-size: 2em;
+  }
+}
+
+.operation {
+  width: 20%;
+  display: inline-block;
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.checkboxlabel {
+  font-size: 1.5em;
+}
+
+/**
+ * Start by hiding the checkboxes
+ */
+input[type=checkbox] {
+  visibility: hidden;
+}
+/**
+ * Checkbox Three
+ */
+.checkboxThree {
+  width: 75px;
+  height: 20px;
+  background: #333;
+  margin: auto;
+  border-radius: 50px;
+  position: relative;
+}
+/**
+ * Create the text for the On position
+ */
+.checkboxThree:before {
+  content: 'On';
+  position: absolute;
+  left: 10px;
+  top: 1px;
+  height: 2px;
+  color: aqua;
+  font-size: 16px;
+}
+/**
+ * Create the label for the off position
+ */
+.checkboxThree:after {
+  content: 'Off';
+  position: absolute;
+  left: 45px;
+  top: 1px;
+  height: 2px;
+  color: #cccccc;
+  font-size: 16px;
+}
+/**
+ * Create the pill to click
+ */
+.checkboxThree label {
+  display: block;
+  width: 30px;
+  height: 15px;
+  border-radius: 50px;
+
+  transition: all .5s ease;
+  cursor: pointer;
+  position: absolute;
+  top: 2px;
+  z-index: 1;
+  left: 5px;
+  background: #ddd;
+}
+
+/**
+ * Create the checkbox event for the label
+ */
+.checkboxThree input[type=checkbox]:checked + label {
+  left: 40px;
+  background: aqua;
+}
+
+</style>
+
+<script src="js/jquery-1.9.1.min.js"></script>
+<script>
+
+var total = 0;
+var numberofboxes = 25;
+var playerPath = [];
+var currentNumberRangeCeiling, currentNumberRangeFloor;
+var operations = ['addition','subtraction','multiplication','division'];
+var goal = 'Max';
+
+var toggleVariant = function() {
+    if (goal == 'Max') {
+        goal = 'Min';
+        $('#variantToggle').val('Set Variant: Highest Score');
+    } else {
+        goal = 'Max';
+        $('#variantToggle').val('Set Variant: Lowest Score');
+    }
+    loadingMessageAndBuild();
+}
+
+var changeNumberofBoxes = function() {
+    $("#numberofboxes").blur();
+    numberofboxes = Math.pow(parseInt($("#numberofboxes").val()),2);
+    loadingMessageAndBuild();
+}
+
+var setOperations = function() {
+  operations = [];
+  if ($("#addition").is(":checked")) operations.push('addition');
+  if ($("#subtraction").is(":checked")) operations.push('subtraction');
+  if ($("#multiplication").is(":checked")) operations.push('multiplication');
+  if ($("#division").is(":checked")) operations.push('division');
+  loadingMessageAndBuild();
+}
+
+var changeNumberRange = function() {
+  $("#numberranges").blur();
+  currentNumberRangeFloor = 1;
+  currentNumberRangeCeiling = parseInt($("#numberranges").val());
+  loadingMessageAndBuild();
+}
+
+var getRandomFactor = function(num) {
+    var half = Math.floor(num / 2), // Ensures a whole number <= num.
+        arr = [1], // 1 will be a part of every solution.
+        i, j;
+
+    // Determine our increment value for the loop and starting point.
+    num % 2 === 0 ? (i = 2, j = 1) : (i = 3, j = 2);
+
+    for (i; i <= half; i += j) {
+        num % i === 0 ? arr.push(i) : false;
+    }
+
+    arr.push(num); // Always include the original number.
+    return arr[Math.floor(Math.random()*arr.length)];
+}
+
+var getRandomEquation = function(num) {
+    var equation = '';
+    //Get Random Operation
+    switch(operations[Math.floor(Math.random()*operations.length)]) {
+        case 'addition':
+            equation = "+" + num;
+            break;
+        case 'subtraction':
+            equation = "-" + num;
+            break;
+        case 'multiplication':
+            equation = "*" + num;
+            break;
+        case 'division':
+            equation = "/" + num;
+    }
+    return equation;
+}
+
+// Because javascript eval() is so slow
+var evaulateTotal = function(total, operation) {
+    var op = '';
+    var num = 0;
+    if (operation.length > 1) op = operation.charAt(0);
+    var num = parseInt(operation.toString().replace(op, ''));
+    switch(op) {
+      case '/':
+        total = total / num;
+        break;
+      case '*':
+        total = total * num;
+        break;
+      case '-':
+        total = total - num;
+        break;
+      default:
+        total = total + num;
+    }
+    return total;
+}
+
+//From the SO Question: Algorithm for finding all paths in a NxN grid
+//https://stackoverflow.com/questions/9105699/algorithm-for-finding-all-paths-in-a-nxn-grid
+//first make a function to create the board as an array of arrays
+var makeBoard = function(n) {
+  var board = [];
+  for (var i = 0; i < n; i++) {
+    board.push([]);
+    for (var j = 0; j < n; j++) {
+      board[i].push([]);
+      board[i][j].visited = false;
+      board[i][j].operation = "";
+    }
+  }
+  board.togglePiece = function(i, j) {
+    this[i][j].visited = !this[i][j].visited;
+  }
+  board.hasBeenVisited = function(i, j) {
+    return !!this[i][j].visited;
+  }
+  board.exists = function(i, j) {
+    return i < n && i > -1 && j < n && j > -1;
+  }
+  board.viablePosition = function(i, j) {
+    return board.exists(i, j) && !board.hasBeenVisited(i,j);
+  }
+  return board;
+};
+
+var robotPaths = function(board, n) {
+  var numPaths = 0;
+  var maxValPath = [];
+  var maxVal = 0;
+
+  // call our recursive function (defined below) with a blank board of nxn,
+  // with the starting position as (0, 0)
+  traversePaths(board, 0, 0, [], 0);
+
+  //define the recursive function we'll use
+  function traversePaths(board, i, j, curPath, prevVal) {
+
+    curPath.push(i + "_" + j);
+    var curVal = evaulateTotal(prevVal, board[i][j].operation);
+    if (
+        (goal == 'Max' && (curVal > maxVal))
+        || (goal == 'Min' && (curVal < maxVal))
+    ) {
+      maxVal = curVal;
+      maxValPath = curPath;
+    }
+
+    // mark the current position as having been visited. 
+    // Doing this after the check for BASE CASE because you 
+    // don't want to turn the target position (i.e. when you've found a solution) 
+    // to true or else future paths will see it as an unviable position
+    board.togglePiece(i, j);
+
+    // RECURSIVE CASE: if next point is a viable position, 
+    // go there and make the same decision
+
+    //go right if possible
+    if (board.viablePosition(i, j + 1)) {
+      traversePaths(board, i, j + 1, curPath.slice(), curVal);
+    }
+
+    //go left if possible
+    if (board.viablePosition(i, j - 1)) {
+      traversePaths(board, i, j - 1, curPath.slice(), curVal);
+    }
+
+    //go down if possible
+    if (board.viablePosition(i + 1, j)) {
+      traversePaths(board, i + 1, j, curPath.slice(), curVal);
+    }
+
+    //go up if possible
+    if (board.viablePosition(i - 1, j)) {
+      traversePaths(board, i - 1, j, curPath.slice(), curVal);
+    }
+
+    // reset the board back to the way you found it after you've 
+    // gone forward so that other paths can see it as a viable
+    // position for their routes
+    board.togglePiece(i, j);
+  }
+
+  return [maxVal, maxValPath];
+};
+//END SO Reference
+
+var coreSentence = '';
+var board = [];
+
+var clickTile = function(i, j) {
+  if (board.viablePosition(i, j)) {
+      //Check for Orthogonal move
+      var lastMove = [];
+      if (playerPath.length > 0)
+          lastMove = playerPath[playerPath.length - 1].split("_").map(Number);
+
+      if ((i == 0 && j ==0)
+          || (lastMove[0] == i && (
+              lastMove[1] == (j-1) || lastMove[1] == (j+1)
+            )
+          ) 
+          || (lastMove[1] == j && (
+              lastMove[0] == (i-1) || lastMove[0] == (i+1)
+            )
+      )) {
+          var id = i + "_" + j;
+          $('#'+id).addClass("face-up");
+          $('#'+id).parents("li").addClass("face-up");
+          board.togglePiece(i, j)
+          playerPath.push(id);
+          total = evaulateTotal(total, $('#'+id).html());
+          $('#sentence').html("SCORE: " + (Math.round(total * 100) / 100) 
+              + " in " + (playerPath.length-1) + " moves."
+              + "<br/>" + coreSentence);
+          //var footHtml = "<span class=\"foot\">" + (playerPath.length-1) + "</span>";
+          //if (lastMove[0] == i+1)
+          //    $('#'+lastMove[0] + "_" + lastMove[1]).append(footHtml);
+          //else if (lastMove[0] == i-1)
+          //    $('#'+lastMove[0] + "_" + lastMove[1]).append(footHtml);
+          //else if (lastMove[1] == j+1)
+          //    $('#'+lastMove[0] + "_" + lastMove[1]).append(footHtml);
+          //else if (lastMove[1] == j-1)
+          //    $('#'+lastMove[0] + "_" + lastMove[1]).append(footHtml);
+
+      }
+  }
+}
+
+var maxes;
+
+var buildOperationsMaze = function() {
+    total = 0;
+    var allOperations = [];
+    playerPath = [];
+
+    // get words, place them in an array & randomize the order
+    for (var i = 0; i < numberofboxes; i++) {
+      var iterateNumber = Math.floor(Math.random()*(currentNumberRangeCeiling-currentNumberRangeFloor)) + currentNumberRangeFloor;
+      var equation = getRandomEquation(iterateNumber);
+      //Prevent adding duplicates to the array.
+      var notInArray = false;
+      var iterateCount = 0;
+      while (!notInArray) {
+        if ($.inArray(equation, allOperations) != -1) {
+          equation = getRandomEquation(iterateNumber);
+        }
+        else {
+          notInArray = true;
+        }
+
+        if (iterateCount > 20) break; //Give up!!!
+        iterateCount++;
+      }
+
+      allOperations.push(equation);
+    }
+
+    //Set first operation to seed number:
+    allOperations[0] = Math.floor(Math.random()*(currentNumberRangeCeiling-currentNumberRangeFloor)) + currentNumberRangeFloor;
+
+    board = makeBoard(Math.sqrt(numberofboxes));
+
+    //Assign operations and build the the board.
+    var output = "<ol class=\"clear\">"; 
+    var allOperationsIncrement = 0;
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[i].length; j++) {
+            board[i][j].operation = allOperations[allOperationsIncrement];
+            output += "<li>";
+            output += "<span id=\"" + i + "_" + j + "\">" + allOperations[allOperationsIncrement] + "</span>";
+            output += "</li>";
+            allOperationsIncrement++;
+        }
+        output += "</ol><ol class=\"clear\">";
+    }
+    output += "</ol>";
+
+    $("#container").html(output);
+
+    maxes = robotPaths(board, Math.sqrt(numberofboxes));
+
+    coreSentence = goal + " possible score is " + (Math.round(maxes[0] * 100) / 100) 
+        + " in " + (maxes[1].length-1) + " moves.";
+    clickTile(0, 0);
+
+    $("li").click(function() {
+        var curMoveId = $(this).children("span").first().attr('id');
+        var curMove = curMoveId.split("_").map(Number);
+        clickTile(curMove[0], curMove[1]);
+    });
+
+    switch(Math.sqrt(numberofboxes)) {
+      case 4:
+        $("li").removeClass("lithree")
+          .removeClass("lifive")
+          .removeClass("lisix")
+          .addClass("lifour");
+        break;
+      case 5:
+        $("li").removeClass("lithree")
+          .removeClass("lifour")
+          .removeClass("lisix")
+          .addClass("lifive");
+        break;
+      case 6:
+        $("li").removeClass("lithree")
+          .removeClass("lifour")
+          .removeClass("lifive")
+          .addClass("lisix");
+        break;
+      default: //3
+        $("li").removeClass("lifour")
+          .removeClass("lifive")
+          .removeClass("lisix")
+          .addClass("lithree");
+    }
+}
+
+var undo = function() {
+    if (playerPath.length > 1)
+    {
+        var lastMoveId = playerPath.pop();
+
+        $('#' + lastMoveId).removeClass("face-up");
+        $('#' + lastMoveId).parents("li").removeClass("face-up");
+
+        var lastOp = $('#' + lastMoveId).html().charAt(0);
+        var lastNum = parseInt($('#' + lastMoveId).html().replace(lastOp, ''));
+        switch(lastOp) {
+          case '+':
+            total = total - lastNum;
+            break;
+          case '-':
+            total = total + lastNum;
+            break;
+          case '*':
+            total = total / lastNum;
+            break;
+          default: //3
+              total = total * lastNum;
+        }
+        var lastMove = lastMoveId.split("_").map(Number);
+        board.togglePiece(lastMove[0], lastMove[1]);
+        $('#sentence').html("SCORE: " + (Math.round(total * 100) / 100) 
+            + " in " + (playerPath.length-1) + " moves."
+            + "<br/>" + coreSentence);
+    }
+}
+
+var checkKey = function(e) {
+
+    var curPos = playerPath[playerPath.length - 1].split("_").map(Number)
+    var newPos;
+    e = e || window.event;
+
+    if (e.keyCode == '38') {
+        // up arrow
+        clickTile((curPos[0]-1), curPos[1]);
+    }
+    else if (e.keyCode == '40') {
+        // down arrow
+        clickTile((curPos[0]+1), curPos[1]);
+    }
+    else if (e.keyCode == '37') {
+        // left arrow
+        clickTile(curPos[0], (curPos[1]-1));
+    }
+    else if (e.keyCode == '39') {
+        // right arrow
+        clickTile(curPos[0], (curPos[1]+1));
+    }
+    else if (e.keyCode == '8' || e.ctrlKey) {
+        // backspace / ctrl
+        undo();
+    }
+
+}
+
+var answerStep = 0;
+var showAnswerStep = function() {
+    var move = maxes[1][answerStep].split("_").map(Number);
+    clickTile(move[0], move[1]);
+    answerStep++;
+    if (answerStep < maxes[1].length) setTimeout(showAnswerStep, 500);
+}
+
+var showAnswer = function() {
+    answerStep = 0;
+    // Undo the PlayerPath
+    var playerPathLength = (playerPath.length-1);
+    for (var i = 0; i < playerPathLength; i++ ) {
+        undo();
+    }
+
+    showAnswerStep();
+}
+
+var loadingMessageAndBuild = function() {
+    coreSentence = "LOADING BOARD...<br/>CALCULATING OPTIMAL PATH...";
+    $("#container").html("");
+    $('#sentence').html(coreSentence);
+    setTimeout(buildOperationsMaze, 5);
+}
+
+$(document).ready(function() {
+    changeNumberRange();
+    $("#numberranges").change(function() {
+        changeNumberRange();
+    });
+    $("#numberofboxes").change(function() {
+        changeNumberofBoxes();
+    });
+
+    document.onkeydown = checkKey;
+
+});
+
+</script>
+</head>
+<body>
+<div id="container" class="containersmall"></div>
+<div id="footer">
+    <h1 id="sentence">Equivalency Hunt Game</h1>
+    <form >
+      <select id="numberranges">
+          <option value="10" selected>1-10</option>
+          <option value="20">1-20</option>
+          <option value="100">1-100</option>
+          <!--option value="1000">1-1000</option//-->
+      </select>
+      <select id="numberofboxes">
+          <option value="3">3x3</option>
+          <option value="4">4x4</option>
+          <option value="5" selected>5x5</option>
+          <!--option value="6">6x6 (Long Loading Time)</option //-->
+          <!--option value="7">7x7 (REALLY Long Loading Time)</option //-->
+      </select><br/>
+
+      <div>
+        <div class="operation">
+          <div class="checkboxlabel">Addition</div>
+          <div class="checkboxThree">
+              <input type="checkbox" value="addition" id="addition" onClick="setOperations();" checked />
+              <label for="addition"></label>
+          </div>
+        </div>
+
+        <div class="operation">
+          <div class="checkboxlabel">Subtraction</div>
+          <div class="checkboxThree">
+              <input type="checkbox" value="subtraction" id="subtraction" onClick="setOperations();" checked />
+              <label for="subtraction"></label>
+          </div>
+        </div>
+
+        <div class="operation">
+          <div class="checkboxlabel">Multiplication</div>
+          <div class="checkboxThree">
+              <input type="checkbox" value="multiplication" id="multiplication" onClick="setOperations();" checked />
+              <label for="multiplication"></label>
+          </div>
+        </div>
+
+        <div class="operation">
+          <div class="checkboxlabel">Division</div>
+          <div class="checkboxThree">
+              <input type="checkbox" value="division" id="division" onClick="setOperations();" checked />
+              <label for="division"></label>
+          </div>
+        </div>
+      </div>
+
+      <input type="button" value="New Puzzle" onclick="loadingMessageAndBuild();" class="myButton" />
+      <input type="button" value="Undo" onclick="undo();" class="myButton" />
+      <input type="button" value="Show Answer" onclick="showAnswer();" class="myButton" />
+      <input type="button" value="Set Variant: Lowest Score" onclick="toggleVariant();" class="myButton" id="variantToggle" /><br/>
+      <h5 class="info">Use arrows to navigate the maze. Backspace/CTRL to undo move. Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
+    </form>
+</div>
+</body>
+</html>
