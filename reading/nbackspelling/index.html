@@ -1,0 +1,508 @@
+<html>
+<head>
+  <!--
+TODO:
+
+- Gets out of sync on error
+- Speak and Spell mode.
+ 
+  //-->
+<title>n-Back Spelling Game</title>
+<style>
+    body {
+        background-color: darkslateblue;
+        color: white;
+    }
+
+    a {
+      color: hotpink;
+    }
+
+    .largestFont {
+        font-size: 10em;
+        width: 100%;
+        text-align: center;      
+    }
+
+    .timecontainer, .container {
+        width: 100%;
+        text-align: center;
+        font-size: 2em;    
+    }
+
+    #footer {
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+    ol { 
+        text-align: center;
+    }
+
+    li {
+      padding: 0 15px 0 15px;
+      display: inline-block;
+      margin: 10px;
+      list-style: none;
+      outline: solid;
+      /*width: 150px;
+      height: 150px;*/
+      min-width: 25%;
+      height: 20%;
+      line-height: 100%;
+      text-align: center;
+      background-color: violet;
+    }
+
+    span { 
+      font-size: 3em;
+      font-weight: bold;
+      color: black;
+      position: relative;
+      top: 50%;
+    }
+
+    @media only screen and (max-width: 500px) {
+      span {
+        font-size: 2em;
+      }
+    }
+
+    .currentletter {
+      font-size: 6em;
+    }
+
+    .face-up {
+        background-color: crimson;
+        color: white;
+    }
+
+    .match {
+        background-color: yellow;
+        color: black;
+    }
+
+    select
+    {
+        font-size:2em;
+        font-weight: bold;
+        -webkit-appearance: none;
+        width: 300px !important;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+input, select {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.decrement, .increment
+{
+    font-size:30px;
+    width: 40px;
+    height: 50px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:80px;
+}
+
+.form-field:focus {
+   background: #c4f0ff;
+   color: #ff00e1;
+}
+
+.form-container h2 {
+   text-shadow: #595959 0 1px 0;
+   font-size:18px;
+   margin: 0 0 10px 0;
+   font-weight:bold;
+   text-align:center;
+}
+
+.form-title {
+   font-family: 'Helvetica Neue',Helvetica,sans-serif;
+   font-size: 1.5em;
+   margin-bottom:10px;
+   color: #ffffff;
+   text-shadow: #595959 0 1px 0;
+}
+
+</style>
+
+<script src="js/jquery-1.9.1.min.js"></script>
+<script src="js/jquery.easing.1.3.js"></script>
+<script>
+
+//http://www.mrsperkins.com/files/dolch_book.pdf
+
+var words = {};
+
+words[2] = ["AA","AB","AD","AE","AG","AH","AI","AL","AM","AN","AR","AS","AT","AW","AX","AY","BA","BE","BI","BO","BY","CH","DA","DE","DI","DO","EA","ED","EE","EF","EH","EL","EM","EN","ER","ES","ET","EX","FA","FE","FY","GI","GO","GU","HA","HE","HI","HM","HO","ID","IF","IN","IO","IS","IT","JA","JO","KA","KI","KO","KY","LA","LI","LO","MA","ME","MI","MM","MO","MU","MY","NA","NE","NO","NU","NY","OB","OD","OE","OF","OH","OI","OM","ON","OO","OP","OR","OS","OU","OW","OX","OY","PA","PE","PI","PO","QI","RE","SH","SI","SO","ST","TA","TE","TI","TO","UG","UH","UM","UN","UP","UR","US","UT","WE","WO","XI","XU","YA","YE","YO","YU","ZA","ZO"];
+
+words[3] = ["aba","abs","ace","act","add","ado","aft","age","ago","aha","aid","aim","air","ala","ale","all","alt","amp","ana","and","ant","any","ape","app","apt","arc","are","ark","arm","art","ash","ask","asp","ass","ate","ave","awe","axe","aye","BAA","bad","bag","ban","bar","bat","bay","bed","bee","beg","bel","ben","bet","bid","big","bin","bio","bis","bit","biz","bob","bog","boo","bow","box","boy","bra","bud","Bug","bum","bun","bus","but","buy","bye","cab","cad","cam","can","cap","car","cat","chi","cob","cod","col","con","coo","cop","cor","cos","cot","cow","cox","coy","cry","cub","cue","cum","cup","cut","dab","dad","dal","dam","dan","day","Dee","def","del","den","dew","did","die","dig","dim","din","dip","dis","doc","doe","dog","don","dot","dry","dub","due","dug","dun","duo","dye","ear","eat","ebb","ecu","eft","egg","ego","elf","elm","emu","end","era","eta","eve","eye","fab","fad","fan","far","fat","fax","fay","fed","fee","fen","few","fig","fin","fir","fit","fix","flu","fly","foe","fog","for","fox","fry","fun","fur","gag","gal","gap","gas","gay","gee","gel","gem","get","gig","gin","god","got","gum","gun","gut","guy","gym","had","ham","has","hat","hay","hem","hen","her","hey","hid","him","hip","his","hit","hog","hon","hop","hot","how","hub","hue","hug","huh","hum","hut","ice","icy","igg","ill","imp","ink","inn","ion","its","ivy","jam","jar","jaw","jay","jet","jew","job","joe","jog","joy","jug","jun","kay","ken","key","kid","kin","kit","lab","lac","lad","lag","lam","lap","law","lax","lay","lea","led","Lee","leg","les","let","lib","lid","lie","lip","lit","log","lot","low","mac","mad","mag","man","map","mar","mas","mat","max","may","med","meg","men","Met","mid","mil","mix","mob","mod","mol","mom","mon","mop","mot","mud","mug","mum","nab","nah","nan","nap","nay","neb","neg","net","new","nil","nip","nod","nor","nos","not","now","nun","nut","oak","odd","off","oft","oil","old","ole","one","ooh","opt","orb","ore","our","out","owe","owl","own","pac","pad","pal","pam","pan","pap","par","pas","pat","paw","pay","pea","peg","pen","pep","per","pet","pew","phi","pic","pie","pig","pin","pip","pit","ply","pod","pol","pop","pot","pro","psi","pub","pup","put","rad","rag","raj","ram","ran","rap","rat","raw","ray","red","ref","reg","rem","rep","rev","rib","rid","rig","rim","rip","rob","rod","roe","rot","row","rub","rue","rug","rum","run","rye","sab","sac","sad","sae","sag","sal","sap","sat","saw","say","sea","sec","see","sen","set","sew","sex","she","shy","sic","sim","sin","sip","sir","sis","sit","six","ski","sky","sly","sod","sol","son","sow","soy","spa","spy","sub","sue","sum","sun","sup","tab","tad","tag","tam","tan","tap","tar","tat","tax","tea","ted","tee","ten","the","thy","tie","tin","tip","tod","toe","tom","ton","too","top","tor","tot","tow","toy","try","tub","tug","two","use","van","vat","vet","via","vie","vow","wan","war","was","wax","way","web","wed","wee","wet","who","why","wig","win","wis","wit","won","woo","wow","wry","wye","yen","yep","yes","yet","you","zip","zoo"];
+
+words[4] = ["able","acid","aged","also","area","army","away","baby","back","ball","band","bank","base","bath","bear","beat","been","beer","bell","belt","best","bill","bird","blow","blue","boat","body","bomb","bond","bone","book","boom","born","boss","both","bowl","bulk","burn","bush","busy","call","calm","came","camp","card","care","case","cash","cast","cell","chat","chip","city","club","coal","coat","code","cold","come","cook","cool","cope","copy","CORE","cost","crew","crop","dark","data","date","dawn","days","dead","deal","dean","dear","debt","deep","deny","desk","dial","dick","diet","disc","disk","does","done","door","dose","down","draw","drew","drop","drug","dual","duke","dust","duty","each","earn","ease","east","easy","edge","else","even","ever","evil","exit","face","fact","fail","fair","fall","farm","fast","fate","fear","feed","feel","feet","fell","felt","file","fill","film","find","fine","fire","firm","fish","five","flat","flow","food","foot","ford","form","fort","four","free","from","fuel","full","fund","gain","game","gate","gave","gear","gene","gift","girl","give","glad","goal","goes","gold","Golf","gone","good","gray","grew","grey","grow","gulf","hair","half","hall","hand","hang","hard","harm","hate","have","head","hear","heat","held","hell","help","here","hero","high","hill","hire","hold","hole","holy","home","hope","host","hour","huge","hung","hunt","hurt","idea","inch","into","iron","item","jack","jane","jean","john","join","jump","jury","just","keen","keep","kent","kept","kick","kill","kind","king","knee","knew","know","lack","lady","laid","lake","land","lane","last","late","lead","left","less","life","lift","like","line","link","list","live","load","loan","lock","logo","long","look","lord","lose","loss","lost","love","luck","made","mail","main","make","male","many","Mark","mass","matt","meal","mean","meat","meet","menu","mere","mike","mile","milk","mill","mind","mine","miss","mode","mood","moon","more","most","move","much","must","name","navy","near","neck","need","news","next","nice","nick","nine","none","nose","note","okay","once","only","onto","open","oral","over","pace","pack","page","paid","pain","pair","palm","park","part","pass","past","path","peak","pick","pink","pipe","plan","play","plot","plug","plus","poll","pool","poor","port","post","pull","pure","push","race","rail","rain","rank","rare","rate","read","real","rear","rely","rent","rest","rice","rich","ride","ring","rise","risk","road","rock","role","roll","roof","room","root","rose","rule","rush","ruth","safe","said","sake","sale","salt","same","sand","save","seat","seed","seek","seem","seen","self","sell","send","sent","sept","ship","shop","shot","show","shut","sick","side","sign","site","size","skin","slip","slow","snow","soft","soil","sold","sole","some","song","soon","sort","soul","spot","star","stay","step","stop","such","suit","sure","take","tale","talk","tall","tank","tape","task","team","tech","tell","tend","term","test","text","than","that","them","then","they","thin","this","thus","till","time","tiny","told","toll","tone","tony","took","tool","tour","town","tree","trip","true","tune","turn","twin","type","unit","upon","used","user","vary","vast","very","vice","view","vote","wage","wait","wake","walk","wall","want","ward","warm","wash","wave","ways","weak","wear","week","well","went","were","west","what","when","whom","wide","wife","wild","will","wind","wine","wing","wire","wise","wish","with","wood","word","wore","work","yard","yeah","year","your","zero","zone"];
+
+words[5] = ["about","above","abuse","actor","acute","admit","adopt","adult","after","again","agent","agree","ahead","alarm","album","alert","alike","alive","allow","alone","along","alter","among","anger","Angle","angry","apart","apple","apply","arena","argue","arise","array","aside","asset","audio","audit","avoid","award","aware","badly","baker","bases","basic","basis","beach","began","begin","begun","being","below","bench","billy","birth","black","blame","blind","block","blood","board","boost","booth","bound","brain","brand","bread","break","breed","brief","bring","broad","broke","brown","build","built","buyer","cable","calif","carry","catch","cause","chain","chair","chart","chase","cheap","check","chest","chief","child","china","chose","civil","claim","class","clean","clear","click","clock","close","coach","coast","could","count","court","cover","craft","crash","cream","crime","cross","crowd","crown","curve","cycle","daily","dance","dated","dealt","death","debut","delay","depth","doing","doubt","dozen","draft","drama","drawn","dream","dress","drill","drink","drive","drove","dying","eager","early","earth","eight","elite","empty","enemy","enjoy","enter","entry","equal","error","event","every","exact","exist","extra","faith","false","fault","fiber","field","fifth","fifty","fight","final","first","fixed","flash","fleet","floor","fluid","focus","force","forth","forty","forum","found","frame","frank","fraud","fresh","front","fruit","fully","funny","giant","given","glass","globe","going","grace","grade","grand","grant","grass","great","green","gross","group","grown","guard","guess","guest","guide","happy","harry","heart","heavy","hence","henry","horse","hotel","house","human","ideal","image","index","inner","input","issue","japan","jimmy","joint","jones","judge","known","label","large","laser","later","laugh","layer","learn","lease","least","leave","legal","level","lewis","light","limit","links","lives","local","logic","loose","lower","lucky","lunch","lying","magic","major","maker","march","maria","match","maybe","mayor","meant","media","metal","might","minor","minus","mixed","model","money","month","moral","motor","mount","mouse","mouth","movie","music","needs","never","newly","night","noise","north","noted","novel","nurse","occur","ocean","offer","often","order","other","ought","paint","panel","paper","party","peace","peter","phase","phone","photo","piece","pilot","pitch","place","plain","plane","plant","plate","point","pound","power","press","price","pride","prime","print","prior","prize","proof","proud","prove","queen","quick","quiet","quite","radio","raise","range","rapid","ratio","reach","ready","refer","right","rival","river","robin","roger","roman","rough","round","route","royal","rural","scale","scene","scope","score","sense","serve","seven","shall","shape","share","sharp","sheet","shelf","shell","shift","shirt","shock","shoot","short","shown","sight","since","sixth","sixty","sized","skill","sleep","slide","small","smart","smile","smith","smoke","solid","solve","sorry","sound","south","space","spare","speak","speed","spend","spent","split","spoke","sport","staff","stage","stake","stand","start","state","steam","steel","stick","still","stock","stone","stood","store","storm","story","strip","stuck","study","stuff","style","sugar","suite","super","sweet","table","taken","taste","taxes","teach","teeth","terry","texas","thank","theft","their","theme","there","these","thick","thing","think","third","those","three","threw","throw","tight","times","tired","title","today","topic","total","touch","tough","tower","track","trade","train","treat","trend","trial","tried","tries","truck","truly","trust","truth","twice","under","undue","union","unity","until","upper","upset","urban","usage","usual","valid","value","video","virus","visit","vital","voice","waste","watch","water","wheel","where","which","while","white","whole","whose","woman","women","world","worry","worse","worst","worth","would","wound","write","wrong","wrote","yield","young","youth"];
+
+words[6] = ["abroad","accept","access","across","acting","action","active","actual","advice","advise","affect","afford","afraid","agency","agenda","almost","always","amount","animal","annual","answer","anyone","anyway","appeal","appear","around","arrive","artist","aspect","assess","assist","assume","attack","attend","august","author","avenue","backed","barely","battle","beauty","became","become","before","behalf","behind","belief","belong","berlin","better","beyond","bishop","border","bottle","bottom","bought","branch","breath","bridge","bright","broken","budget","burden","bureau","button","camera","cancer","cannot","carbon","career","castle","casual","caught","center","centre","chance","change","charge","choice","choose","chosen","church","circle","client","closed","closer","coffee","column","combat","coming","common","comply","copper","corner","costly","county","couple","course","covers","create","credit","crisis","custom","damage","danger","dealer","debate","decade","decide","defeat","defend","define","degree","demand","depend","deputy","desert","design","desire","detail","detect","device","differ","dinner","direct","doctor","dollar","domain","double","driven","driver","during","easily","eating","editor","effect","effort","eighth","either","eleven","emerge","empire","employ","enable","ending","energy","engage","engine","enough","ensure","entire","entity","equity","escape","estate","ethnic","exceed","except","excess","expand","expect","expert","export","extend","extent","fabric","facing","factor","failed","fairly","fallen","family","famous","father","fellow","female","figure","filing","finger","finish","fiscal","flight","flying","follow","forced","forest","forget","formal","format","former","foster","fought","fourth","French","friend","future","garden","gather","gender","german","global","golden","ground","growth","guilty","handed","handle","happen","hardly","headed","health","height","hidden","holder","honest","impact","import","income","indeed","injury","inside","intend","intent","invest","island","itself","jersey","joseph","junior","killed","labour","latest","latter","launch","lawyer","leader","league","leaves","legacy","length","lesson","letter","lights","likely","linked","liquid","listen","little","living","losing","lucent","luxury","mainly","making","manage","manner","manual","margin","marine","marked","market","martin","master","matter","mature","medium","member","memory","mental","merely","merger","method","middle","miller","mining","minute","mirror","mobile","modern","modest","module","moment","morris","mostly","mother","motion","moving","murder","museum","mutual","myself","narrow","nation","native","nature","nearby","nearly","nights","nobody","normal","notice","notion","number","object","obtain","office","offset","online","option","orange","origin","output","oxford","packed","palace","parent","partly","patent","people","period","permit","person","phrase","picked","planet","player","please","plenty","pocket","police","policy","prefer","pretty","prince","prison","profit","proper","proven","public","pursue","raised","random","rarely","rather","rating","reader","really","reason","recall","recent","record","reduce","reform","regard","regime","region","relate","relief","remain","remote","remove","repair","repeat","replay","report","rescue","resort","result","retail","retain","return","reveal","review","reward","riding","rising","robust","ruling","safety","salary","sample","saving","saying","scheme","school","screen","search","season","second","secret","sector","secure","seeing","select","seller","senior","series","server","settle","severe","sexual","should","signal","signed","silent","silver","simple","simply","single","sister","slight","smooth","social","solely","sought","source","soviet","speech","spirit","spoken","spread","spring","square","stable","status","steady","stolen","strain","stream","street","stress","strict","strike","string","strong","struck","studio","submit","sudden","suffer","summer","summit","supply","surely","survey","switch","symbol","system","taking","talent","target","taught","tenant","tender","tennis","thanks","theory","thirty","though","threat","thrown","ticket","timely","timing","tissue","toward","travel","treaty","trying","twelve","twenty","unable","unique","united","unless","unlike","update","useful","valley","varied","vendor","versus","victim","vision","visual","volume","walker","wealth","weekly","weight","wholly","window","winner","winter","within","wonder","worker","wright","writer","yellow"];
+
+words[7] = ["ability","absence","academy","account","accused","achieve","acquire","address","advance","adverse","advised","adviser","against","airline","airport","alcohol","alleged","already","analyst","ancient","another","anxiety","anxious","anybody","applied","arrange","arrival","article","assault","assumed","assured","attempt","attract","auction","average","backing","balance","banking","barrier","battery","bearing","beating","because","bedroom","believe","beneath","benefit","besides","between","billion","binding","brother","brought","burning","cabinet","caliber","calling","capable","capital","captain","caption","capture","careful","carrier","caution","ceiling","central","centric","century","certain","chamber","channel","chapter","charity","charlie","charter","checked","chicken","chronic","circuit","classes","classic","climate","closing","closure","clothes","collect","college","combine","comfort","command","comment","compact","company","compare","compete","complex","concept","concern","concert","conduct","confirm","connect","consent","consist","contact","contain","content","contest","context","control","convert","correct","council","counsel","counter","country","crucial","crystal","culture","current","cutting","dealing","decided","decline","default","defence","deficit","deliver","density","deposit","desktop","despite","destroy","develop","devoted","diamond","digital","discuss","disease","display","dispute","distant","diverse","divided","drawing","driving","dynamic","eastern","economy","edition","elderly","element","engaged","enhance","essence","evening","evident","exactly","examine","example","excited","exclude","exhibit","expense","explain","explore","express","extreme","factory","faculty","failing","failure","fashion","feature","federal","feeling","fiction","fifteen","filling","finance","finding","fishing","fitness","foreign","forever","formula","fortune","forward","founder","freedom","further","gallery","gateway","general","genetic","genuine","gigabit","greater","hanging","heading","healthy","hearing","heavily","helpful","helping","herself","highway","himself","history","holding","holiday","housing","however","hundred","husband","illegal","illness","imagine","imaging","improve","include","initial","inquiry","insight","install","instant","instead","intense","interim","involve","jointly","journal","journey","justice","justify","keeping","killing","kingdom","kitchen","knowing","landing","largely","lasting","leading","learned","leisure","liberal","liberty","library","license","limited","listing","logical","loyalty","machine","manager","married","massive","maximum","meaning","measure","medical","meeting","mention","message","million","mineral","minimal","minimum","missing","mission","mistake","mixture","monitor","monthly","morning","musical","mystery","natural","neither","nervous","network","neutral","notable","nothing","nowhere","nuclear","nursing","obvious","offense","officer","ongoing","opening","operate","opinion","optical","organic","outcome","outdoor","outlook","outside","overall","pacific","package","painted","parking","partial","partner","passage","passing","passion","passive","patient","pattern","payable","payment","penalty","pending","pension","percent","perfect","perform","perhaps","phoenix","picking","picture","pioneer","plastic","pointed","popular","portion","poverty","precise","predict","premier","premium","prepare","present","prevent","primary","printer","privacy","private","problem","proceed","process","produce","product","profile","program","project","promise","promote","protect","protein","protest","provide","publish","purpose","pushing","qualify","quality","quarter","radical","railway","readily","Reading","reality","realize","receipt","receive","recover","reflect","regular","related","release","remains","removal","removed","replace","request","require","reserve","resolve","respect","respond","restore","retired","revenue","reverse","rollout","routine","running","satisfy","science","section","segment","serious","service","serving","session","setting","seventh","several","shortly","showing","silence","silicon","similar","sitting","sixteen","skilled","smoking","society","somehow","someone","speaker","special","species","sponsor","station","storage","strange","stretch","student","studied","subject","succeed","success","suggest","summary","support","suppose","supreme","surface","surgery","surplus","survive","suspect","sustain","teacher","telecom","telling","tension","theatre","therapy","thereby","thought","through","tonight","totally","touched","towards","traffic","trouble","turning","typical","uniform","unknown","unusual","upgrade","upscale","utility","variety","various","vehicle","venture","version","veteran","victory","viewing","village","violent","virtual","visible","waiting","walking","wanting","warning","warrant","wearing","weather","webcast","website","wedding","weekend","welcome","welfare","western","whereas","whereby","whether","willing","winning","without","witness","working","writing","written"];
+
+words[8] = ["absolute","abstract","academic","accepted","accident","accuracy","accurate","achieved","acquired","activity","actually","addition","adequate","adjacent","adjusted","advanced","advisory","advocate","affected","aircraft","alliance","although","aluminum","analysis","announce","anything","anywhere","apparent","appendix","approach","approval","argument","artistic","assembly","assuming","athletic","attached","attitude","attorney","audience","autonomy","aviation","bachelor","bacteria","baseball","bathroom","becoming","benjamin","birthday","boundary","breaking","breeding","building","bulletin","business","calendar","campaign","capacity","casualty","catching","category","Catholic","cautious","cellular","ceremony","chairman","champion","chemical","children","circular","civilian","clearing","clinical","clothing","collapse","colonial","colorful","commence","commerce","complain","complete","composed","compound","comprise","computer","conclude","concrete","conflict","confused","congress","consider","constant","consumer","continue","contract","contrary","contrast","convince","corridor","coverage","covering","creation","creative","criminal","critical","crossing","cultural","currency","customer","database","daughter","daylight","deadline","deciding","decision","decrease","deferred","definite","delicate","delivery","describe","designer","detailed","diabetes","dialogue","diameter","directly","director","disabled","disaster","disclose","discount","discover","disorder","disposal","distance","distinct","district","dividend","division","doctrine","document","domestic","dominant","dominate","doubtful","dramatic","dressing","dropping","duration","dynamics","earnings","economic","educated","efficacy","eighteen","election","electric","eligible","emerging","emphasis","employee","endeavor","engaging","engineer","enormous","entirely","entrance","envelope","equality","equation","estimate","evaluate","eventual","everyday","everyone","evidence","exchange","exciting","exercise","explicit","exposure","extended","external","facility","familiar","featured","feedback","festival","finished","firewall","flagship","flexible","floating","football","foothill","forecast","foremost","formerly","fourteen","fraction","franklin","frequent","friendly","frontier","function","generate","generous","genomics","goodwill","governor","graduate","graphics","grateful","guardian","guidance","handling","hardware","heritage","highland","historic","homeless","homepage","hospital","humanity","identify","identity","ideology","imperial","incident","included","increase","indicate","indirect","industry","informal","informed","inherent","initiate","innocent","inspired","instance","integral","intended","interact","interest","interior","internal","interval","intimate","intranet","invasion","involved","isolated","judgment","judicial","junction","keyboard","landlord","language","laughter","learning","leverage","lifetime","lighting","likewise","limiting","literary","location","magazine","magnetic","maintain","majority","marginal","marriage","material","maturity","maximize","meantime","measured","medicine","medieval","memorial","merchant","midnight","military","minimize","minister","ministry","minority","mobility","modeling","moderate","momentum","monetary","moreover","mortgage","mountain","mounting","movement","multiple","national","negative","nineteen","northern","notebook","numerous","observer","occasion","offering","official","offshore","operator","opponent","opposite","optimism","optional","ordinary","organize","original","overcome","overhead","overseas","overview","painting","parallel","parental","patented","patience","peaceful","periodic","personal","persuade","petition","physical","pipeline","platform","pleasant","pleasure","politics","portable","portrait","position","positive","possible","powerful","practice","precious","pregnant","presence","preserve","pressing","pressure","previous","princess","printing","priority","probable","probably","producer","profound","progress","property","proposal","prospect","protocol","provided","provider","province","publicly","purchase","pursuant","quantity","question","rational","reaction","received","receiver","recovery","regional","register","relation","relative","relevant","reliable","reliance","religion","remember","renowned","repeated","reporter","republic","required","research","reserved","resident","resigned","resource","response","restrict","revision","rigorous","romantic","sampling","scenario","schedule","scrutiny","seasonal","secondly","security","sensible","sentence","separate","sequence","sergeant","shipping","shortage","shoulder","simplify","situated","slightly","software","solution","somebody","somewhat","southern","speaking","specific","spectrum","sporting","standard","standing","standout","sterling","straight","strategy","strength","striking","struggle","stunning","suburban","suitable","superior","supposed","surgical","surprise","survival","sweeping","swimming","symbolic","sympathy","syndrome","tactical","tailored","takeover","tangible","taxation","taxpayer","teaching","tendency","terminal","terrible","thinking","thirteen","thorough","thousand","together","tomorrow","touching","tracking","training","transfer","traveled","treasury","triangle","tropical","turnover","ultimate","umbrella","universe","unlawful","unlikely","valuable","variable","vertical","victoria","violence","volatile","warranty","weakness","weighted","whatever","whenever","wherever","wildlife","wireless","withdraw","woodland","workshop","yourself"];
+
+words[9] = ["abducting","abduction","abjection","abolished","abruption","absconder","absolving","absurdity","abusively","acidulent","adjunctly","adjusting","adjustive","admixture","adoringly","adsorbent","adsorbing","advection","adversity","adverting","afterglow","aitchbone","alchemist","algorithm","almsgiver","alongside","amblyopic","ambushing","ametropic","amortized","amphibole","amplitude","amusingly","anchorite","angelfish","angleworm","anguished","anhydrite","ankylosed","ankylotic","anthropic","antiserum","anxiously","aphorized","archfiend","artichoke","arytenoid","asyndetic","atrophied","auctioned","authoring","authorize","autogenic","avirulent","awestruck","backfield","backfired","backslide","backswept","backsword","bacterium","bacteroid","balconied","bandolier","baronetcy","basketful","bastioned","batfowled","bearishly","becalming","bedspring","befouling","beholding","bemocking","benchmark","bestowing","betraying","bewraying","bifurcate","bigotedly","bimonthly","binocular","biography","birdhouse","blackfish","blasphemy","bleaching","blindworm","blockader","blockhead","blockiest","blotchier","blotching","blowziest","bluepoint","blueprint","boardlike","botanized","bothering","boulevard","bowstring","boyfriend","bracingly","branchlet","brawniest","breaching","breakdown","breasting","breathing","brimstone","broaching","brocading","bromating","brominate","bronchial","brutalize","brutishly","bucketing","buckthorn","buckwheat","budgetary","bulwarked","bumpering","bumpkinly","bunchiest","burnished","busheling","butcherly","byproduct","bystander","cabinetry","cabriolet","cadetship","cambering","caponized","caprioled","capsuling","capsulize","captioned","capturing","carbonize","carousing","carpeting","casketing","cautioned","cavorting","censorial","centigram","certainly","chagrined","chalkiest","chamoised","chandlery","changeful","charwomen","chelating","chelation","chemisorb","chemistry","cherimoya","chipboard","chlordane","chondrite","chondrule","chortling","chorusing","chromatid","chromatin","chunkiest","clamoring","clampdown","clangored","clavering","clepsydra","clergyman","clerkship","clipboard","closeting","closuring","cloturing","cloudiest","coastline","cogitable","cohabited","coinsured","colanders","columbine","columnist","combating","combative","combusted","comparing","comparted","compendia","compering","competing","complaint","compliant","complying","comprised","computing","comradely","configure","confirmed","confiture","conflated","congruity","conjugate","conspired","constable","construed","consulate","consulted","contrived","contumely","convexity","convulsed","copulated","copyright","corbeling","cornfield","cornflake","corpulent","coshering","costively","costumier","costuming","countable","countably","courtesan","courtship","craftsmen","crankiest","crawliest","credulity","cremating","cremation","crimsoned","croupiest","crumbiest","crumbling","crumpling","crusading","cryptogam","culminate","cumbering","cuneiform","curbstone","cursively","curtailed","curtained","curtsying","curveting","cushioned","cuspidate","custodial","custodian","customary","customize","cymbalist","cytoplasm","dangerous","dashingly","davenport","dayflower","deathblow","debarking","decamping","decathlon","declaring","declawing","defiantly","definably","deflating","deflation","defoliant","deforming","deformity","defraying","delousing","demonical","departing","deploring","deploying","depluming","deporting","depraving","depravity","desalting","descrying","desirably","desultory","detaching","detouring","devaluing","deviously","devouring","diathermy","diplomacy","discharge","discovery","disembark","dishtowel","dishwater","dislocate","dismantle","dithyramb","docketing","doctrinal","dogmatize","dosimetry","doughiest","doughtier","doughtily","dowitcher","downright","downscale","downshift","downstage","draftsmen","dragonfly","drawknife","drinkable","dropsical","drumstick","duplexing","duplicate","dynamiter","dysphoria","dysphoric","dystopian","earthling","eastbound","ectoplasm","educating","education","eightfold","embarking","embodying","embracing","embryonal","embryonic","employing","emulating","emulation","endoplasm","endurably","enviously","enzymatic","equitably","equivocal","escorting","estimably","ethmoidal","eucalypti","eurythmic","excluding","exclusion","excursion","excusably","exhorting","expiatory","exploding","exploring","exporting","expulsion","extruding","extrusion","exudation","factoring","factorize","faltering","fancywork","farmhouse","fashioned","fashioner","fathering","fathoming","featuring","fecundity","feudalism","feudalist","feudality","feudatory","fieldwork","firsthand","fisherman","fishplate","flagstone","flashcube","flavoring","flowchart","flowering","flybridge","flyweight","focalized","foreshank","foresight","foresting","formality","formalize","formative","formulaic","formulate","fornicate","forsaking","forsythia","fostering","framboise","franchise","frangible","freckling","frescoing","frolicked","frowziest","frugality","fruitcake","frumpiest","fruticose","fulminate","fumigated","fumigator","furbished","furcation","furnished","furtively","galumphed","garnished","gasholder","gearshift","genocidal","genotypic","gerfalcon","ghastlier","ghostlike","girandole","glamorize","globefish","glucoside","glutamine","glycoside","gnarliest","godfather","godparent","goldbrick","goldfinch","goldsmith","grandiose","grapeshot","graticule","greyhound","grouchily","groundsel","grubstake","grumpiest","guardsmen","guidepost","gunpowder","gymnastic","gynoecium","gyrfalcon","hailstone","hailstorm","hairstyle","haltering","hampering","hamstring","hamstrung","handiwork","handsomer","handspike","handwrite","handwrote","harlequin","harmonize","havocking","headfirst","heartsick","hectogram","hectoring","heinously","hemolytic","heralding","herbalist","hesitancy","hideously","histogram","hobnailed","horseback","horsemint","horseplay","horsetail","housemaid","humanized","humanlike","humdinger","hungriest","husbandly","husbandry","hydrating","hydration","hydraulic","hyperbola","hypnotism","hypnotize","hypocrite","ibuprofen","ideograph","implanted","importune","imposture","impotency","imprudent","imputable","inclosure","incrusted","incubated","incubator","inculpate","incurable","incurably","incurvate","indecorum","inexactly","infracted","ingrafted","inoculate","inspector","insulated","insulator","insurable","interlock","interplay","introduce","involucre","involuted","irksomely","jacketing","jackfruit","jacklight","jacksmelt","jailhouse","jockeying","jockstrap","jocundity","jubilance","jubilated","judgeship","jungliest","juxtapose","kilohertz","knavishly","koshering","kymograph","labyrinth","lackeying","lakefront","langouste","larcenist","lathering","lawyering","layperson","lecturing","legionary","lethargic","lifeguard","ligatured","lightface","lightsome","liveryman","livestock","locksmith","logarithm","longevity","longitude","loquacity","lubricant","lubricate","lucrative","lumbering","lunchtime","lustering","lymphatic","machinery","macintosh","magnitude","mahlstick","makeshift","manicured","manifesto","manticore","marketing","marveling","masculine","masterful","mastering","maulstick","mawkishly","mayflower","measuring","mechanist","mendacity","menstrual","metabolic","metalwork","micropyle","microwave","miscreant","miserably","misgovern","mishandle","misplaced","misplayed","misquoted","misreckon","mockingly","modernist","modernity","moldering","molesting","monastery","moralized","mordantly","morganite","morseling","mothering","mountable","mousetrap","moustache","muscadine","mustached","mustachio","mustering","neighbors","nailbrush","narcotize","naughtier","naughtily","nemophila","nervously","neuralgic","neuroglia","nightclub","nightmare","normality","normalize","normative","nostalgic","notarized","nourished","numerical","nursemaid","nymphalid","numerical","obfuscate","objecting","objurgate","obligated","obscenity","obscurant","obscurely","obscuring","obscurity","observant","observing","obstinacy","obtruding","obtrusive","odalisque","oligarchy","onslaught","operantly","operating","organized","osculated","ostracize","outbraved","outcrying","outfacing","outlander","outlawing","outlaying","outpacing","outplayed","outracing","outranged","outranked","outsailed","outspread","outwalked","outwardly","ovalbumin","overawing","overbuild","overbuilt","overhasty","overlying","overmatch","overnight","oversight","overusing","ovulating","ownership","pachyderm","packeting","packhorse","paintwork","palmistry","paltering","panegyric","pantheism","pantyhose","parboiled","parceling","parchment","parhelion","parleying","parodying","parsimony","pasturing","patchouli","patchouly","patchwork","patrimony","patrolmen","patronize","paunchier","peculator","pecuniary","penultima","perfuming","perfusion","permuting","personify","pervading","pervasion","phagocyte","philander","piquantly","piscatory","pitchfork","piteously","planetoid","playhouse","plaything","pleaching","plethoric","plowshare","pluckiest","pneumatic","pocketful","pocketing","pointedly","polarized","policeman","polyamide","polyhedra","polymeric","porcelain","postfixed","posturing","poulticed","powdering","preachify","preachily","preaching","predacity","predating","predation","prefacing","preluding","presuming","princedom","printable","privately","probating","probative","producing","profanely","profanity","profusely","progestin","provident","proximate","prudently","prudishly","pseudonym","pterygium","pterygoid","published","publisher","puckering","puckishly","pugnacity","pulmonary","pulsating","pulsation","punchiest","purchased","purgation","purgative","purloined","purveying","pyridoxal","quavering","quicksand","quickstep","quodlibet","randomize","raspingly","raunchily","recasting","recopying","recouping","redacting","redaction","redisplay","reducibly","reduction","refashion","reflating","reflation","refutably","rehousing","relapsing","reloading","remindful","remolding","removably","repasting","replacing","replaying","republish","repulsing","repulsion","reputably","resolving","restyling","resulting","revaluing","revamping","revolting","revulsion","rhapsodic","rheumatic","rocketing","roguishly","roqueting","roughcast","roughneck","roundelay","rousingly","routinely","ruminated","salubrity","sapiently","schmaltzy","schnauzer","schnitzel","schnorkel","sclerotia","scoundrel","scrambled","scrawling","screaming","scrounged","scrupling","sculpting","searching","seaworthy","secluding","secondary","sectional","sectorial","sectoring","seduction","semilunar","sequacity","sexuality","shackling","shadowily","shadowing","shakedown","shambling","shipboard","shipowner","shipwreck","shockable","shoeblack","shortcake","shortwave","shoveling","showering","showplace","shrinkage","shrouding","sidetrack","signatory","signature","signboard","simpleton","simulated","simulator","skeptical","sketchily","sketching","slaughter","sleuthing","slipcover","slouchier","slouching","sluiceway","snakebird","snowdrift","snowfield","snowflake","sobriquet","socketing","soldering","solemnity","solvating","something","soundable","southerly","southland","southward","spackling","spadework","sparingly","sparkling","spearmint","specialty","speckling","spermatic","spermatid","spherical","sphincter","spikenard","splintery","splotched","sprawling","spreading","sprightly","springbok","sprinkled","sprouting","squawking","squeaking","squealing","squinched","staghound","starchily","starching","stauncher","staunchly","steadying","stepchild","stockpile","stockyard","stomached","stomacher","strangely","strangled","streaking","streaming","stridency","strobilae","stumbling","subacidly","subagency","subalpine","subaltern","subatomic","subdeacon","subeditor","subfamily","subjacent","subjoined","sublimate","submarine","submicron","subnormal","subregion","subtropic","subwaying","suctioned","suctorial","sulfating","sulfonate","sunbathed","sunbather","sunflower","supernova","supinated","supremacy","surcingle","surfacing","surveying","switchman","switchmen","swordplay","swordtail","sycophant","symboling","symbolize","sympatric","symphonic","syncopate","syndicate","synodical","tampering","tarnished","taxidermy","teasingly","tediously","therapsid","thinkable","thinkably","threadfin","threading","throwback","thumbnail","thwacking","thylacine","thyroidal","thyroxine","tinderbox","touchable","traducing","trampling","transduce","trapezium","trapezoid","traveling","treadling","trembling","tribesman","triumphal","triumphed","troubling","troweling","truckling","truckload","trunkfish","tuckering","unblocked","uncharged","uncharted","unclaimed","unclasped","uncloaked","unclothed","undercoat","underplay","underplot","undershot","unearthly","unethical","unfrocked","unholiest","uniformed","uniformly","universal","unlatched","unmatched","unmixable","unmovable","unpoliced","unreality","unridable","unrivaled","unscathed","unshackle","unshapely","unsighted","unsightly","unspoiled","unsprayed","untypical","unwariest","unwarlike","upholding","upholster","uploading","uprightly","upscaling","urbanized","vainglory","valorized","vaporized","variously","varnished","vasectomy","vectorial","vectoring","vehicular","verbosity","verdantly","veritably","vesicular","vestryman","vetchling","vibrantly","victualed","victualer","virulency","viscounty","vocalized","vocalizer","volcanism","voluntary","vouchsafe","voyeurism","vulcanism","vulcanize","vulgarism","vulgarity","vulgarize","waterbuck","welcoming","welfarist","westbound","windbreak","windstorm","winsomely","wolfsbane","womanized","womanizer","womanlike","wonderful","wordsmith","workbench","workplace","worktable","worshiped","wreathing","wrestling","wristband","yachtsmen","yardstick","youngster","zygomatic","wordplays"];
+
+words[10] = ["California","Everything","Aboveboard","Washington","Basketball","Weathering","Characters","Literature","Perfection","Volleyball","Depression","Homecoming","Technology","Maleficent","Watermelon","Appreciate","Relaxation","Convection","Government","Abominable","Salmonella","Strawberry","Aberration","Retirement","Television","Contraband","Alzheimers","Silhouette","Friendship","Punishment","Loneliness","University","Cinderella","Confidence","Restaurant","Abstinence","Blancmange","Blackboard","Discipline","Renovation","Helicopter","Generation","Adaptation","Skateboard","Lightboard","Apocalypse","Understand","Leadership","Revolution","Insulation","Antarctica","wilderness","motivation","pilgrimage","diabolical","kaepernick","orthopedic","conscience","reciprocal","absolution","management","rainforest","girlfriend","trampoline","resolution","vegetables","accountant","expression","illuminati","earthquake","protection","tambourine","endearment","individual","innovation","abstaining","gymnastics","excitement","allocution","elementary","conference","adrenaline","accomplish","instrument","ubiquitous","accounting","speechless","concussion","mozzarella","compliment","appearance","difference","accelerate","underworld","affliction","everywhere","bronchitis","breathless","disposable","consummate","beautician","oppression","chromosome","generosity","procession","pangasinan","experiment","corruption","foundation","atmosphere","practicing","historical","medication","bottomless","combustion","temptation","contortion","Republican","statistics","equanimity","meticulous","sweetheart","tournament","automobile","invincible","apostrophe","dictionary","laceration","conjecture","separation","apothecary","revelation","infinitive","weatherman","appetizing","cheesecake","calceolate","snorkeling","connection","graduation","disturbing","hyphenated","chalkboard","convention","apprentice","endangered","counseling","jejuneness","indulgence","threatened","patriotism","forgetting","acceptance","evaluation","comparison","motorcycle","undeniable","hypotenuse","evacuation","excellence","attraction","diminution","gracefully","allegiance","cigarettes","playground","aggravated","derivative","refraction","parliament","possession","photogenic","Phosphorus","creativity","apposition","abdication","pedestrian","annihilate","brightness","contagious","invitation","prefecture","acceptable","hypothesis","cleverness","remarkable","Alexandria","Archimedes","attractive","victorious","assailable","Disneyland","headhunter","prosperity","bitterness","experience","submission","accusation","clementine","aggression","diagnosing","effortless","locomotive","compulsion","dedication","heartbreak","industrial","immaculate","benevolent","perception","camouflage","tenderness","roundabout","apparition","scoreboard","abhorrence","dysprosium","narcissist","admiration","Pocahontas","expedition","microscope","promethium","toothbrush","liberation","meditation","waterspout","internally","production","inequality","Siddhartha","laboratory","leprechaun","polynomial","vocabulary","Manchester","reflection","aggressive","apotheosis","resistance","prediction","chinchilla","concoction","infectious","fundraiser","hallelujah","department","philosophy","sanitation","directions","convincing","Balenciaga","charleston","determined","discretion","engagement","loveliness","respectful","slobbering","blacksmith","relentless","denotation","slithering","believable","motionless","flashlight","guillotine","Australian","rockabilly","chimpanzee","plagiarism","staggering","iodination","transition","simplicity","watercress","Birmingham","mysterious","discussion","glycolysis","casualties","peacefully","conclusion","prevention","ballooning","misfortune","confession","participle","commandant","ammunition","challenger","suggestion","cellophane","initiative","starstruck","articulate","disrespect","complexion","technetium","confection","capricious","defecation","simulation","Cincinnati","antisocial","outrageous","recreation","impression","cordillera","embroidery","plantation","semicircle","toothpaste","consistent","centiliter","vegetarian","stalagmite","dehydrated","healthcare","conviction","pentameter","centimeter","Montessori","remembered","aggravator","microphone","ameliorate","saliferous","audiophile","aquamarine","Blackbeard","irrigation","absorption","calculator","arithmetic","resentment","intimation","deposition","discomfort","aftershock","abbreviate","diminutive","wheelchair","antagonist","commission","astronomer","chloroform","impressive","vernacular","percussion","paramecium","bluebonnet","pernicious","moderation","cryosphere","cerebellum","cantaloupe","allegation","providence","gadolinium","fatherless","identifier","anesthesia","flatulence","compliance","enthusiast","chandelier","ableptical","redemption","fledgeling","belongings","accessible","astringent","commercial","abstemious","incredible","blackberry","attendance","paraphilia","crocheting","hesitation","misleading","gregarious","backbiting","changeling","pugnacious","poinsettia","liveliness","binoculars","cardiology","linebacker","phenomenon","icebreaker","impediment","penicillin","courageous","impossible","playwright","definition","democratic","hemorrhoid","aspiration","equestrian","septillion","blubbering","coronation","employment","paranormal","grapefruit","outlandish","applesauce","footprints","adjustment","politician","seamstress","amanuensis","typewriter","exhibition","abnegation","continence","interstate","penetrator","compassion","monophobia","locomotion","vulnerable","impeccable","givingness","rescission","properties","dependable","opposition","brilliance","blabbering","conceiving","infidelity","sabbatical","auditorium","abjuration","psychology","defamation","completion","insatiable","appositive","wonderland","tourniquet","thoughtful","missionary","geothermal","daydreamer","salutation","Copernicus","bewildered","millennium","nutcracker","harassment","dreamworld","allosaurus","conspiracy","babysitter","podiatrist","proportion","irritation","conflation","caricature","levitation","unyielding","insolation","epiglottis","hemisphere","accumulate","underwater","exorbitant","dispensary","terminator","Aboriginal","choiceless","occupation","Madagascar","wildebeest","eucalyptus","castration","motherless","ecotourism","woodcutter","temperance","complexity","Rottweiler","Bratislava","equivalent","smothering","Montgomery","acrobatics","coaptation","artificial","effleurage","biological","tessellate"];
+
+words[11] = ["undemanding","information","preposition","abomination","personality","subtraction","quadrillion","syllabicate","alternative","celebration","cleanliness","anniversary","forgiveness","belligerent","imagination","serendipity","segregation","inspiration","marshmallow","electricity","caterpillar","abiogenesis","intelligent","Shakespeare","environment","destination","Christopher","advertising","excoriation","unstoppable","appreciated","quintillion","invigilator","exterminate","photography","responsible","collocation","accessories","complicated","agriculture","perambulate","demarcation","barbiturate","rebarbative","certificate","worldliness","colonoscopy","androgynous","ablactation","nothingness","everlasting","communicate","defloration","retribution","cheerleader","achievement","abracadabra","application","counterfeit","Constantine","californium","evaporation","perspective","amphetamine","cooperation","reservation","mathematics","metamorphic","remembering","independent","prognathous","Philippines","spectacular","infatuation","ingredients","abandonment","emotionless","captivating","convolution","Connecticut","consequence","Abecedarian","appraisable","pollination","measurement","association","Switzerland","commutative","affirmation","hospitality","magnificent","susurration","Mesopotamia","rapscallion","amaranthine","translation","temperature","chlorophyll","pomegranate","grasshopper","promiscuous","respiration","radioactive","counterpart","handwriting","awesomeness","encouraging","Montesquieu","extrication","reciprocate","Afghanistan","contraption","imperialism","elimination","thermometer","circulation","battlefield","orientation","exclamation","acupuncture","telepathist","anticipated","circulatory","hyphenation","punctuation","catastrophe","einsteinium","cytokinesis","respiratory","catchphrase","improvement","altercation","contraction","Oktoberfest","acclamation","composition","mischievous","cholesterol","intolerable","countryside","masterpiece","declaration","identically","brotherhood","abstraction","competition","acknowledge","destruction","opportunity","explanation","compunction","cauliflower","beautifully","adventurous","instruments","babysitting","convocation","subjugation","grandmother","chloroplast","engineering","arrangement","telescoping","adolescence","nightingale","infestation","distraction","Netherlands","arraignment","divulgation","firefighter","bodybuilder","kleptomania","entertainer","concentrate","benediction","cartography","restoration","executioner","exploration","contemplate","appointment","hypothermia","bookkeeping","highlighter","sponsorship","accountable","humiliation","remembrance","antioxidant","christening","dehydration","approaching","expectation","penetration","unfortunate","impressment","antechamber","abbreviated","trepidation","citizenship","backsliding","untouchable","controversy","dissipation","stethoscope","fascinating","equilibrium","unhappiness","suppuration","affectation","necrophilia","challenging","archaeology","interaction","development","sublimation","convertible","incantation","unbreakable","quarterback","magnanimous","enlightened","constipated","consumerism","instruction","Sagittarius","telekinesis","defenseless","absenteeism","thoughtless","contentment","premonition","beneficiary","corporation","superficial","combination","bureaucracy","indigestion","recognition","pandemonium","acrimonious","collaborate","heartbroken","foolishness","Alexandrine","unrelatable","conjugation","ventilation","profanation","fabrication","foreseeable","predictable","extenuating","disoriented","stegosaurus","observation","Yellowstone","benevolence","accelerator","suffocation","sarcophagus","supermarket","distinction","unthinkable","termination","percolation","transmitter","benefaction","purposeless","confederacy","impecunious","equilateral","acquisitive","bulletproof","Albuquerque","vaccination","perceivable","accommodate","tranquility","inquisition","performance","denominator","diffraction","obstruction","Charlemagne","overcomable","immigration","countenance","coagulation","coordinates","controlling","electronics","continental","appropriate","afterburner","appellation","anachronism","devastation","devaluation","aphrodisiac","intertwined","fluorescent","coeducation","unconscious","billionaire","burgomaster","breadwinner","gingerbread","interesting","permutation","quicksilver","convenience","bludgeoning","Octoberfest","lithosphere","exasperated","agronomical","candlelight","consolation","acclimation","unicellular","practicable","punctilious","businessman","addressable","pessimistic","hibernating","denigration","witheringly","punctuality","repudiation","scholarship","programming","inheritance","atelectasis","jabberwocky","partnership","electrician","ornithopter","conjunction","decorations","psychedelic","maintenance","aestivation","sensitivity","abnormality","malingering","terrestrial","aeronautics","chamberlain","eradication","stultifying","depredation","aggravation","examination","incredulous","leaderboard","hummingbird","annihilator","firecracker","aquaplaning","criticizing","bootlegging","scrumptious","informative","devastating","hydrosphere","anadiplosis","cannibalism","Twelfthtide","meaningless","affrication","epinephrine","cherrystone","antecubital","seriousness","enchantment","abecedarius","fashionista","confinement","selfishness","compartment","poltergeist","welcomeness","probability","coordinator","astigmatism","conditional","unnecessary","scopolamine","aquaculture","preconceive","abridgement","edification","anagnorisis","affiliation","pointillism","fascination","trichinosis","pterodactyl","necromancer","fornication","superlative","approximate","daydreaming","exoskeleton","mellifluous","credibility","Acanthaceae","industrious","calculation","accordingly","shoplifting","bivouacking","disparaging","decomposing","McCarthyism","procurement","hardworking","gallbladder","impertinent","exaggerated","asphyxiated","forwardness","suburbanite","inquisitive","amygdalitis","railroading","incongruous","subdivision","grandmaster","compliments","expectorate","acquisition","hypersomnia","anticyclone","facilitator","experienced","nonetheless","callipygous","indignation","correlation","remonstrate","determinant","requisition","deification","perpetrator","astonishing","malediction","antigravity","misconstrue","nationalism","forswearing","approbation","degradation","caravanning","contracting","vacillation","necessities","maneuvering","insinuation","legislation","treacherous","provocation","predicament","commonplace","aggravating","Americanism","bittersweet","perforation","malfunction","chronometer","callipygian","dingleberry","reverberate","arbitration","abocclusion","millionaire","stockjobber","melancholia","beneficence","extradition","megalomania","dressmaking","unsimulated","behaviorism","advancement","cooperative","linguistics","leatherback","helpfulness","sprezzatura","alexandrite","convincible","familiarity","carbonation","abecedarium","adenomyosis"];
+
+words[12] = ["alliteration","unidentified","intermittent","Pennsylvania","exacerbation","independence","commensalism","intelligence","relationship","thanksgiving","professional","organization","sporadically","intimidating","abolitionist","onomatopoeia","appreciation","annunciation","malnutrition","architecture","biodiversity","acceleration","interdiction","trigonometry","communicator","bodybuilding","perspiration","appertaining","resurrection","constipation","civilization","velociraptor","retrocession","expectations","ambidextrous","cytoskeleton","hippopotamus","interjection","exasperation","felicitation","abbreviation","voluminosity","rambunctious","colonization","interception","championship","acquaintance","depreciation","consequences","grandparents","refrigerator","cantankerous","kaleidoscope","exhilarating","neighborhood","anticipation","stridulation","electrifying","prescription","condensation","affectionate","philandering","progesterone","Philadelphia","pericarditis","veterinarian","Frankenstein","alliterative","apperception","surroundings","announcement","predilection","bioterrorism","conservation","transmission","echolocation","cartographer","encyclopedia","conservative","hypothalamus","uncomparable","supercilious","colonisation","agribusiness","blandishment","overwhelming","intellectual","approachable","doppelganger","supernatural","finalisation","constitution","absquatulate","reproduction","excruciating","degeneration","headquarters","amphitheater","repossession","reliableness","conditioning","asphyxiation","idealisation","annihilation","unattainable","unacceptable","electrolysis","adulteration","menstruation","selflessness","satisfaction","togetherness","sectionalism","ramification","aerodynamics","Thessalonica","alliterating","equivocating","equivocation","heartbreaker","ratification","shapeshifter","ankylosaurus","intersection","unemployment","dissertation","preservation","interruption","rejuvenation","astronomical","registration","amortization","recollection","immunization","difficulties","intransigent","intoxication","distillation","handkerchief","accidentally","construction","calisthenics","supervention","extinguisher","pediatrician","antidiabetic","photographer","praseodymium","amelioration","testosterone","testosterone","wretchedness","biochemistry","fenestration","bullfighting","coordination","adjudication","acrocyanosis","faithfulness","introduction","backstabbing","desalination","globetrotter","breathtaking","brontosaurus","humanitarian","exhilaration","moonlighting","commensurate","Barranquilla","listlessness","ostentatious","unprotesting","ingratiating","stonewalling","accomplished","entertaining","skillfulness","inflammation","preposterous","ascertaining","thunderstorm","anagrammatic","kindergarten","overachiever","academically","petrifaction","feminization","apprehension","pertinacious","accelerating","protuberance","identifiable","backwoodsman","hopelessness","administrate","subconscious","carbohydrate","orthodontics","cancellation","butterscotch","fermentation","enterprising","cosmopolitan","withstanding","decongestant","presentation","specificness","complication","transparency","enthusiastic","apprehensive","extravaganza","reabsorption","adaptability","distribution","conquistador","anaplasmosis","misadventure","impregnation","effervescent","idiosyncrasy","gastrulation","abbreviature","invisibility","tuberculosis","ballottement","anthropology","Christianity","organisation","indifference","hypertension","backbreaking","counterpoint","thoroughbred","dodecahedron","bacteriology","notification","disquisition","supplication","appendicitis","urbanisation","accentuation","circumstance","illegitimate","articulation","jurisdiction","renunciation","dumbfounding","pacification","incorrigible","intercurrent","proctologist","unfathomable","incineration","tessellation","contribution","codification","happenstance","narcissistic","proclamation","mercantilism","philanthropy","forestalling","confidential","abstruseness","installation","vigintillion","housewarming","questionable","bastardizing","breakthrough","thankfulness","occasionally","recapitulate","dissociation","fibrillation","plastination","Stradivarius","paracentesis","amalgamation","microcircuit","orthodontist","schoolfellow","overstepping","promethazine","conversation","cheeseburger","proscription","peacefulness","acculturated","headmistress","invigorating","aeronautical","disingenuous","sandblasting","equalization","illumination","flamethrower","absoluteness","animatronics","intermission","accouterment","introjection","subcutaneous","preponderate","intoxicating","carpetbagger","peacekeeping","mobilization","broadcasting","auscultation","fainthearted","incomparable","disintegrate","misdirection","Michelangelo","amalgamating","skyrocketing","compensation","benefactress","annoyingness","apportioning","nonrenewable","disappearing","conscription","haberdashery","isolationist","adequateness","homelessness","disadvantage","monotheistic","intellection","rheumatology","alstroemeria","astonishment","inaccessible","accoutrement","wrongfulness","disaccharide","debilitating","commissioner","localization","divisibility","troublemaker","cohabitation","karyokinesis","straightener","embezzlement","trapshooting","unimaginable","extraversion","acquiescence","friendliness","confirmation","asynchronous","dehumidifier","disclamation","feminisation","stockjobbing","uglification","authenticate","dishonorable","irresolution","incontinence","fabulousness","exaggerating","ministration","canonisation","accompanying","phospholipid","entrepreneur","Saskatchewan","surveillance","characterize","fireproofing","overreaction","calumniation","nomenclature","unattractive","apprehending","anteposition","amortisation","brinkmanship","decapitation","disciplinary","frontiersman","undefeatable","additionally","monetization","admonishment","compromising","characterise","choreography","graciousness","illustration","silviculture","sharecropper","antemeridian","disregarding","consecration","disagreement","blindfolding","horticulture","disconsolate","boastfulness","irregardless","contemptible","anticyclonic","counterclaim","vociferating","gynecologist","abalienation","incalculable","sidestepping","blueprinting","anathematize","exaggeration","lollygagging","presumptuous","discrediting","cardiologist","repercussion","chemotherapy","sternutation","flexibleness","incandescent","simultaneity","sporadicness","optimization","demodulation","chalcanthite","imperfection","historically","congeniality","proportional","bachelorship","claudication","ossification","unconsenting","thoroughness","kleptomaniac","conservatory","precognition","cadastration","mobilisation","hyponatremia","immeasurable","steeplechase","educationist","bicentennial","steeplechase","Kanchenjunga","tranquilizer","dermabrasion","discourteous","regeneration","ambitionless","instrumental","denunciation","melodramatic","stichomythia","extravagance","insemination","chalcopyrite","cantillation","contumacious","tribulations","appendectomy","interlocking","heartwarming","alimentation","deflagration","verification","contemplated","afterthought","anticipating","knightliness","penalisation","arthrography","fluidization","oscillometer","overpowering","sustentation","malcontented","unionization","psychologist","rhythmically","sacrilegious","preponderant","straightness","acantholysis","obliteration","volunteering","Indianapolis","belligerence","remonstrance","blacktopping","disbelieving","anamorphosis"];
+
+
+words[13] = ["syllabication","entertainment","righteousness","constellation","communication","weightlifting","concentration","mummification","deforestation","appropriation","globalization","extraordinary","consciousness","lackadaisical","factorisation","insignificant","contemplating","acetylcholine","plasmodesmata","administrator","quadrilateral","antihistamine","strangulation","determination","pontification","collaboration","afforestation","unconditional","skateboarding","enlightenment","confederation","ratiocination","embarrassment","indefatigable","foregrounding","schizophrenia","globalisation","mathematician","flabbergasted","factorization","International","consternation","accommodating","sportsmanship","encouragement","reincarnation","mitochondrion","scarification","reforestation","revolutionary","transpiration","consanguinity","regimentation","inspirational","recrimination","Mediterranean","horsefeathers","irreplaceable","cosmetologist","dangerousness","accommodation","grandchildren","sequestration","possibilities","anticlockwise","accreditation","stoichiometry","lithification","parallelogram","acknowledging","companionship","precipitation","biotechnology","amniocentesis","authoritative","procrastinate","irresponsible","telecommuting","reverberation","primogeniture","expressionism","metamorphosis","maladjustment","Schadenfreude","backscratcher","bloodcurdling","circumference","autobiography","pronunciation","hairsplitting","demonstration","foreshadowing","asthenosphere","hallucinogens","justification","contamination","subordination","anachronistic","contortionist","structuralism","macromolecule","clarification","acculturation","antipollution","waterproofing","pusillanimous","schizophrenic","strengthening","juxtaposition","brokenhearted","phencyclidine","desegregation","prognosticate","dissimulation","anticlimactic","hyperhidrosis","acceptability","involuntarily","teleportation","tyrannosaurus","preoccupation","baccalaureate","chronographic","trigonometric","investigation","butterfingers","acetaminophen","dependability","electrocution","understanding","hyperglycemia","confrontation","ventriloquist","extrapolation","unexplainable","sanctimonious","condescending","calcification","chrysanthemum","biodegradable","identicalness","accompaniment","microorganism","accelerometer","contradiction","individuality","socialization","reinforcement","phytoplankton","meteorologist","labialization","amitriptyline","intercalation","rutherfordium","sharecropping","falsification","scintillating","automatically","achromatopsia","anesthetizing","uncomfortable","apportionment","chronological","cauterization","prevarication","elephantiasis","integumentary","socialisation","decompression","approximately","diagnostician","insubordinate","lactobacillus","reverberating","agglomeration","heartbreaking","miscegenation","actinomycosis","prepositional","defibrillator","recollectable","archaeologist","idiosyncratic","unilateralism","impersonating","ethnocentrism","applicability","mechanisation","picturization","streptococcus","antinomianism","communization","disheartening","sophisticated","administering","specificality","animadversion","ichthyologist","Impressionism","indescribable","transcription","disappointing","paraphernalia","artificiality","discomforting","unfortunately","hilariousness","brainstorming","anticoagulant","incorporation","dramatization","certification","animalisation","confraternity","contraception","ferromagnetic","approximating","perfectionist","thermosetting","peregrination","inconceivable","misconnection","neighbourhood","contemplation","assassination","circumstances","mycobacterium","bronchiolitis","efflorescence","admissibility","consolidation","hydrocephalus","dysfunctional","impressionist","normalization","remonstration","reciprocating","contraceptive","antisubmarine","environmental","manifestation","octodecillion","granddaughter","toxoplasmosis","vulgarization","prevaricating","fortification","argumentation","Aquifoliaceae","hieroglyphics","thunderstruck","anthroposophy","inflorescence","animalization","comprehension","functionality","multicellular","magnetization","vulnerability","housecleaning","aeromechanics","heartlessness","gratification","zooflagellate","steadfastness","counterattack","familiarizing","authenticated","fasciculation","superannuated","telemarketing","abortifacient","interposition","affenpinscher","hypercalcemia","abominability","enculturation","establishment","bouillabaisse","bildungsroman","mystification","conflagration","recalcitrance","hermaphrodite","formalization","actualization","contravention","inconsiderate","infinitesimal","irrationality","embellishment","complimentary","accomplishing","thenceforward","anthropometry","algebraically","dermatologist","guarantorship","lepidopterist","individuating","antibacterial","stereotypical","expropriation","transatlantic","onomatopoetic","somersaulting","characterless","heartwounding","knowledgeable","consideration","individuation","resuscitation","Alligatoridae","gesticulation","amplification","callisthenics","homochromatic","uncoordinated","hallucinating","commandeering","hallucination","domestication","corythosaurus","challengeable","undisturbable","actualisation","capaciousness","sterilization","incrimination","dissolutional","Amaranthaceae","exhibitionist","beautifulness","laboriousness","decomposition","desperateness","inappropriate","accessibility","morphogenesis","unfulfillment","eavesdropping","powerlessness","semiconductor","sarcastically","theatricality","infraspinatus","devirgination","introspective","leptospirosis","disseminating","magnification","specification","featherweight","aminophylline","qualification","economization","misunderstood","oversaturated","differentiate","admirableness","hazardousness","companionless","housebreaking","agreeableness","modernization","particularize","congressional","consolidating","multicultural","gracelessness","verbigeration","impossibility","angelicalness","bougainvillea","unconquerable","philosophical","unpunctuality","signification","premeditation","valedictorian","accommodative","distinguished","undercarriage","allowableness","sterilisation","pandiculation","comparatively","domiciliation","modernisation","Machiavellian","ovoviviparous","predominating","encapsulation","basidiolichen","reduplication","heterogeneous","crossbreeding","advertizement","confabulation","reciprocation","matriculation","prepossessing","manufacturing","mechanization","decontaminate","ornithologist","deliciousness","neoclassicism","hybridization","regurgitation","unconfirmable","misconception","hyalinization","authorization","republicanism","wonderfulness","intrusiveness","mandatoriness","Curculionidae","directionless","indistinction","antiflatulent","myelinisation","functionalism","serendipitous","barbarisation","alternatively","benightedness","intervenience","acetification","inconvenience","adventuresome","interoception","fossilisation","autochthonous","superposition","dissemination","polychromatic","visualisation","rationalizing","inconvincible","elaborateness","crystallizing","tonsillectomy","interrogative","reprehensible","cornification","signalization","psychometrics","visualization","administrable","perambulating","unselfishness","approximation","boardinghouse","counterweight","presignifying","soundproofing","temporariness","preconception","acidification","xanthochroism","officiousness","victimization","deteriorating","fortuneteller","assertiveness","perambulation","jollification","densification","verbalization","perlustration","airworthiness","unabbreviated","clandestinity","anaesthetized","fertilization","beauteousness","glacification","glorification","extermination","stabilization","vacuolization","Theraphosidae","deterioration","misproportion","instantiation","triangulation","agriculturist","grandioseness","archaeopteryx","believability","forestallment","ornamentation","concatenation","alligatorfish","impracticable","concentricity","pervasiveness","tribalization"];
+
+words[14] = ["discrimination","photosynthesis","Constantinople","saponification","transformation","multiplication","capitalization","transportation","trichomoniasis","responsibility","disappointment","conjunctivitis","representative","expressionless","representation","capitalisation","disambiguation","chemosynthesis","gentrification","groundbreaking","defenestration","administration","interpretation","accountability","paleontologist","identification","understandable","schweinsteiger","specialization","benzodiazepine","classification","accomplishment","generalization","teleprocessing","hyperlipidemia","neutralization","ridiculousness","archaebacteria","abdominoplasty","infrastructure","communications","autosuggestion","antidepressant","counterculture","initialisation","procrastinator","chromatography","administrative","characteristic","abstemiousness","gerrymandering","abstractedness","reconstruction","acceptableness","cardiovascular","neutralisation","beautification","anthropometric","slaughterhouse","acanthocytosis","remarkableness","staphylococcus","acknowledgment","accommodations","accomplishable","presupposition","simplification","understatement","pasteurization","absentmindedly","rehabilitation","aggrandizement","reconciliation","electrophysics","thermodynamics","apprenticeship","anesthesiology","teleconference","foreordination","achondroplasia","forthrightness","extemporaneous","abdominousness","polymerization","salubriousness","Westernization","nanotechnology","libidinousness","administrating","anathematizing","naturalization","hyperventilate","stratification","candlelighting","biodegradation","authentication","disorientation","associationism","diverticulitis","electioneering","proprioception","knickerbockers","homogenization","bioremediation","superstructure","disembarkation","polymerisation","irreconcilable","widespreadness","dehumanization","ammonification","fundamentalism","lyophilisation","consubstantial","depolarization","liberalization","congratulation","stultification","weightlessness","detoxification","disillusioning","cinematography","pharmaceutical","naturalisation","braunschweiger","centrifugation","intermittently","Anthocerotales","bioengineering","implementation","centralization","egalitarianism","quintessential","abstractionist","abominableness","pasteurisation","cholelithiasis","anthropotheism","utilitarianism","bastardization","indestructible","possessiveness","poikilothermic","archaeological","Acanthocephala","lyophilization","hypothetically","attractiveness","bronchodilator","macroeconomics","macroeconomics","backscratching","demobilization","prettification","reconnaissance","sanctification","novemdecillion","tergiversation","transamination","specialisation","unconventional","pneumoconiosis","norepinephrine","depolarisation","farsightedness","disintegrating","exsanguination","hyperextension","allegorization","distinguishing","demisemiquaver","schematization","particularness","decolonization","predestination","Anthoceropsida","thyrotoxicosis","sophistication","microeconomics","reinvigoration","uncontroverted","metaphorically","countervailing","correspondence","recapitulation","macroevolution","comprehensible","influentiality","reconnoitering","grandiloquence","indoctrination","antiquarianism","immunoglobulin","Asclepiadaceae","discolouration","collectiveness","mountaineering","disinvolvement","ambassadorship","sesquipedalian","disenchantment","electrocoating","foreshortening","interplanetary","insurmountable","metamerization","professionally","predisposition","anthropologist","topicalization","phantasmagoria","altruistically","acupunctuation","automysophobia","noteworthiness","miscalculation","performability","autoplagiarism","manageableness","amorphophallus","prefabrication","weatherologist","consuetudinary","systematicness","deconstruction","arthrocentesis","anticonvulsant","abarticulation","initialization","countermeasure","articulateness","plasmapheresis","metamorphosing","Brobdingnagian","uncontrollable","unpreparedness","centralisation","musclebuilding","Zoroastrianism","unsatisfaction","businessperson","Acnidosporidia","blithesomeness","humidification","disinclination","malfunctioning","trivialization","fatherlessness","lateralisation","featherbedding","categorisation","openhandedness","flabbergasting","constructivism","federalisation","delightfulness","misinformation","Mephistopheles","aggressiveness","appendicularia","delocalization","antiperspirant","longitudinally","conglutination","concretization","monosaccharide","neocolonialism","serviceability","microbiologist","anagrammatical","quantification","choicelessness","absquatulation","astrophysicist","undemonstrable","tatterdemalion","conscienceless","aftersensation","Caryophyllales","aforementioned","automatization","electrogilding","iatrochemistry","achondroplasty","affectionately","philosophizing","defibrillation","linguistically","deossification","underestimated","arboricultural","hypothyroidism","disinheritance","Wollstonecraft","counterworking","clavicytherium","mistranslation","overprotective","unfriendliness","septuagenarian","discriminating","demoralization","archidiaconate","emotionalizing","permissiveness","Rhinocerotidae","fallaciousness","phantasmagoric","chickenhearted","censoriousness","superannuation","electrokinetic","suggestiveness","antineoplastic","fraternisation","quinquesection","meaningfulness","substantiation","fluidification","antiarrhythmic","depigmentation","ultramasculine","meditativeness","insightfulness","generalisation","commissionaire","foreseeability","characterizing","categorization","persuasiveness","philanthropist","counterfeiting","unpleasantness","incapacitating","dependableness","cleistothecium","demobilisation","hallucinogenic","micrometeorite","unappreciation","erythropoiesis","perniciousness","bastardisation","overproduction","existentialism","devitalisation","suprainfection","admissibleness","anthropopathic","disembowelment","lateralization","insignificance","unindebtedness","reintroduction","overprotection","Auriculariales","immobilisation","Westernisation","histoplasmosis","directionality","exponentiation","tonguelessness","fraternization","auspiciousness","unidentifiable","fingerspelling","radicalization","frontierswoman","supererogation","channelisation","irresoluteness","submissiveness","schoolmistress","interconnected","circuitousness","contraposition","reinforcements","condescendence","intercommunion","contraindicate","irreproachable","alliteratively","anthropotheist","actinomyxidian","historicalness","unapproachable","substantiating","glottalization","Megalonychidae","misapplication","desalinization","Internationale","unattributable","surprisingness","monoplacophora","appetizingness","intellectually","immaterialness","regularisation","intermediation","nephroblastoma","Worcestershire","discouragement","dermatomycosis","asymptotically","philosophaster","decompensation","Deuteromycetes","connaturalness","effortlessness","unintermittent","demonetisation","unskillfulness","interaffiliate","outmaneuvering","overshadowment","redintegration","erythrocytosis","unchangingness","rebelliousness","unenthusiastic","contrapositive","bioluminescent","disorderliness","autobiographer","apprehensively","businesspeople","circumnavigate","transmigration","universalistic","contagiousness","breathlessness","purposefulness","nondisjunction","languorousness","imperturbation","adenocarcinoma","disintegrative","libertarianism","unfruitfulness","exceptionality","roadworthiness","monopolisation","astroalchemist","malodorousness","changelessness","disaffirmation","archaeotherium","disgustingness","conduplication","conduplication","Hemipteronatus","motherlessness","unsalutariness","boisterousness","contestability","unalterability","metempsychosis","alphabetically","reasonableness","indefiniteness","unfrequentness","decolorization","overstretching","figurativeness","Anguilliformes","charitableness","incompleteness","antiadrenergic","lechatelierite","retrogradation","outrageousness","benevolentness","remorsefulness","astrochemistry","neighborliness","responsiveness","lexicalisation","intractability","suggestibility","revitalisation","seasonableness","inflexibleness","conglomeration","bullheadedness","disciplinarian","osteoarthritis","unpoeticalness","schematisation","outlandishness","lapidification","coolheadedness","Elisabethville","accustomedness","stigmatisation","worthwhileness","dracunculiasis","strongheadness","refractoriness","superintendent"];
+
+words[15] = ["procrastination","personification","characteristics","desertification","pulchritudinous","abdominovesical","congratulations","Rumpelstiltskin","influentialness","thermochemistry","alphabetisation","methamphetamine","interdependence","Acanthisittidae","accomplishments","unprepossessing","acknowledgeable","Americanization","acknowledgement","prognostication","antepenultimate","acclimatization","maneuverability","rationalisation","bioluminescence","atherosclerosis","syllabification","mischievousness","parthenogenesis","acclimatisation","discombobulated","trustworthiness","carnivorousness","Armadillidiidae","misapprehension","costochondritis","nationalisation","insubordination","kindheartedness","connoisseurship","excommunication","miniaturization","procrastinating","roentgenization","medicamentation","confidentiality","internalization","achondroplastic","misappreciation","anticoagulation","academicianship","rationalization","acquisitiveness","nationalization","succinylcholine","Americanisation","Platyhelminthes","accountableness","anticholinergic","prenotification","familiarization","crystallization","experimentation","electrification","appropriateness","alphabetization","instrumentation","cholecystectomy","accommodatingly","approximatively","totalitarianism","inaccessibility","pseudoephedrine","marginalization","familiarisation","cyclobenzaprine","circularisation","corynebacterium","unconditionally","Auriculariaceae","gastroenteritis","autoluminescent","intellectuality","arraignableness","disorganization","dehydrofreezing","blameworthiness","picturesqueness","imponderability","internalisation","interchangeable","straightforward","housebrokenness","materialisation","responsibleness","standoffishness","flibbertigibbet","instrumentalist","individualizing","diversification","inconsequential","comfortableness","criminalization","Accipitriformes","discontinuation","systematization","crystallography","resourcefulness","memorialization","materialization","meaninglessness","underhandedness","weatherboarding","reapportionment","serviceableness","plenipotentiary","masculinisation","interreflection","hemochromatosis","agriculturalist","hospitalization","disadvantageous","therapeutically","anthropomorphic","hypoproteinemia","synchronization","Mastigomycotina","demagnetisation","nearsightedness","levelheadedness","lightheadedness","forthcomingness","disorganisation","desensitization","consecutiveness","personalization","transfiguration","chemicalization","destabilization","brokenheartedly","hypostatisation","computerization","underproduction","anthropopathism","purposelessness","masculinization","uncomprehending","unqualification","decarboxylation","pleasurableness","achromatization","desensitisation","blankmindedness","downheartedness","anthropocentric","mythologization","measurelessness","gentlemanliness","discommendation","decontamination","counterargument","thoughtlessness","inconsideration","democratization","marginalisation","acculturational","intellectualize","hypostatization","promiscuousness","disarticulation","sesquicentenary","objectification","dissatisfaction","phenolphthalein","macroscopically","physiologically","Laryngostenosis","adventurousness","unaccommodating","ophthalmologist","neighbourliness","electropositive","anthropological","photojournalism","dichotomisation","radioprotection","threateningness","distinguishment","angiotelectasia","milliequivalent","crystallisation","governmentalism","restrengthening","miniaturisation","softheartedness","differentiation","disentanglement","reharmonisation","undemonstrative","exemplificative","extemporisation","pharmacotherapy","remorselessness","energeticalness","conventionality","treacherousness","precipitousness","importunateness","ineffectiveness","manoeuvrability","environmentally","notwithstanding","trinitrotoluene","diphenhydramine","angustirostrate","unequivocalness","Dromaeosauridae","faithworthiness","neurobiological","distinctiveness","photoconduction","perfectionistic","adenohypophysis","intussusception","hereditarianism","authoritatively","communalization","destructiveness","extracurricular","agranulocytosis","distrustfulness","decalcification","romanticization","chemicophysical","unangelicalness","externalisation","Cycadofilicales","electrolyzation","interaffiliated","transplantation","palaeontologist","hospitalisation","hypercorrection","Marginocephalia","uncommunicative","intensification","indemnification","significantness","reharmonization","balanoposthitis","afibrinogenemia","supplementation","Acanthoscelides","acknowledgments","mistrustfulness","vasoconstrictor","transliteration","reconsideration","incalculability","unpalatableness","asclepiadaceous","cephalohematoma","trichloroethane","Aristotelianism","nonintervention","hyperthyroidism","overcopiousness","professionalism","demagnetization","Gloucestershire","sledgehammering","afforestational","archaebacterium","controversially","Anthocerotaceae","problematicness","unchangeability","predeliberation","interconnection","imaginativeness","anthropophagite","disrespectfully","inattentiveness","disequalization","superfluousness","harebrainedness","complementarity","intelligibility","Liechtensteiner","nontransferable","illustriousness","goodnaturedness","whatchamacallit","incommensurable","superimposition","parasympathetic","unreconstructed","ariboflavinosis","blasphemousness","contemporaneity","memorialisation","contemporaneity","unmanageability","dermatophytosis","sententiousness","coccidiomycosis","unsubstantiated","perfunctoriness","punctiliousness","cytomegalovirus","unselfconfident","unconscientious","systematisation","cooperativeness","precipitateness","vascularisation","grandmotherhood","substantialness","unrighteousness","procrastinative","unintentionally","criminalisation","conscientiously","distastefulness","unrealistically","conservationism","impecuniousness","democratisation","displeasingness","unconsciousness","standardisation","overbearingness","unargumentative","Acanthopterygii","synchronisation","Presbyterianism","venturesomeness","nonsatisfaction","nonintoxicating","heartbrokenness","Cilioflagellata","underevaluation","pleasurefulness","externalization","keratoacanthoma","electromagnetic","instrumentality","appropinquation","complementation","overcalculation","overcalculation","compendiousness","disagreeability","mellifluousness","Basidiomycotina","ubiquitarianism","anthropophagous","inexcitableness","Tabernaemontana","substantiatable","disenfranchised","demythologizing","standardization","coinstantaneous","polyunsaturated","electrocutioner","Caryophyllaceae","psychosynthesis","Convallariaceae","basidiomycetous","halfheartedness","Aristolochiales","hypochondriasis","inopportuneness","foresightedness","enigmaticalness","troubleshooting","exemplification","astronavigation","closefistedness","insensitiveness","wrongheadedness","dermatoglyphics","cinematographer","nonconsummation","defencelessness","archiepiscopate","Aphyllophorales","outstandingness","redetermination","minimifidianism","quarrelsomeness","transparentness","vasovesiculitis","Europeanisation","nephrolithiasis","incompatibility","disconfirmation","correspondently","counterbalanced","correspondently","uncontroversial","correspondingly","indeterminately","dichotomization","gossipmongering","Monocotyledones","polycrystalline","Chrysochloridae","conventionalize","undissimulating","Aspidophoroides","considerateness","straitlacedness","etherealization","comparativeness","Czechoslovakian","schoolmastering","plainspokenness","desoxyephedrine","circularization","unprotectedness","contentiousness","destabilisation","accommodational","lackadaisically","contravallation","justifiableness","gigantopithecus","intractableness","tightfistedness","lionheartedness","impoliticalness","scrumptiousness","Hippoglossoides","diagonalization","indefeasibility","diagonalisation","unacceptability","Ctenocephalides","flavoutsomeness","psychologically","crackpottedness","troublesomeness","superordination","unquestioningly","misconstruction","apperceptionism","oversensitivity","intellectualist","counterposition","affirmativeness","detribalization","unpremeditation","extemporariness","brazenfacedness","teletypewriting","entrepreneurial","arboriculturist","nonenterprising","phytomorphology","adiaphanousness","addleheadedness","tempestuousness","Myrmecophagidae","complicatedness","anthropogenetic","thermoregulator","contemporaneous","slackwittedness","weakheartedness","destalinisation","immortalization","pseudosyllogism","romanticisation","architecturally","unexcessiveness","grandiloquently","preachification","underprivileged","vertiginousness","compressibility","pretentiousness","procreativeness","ineffectualness","hematocytopenia","southeastwardly","unperfectedness","extemporization","exteriorization","prestigiousness","discernibleness","restrictiveness","tranquilization","mythologisation","sportsmanliness","Pseudomonadales","noninterruption","indefensibility","Blastocladiales"];
+
+// http://www.yougowords.com/16-letters-1
+
+var minWordLevel = 3;
+var currentWordLevel = 3;
+var maxWordLevel = words.length + 1;
+var currentWordCharacterArray = [];
+var currentWord = "";
+var firstKeyPressed = false;
+var timeRunning = 0;
+var timer;
+var keypressAllowed = true;
+var keypressRepeatAllowed = true;
+var speakingWord = false;
+var currentScore = 0;
+var totalCorrect = 0;
+var totalWords = 0;
+var currentStreak = 0;
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 13)];
+    }
+    return color;
+}
+
+function getBrightHex() {
+    var hexvals = ["8", "9", "A", "B", "C", "D", "E", "F"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
+function getDarkHex() {
+    var hexvals = ["0", "1", "2", "3", "4", "5", "6", "7"];
+    currHexVal = "#";
+    for(i = 0; i < 6; i++) {
+        idx = Math.floor(Math.random() * 7); //picks a num 0 to 14
+        currHexVal += hexvals[idx];
+    }
+    return currHexVal;
+}
+
+function speakAndSpellWord(word, charArray) {
+    // Disable Keypress while speaking
+    speakingWord = true;
+    var speakWord = new SpeechSynthesisUtterance(word);
+    speakWord.lang = 'en-US';
+    speakWord.rate = 1;
+    speakWord.onend = function (event) {
+        $('#typedLetters').html("**WAIT**");
+    }
+    window.speechSynthesis.speak(speakWord);
+
+    var spelledOut = charArray.join(" ");
+    var spellWord = new SpeechSynthesisUtterance(spelledOut);
+    spellWord.lang = 'en-US';
+    spellWord.rate = parseFloat($("#spellingSpeed").val());
+    spellWord.onend = function (event) {
+        setTimeout(function(){ 
+            $('#typedLetters').html("");
+            speakingWord = false;
+            keypressAllowed = true;
+        }, 500);
+        $('#typedLetters').html("!!!GO!!!").fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+    }
+    window.speechSynthesis.speak(spellWord);
+}
+
+var updateLevelScoreStreak = function() {
+    var percentCorrect = ((totalCorrect/totalWords) * 100) + "%";
+    $("#score").text("Score: " + currentScore + " / " + percentCorrect);
+    $("#correctTotal").text("Correct/Words: " + totalCorrect + " / " + totalWords);
+    $("#level").text("Level: " + currentWordLevel);
+    $("#streak").text("Streak: " + currentStreak);
+}
+
+var getNextWord = function() {
+    totalWords++;
+    currentWord = words[currentWordLevel][Math.floor(Math.random()*words[currentWordLevel].length)];
+    currentWordCharacterArray = currentWord.split('');
+    speakAndSpellWord(currentWord, currentWordCharacterArray);
+}
+
+var newGame = function() {
+    if(!('speechSynthesis' in window)) {
+        alert("Sorry, your browser does not support speechSynthesis");
+        return false;
+    }
+    window.clearInterval(timer);
+    $('#time').text('Time: 0.0');
+    currentWordLevel = minWordLevel;
+    currentScore = 0;
+    currentStreak = 0;
+    totalCorrect = 0;
+    totalWords = 0;
+    firstKeyPressed = false;
+    updateLevelScoreStreak();
+    getNextWord();
+}
+
+var testKeyPress = function(e){
+    //This code prevents user from holding down a key.
+    if (event.repeat != undefined) {
+        keypressRepeatAllowed = !event.repeat;
+    }
+    if (!keypressAllowed || !keypressRepeatAllowed || speakingWord) return;
+
+    // Prevent keypress while we
+    // process the one just entered
+    keypressAllowed = false;
+
+    if(currentWordCharacterArray.length != 0 && String.fromCharCode(e.keyCode).toUpperCase() == currentWordCharacterArray[0].toUpperCase()) {
+        // If correct letter
+        var typedLetters = $('#typedLetters').html();
+        $('#typedLetters').html(typedLetters + currentWordCharacterArray[0].toUpperCase());
+        //alphacolor = getBrightHex();
+
+        backgroundcolor = getDarkHex();
+        document.body.style.background = backgroundcolor;
+
+        if(!firstKeyPressed){
+            timer = setInterval(function(){
+              if (!speakingWord)
+              {
+                  timeRunning += 0.01;
+                  $('#time').text('Time: ' + timeRunning.toFixed(3));
+              }
+            }, 10);
+            firstKeyPressed = true;
+        }
+          
+        currentWordCharacterArray.shift();
+
+        if(currentWordCharacterArray.length == 0) {
+            // Score the word
+            totalCorrect++;
+            currentStreak++;
+            currentScore += (currentWord.length*currentStreak);
+            
+            // Up the level and get the next word
+            currentWordLevel++;
+            if (currentWordLevel > maxWordLevel)
+                currentWordLevel = maxWordLevel;
+            getNextWord();
+        }
+        updateLevelScoreStreak();
+        keypressAllowed = true;
+    } else {
+        // Wrong key.
+        keypressAllowed = false;
+
+        $('#typedLetters').html(currentWord.toUpperCase())
+            .fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+
+        var audioElement = document.createElement('audio');
+        audioElement.setAttribute('src', 'mp3/wrong.mp3');
+        $.get();
+        audioElement.play();
+
+        // Lower the level and get the next word
+        currentStreak = 0;
+        currentWordLevel--;
+        if (currentWordLevel < minWordLevel)
+            currentWordLevel = minWordLevel;
+        updateLevelScoreStreak();
+
+        setTimeout(function(){ 
+            getNextWord();
+        }, 1000);
+
+        //Allowed after speak word.
+        //keypressAllowed = true;
+    }
+}
+
+var incrementDecrement = function(button, incdec) {
+    // Get the field name
+    var fieldName = $(button).attr('field');
+    var field = $('#'+fieldName);
+    // Get increment/decrement value
+    var precision = 0;
+    if (typeof(field.attr("data-precision")) != "undefined")
+    {
+      precision = parseFloat(field.attr("data-precision"));
+    }
+    var amt = parseFloat(field.attr("data-incdec"));
+    // Get its current value
+    var currentVal = parseFloat(field.val());
+    // If it isn't undefined
+    if (!isNaN(currentVal)) {
+        if (incdec == "-")
+        {
+          // Decrement one
+          newValue = parseFloat(currentVal - amt).toFixed(precision);
+          if (newValue < 0) {
+              newValue = 0;
+          }
+        }
+        else
+        {
+          // Increment one
+          newValue = parseFloat(currentVal + amt).toFixed(precision);
+        }
+    } else {
+        // Otherwise put a 0 there
+        newValue = 0;
+    }
+
+    field.val(newValue);
+}
+
+$(document).ready(function() {
+    // This button will increment the value
+    $('.increment').click(function(e){
+        // Stop acting like a button
+        e.preventDefault();
+        incrementDecrement(this, "+");
+    });
+
+    // This button will decrement the value till 0
+    $(".decrement").click(function(e) {
+        // Stop acting like a button
+        e.preventDefault();
+        incrementDecrement(this, "-");
+    });
+
+    $(window).keydown(function(e){
+        testKeyPress(e);
+    });
+    $(document).keyup(function(e) {
+        keypressRepeatAllowed = true;
+    });
+    $(document).focus(function(e) {
+        keypressRepeatAllowed = true;
+    });
+});
+
+</script>
+</head>
+<body>
+    <div id="time" class="timecontainer">Time: 0</div>
+    <div id="correctTotal" class="container">Correct/Total: 0 / 0</div>
+    <div id="score" class="container">Score: 0 / 0%</div>
+    <div id="level" class="container">Level: 2</div>
+    <div id="streak" class="container">Streak: 0</div>
+    <div id="typedLetters" class="largestFont"></div>
+    <div id="footer">
+        <h1 id="sentence">n-Back Spelling Game</h1>
+        <form >
+            <div>
+                <div class="form-title">Spelling Speed</div>
+                <input type='button' value='-' class='decrement' field='spellingSpeed' />
+                <input class="form-field" type="number" id="spellingSpeed" data-incdec="0.1" data-precision="1" value="0.5" />
+                <input type='button' value='+' class='increment' field='spellingSpeed' />
+            </div>
+            <input type="button" value="New Game" onclick="newGame();" class="myButton" />
+            <br/>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Wow!</title>
+<style>
+    body {
+        font-family: "Comic Sans MS", cursive, sans-serif;
+        font-size: 1.5em;
+        background-color: #faebd7;
+    }
+
+    img {
+        float: right;
+        width: 300px;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    .animatehit {
+        /* Start the shake animation and make the animation last for 0.5 seconds */
+        animation: shake 0.5s; 
+        /* When the animation is finished, start again */
+        animation-iteration-count: infinite; 
+    }
+
+    @keyframes shake {
+        0% { transform: translate(1px, 1px) rotate(0deg); }
+        10% { transform: translate(-1px, -2px) rotate(-1deg); }
+        20% { transform: translate(-3px, 0px) rotate(1deg); }
+        30% { transform: translate(3px, 2px) rotate(0deg); }
+        40% { transform: translate(1px, -1px) rotate(1deg); }
+        50% { transform: translate(-1px, 2px) rotate(-1deg); }
+        60% { transform: translate(-3px, 1px) rotate(0deg); }
+        70% { transform: translate(3px, 1px) rotate(-1deg); }
+        80% { transform: translate(-1px, -1px) rotate(1deg); }
+        90% { transform: translate(1px, 2px) rotate(0deg); }
+        100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+</style>
+<script src="js/jquery.min.js"></script>
+<script>
+var character = {
+    'inventory': [], 
+    'event': 'introduction',
+    'health': 1000000000000000000000000000000000000000000000
+};
+
+var events = {
+    'introduction': {
+        'title': 'Welcome',
+        'description': 'You have entered the WOW universe! Wow is here to meet you. He\'s a guy with a red cape!',
+        'image' : 'default.png',
+        'contents': [],
+        'interactions': {
+            'Wow?': 'Meet Wow'
+        }
+    },
+    'Meet Wow': {
+        'title': 'I\'m Wow!',
+        'description': 'I\'m a good guy superhero with infinite health and all the powers of all the superheroes! My weakness is that I only get one life.',
+        'image' : 'meetwow.png',
+        'contents': [],
+        'interactions': {
+            'What\'s with the cape?': 'wows cape'
+        }
+    },
+    'wows cape': {
+        'title': 'I\'m Wow!',
+        'description': 'I wear a cape because this is my first time being a Wow... or second time. Wait. ',
+        'image' : '',
+        'contents': [],
+        'interactions': {
+            'What\'s with the cape?': 'wows cape'
+        }
+    },
+    /**
+    *
+    *   SPARKSHOT
+    *
+    **/
+    'sparkshot': {
+        'title': 'Meet Spark-Shot',
+        'description': '',
+        'image' : '',
+        'contents': [],
+        'interactions': {
+            '': ''
+        }
+    },
+    /**
+    *
+    *   KILLER ALL ALIENS
+    *
+    **/
+    'Killer All Aliens': {
+        'title': 'Meet KILLER ALL ALIENS!',
+        'description': '',
+        'image' : 'killerallaliens.png',
+        'contents': [],
+        'interactions': {
+            '': ''
+        }
+    },
+    '': {
+        'title': '',
+        'description': '',
+        'image' : 'sparkshot.png',
+        'contents': [],
+        'interactions': {
+            '': ''
+        }
+    }
+
+//TODO: Follow directions
+};
+
+var event;
+var storyboardcount = 0;
+
+var remove = function(array, item)
+{
+    var idx = array.indexOf(item);
+    if (idx > -1)
+    {
+        array.splice(idx,1);
+    }
+}
+
+var appendStory = function(content) {
+    newcontent = '<div id="new_div' + storyboardcount + '" style="display: none;">' + content + '</div>';
+    $('#story').append(newcontent);
+    $('#new_div' + storyboardcount).show('slow');
+    $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+    storyboardcount++;
+}
+
+var interact = function(interaction)
+{
+    appendStory('<p>' + interaction + '</p>');
+    if(typeof events[interaction] === "undefined")
+    {
+        appendStory('<p>You cannot go that way!</p>');
+    }
+    else
+    {
+        character.event = interaction;
+        event = events[character.event];
+        describe(event);
+    }
+}
+
+var printInventory = function()
+{
+    var health = '<p><b>Health:</b>' + character.health.toLocaleString() + '</p>';
+    appendStory(health);
+
+    appendStory('You are carrying:');
+    if (character['inventory'].length > 0)
+    {
+        character['inventory'].forEach(function(item)
+        {
+            appendStory('&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;' + item);
+        });
+    } else {
+        appendStory('&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;Nothing');
+    }
+}
+
+var describe = function(event){
+
+    var health = '';
+    if (storyboardcount == 0) {
+        health = '<p><b>Health:</b>' + character.health.toLocaleString() + '</p>';
+    }
+
+    var img = '';
+    if (event.image != '') {
+        img = '<img src="img/' + event.image + '" />';
+    }
+
+    var interactionButtons = '';;
+    $.each(event.interactions, function( index, value ) {
+        interactionButtons += '<a href="javascript:void(0);" onclick="interact(\'' 
+            +  value
+            + '\');" class="interaction">' + index + '</a> | ';
+    });
+
+    var newcontent = 
+        '<div style="clear: both;"></div>'
+        + img
+        + '<h2>' + event.title + '</h2>'
+        + health
+        + '<p class="description">' + event.description + '</p>'
+        + '<p><b>Interactions:</b> ' + interactionButtons
+        + '<a href="javascript:void(0);" onclick="printInventory();" class="interaction">Inventory</a>';
+
+    appendStory(newcontent);
+
+}
+
+var hitAnimation = function() {
+    /* Start the shake animation and make the animation last for 0.5 seconds */
+    $('body').addClass('animatehit');
+    setTimeout(function() {$('body').removeClass('animatehit');},1000)
+}
+
+$(window).load(function() {
+    describe(events[character.event]);
+    hitAnimation();
+});
+
+</script>
+</head>
+
+<body>
+
+    <div id="story">
+	   <h1 class="title">Wow!</h1>
+	</div>
+
+</body>
+</html>
