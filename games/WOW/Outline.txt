@@ -1,0 +1,167 @@
+
+
+To Do:
+- Conditional Responses based on inventory
+- Convert numbers to text.
+https://stackoverflow.com/questions/5529934/javascript-numbers-to-words
+- Convert numbers to scientific notation
+https://stackoverflow.com/questions/11124451/how-can-i-convert-numbers-into-scientific-notation
+- Combat
+- Inventory needs quantities.
+
+http://nautil.us/blog/-how-to-understand-extreme-numbers
+Things to Measure
+- Time: 1 million seconds is nearly 12 days, whereas 1 billion seconds is almost 32 years.
+- Distances: meters, milimeters, etc. 
+- Mass/Volume: grams, miligrams, etc.
+- Data: bytes, megabytes, terabytes
+- Money: $7.463 billion for NSF out of $3.54 trillion budget.
+- Percentages: decimal places, scientific notation
+- Use different proportions:
+-- distance between earth and sun
+-- number of earths in mass.
+-- Orders of magnitude.
+- No matter how big a number is, it's 0% the size of infinity.
+
+--------------------------------------
+----------- 10 Chapters --------------
+
+Wow, An RPG of Really Big Numbers
+
+- Universes: "That the X universe! This is the Y universe!"
+
+- Playing Wow.
+
+---- Chapter 1 ---
+
+Meet Wow
+- You are Wow. 
+- Kings
+- So this is more of a JRPG?
+
+- Hello Wow.
+- Goodbye! Come back and see me before you finish the game!
+if [turkey]
+- Yay! You have cheated back in time to me! Have some Turkey DNA!
+- Send forward in time with Turkey DNA.
+
+---- Chapter 2 ---
+
+Meet Sparkshot
+- I have two-thousand million guns!
+- Awesomeness Gun
+
+- Do you want to do the next level?
+
+
+---- Chapter 3 ---
+
+Meet Wacky
+- Because your silly? "No, because I wack people!"
+
+
+---- Chapter 4 ---
+Fan Man
+
+- You have fans for hands?
+- No! My hand move so fast that they look like fans. I can super-karate chop you a hundred million times in a second!
+
+
+---- Chapter 5 ---
+Journey Around the Galaxy
+
+Meet FireKill
+- I'm two terminators and one-hundred more terminators mashed together for the most powerful armor!
+- FireKill drinks a volcano and shoots the fire at you!
+
+- You must travel to Mount Wow. It's a trail that goes around the WHOLE UNIVERSE!
+-- How do you walk in space?
+
+https://www.jpl.nasa.gov/edu/news/2016/3/16/how-many-decimals-of-pi-do-we-really-need/
+- radius of the universe is about 46 billion light years
+- 40 decimal places of Pi to calculate circumference to accuracy of the diameter of a hydrogen atom
+
+- If you do that, you'll fall into the water and the water can kill you cause it's infinite cold.
+- Swim attack cause these guys are like penguins and the cold doesn't kill them. They attack your captain and if your captain dies you can't drive your ship.
+
+
+---- Chapter 6 ---
+
+Meet Undefeatable
+- That does not do anything 'cause he's metal.
+- Attack Weakspot
+- I don't have a weak spot. The scientist who made me was super smart and didn't leave a weakspot.
+- Hurt Program
+- Ouch!
+- Hurt Program | Isn't your program a weak spot?
+- No. The program is a special spot.
+-- Inventory: Special Spot
+- Attack Special Spot
+
+
+---- Chapter 7 ---
+
+Ideonexus
+
+- Output of information daily in bytes.
+- game-tree complexity of chess of 10^120
+https://en.wikipedia.org/wiki/Shannon_number
+
+
+---- Chapter 8 ---
+
+Death - (armor made of skulls)
+
+- Friends with all 7 billion people on Earth, but they never accept my friend requests.
+- I celebrate 20 million birthdays each day!
+
+
+---- Chapter 9 ---
+
+Meet mxplx
+
+I'm hungry. I want turkey. You must give me turkey to pass.
+- You need to make a Turkey. But you don't have what you need. Go get it from Wow. Here, give him this.
+-- Inventory: Wow Turkey Ticket
+- But he's across the ocean... err... galaxy... far away.
+- So go back in time.
+- How?
+- Cheat!
+- I give up. I still don't get it.
+- Scroll back through time and get what you need from Wow.
+
+- 204 billion atoms in DNA
+https://michaelgr.wordpress.com/2008/04/06/how-many-atoms-to-encode-the-human-genome/
+- 3,234.83 Mb (Mega-basepairs) per haploid genome
+
+
+---- Chapter 10 ---
+
+Meet Killer-All-Aliens
+- In the X universe, there is no hope, because hope is covered in blood!
+
+- Presidents
+- Your the Boss President of me!
+
+- atoms in the observable universe 10^80 hydrogen atoms
+https://en.wikipedia.org/wiki/Observable_universe#Matter_content
+
+Actions: spend strategic points
+- Flying Attack the main bad guy.
+- Use the force to steal a guy.
+- Heal your guy.
+- Sniper
+- Sneak Attack
+- Defense.
+- Portal Key
+- BOOM! You have all of the strategic points! You can do PLANET SHOT!!!
+-- Inventory: Planet Shot
+- Do PLANET SHOT
+
+
+-----------------------------------------------------
+-----------------------COMPLETE----------------------
+-----------------------------------------------------
+
+Inventory: "Nothing" if no inventory.
+- Show Health
