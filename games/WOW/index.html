@@ -7,12 +7,17 @@
     body {
         font-family: "Comic Sans MS", cursive, sans-serif;
         font-size: 1.5em;
-        background-color: #faebd7;
+        background-color: black;
+        color: lawngreen;
     }
 
-    img {
-        float: right;
-        width: 300px;
+    a {
+        color: blueviolet;
+    }
+
+    .imagediv {
+        width: 100%;
+        text-align: center;
     }
 
     h1 {
@@ -41,84 +46,648 @@
     }
 </style>
 <script src="js/jquery.min.js"></script>
+<script src="js/bignumber.js"></script>
 <script>
-var character = {
-    'inventory': [], 
-    'event': 'introduction',
-    'health': 1000000000000000000000000000000000000000000000
-};
 
-var events = {
+var scenes = {
+    // For this scene, 'introduction' is it's key.
     'introduction': {
-        'title': 'Welcome',
-        'description': 'You have entered the WOW universe! Wow is here to meet you. He\'s a guy with a red cape!',
-        'image' : 'default.png',
+        // Statement to evaluate to proceed to scene.
+        'requirement': 'true',
+        // Title of the scene
+        'title': 'You have entered the WOW universe!',
+        // Description of the scene
+        'description': 'You start with a <b>googol</b> life. That\'s a one with one-hundred zeros after it. So 1e+100. Wow is here to meet you. He\'s a guy with a red cape!',
+        // Optional Image for the scene
+        'image' : 'img/default.png',
+        // An array of items to add to the player's inventory.
         'contents': [],
+        // Any health modifier resulting from the scene
+        // Use string because Javascript can't handle big numbers
+        'health': "0",
+        // Adds health in a different variable because
+        // the bigint is a little wonky
+        'heal': "0",
+        // A key-value collection of possible interactions.
         'interactions': {
+            // "Wow?" is shown to the user, "Meet Wow" is the resulting scene key
             'Wow?': 'Meet Wow'
         }
     },
     'Meet Wow': {
         'title': 'I\'m Wow!',
         'description': 'I\'m a good guy superhero with infinite health and all the powers of all the superheroes! My weakness is that I only get one life.',
-        'image' : 'meetwow.png',
-        'contents': [],
+        'image' : 'img/meetwow.png',
         'interactions': {
-            'What\'s with the cape?': 'wows cape'
+            'What\'s with the cape?': 'wows cape',
+            'One Life?' : 'One Life',
+            'Okay. Bye!': 'thanks'
         }
     },
     'wows cape': {
-        'title': 'I\'m Wow!',
-        'description': 'I wear a cape because this is my first time being a Wow... or second time. Wait. ',
-        'image' : '',
-        'contents': [],
+        'description': 'I wear a cape because I can fly!',
         'interactions': {
-            'What\'s with the cape?': 'wows cape'
+            'What did you mean by one life?': 'One Life'
         }
     },
-    /**
-    *
-    *   SPARKSHOT
-    *
-    **/
-    'sparkshot': {
-        'title': 'Meet Spark-Shot',
-        'description': '',
-        'image' : '',
-        'contents': [],
+    'One Life': {
+        'description': 'I don\'t regenerate if I die. Maybe I will be able to one day if the programmer adds a save or checkpoint feature to this game.',
         'interactions': {
-            '': ''
+            'Wait... We\'re in a video game?': 'video game',
+            'Where\'s the first boss?': 'first boss'
         }
     },
-    /**
-    *
+    'video game': {
+        'description': 'Yeah, but it\'s not one of those cool video games where you can go anywhere and do anything you want... ',
+        'interactions': {
+            'So this is more of a JRPG?': 'JRPG',
+            'ATTACK WOW!': 'attack wow'
+        }
+    },
+    'first boss': {
+        'description': 'The first boss is Killer All Aliens on Mount Death.',
+        'interactions': {
+            'ATTACK WOW!': 'attack wow'
+        }
+    },
+    'JRPG': {
+        'description': 'Is that where you don\'t get many choices and you have to go from one pre-determined scene to the next?',
+        'interactions': {
+            'ATTACK WOW!': 'attack wow'
+        }
+    },
+    'attack wow': {
+        'description': 'Hey! You did 3^20 damage to me! I thought we were friends... Ha! Ha! It\'s okay. Infinity life minues 3^20 points of damage is still Infinity!!! Let\'s see how you take damage! On guard!',
+        'interactions': {
+            'Defend against WOW!': 'defend from wow'
+        }
+    },
+    'defend from wow': {
+        'title': 'KA-POW!!!',
+        'description': 'WOW! blinks at you!!! You instinctively throw up your arms to block the force of the blast. Buildings crumble to dust all around you and your feet leave smashy-prints in the street. You take ONE POINT OF DAMAAAAAAAAGE!!!',
+        'health': "1",
+        'interactions': {
+            'Ouch? I guess?': 'ouch'
+        }
+    },
+    'ouch': {
+        'description': 'You\'re really powerful. I think you should go to the next boss now. You\'ll need to do more damage to win against it. Here take this ULTIMATE SWORD. You can see it in your inventory.',
+        'contents': ['ULTIMATE SWORD'],
+        'interactions': {
+            'Thanks! I\'ll see you later!': 'thanks'
+        }
+    },
+    'thanks': {
+        'requirement': 'character.inventory.includes("ULTIMATE SWORD")',
+        'description': 'Goodbye! Good luck defeating the bosses!',
+        'interactions': {
+            'Continue to Chapter 2': 'chapter 2'
+        }
+    },
+    /***************************************************
+    ****************************************************
+    *   Chapter II
     *   KILLER ALL ALIENS
-    *
-    **/
+    ****************************************************
+    ****************************************************/
+    'chapter 2': {
+        'title': 'Chapter II: Savior of the Universe!',
+        'description': 'Suddenly--the WHOLE UNIVERSE is pulled out from under you! You see a terrifying monster slurp down the last of the Universe before gazing at you coldly.',
+        'interactions': {
+            'What now?': 'Killer All Aliens'
+        }
+    },
     'Killer All Aliens': {
         'title': 'Meet KILLER ALL ALIENS!',
-        'description': '',
-        'image' : 'killerallaliens.png',
-        'contents': [],
+        'description': 'I\'m KILLER ALL ALIENS! I\'m from the X universe. In the X universe, there is no hope, because hope is covered in blood!',
+        'image' : 'img/killerallaliens.png',
         'interactions': {
-            '': ''
+            'Wow... That\'s... unnesesarily morbid.': 'unnesesarily morbid',
+            'So this is a multiverse?': 'multiverse',
+            'How\'d you get here': 'get here?',
+            'Unleash UNIVERSE ATTACK!': 'UNIVERSE ATTACK'
         }
     },
-    '': {
-        'title': '',
-        'description': '',
-        'image' : 'sparkshot.png',
+    'multiverse': {
+        'description': 'Well yeaaaaaaah. Obviously! Don\'t you see all the portals going to other universes???',
+        'interactions': {
+            'Still processing the "hope covered in blood" thing...': 'unnesesarily morbid',
+            'How\'d you get here': 'get here?',
+            'Unleash UNIVERSE ATTACK!': 'UNIVERSE ATTACK'
+        }
+    },
+    'get here?': {
+        'description': 'I completely killed everything guarding the portal to your universe and came in! I claim this universe and all its atoms as mine! Mine!! MINE!!!',
+        'interactions': {
+            'No fair! Those atoms belong to my universe! Not yours!': 'No fair',
+            'I guess I\'ll move to your Universe then...': 'move to your Universe'
+        }
+    },
+    'unnesesarily morbid': {
+        'description': 'The X Universe is all about grimdark! Young adults love grimdark because they think it\'s so mature. More skulls! More death! More maturity!!!',
+        'interactions': {
+            'So this is a multiverse?': 'multiverse',
+            'How\'d you get here': 'get here?'
+        }
+    },
+    'move to your Universe': {
+        'description': 'Fine! Except in the laws of the X Universe gravity is so strong you would get crushed to a speck.',
+        'interactions': {
+            'Wait! All my stuff is in this Universe, give it back!': 'No fair'
+        }
+    },
+    'No fair': {
+        'description': '"Fine! Take your universe back! Here!" KILLER-ALL-ALIENS hits you with all 10^80 hydrogen atoms in the observable universe! Each atom deals you one hit point of damage! You have obtained... THE UNIVERSE!',
+        'contents': ["THE UNIVERSE"],
+        'health': "100000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        'interactions': {
+            'Unleash UNIVERSE ATTACK!': 'UNIVERSE ATTACK',
+            'Punch the monster': 'fist'
+        }
+    },
+    'fist': {
+        'description': 'KILLER-ALL-ALIENS has spikey armor so you do zero hit points of damage, but you take one billion damage.',
+        'health': "1000000000",
+        'interactions': {
+            'Unleash UNIVERSE ATTACK!': 'UNIVERSE ATTACK',
+            'Punch the monster': 'fist'
+        }
+    },
+    'UNIVERSE ATTACK': {
+        'requirement': 'character.inventory.includes("THE UNIVERSE")',
+        'description': '"FOOL! You have given me all the atoms in my universe!" you exclaim excitedly. "It\'s MY universe now! You can\t play with it anymore! No KILLER-ALL-ALIENS allowed!" KILLER-ALL-ALIENS starts to cry, "Fine... sniff... I\'ll go back to my own X Universe then..."',
+        'interactions': {
+            'w00t! On to Chapter III': 'chapter 3'
+        }
+    },
+    /***************************************************
+    ****************************************************
+    *   SPARKSHOT CHAPTER III
+    ****************************************************
+    ****************************************************/
+    'chapter 3': {
+        'title': 'Chapter III: Journey Around the Universe!',
+        'description': 'With the universe safely in your possession, you prepare to go home... but SUDDENLY a humanoid with a laser-pointer eye jumps out of nowhere (because you\'re outside the Universe) and points a gun at you!',
+        'interactions': {
+            'Grab his gun and shoot him with it!': 'grab gun',
+            'You fight him with your imagination!': 'imagination',
+            'Hey! It\'s not nice to point guns at people!': 'Not Nice'
+        }
+    },
+    'grab gun': {
+        'description': 'You fail and now he knows your a badguy! He cocks the gun and points his laser eye at you! He throws a grenade at you!!!',
         'contents': [],
         'interactions': {
-            '': ''
+            'Use my ULTIMATE SWORD to slice the grenade open so it blows up!': 'grenade'
+        }
+    },
+    'grenade': {
+        'description': 'KA-BOOM! The grenade goes off with your sword action and he pulls his gun out again to point it at you! Another standoff!',
+        'interactions': {
+            'You fight him with your imagination!': 'imagination',
+            'Hey! It\'s not nice to point guns at people!': 'Not Nice'
+        }
+    },
+    'imagination': {
+        'description': 'Using the incredible power of 100,000,000,000 neurons forming 10,000,000,000,000,000 connections in your brain your imagination blasts the humanoid in an epic display! But it doesn\'t work! He doesn\'t even seem to notice!!! What gives???',
+        'interactions': {
+            'Grab his gun and shoot him with it!': 'grab gun',
+            'Hey! It\'s not nice to point guns at people!': 'Not Nice'
+        }
+    },
+    'Not Nice': {
+        'title': 'Meet Sparkshot',
+        'description': '"I\'m sorry," Sparkshot says, putting the gun away, "I\'m Sparkshot! I have two-thousand million guns! This is my Awesomeness Gun! I\'m from a different dimension and I\'ve learned that if bad people from other dimensions come into this dimension that they will take over."',
+        'image' : 'img/sparkshot.png',
+        'interactions': {
+            'Funny, I just fought KILLER ALL ALIENS...': 'just fought',
+            'How do I protect my universe?': 'how universe'
+        }
+    },
+    'just fought': {
+        'description': '"Oh no!", Sparkshot exclaims, "You\'re universe is in danger! You should patrol it to keep it safe."',
+        'interactions': {
+            'How do I patrol the Universe?': 'how universe'
+        }
+    },
+    'how universe': {
+        'description': 'Sparkshot looks at your Universe, "You\'ll need to make journeys around the circumference to within the diameter of a hydrogen atom to make sure it\'s safe. It\'s gonna require some math. Ready?"',
+        'interactions': {
+            'Diameter of the Universe': 'diameter',
+            'Pi': 'pi',
+            'Circumference of the Universe': 'circumference',
+            'Awesomeness Gun': 'awesomness gun'
+        }
+    },
+    'diameter': {
+        'description': 'If the Universe is 93,000,000,000 lightyears across, and a lightyear is 9,500,000,000,000 km, then the diamter of the Universe is 82,165,500,000,000,000,000,000,000,000,000,000!!! You have obtained DIAMETER OF THE UNIVERSE.',
+        'contents': ["UNIVERSE DIAMETER"],
+        'interactions': {
+            'Pi': 'pi',
+            'Circumference of the Universe': 'circumference',
+            'Awesomeness Gun': 'awesomness gun'
+        }
+    },
+    'pi': {
+        'description': 'To calcuate the circumference of the Universe to an accuracy within the diamter of a hydrogen atom, we\'ll need 40 decimal places of precision! Here you go: 3.1415926535897932384626433832795028841971. You have obtained PI TO 40 DIGITS.',
+        'contents': ["PI TO 40 DIGITS"],
+        'interactions': {
+            'Diameter of the Universe': 'diameter',
+            'Circumference of the Universe': 'circumference',
+            'Awesomeness Gun': 'awesomness gun'
+        }
+    },
+    'circumference': {
+        'requirement': 'character.inventory.includes("UNIVERSE DIAMETER") && character.inventory.includes("PI TO 40 DIGITS")',
+        'description': 'The calculation for circumference is 2*pi*r, or two times pi times the radius of the universe, which is half the diameter (82,165,500,000,000,000,000,000,000,000,000,000). So the diamter is 516,261,062,357,064,312,669,804,649,817,703,988.4629936401! (We think?) You have obtained CIRCUMFERENCE OF THE UNIVERSE!!!',
+        'contents': ["UNIVERSE CIRCUMFERENCE"],
+        'interactions': {
+            'Let\'s go!!!': 'awesomness gun'
+        }
+    },
+    'awesomness gun': {
+        'requirement': 'character.inventory.includes("UNIVERSE CIRCUMFERENCE")',
+        'description': '"Wait!" Sparkshot exclaims. "If you leave now it will take you more time that I want to do the math to figure out right now! You need to go faster than light! This will help you. But it will also damage you." You have obtained the AWESOMENESS GUN.',
+       'interactions': {
+            'Okay! Okay! Let\'s go already!!!': 'patrol universe'
+        }
+    },
+    'patrol universe': {
+        'description': 'You fire the AWESOMENESS GUN and the kick back sends you flying around the universe beyond the speed of light. In fact, you fly around so fast that the light from where you started hadn\'t left yet and you see yourself about to shoot the gun for a moment before the light disappears. You take .0000000000000000000000000000000000000001 point of damage for every hydrogen-atom\'s distance you travel.',
+       'health': "516261062357064312669804649817703988.4629936401",
+        'interactions': {
+            'Yay Me! On to Chapter 3--er, I mean 4!': 'wacky'
+        }
+    },
+    /***************************************************
+    ****************************************************
+    *   WACKY CHAPTER IV
+    ****************************************************
+    ****************************************************/
+    'wacky': {
+        'title': 'Chapter IV: Meet WACKY!',
+        'description': '"Hyuk! Hyuk! Hyuk!" a silly-looking fellow comes running up to you with a big mallot in his hand. "I\'m Wacky! I\'m WOW!\'s main badguy!"',
+        'image' : 'img/wacky.png',
+        'interactions': {
+            'You\'re Wacky because you\'re silly?': 'silly'
+        }
+    },
+    'silly': {
+        'description': '"No! I\'m Wacky because I wack people!" he pulls out a chessboard. "Beat me at a game of chess to do the next level!"',
+        'interactions': {
+            'Bring it on!': 'bring it',
+            'I sense treachery...': 'treachery'
+        }
+    },
+    'treachery': {
+        'description': '"No treacher! Hyuk! Hyuk! Hyuk! You just have no chance to beat me!"',
+        'interactions': {
+            'Bring it on!': 'bring it'
+        }
+    },
+    'bring it': {
+        'description': 'Wacky defeats you easily! "Claude Shannon calculated there are 10^120 possible games of chess!" Wacky explains. "That\'s a 10 with 120 zeroes after it. I\'ve memorized 99,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999 of those games!"',
+        'interactions': {
+            'Which one don\'t you know?': 'dont know',
+            'That\'s more than a googol games!': 'googol'
+        }
+    },
+    'dont know': {
+        'description': '"Hyuk! Hyuk! I don\'t know what I don\'t know!" Wacky laughs at you. "You\'ll have to learn them all!"',
+        'interactions': {
+            'But that\'s more than a googol games!': 'googol'
+        }
+    },
+    'googol': {
+        'description': 'Wacky dances a little dance of taunting and sticks his tongue at you. "That\'s right! That\'s MORE LIFE THAN YOU STARTED OUT WITH! The only chance you have to beat me is spend 10^120 hitpoints to learn all the possible games of chess, even the one I don\'t know!"',
+        'interactions': {
+            'Time to hit the books...': 'books',
+            'Time to let the books hit me...': 'books'
+        }
+    },
+    'books': {
+        'description': 'You painstakingly beging playing out every possible iteration of chess one-by-one. The stars wink out in the night sky. The Universe collapses and explodes again. Earth forms and all life evolves back to the existence of human beings, computers, and finally the programming of this RPG of really big numbers. You finally memorize all possible games of chess, but in the process you have taken 1,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000 <b>HITPOINTS OF DAAAAMAAAAAAAGE</b>!!!!',
+        'health': "1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        'interactions': {
+            'Wait... my life can go negative?': 'negative'
+        }
+    },
+    'negative': {
+        'description': '"Wait???" Wacky stares at you in stupified stupification, "Your life can go negative??? That\'s not fair!!! Curse you WOW!"',
+        'interactions': {
+            'Thank you WOW! Time to win this game of chess...': 'win chess',
+            'Give up Wacky!': 'give up'
+        }
+    },
+    'give up': {
+        'description': '"Give up Wacky! You can\'t win! I know one more game of chess than you do!" you exclaim. Wacky grimaces grimacingly, "No! That game was probably meaningless anyway! Let go!"',
+        'interactions': {
+            'Time to win this game of chess...': 'win chess'
+        }
+    },
+    'win chess': {
+        'description': 'Pawn to e4. Pawn to e5. Queen to h5. Knight to f6. Bishop to c4. Knight takes e4! Queen to f7. CHECKMAAAAAAAATE!!!! "Four-move checkmate!" Wacky cries, "WHAAAAAAA! Why didn\'t I ever learn that game? WHAAAAAA!"',
+        'interactions': {
+            'Next level please.': 'Next level please'
+        }
+    },
+    'Next level please': {
+        'description': '"Sniff. Sniff. Fine." Whacky wipes a tear from his eye. "Go to the next level. But you\'ll find nothing but doom there. For the next chapter is the FINAL BOSS."',
+        'interactions': {
+            'Whatevs...': 'chp5'
+        }
+    },
+
+    /***************************************************
+    ****************************************************
+    *   FINAL BOSSES CHAPTER V
+    ****************************************************
+    ****************************************************/
+    'chp5': {
+        'title': 'Chapter 5: FINAL BOSSES!!!',
+        'description': 'POOF! A figure with a scythe and a dark cloak appears, "I\'m Death! I\'m friends with all 7 billion people on Earth, but they never accept my friend requests. I celebrate 20 million new birthdays each day, but nobody invites me to their parties. I\'m here to take your soul since your hitpoints are below zero."',
+        'image': 'img/death.png',
+        'interactions': {
+            'Wacky said Wow said my hitpoints...': 'wacky said',
+            'But I\'m clearly not dead...': 'not dead'
+        }
+    },
+    'wacky said': {
+        'description': 'Death looks confused, "But the rules are the rules! Negative hitpoints means dead."',
+        'interactions': {
+            'But I\'m clearly not dead...': 'not dead'
+        }
+    },
+    'not dead': {
+        'description': '"Hmmmm..." Death scrutinizes you with glowing red eyes. "You can\'t go walking around with negative hitpoints. It messes up my metrics. Maybe you\'re just dehydrated. Want some water? One mole of water has 60,221,407,600,000,000,000,000 molecules in it and that will heal one hitpoint. So you\'ll need 16,605,390,671,738,466,637,734,319,581,065,388,448,344,737,793,873,818,386,138,154,631,908,670,298,168,188,283,937,027,421,165,045.37354370648503104241 moles of water to get positive again."',
+        'interactions': {
+            'Yes Please!': 'yes please',
+            'What\'s the catch?': 'catch'
+        }
+    },
+    'catch': {
+        'description': '"The catch is that I need you to pay me in boss souls for your soul!"',
+        'interactions': {
+            'What\'s some more final bosses?': 'yes please'
+        }
+    },
+    'yes please': {
+        'description': '"All better!" Death exclaims with uncharacteristic joy. "Now I need you to defeat the final bosses!"',
+        'heal': '999,999,999,999,999,999,990,000,000,000,000,000,000,100,000,000,000,000,000,000,000,000,000,000,000,000,000,000,516,261,062,357,064,312,669,804,649,817,703,989.4,629,936,402',
+        'interactions': {
+            'Your math was wrong, I\'m still negative.': 'math wrong',
+            'Can I have more health please?': 'still negative',
+            'Bring on the final bosses!': 'final bosses'
+        }
+    },
+    'math wrong': {
+        'description': '"Did you punch KILLER ALL ALIENS? That makes you take a billion damage!" Death laughs. "Dreak more moles of water."',
+        'heal': '1,000,000,000',
+        'interactions': {
+            'More health please.': 'still negative',
+            'Final bosses!': 'final bosses'
+        }
+    },
+    'still negative': {
+        'description': '"Have more moles of water."',
+        'heal': '1,000,000,000',
+        'interactions': {
+            'More health please.': 'still negative',
+            'Final bosses!': 'final bosses'
+        }
+    },
+    'final bosses': {
+        'description': 'Death opens three portals to the final bosses, "Come back to me if your health goes negative!"',
+        'interactions': {
+            'Death': 'still negative',
+            'FireKill': 'firekill',
+            'Fan Man': 'Fan Man',
+            'Undefeatable': 'undefeatable'
+        }
+    },
+    /*************************************************
+    *********** FAN MAN 
+    *************************************************/
+    'Fan Man': {
+        //Requirement: not inventory contains 'Strategic Point' and positive health
+        'requirement': '!character.inventory.includes("Strategic Point") && checkHealth("0") == 1',
+        'title': 'Meet Fan Man',
+        'description': '"I\'m Fan man!" a robot confronts you. "Fight me!"',
+        'image' : 'img/fanman.png',
+        'interactions': {
+            'You have fans for hands?': 'fan hands',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'fan hands': {
+        'description': '"No! My hand move so fast that they look like fans. I can super-karate chop you a hundred million times in a second!" Fan Man super-karate chops you one-million times in a second for 10 seconds and each karate chop dealing 100 points of damage for a total of one-billion damage!',
+        'contents': [],
+        'health': '1,000,000,000',
+        'interactions': {
+            'Use UNIVERSE ATTACK': 'fan universe',
+            'Use FOUR-MOVE CHECKMATE': 'fan checkmate',
+            'Use ULTIMATE SWORD': 'fan sword',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'fan universe': {
+        'description': 'Shooting the entire Universe at a mini boss like Fan man? That\'s silly! Fan Man super-karate chops you one-million times in a second for 10 seconds and each karate chop dealing 100 points of damage for a total of one-billion damage!',
+        'contents': [],
+        'health': '1,000,000,000',
+        'interactions': {
+            'Use FOUR-MOVE CHECKMATE': 'fan checkmate',
+            'Use ULTIMATE SWORD': 'fan sword',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'fan checkmate': {
+        'description': 'You\'re not playing chess!!! Fan Man super-karate chops you one-million times in a second for 10 seconds and each karate chop dealing 100 points of damage for a total of one-billion damage!',
+        'interactions': {
+            'Use UNIVERSE ATTACK': 'fan universe',
+            'Use ULTIMATE SWORD': 'fan sword',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'fan sword': {
+        'description': 'You attack Fan Man with with the ULTIMATE SWORD and defeat him! You have obtained STRATEGIC POINT!',
+        'contents': ['Strategic Point'],
+        'interactions': {
+            'More Final Bosses!': 'final bosses'
+        }
+    },
+    /*************************************************
+    *********** FIRE KILL
+    *************************************************/
+    'firekill': {
+        //Requirement: not inventory contains 'WOW! Admin Rights' and positive health
+        'requirement': '!character.inventory.includes("WOW! Admin Rights") && checkHealth("0") == 1',
+        'title': 'Meet Firekill',
+        'description': 'I\'m FIREKILL. I\'m two terminators and one-hundred more terminators mashed together for the most powerful armor! I\'m so powerful, I\'m going to give you the initiative. That means you get to attack first.',
+        'image' : 'img/firekill.png',
+        'interactions': {
+            'UNIVERSE ATTACK': 'firekill universe',
+            'FOUR-MOVE CHECKMATE': 'firekill checkmate',
+            'ULTIMATE SWORD': 'firekill sword',
+            'STRATEGIC POINT': 'firekill strategic',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'firekill universe': {
+        'description': 'You shoot the entire Universe at Firekill. IT DUCKS!!! Such lighting reflexes! Firekill drinks more lava and barfs it at you! One-billion damage!!!',
+        'contents': [],
+        'health': '1,000,000,000',
+        'interactions': {
+            'UNIVERSE ATTACK': 'firekill universe',
+            'FOUR-MOVE CHECKMATE': 'firekill checkmate',
+            'ULTIMATE SWORD': 'firekill sword',
+            'STRATEGIC POINT': 'firekill strategic',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'firekill checkmate': {
+        'description': 'Really? Really?? REALLY??? Do you see a chessboard here? What makes you think a giant lava-barfing monster has anything to do with a board game? Firekill drinks more lava and barfs it at you! One-billion damage!!!',
+        'contents': [],
+        'health': '1,000,000,000',
+        'interactions': {
+            'UNIVERSE ATTACK': 'firekill universe',
+            'FOUR-MOVE CHECKMATE': 'firekill checkmate',
+            'ULTIMATE SWORD': 'firekill sword',
+            'STRATEGIC POINT': 'firekill strategic',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'firekill sword': {
+        'description': 'Firekill\'s sword is EPIC, which beats your puny ULTIMATE! When they clash, the electric flames travel through your sword and into you for one-billion damage!!!',
+        'contents': [],
+        'health': '1,000,000,000',
+        'interactions': {
+            'UNIVERSE ATTACK': 'firekill universe',
+            'FOUR-MOVE CHECKMATE': 'firekill checkmate',
+            'ULTIMATE SWORD': 'firekill sword',
+            'STRATEGIC POINT': 'firekill strategic',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'firekill strategic': {
+        //Requires 'Strategic Point'
+        'requirement': 'character.inventory.includes("Strategic Point")',
+        'description': 'Firekill is about to barf lava all over you when you hit it\'s strategic point, causing Firekill to barf the lava all over itself!!! Firekill dissolves in a barfing gurggle gurgle of rage!!! You have obtained ADMIN RIGHTS.',
+        'contents': ['WOW! Admin Rights'],
+        'interactions': {
+            'Final bosses!': 'final bosses'
+        }
+    },
+
+    /*************************************************
+    *********** UNDEFEATABLE
+    *************************************************/
+    'undefeatable': {
+        //Requirement: positive health
+        'requirement': 'checkHealth("0") == 1',
+        'title': 'Meet Undefeatable',
+        'description': 'Undefeatable doesn\'t say anything cause she\'s undefeatable and she doesn\'t have to pay any attention to you.',
+        'image': 'img/undefeatable.png',
+        'interactions': {
+            'UNIVERSE ATTACK': 'undefeatable universe',
+            'FOUR-MOVE CHECKMATE': 'undefeatable checkmate',
+            'ULTIMATE SWORD': 'undefeatable sword',
+            'STRATEGIC POINT': 'undefeatable strategic',
+            'ADMIN RIGHTS': 'undefeatable adminrights',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'undefeatable universe': {
+        'description': 'Undefeatable is every Universe\'s main villain, shooting your puny universe at her does nothing! She doesn\'t even notice.',
+        'interactions': {
+            'FOUR-MOVE CHECKMATE': 'undefeatable checkmate',
+            'ULTIMATE SWORD': 'undefeatable sword',
+            'STRATEGIC POINT': 'undefeatable strategic',
+            'ADMIN RIGHTS': 'undefeatable adminrights',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'undefeatable checkmate': {
+        'description': 'Undefeatable is too busy playing 12-dimensional chess. She can\'t even see your 2D chessgame it has so few dimensions. Haven\'t you ever read Flatland? Get outta here with that nonsense!',
+        'interactions': {
+            'UNIVERSE ATTACK': 'undefeatable universe',
+            'ULTIMATE SWORD': 'undefeatable sword',
+            'STRATEGIC POINT': 'undefeatable strategic',
+            'ADMIN RIGHTS': 'undefeatable adminrights',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'undefeatable sword': {
+        'description': 'Undefeatable scratches herself and wonders if there\'s a mosquito around.',
+        'interactions': {
+            'UNIVERSE ATTACK': 'undefeatable universe',
+            'FOUR-MOVE CHECKMATE': 'undefeatable checkmate',
+            'STRATEGIC POINT': 'undefeatable strategic',
+            'ADMIN RIGHTS': 'undefeatable adminrights',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'undefeatable strategic': {
+        'description': 'Undefeatable doesn\'t have a strategic point. That was for Firekill. Duh.',
+        'interactions': {
+            'UNIVERSE ATTACK': 'undefeatable universe',
+            'FOUR-MOVE CHECKMATE': 'undefeatable checkmate',
+            'ULTIMATE SWORD': 'undefeatable sword',
+            'ADMIN RIGHTS': 'undefeatable adminrights',
+            'Retreat!': 'final bosses'
+        }
+    },
+    'undefeatable adminrights': {
+        //Requires 'WOW! Admin Rights'
+        'requirement': 'character.inventory.includes("WOW! Admin Rights")',
+        'description': 'You access the command line for the game and type /kill:undefeatable, but it doesn\'t work! Then you type /ban:undefeatable. You have banned Undefeatable from the game!',
+        'interactions': {
+            'Hooray for me!': 'hooray'
+        }
+    },
+    'hooray': {
+        'title': 'Title: Hip-Hop-Hooray!!!',
+        'description': 'w00t! t00t! YEET! Horray for you! YOU ARE THE BEST!!! You are amazing! You are the Bee\'s-Knees! The dog\'s bollocks! The fox\'s socks! the flea\'s eyebrows! The cat\'s meow AND pajamas! You are the <b>BOMB</b>! What an achievement! Take a selfie and look warmly upon it in your golden years!!! Hooray! Hooray!! For this MOST EPIC of EPIC days!!! Nothing else you ever accomplish for the rest of your life will come close to the glorious triumph of completing this best of best games ever!!!<h1>THE END</h1> (Now go outside and get some vitamin D)',
+        'image' : 'img/theend.png',
+        'interactions': {
+            'To the Next Adventure!': '????????'
         }
     }
 
 //TODO: Follow directions
 };
 
-var event;
+var character = {
+    'inventory': [], 
+    'scene': 'introduction',
+    'health': '10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+};
+
+var scene;
 var storyboardcount = 0;
+var currentImageIndex = 0;
+
+// Preload all images
+var images = [];
+function preload() {
+    for (var i = 0; i < arguments.length; i++) {
+        images[preload.arguments[i]] = new Image();
+        images[preload.arguments[i]].src = preload.arguments[i];
+    }
+}
+
+//-- usage --//
+preload(
+    "img/default.png",
+    "img/meetwow.png",
+    "img/killerallaliens.png",
+    "img/sparkshot.png",
+    "img/wacky.png",
+    "img/death.png",
+    "img/fanman.png",
+    "img/firekill.png",
+    "img/undefeatable.png",
+    "img/theend.png"
+)
 
 var remove = function(array, item)
 {
@@ -130,7 +699,8 @@ var remove = function(array, item)
 }
 
 var appendStory = function(content) {
-    newcontent = '<div id="new_div' + storyboardcount + '" style="display: none;">' + content + '</div>';
+    newcontent = '<div id="new_div' + storyboardcount + '" style="display: none;">' + content + '</div>'
+        + '<div style="clear: both;"></div>';
     $('#story').append(newcontent);
     $('#new_div' + storyboardcount).show('slow');
     $("html, body").animate({ scrollTop: $(document).height() }, "slow");
@@ -139,23 +709,27 @@ var appendStory = function(content) {
 
 var interact = function(interaction)
 {
-    appendStory('<p>' + interaction + '</p>');
-    if(typeof events[interaction] === "undefined")
+    //appendStory('<p>' + interaction + '</p>');
+    if(typeof scenes[interaction] === "undefined")
     {
-        appendStory('<p>You cannot go that way!</p>');
+        appendStory('<p>Oh no! The programmer hasn\'t made that way!</p>');
+    }
+    else if (scenes[interaction].hasOwnProperty('requirement') && !eval(scenes[interaction].requirement))
+    {
+        appendStory('<p>You don\'t have what you need to do that yet!</p>');
     }
     else
     {
-        character.event = interaction;
-        event = events[character.event];
-        describe(event);
+        character.scene = interaction;
+        scene = scenes[character.scene];
+        describe(scene);
     }
 }
 
 var printInventory = function()
 {
-    var health = '<p><b>Health:</b>' + character.health.toLocaleString() + '</p>';
-    appendStory(health);
+    //var health = '<p><b>Health:</b>' + character.health.toLocaleString() + '</p>';
+    //appendStory(health);
 
     appendStory('You are carrying:');
     if (character['inventory'].length > 0)
@@ -169,31 +743,86 @@ var printInventory = function()
     }
 }
 
-var describe = function(event){
+var damage = function(scene) {
+    var currentHealth = new BigNumber(character.health);
+    var sceneHealth = new BigNumber(scene.health);
+    return currentHealth.subtract(sceneHealth).valueOf();
+}
+
+var heal = function(scene) {
+    var currentHealth = new BigNumber(character.health);
+    var sceneHeal = new BigNumber(scene.heal);
+    return currentHealth.add(sceneHeal).valueOf();
+}
+
+var checkHealth = function(numToCompare) {
+    var currentHealth = new BigNumber(character.health);
+    var numberToCompare = new BigNumber(numToCompare);
+    return currentHealth.compare(numberToCompare);
+}
+
+var describe = function(scene) {
+
+    var showStats = (storyboardcount == 0);
+
+    // Adjust health
+    if (scene.hasOwnProperty('health')) {
+         character.health = damage(scene);
+         console.log(character.health);
+         showStats = true;
+         hitAnimation();
+    }
+
+    if (scene.hasOwnProperty('heal')) {
+         character.health = heal(scene);
+         console.log(character.health);
+         showStats = true;
+         hitAnimation();
+    }
 
     var health = '';
-    if (storyboardcount == 0) {
-        health = '<p><b>Health:</b>' + character.health.toLocaleString() + '</p>';
+    if (showStats) {
+        health = '<p><b>Health:</b>' + character.health.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' (' + Number(character.health.toString()) + ')</p>';
     }
 
+    // If the scene has an image, show it.
     var img = '';
-    if (event.image != '') {
-        img = '<img src="img/' + event.image + '" />';
+    if (scene.hasOwnProperty('image') && scene.image != '') {
+        currentImageIndex = 
+        img = document.createElement("div");
+        img.classList.add('imagediv');
+        img.append(images[scene.image]);
+        $('#story').append(img);
     }
 
+    // List the current scene's interactions as links
     var interactionButtons = '';;
-    $.each(event.interactions, function( index, value ) {
+    $.each(scene.interactions, function( index, value ) {
         interactionButtons += '<a href="javascript:void(0);" onclick="interact(\'' 
             +  value
             + '\');" class="interaction">' + index + '</a> | ';
     });
 
+    // Add any items at the location to the character's inventory
+    if (scene.hasOwnProperty('contents') && scene.contents.length > 0) {
+        for(var i = 0; i < scene.contents.length; i++) {
+            if (!character.inventory.includes(scene.contents[i])) {
+                character.inventory.push(scene.contents[i]);
+            }
+        }
+    }
+
+    var titleBold = '';;
+    if (scene.hasOwnProperty('title') && scene.image != '') {
+        titleBold = '<h2>' + scene.title + '</h2>';
+    }
+
+    // Build the scene
     var newcontent = 
         '<div style="clear: both;"></div>'
-        + img
-        + '<h2>' + event.title + '</h2>'
+        + titleBold
+        + '<p class="description">' + scene.description + '</p>'
         + health
-        + '<p class="description">' + event.description + '</p>'
         + '<p><b>Interactions:</b> ' + interactionButtons
         + '<a href="javascript:void(0);" onclick="printInventory();" class="interaction">Inventory</a>';
 
@@ -208,7 +837,7 @@ var hitAnimation = function() {
 }
 
 $(window).load(function() {
-    describe(events[character.event]);
+    describe(scenes[character.scene]);
     hitAnimation();
 });
 
@@ -218,7 +847,7 @@ $(window).load(function() {
 <body>
 
     <div id="story">
-	   <h1 class="title">Wow!</h1>
+	   <h1 class="title">Wow!<br/>An RPG of Really Large Numbers</h1>
 	</div>
 
 </body>
