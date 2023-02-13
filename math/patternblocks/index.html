@@ -130,7 +130,7 @@ function zoomIt(factor) {
 }
 
 var addPiece = function(piece) {
-	var shadow = {
+	var shadowOptions = {
 		color: 'rgba(0,0,0,0.6)',
 		blur: 20,
 		offsetX: 10,
@@ -152,7 +152,7 @@ var addPiece = function(piece) {
 		img.width = img.width * scaleFactor;
 		img.height = img.height * scaleFactor;
 
-		img.setShadow(shadow);
+		img.shadow = new fabric.Shadow(shadowOptions);
 
 		canvas.add(img);
 
