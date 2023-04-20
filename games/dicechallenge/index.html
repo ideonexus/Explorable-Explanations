@@ -12,13 +12,14 @@
     body {
         background-color: #320032;
         color: white;
+        font-family: sans-serif;
     }
 
     a {
       color: white;
     }
 
-    h1 {
+    h1, h2 {
       width: 100%;
       text-align: center;
       class: block;
@@ -143,6 +144,48 @@
     .headerSelect {
         font-size: 1em;
     }
+
+/* Popup container - can be anything you want */
+.popup {
+  position: relative;
+  display: inline-block;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* The actual popup */
+.popup .popuptext {
+  visibility: hidden;
+  font-size: 4em;
+  width: 550px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  top: 250px;
+  margin-left: 225px;
+}
+
+.popup .show {
+  visibility: visible;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s;
+}
+
+@-webkit-keyframes fadeIn {
+  from {opacity: 0;} 
+  to {opacity: 1;}
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1 ;}
+}
 
 .myButton {
   -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
@@ -283,6 +326,9 @@
   var ai;
   var currentPlayer;
   var gameHistory = "";
+  var round = 1;
+  var animatingBlock = false;
+  var humanRoundsWon = aiRoundsWon = 0;
 
   function getRandomColor() 
   {
@@ -411,10 +457,37 @@
       ai = {name: "ai", dice: [], results: [], captured: []};
       setPlayerDice("human");
       setPlayerDice("ai");
-      gameHistory = "";
+      round++;
       updatePlayerScores();
       switchPlayer();
+      animateRoundAnnouncer(round);
   }  
+
+  var animateRoundAnnouncer = function(round)
+  {
+      animatingBlock = true;
+      $("#roundAnnouncer").html("ROUND " + round);
+      $("#roundAnnouncer").addClass("show");
+
+      //Animate Round Display
+      let step = 0;
+      let animateStep = function()
+      {
+          switch (step) 
+          {
+              case 0:
+                  $("#roundAnnouncer").html("FIGHT!");
+                  break;
+              default:
+                  $("#roundAnnouncer").removeClass("show");
+                  animatingBlock = false;
+                  clearInterval(announceAnimation);
+                  break;
+          }
+          step++;
+      }
+      let announceAnimation = setInterval(animateStep, 1000);
+  }
 
   // Function to change the current player
   var switchPlayer = function() 
@@ -513,7 +586,21 @@
       playsCheck++;
       updateGameHistory(currentPlayer.toUpperCase() + " has no possible plays.");
       if (playsCheck == 2)
-          updateGameHistory("GAME OVER");
+      {
+          let winner = (parseInt($("#humanScore").html()) > parseInt($("#aiScore").html())) ?
+              "human" : "ai";
+          if (winner == "human")
+          {
+              humanRoundsWon++;
+              $("#humanRoundsTotal").html(humanRoundsWon);
+          }
+          else
+          {
+              aiRoundsWon++;
+              $("#aiRoundsTotal").html(aiRoundsWon);
+          }
+          updateGameHistory(winner.toUpperCase() + " WINS ROUND " + round);
+      }
       else
       {
           setTimeout(function(){
@@ -524,6 +611,7 @@
 
   var playAITurn = function()
   {
+      animatingBlock = true;
       //anyPossiblePlayCheck() must run before this to validate.
       let allPossiblePlays = [];
       //Catalog all possible combinations of captures
@@ -572,7 +660,8 @@
           (a.weight < b.weight) ? 1 : 
           (a.weight === b.weight && human.dice[a.opp] < human.dice[b.opp]) ? 1 : -1);
       
-      switch ($("#aiDifficulty").val()) {
+      switch ($("#aiDifficulty").val()) 
+      {
           case 'medium':
               bestPlay = allPlaysSorted[Math.floor(allPlaysSorted.length/2)];
               break;
@@ -602,6 +691,7 @@
           {
               selectDie("human", bestPlay.opp);
               step = 0;
+              animatingBlock = false;
               clearInterval(selectAnimation);
           }
           step++;
@@ -745,6 +835,18 @@
 
   var newGame = function()
   {
+      if (animatingBlock) return;
+      gameHistory = "";
+      round = 0;
+      humanRoundsWon = aiRoundsWon = 0;
+      $("#humanRoundsTotal").html(humanRoundsWon);
+      $("#aiRoundsTotal").html(aiRoundsWon);
+      diceDuelStart();      
+  }
+
+  var anotherRound = function()
+  {
+      if (animatingBlock) return;
       diceDuelStart();      
   }
 
@@ -760,10 +862,21 @@
     <h1>
       Dice Challenge (aka. Buttonmen)
     </h1>
-    <h1>
+    <h2>
       <button onclick="newGame()" class="myButton">New Game</button>
-    </h1>
+      <button onclick="anotherRound()" class="myButton">Another Round</button>
+      <select id="aiDifficulty" class="headerSelect">
+          <option value="hard">Hard AI</option>
+          <option value="medium">Medium AI</option>
+          <option value="easy">Easy AI</option>          
+          <option value="rng">RNG AI</option>          
+      </select>
+      <a href="https://buttonmen.fandom.com/wiki/Button_Men_Rules#The_Basics" target="new">Rules</a>
+    </h2>
     <div class="container">
+    <div class="popup">
+        <span class="popuptext" id="roundAnnouncer"></span>
+    </div>
     <div class="gameBoard">
       <div id="human" class="playerStats">
         <h2 id="humanLabel">Human</h2>
@@ -772,6 +885,7 @@
         <h3>Captured<br/><span id="humanCapturedDice">[]</span></h3>
         <h3>Remaining<br/><span id="humanRetainedDice">[]</span></h3>
         <h2>Score<br/><span class="score" id="humanScore">0</span></h2>
+        <h2>Rounds Won<br/><span class="score" id="humanRoundsTotal">0</span></h2>
       </div>
       <div id="humanDice" class="diceDisplay"></div>
       <div id="humanDiceValues" class="diceValueDisplay"></div>
@@ -784,17 +898,9 @@
         <h3>Captured<br/><span id="aiCapturedDice">[]</span></h3>
         <h3>Remaining<br/><span id="aiRetainedDice">[]</span></h3>
         <h2>Score<br/><span class="score" id="aiScore">0</span></h2>
+        <h2>Rounds Won<br/><span class="score" id="aiRoundsTotal">0</span></h2>
       </div>
     </div>
-    <h2 class="center">
-      <select id="aiDifficulty" class="headerSelect">
-          <option value="hard">Hard AI</option>
-          <option value="medium">Medium AI</option>
-          <option value="easy">Easy AI</option>          
-          <option value="rng">RNG AI</option>          
-      </select>
-      <a href="https://buttonmen.fandom.com/wiki/Button_Men_Rules#The_Basics" target="new">Rules</a>
-    </h2>
     <h2 id="gameHistory"></h2>
     </div>
       <!--<h2>Rules:</h2>
