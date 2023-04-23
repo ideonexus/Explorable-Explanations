@@ -2,13 +2,19 @@
   <head>
     <title>Dice Challenge / Buttonmen</title>
 <!--
-  + Power Attack
-  + Skill
-  - Add dX to selected own dice message
-  - Add 1/2 own uncaptured dice to score.
-  - Round X. FIGHT!
+
+TODO
++ Rules pop-out
++ Deselect die does't trigger capture
++ X-out captured die
++ Weight dice points x1.5 option
+- Depth of dice selected
+
+Bugs
++ 1. AI pauses uncomfortably when selecting opponent die.
+
 -->
-<style>
+  <style>
     body {
         background-color: #320032;
         color: white;
@@ -83,13 +89,13 @@
 
     }
 
-    ol {
+    .gameBoard ol {
         padding-inline-start: 0px;
         height: 100px;
         width: 100px;
     }
 
-    li {
+    .gameBoard li {
         list-style-type: none;
     }
 
@@ -146,7 +152,7 @@
     }
 
 /* Popup container - can be anything you want */
-.popup {
+.popup., .rulespopup {
   position: relative;
   display: inline-block;
   -webkit-user-select: none;
@@ -156,7 +162,7 @@
 }
 
 /* The actual popup */
-.popup .popuptext {
+.popup .popuptext, .rulespopup .rulestext {
   visibility: hidden;
   font-size: 4em;
   width: 550px;
@@ -171,7 +177,18 @@
   margin-left: 225px;
 }
 
-.popup .show {
+.rulespopup .rulestext h3 {
+    text-align: center;
+}
+
+/* The actual popup */
+.rulespopup .rulestext {
+  text-align: left;
+  font-size: 1em;
+  line-height: 2em;
+}
+
+.popup .show, .rulespopup .show {
   visibility: visible;
   -webkit-animation: fadeIn 1s;
   animation: fadeIn 1s;
@@ -322,9 +339,9 @@
 //************* UI ELEMENTS ****************
 //******************************************
 
-  var human;
-  var ai;
-  var currentPlayer;
+  var human = {name: "human", dice: [], results: [], captured: []};
+  var ai = {name: "ai", dice: [], results: [], captured: []};
+  var currentPlayer = "human";
   var gameHistory = "";
   var round = 1;
   var animatingBlock = false;
@@ -447,6 +464,42 @@
   }
 
 //******************************************
+//************* UTILITIES *****************
+//******************************************
+
+  var getCombinations = function(valuesArray)
+  {
+      var combi = [];
+      var temp = [];
+      var slent = Math.pow(2, valuesArray.length);
+
+      for (var i = 0; i < slent; i++)
+      {
+          temp = [];
+          for (var j = 0; j < valuesArray.length; j++)
+          {
+              if ((i & Math.pow(2, j)))
+              {
+                  temp.push(valuesArray[j]);
+              }
+          }
+          if (temp.length > 0)
+          {
+              combi.push(temp);
+          }
+      }
+
+      combi.sort((a, b) => a.length - b.length);
+      //console.log(combi.join("\n"));
+      return combi;
+  }
+
+  var sumArray = function(arr)
+  {
+      return arr.reduce((partialSum, a) => partialSum + a, 0);
+  }
+
+//******************************************
 //************* GAME LOGIC *****************
 //******************************************
 
@@ -547,35 +600,23 @@
   {
       let activePlayer = (currentPlayer == "human") ? human : ai;
       let inactivePlayer = (currentPlayer == "human") ? ai : human;
+      let allPossibleSelections = getCombinations(activePlayer.results);
 
-      for (let i = 0; i < activePlayer.results.length; i++)
+      if (allPossibleSelections.length > 0)
       {
-          if (activePlayer.results[i] > 0)
+          for (let i = 0; i < allPossibleSelections.length; i++)
           {
-              for (let j = 0; j < inactivePlayer.results.length; j++)
+              if (!allPossibleSelections[i].includes(0))
               {
-                  if (inactivePlayer.results[j] > 0)
+                  for (let j = 0; j < inactivePlayer.results.length; j++)
                   {
-                      if (activePlayer.results[i] >= inactivePlayer.results[j])
+                      if (inactivePlayer.results[j] != 0 && sumArray(allPossibleSelections[i]) != 0
+                          && ((allPossibleSelections[i].length == 1
+                          && allPossibleSelections[i] > inactivePlayer.results[j])
+                        || (sumArray(allPossibleSelections[i]) == inactivePlayer.results[j])))
                       {
                           playsCheck = 0;
                           return true;
-                      }
-                      else
-                      {
-                          if (i != activePlayer.results.length)
-                          {
-                              for (let k = (i+1); k < inactivePlayer.results.length; k++)
-                              {
-                                  if (activePlayer.results[k] > 0 
-                                    && (activePlayer.results[i] + activePlayer.results[k]) 
-                                        === inactivePlayer.results[j])
-                                  {
-                                      playsCheck = 0;
-                                      return true;
-                                  }
-                              }
-                          }
                       }
                   }
               }
@@ -599,7 +640,7 @@
               aiRoundsWon++;
               $("#aiRoundsTotal").html(aiRoundsWon);
           }
-          updateGameHistory(winner.toUpperCase() + " WINS ROUND " + round);
+          updateGameHistory("=== " + winner.toUpperCase() + " WINS ROUND " + round + " ===");
       }
       else
       {
@@ -612,42 +653,42 @@
   var playAITurn = function()
   {
       animatingBlock = true;
-      //anyPossiblePlayCheck() must run before this to validate.
+      let activePlayer = (currentPlayer == "human") ? human : ai;
+      let inactivePlayer = (currentPlayer == "human") ? ai : human;
       let allPossiblePlays = [];
-      //Catalog all possible combinations of captures
-      for (let i = 0; i < ai.results.length; i++) 
+      let allPossibleResults = getCombinations(activePlayer.results);
+      let allPossibleDice = getCombinations(activePlayer.dice);
+      let indexesArray = [];
+      for (let i = 0; i < ai.dice.length; i++)
       {
-          for (let j = 0; j < human.results.length; j++)
-          {
-              if (ai.results[i] > 0 && human.results[j] > 0)
-              {
-                  if (ai.results[i] >= human.results[j])
-                  {
-                      //Value of die minus the result (ie d20 - 5 = 15) plus oppValue (ie. d15)
-                      let rerollAndDieValue = (ai.dice[i] - ai.results[i]) + human.dice[j];
-                      //Push to solutions array
-                      allPossiblePlays.push({
-                          own: [i], opp: j, weight: rerollAndDieValue
-                      })
-                  }
+          indexesArray.push(i);
+      }
+      let allPossibleIndexes = getCombinations(indexesArray);
 
-                  if (i != ai.results.length)
+      //Catalog all possible combinations of captures
+      if (allPossibleResults.length > 0)
+      {
+          for (let i = 0; i < allPossibleResults.length; i++)
+          {
+              //Filter selections that have zeroed-out dice.
+              //TODO: Faster to filter out all results with 0 in them first.
+              if (!allPossibleResults[i].includes(0))
+              {
+                  for (let j = 0; j < inactivePlayer.results.length; j++)
                   {
-                      for (let k = (i+1); k < human.results.length; k++)
+                      if (inactivePlayer.results[j] != 0 && sumArray(allPossibleResults[i]) != 0
+                          && ((allPossibleResults[i].length == 1
+                          && allPossibleResults[i] > inactivePlayer.results[j])
+                        || (sumArray(allPossibleResults[i]) == inactivePlayer.results[j])))
                       {
-                          if (ai.results[k] > 0 
-                            && (ai.results[i] + ai.results[k]) 
-                                === human.results[j])
-                          {
-                              //Value of die minus the result (ie d20 - 5 = 15) plus oppValue (ie. d15)
-                              let rerollAndDieValue = (ai.dice[i] - ai.results[i]) 
-                                  + (ai.dice[k] - ai.results[k])
-                                  + human.dice[j];
-                              //Push to solutions array
-                              allPossiblePlays.push({
-                                  own: [i,k], opp: j, weight: rerollAndDieValue
-                              })
-                          }
+                          //Value of die minus the result (ie d20 - 5 = 15) plus oppValue (ie. d15)
+                          let rerollAndDieValue = 
+                              (sumArray(allPossibleDice[i]) - sumArray(allPossibleResults[i])) 
+                              + (inactivePlayer.dice[j] * parseInt($("#aiWeight").val()));
+                          //Push to solutions array
+                          allPossiblePlays.push({
+                              own: i, opp: j, weight: rerollAndDieValue
+                          })
                       }
                   }
               }
@@ -659,53 +700,40 @@
       let allPlaysSorted = allPossiblePlays.sort((a, b) => 
           (a.weight < b.weight) ? 1 : 
           (a.weight === b.weight && human.dice[a.opp] < human.dice[b.opp]) ? 1 : -1);
-      
-      switch ($("#aiDifficulty").val()) 
-      {
-          case 'medium':
-              bestPlay = allPlaysSorted[Math.floor(allPlaysSorted.length/2)];
-              break;
-          case 'easy':
-              bestPlay = allPlaysSorted[allPlaysSorted.length];
-              break;
-          case 'rng':
-              bestPlay = allPlaysSorted[allPlaysSorted.length * Math.random() << 0];
-              break;
-          case 'hard':
-          default:
-              bestPlay = allPlaysSorted[0];
-      }
 
-
-      //updateGameHistory("ai best play = " + JSON.stringify(bestPlay))
+      if ($("#aiDepth").val() == "all")
+          bestPlay = allPlaysSorted[0];
+      else
+          bestPlay = allPlaysSorted.filter((n) => 
+              allPossibleResults[n.own].length <= parseInt($("#aiDepth").val()))[0];
 
       //Play the turn
       let step = 0;
       let animateStep = function()
       {
-          if (step == 0)
-              selectDie("ai", bestPlay.own[step]);
-          else if (step == 1 && bestPlay.own.length == 2)
-              selectDie("ai", bestPlay.own[step]);
+          if (step < allPossibleResults[bestPlay.own].length)
+          {
+              selectDie("ai", allPossibleIndexes[bestPlay.own][step], true);
+              step++;
+          }
           else
           {
-              selectDie("human", bestPlay.opp);
+              selectDie("human", bestPlay.opp, true);
               step = 0;
               animatingBlock = false;
               clearInterval(selectAnimation);
           }
-          step++;
       }
-      let selectAnimation = setInterval(animateStep, 1000);
+      let selectAnimation = setInterval(animateStep, 750);
   }
 
   var selectedOwnDice = [];
   var selectedOppDie = [];
-  var selectDie = function(player, row) 
+  var selectDie = function(player, row, fromai) 
   {
       // Disable clicks if not player turn
-      //if (currentPlayer == "ai")
-      //    return false;
+      if (currentPlayer == "ai" && !fromai)
+         return false;
 
       let activePlayer = (currentPlayer == "human") ? human : ai;
       let inactivePlayer = (currentPlayer == "human") ? ai : human;
@@ -713,26 +741,22 @@
 
       if (currentPlayer == player)
       {
-          let selectedDie = activePlayer.results[row];
-          if (selectedDie == 0) return;
+          if (activePlayer.results[row] == 0) return;
           // If this die is already selected, deselect it
           if (currentElement.hasClass("playerhighlight"))
           {
               currentElement.removeClass("playerhighlight");
-              selectedOwnDice.splice(selectedOwnDice.indexOf(selectedDie), 1);
-              return;
+              selectedOwnDice.splice(selectedOwnDice.indexOf(row), 1);
           }
-          // Check if two dice are already selected
-          if (selectedOwnDice.length > 1) return;
-
-          selectedOwnDice.push(row);
-          currentElement.addClass("playerhighlight");
-          //updateGameHistory(currentPlayer + " selects " + player + "'s " + selectedDie);
+          else
+          {
+              selectedOwnDice.push(row);
+              currentElement.addClass("playerhighlight");
+          }
       }
       else
       {
-          let selectedDie = inactivePlayer.results[row];
-          if (selectedDie == 0) return;
+          if (inactivePlayer.results[row] == 0) return;
           // If this die is already selected, deselect it
           if (currentElement.hasClass("opponenthighlight"))
           {
@@ -740,45 +764,67 @@
               selectedOppDie = [];
               return;
           }
-
           // Check if an opponent die is already selected
           if (selectedOppDie.length > 0) return;
-
-          // 
           selectedOppDie.push(row);
           currentElement.addClass("opponenthighlight");
-          
-          //updateGameHistory(currentPlayer + " selects " + player + "'s " + selectedDie);
       }
 
       // Check for die capture
-      let selectedOwnDiceResult = activePlayer.results[selectedOwnDice[0]]
-      if (selectedOwnDice.length == 2) selectedOwnDiceResult += activePlayer.results[selectedOwnDice[1]];
+      let selectedOwnDiceResult = activePlayer.results[selectedOwnDice[0]]; 
+      if (selectedOwnDice.length > 1) 
+      {
+          for (let i = 1; i < selectedOwnDice.length; i++)
+              selectedOwnDiceResult += activePlayer.results[selectedOwnDice[i]];
+      }
+
       let selectedOppDieResult = inactivePlayer.results[selectedOppDie[0]];
       
       let captured = '';
       if (selectedOwnDice.length == 1 && (selectedOwnDiceResult >= selectedOppDieResult))
-      {
-          captured = 'Power';
-      }
-      else if (selectedOwnDice.length == 2 && (selectedOwnDiceResult == selectedOppDieResult))
-      {
-          captured = 'Skill';
-      }
+          captured = 'power';
+      else if (selectedOwnDice.length > 1 && (selectedOwnDiceResult == selectedOppDieResult))
+          captured = 'skill';
 
       if (captured)
       {
-          let capturedDie = inactivePlayer.dice[row];
-          activePlayer.captured.push(capturedDie);
-          let dieValues = (selectedOwnDice.length == 2) 
-              ? activePlayer.results[selectedOwnDice[0]].toString() 
-                  + "+" + activePlayer.results[selectedOwnDice[1]].toString() 
-              : activePlayer.results[selectedOwnDice[0]].toString();
+          let capturedDie = inactivePlayer.dice[selectedOppDie[0]];
+          activePlayer.captured.push(capturedDie);  
+          let selectedOwnDiceResultString = "d" + activePlayer.dice[selectedOwnDice[0]]
+              + "(" + activePlayer.results[selectedOwnDice[0]] + ")";
+          if (selectedOwnDice.length > 1) 
+          {
+              for (let i = 1; i < selectedOwnDice.length; i++)
+              {
+                  selectedOwnDiceResult += activePlayer.results[selectedOwnDice[i]];
+                  selectedOwnDiceResultString += "+d" + activePlayer.dice[selectedOwnDice[i]]
+                      + "(" + activePlayer.results[selectedOwnDice[i]] + ")";
+              }
+          }
           updateGameHistory(currentPlayer.toUpperCase() + " " 
-              + captured + " Attacks (" + dieValues + ") "
+              + captured + " attacks (" + selectedOwnDiceResultString + ") "
               + player.toUpperCase() + "'s d" + capturedDie + "(" + selectedOppDieResult + ")");
 
           setTimeout(function(){
+              //X-Out the Captured Die 
+              let canvas = $("#" + inactivePlayer.name + "Die_" + selectedOppDie[0])[0];
+              canvas.width = 100;
+              canvas.height = 100;
+              let ctx = canvas.getContext("2d");
+              ctx.fillStyle = getRandomColor();
+              canvas.style.background = '#320032';
+              polygon(ctx, 50, 50, 50, capturedDie, -Math.PI/2);
+              ctx.fill();
+
+              const x = canvas.width / 2;
+              ctx.fillStyle = (capturedDie > 2) ? "black" : "white";
+              ctx.font = "bold 60px sans-serif";
+              ctx.textAlign = "center";
+              ctx.fillText(capturedDie, x, 70);
+              ctx.fillStyle = "black";
+              ctx.font = "120px sans-serif";
+              ctx.fillText("X", x, 92);
+
               //Zero out the Captured Die
               inactivePlayer.results[selectedOppDie[0]] = 0;
               $("#" + inactivePlayer.name + "Val_" + selectedOppDie[0]).html(0);
@@ -788,22 +834,20 @@
               activePlayer.results[selectedOwnDice[0]] = newResult1;
               $("#" + currentPlayer + "Val_" + selectedOwnDice[0]).html(newResult1);
 
-              if (selectedOwnDice.length == 2)
+              if (selectedOwnDice.length > 1)
               {
-                  let newResult2 = (Math.floor(Math.random() * activePlayer.dice[selectedOwnDice[1]]) + 1);
-                  activePlayer.results[selectedOwnDice[1]] = newResult2;
-                  $("#" + currentPlayer + "Val_" + selectedOwnDice[1]).html(newResult2);
+                  for (let i = 1; i < selectedOwnDice.length; i++)
+                  {
+                      let newResult2 = (Math.floor(Math.random() * activePlayer.dice[selectedOwnDice[i]]) + 1);
+                      activePlayer.results[selectedOwnDice[i]] = newResult2;
+                      $("#" + currentPlayer + "Val_" + selectedOwnDice[i]).html(newResult2);
+                  }
               }
 
               updatePlayerScores();
               switchPlayer();
-          },500);
+          }, 500);
       }
-  }
-
-  var sumArray = function(arr)
-  {
-      return arr.reduce((partialSum, a) => partialSum + a, 0);
   }
 
   var updatePlayerScores = function()
@@ -837,6 +881,7 @@
   {
       if (animatingBlock) return;
       gameHistory = "";
+      $("#gameHistory").html("");
       round = 0;
       humanRoundsWon = aiRoundsWon = 0;
       $("#humanRoundsTotal").html(humanRoundsWon);
@@ -850,11 +895,25 @@
       diceDuelStart();      
   }
 
+  var showRules = function()
+  {
+      $("#rulesbox").addClass("show");
+  }
+
+  var closeRules = function()
+  {
+      $("#rulesbox").removeClass("show");
+  }
+
 //********** PAGE INITIALIZATION ***************
 
   $(document).ready(function() {
+      $('#ruleslink').click(function(){ showRules(); return false; });
+      $('#closeRuleslink').click(function(){ closeRules(); return false; });
       populatePlayerChoiceOptions("human", "Platonic");
       populatePlayerChoiceOptions("ai", "Platonic");
+      setPlayerDice("human");
+      setPlayerDice("ai");
   });
 </script>
   </head>
@@ -865,15 +924,39 @@
     <h2>
       <button onclick="newGame()" class="myButton">New Game</button>
       <button onclick="anotherRound()" class="myButton">Another Round</button>
-      <select id="aiDifficulty" class="headerSelect">
-          <option value="hard">Hard AI</option>
-          <option value="medium">Medium AI</option>
-          <option value="easy">Easy AI</option>          
-          <option value="rng">RNG AI</option>          
+      <select id="aiDepth" class="headerSelect">
+          <option value="all">AI Depth All</option>
+          <option value="4">AI Depth 4</option>
+          <option value="3">AI Depth 3</option>          
+          <option value="2">AI Depth 2</option>          
       </select>
-      <a href="https://buttonmen.fandom.com/wiki/Button_Men_Rules#The_Basics" target="new">Rules</a>
+      <select id="aiWeight" class="headerSelect">
+          <option value="1">Weight Points x1</option>
+          <option value="1.5">Weight Points x1.5</option>
+          <option value="2">Weight Points x2</option>
+      </select>
+      <a id="ruleslink" href="#">Rules</a>
     </h2>
     <div class="container">
+    <div class="rulespopup">
+        <span class="rulestext" id="rulesbox">
+            <h3>Rules of Play</h3>
+            <ol>
+              <li>Player with the lowest die result goes first.</li>
+              <li>The current player may:
+                <ul>
+                  <li><b>Power Attack:</b> Choose one die and an opponent's die with a lesser or equal value to capture it.</li>
+                  <li><b>Skill Attack:</b> Choose multiple dice and an opponent's die of equal value to capture it.</li>
+                </ul>
+              </li>
+              <li>All chosen dice are re-rolled.</li>
+              <li>Switch current player.</li>
+              <li>Each captured die is worth points equal to its max value.</li>
+              <li>Each retained die is worth points equal to half its max value</li>
+            </ol>
+            <h3><a id="closeRuleslink" href="#">close</a></h3>
+        </span>
+    </div>
     <div class="popup">
         <span class="popuptext" id="roundAnnouncer"></span>
     </div>
@@ -903,21 +986,5 @@
     </div>
     <h2 id="gameHistory"></h2>
     </div>
-      <!--<h2>Rules:</h2>
-    <div id="footer">
-      <ol>
-        <li>Lowest result goes first.</li>
-        <li>Current player may:
-          <ul>
-            <li>Power Attack: Choose one die and an opponent's die with a lesser value to capture it.</li>
-            <li>Skill Attack: Choose two dice and an opponent's die of equal value to capture it.</li>
-          </ul>
-        </li>
-        <li>Chosen dice are re-rolled.</li>
-        <li>Each captured die is worth points equal to its max value.</li>
-        <li>Eacn retained die is workth points equal to half its max value</li>
-        <li>Switch current player.</li>
-      </ol>
-    </div -->
   </body>
 </html>
