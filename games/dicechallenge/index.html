@@ -1,20 +1,7 @@
 <html>
   <head>
-    <title>Dice Challenge / Buttonmen</title>
-<!--
-
-TODO
-+ Rules pop-out
-+ Deselect die does't trigger capture
-+ X-out captured die
-+ Weight dice points x1.5 option
-- Depth of dice selected
-
-Bugs
-+ 1. AI pauses uncomfortably when selecting opponent die.
-
--->
-  <style>
+    <title>Dice Challenge</title>
+ <style>
     body {
         background-color: #320032;
         color: white;
@@ -25,7 +12,7 @@ Bugs
       color: white;
     }
 
-    h1, h2 {
+    h1, h2, h5 {
       width: 100%;
       text-align: center;
       class: block;
@@ -919,7 +906,7 @@ Bugs
   </head>
   <body>
     <h1>
-      Dice Challenge (aka. Buttonmen)
+      Dice Challenge
     </h1>
     <h2>
       <button onclick="newGame()" class="myButton">New Game</button>
@@ -954,6 +941,10 @@ Bugs
               <li>Each captured die is worth points equal to its max value.</li>
               <li>Each retained die is worth points equal to half its max value</li>
             </ol>
+            <ul>
+              <li><b>AI Depth:</b> maximum dice the AI can choose for a skill shot. Set this lower for an easier AI opponent.</li>
+              <li><b>Weight Points:</b> how much the AI will weigh capturing high-value dice for points VS rerolling it's own lower-result dice for value. Makes the AI greedier.</li>
+            </ul>
             <h3><a id="closeRuleslink" href="#">close</a></h3>
         </span>
     </div>
@@ -984,6 +975,7 @@ Bugs
         <h2>Rounds Won<br/><span class="score" id="aiRoundsTotal">0</span></h2>
       </div>
     </div>
+    <h5 style="color: #ffffff;">Part of the <a href="http://ideonexus.github.io/Explorable-Explanations/">Explorable Explanations</a> collection of educational javascript apps.</h5>
     <h2 id="gameHistory"></h2>
     </div>
   </body>
