@@ -25,6 +25,11 @@ a {
   color: lightblue;
 }
 
+.scoreboard {
+   width:100%;
+   text-align:center;
+}
+
 #playermessage, #aimessage {
   font-size: 2em;
     width: 100%;
@@ -456,6 +461,7 @@ $(document).ready(function() {
 </script>
   </head>
   <body>
+    <h1 id="scoreboard" class="scoreboard">Gotcha!</h1>
     <div id="player">
       <ul id="hexGrid">
         <li class="hex">
@@ -592,13 +598,12 @@ $(document).ready(function() {
       </ul>
       <div id="aimessage">&nbsp;</div>
     </div>
+<div id="footer">
     <div id="recon">
       <form>
         <input type="button" id="Reconnoiter" value="Reconnoiter" onclick="recon();" class="myButton" /><br/>
       </form>
     </div>
-<div id="footer">
-    <h1 id="scoreboard">Gotcha!</h1>
     <form>
       <input type="button" value="New Game" onclick="newGame();" class="myButton" />
     </form>
