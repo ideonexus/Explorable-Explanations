@@ -1,6 +1,12 @@
 <html>
   <head>
     <title>Dice Challenge</title>
+  </head>
+<!--
+Wishlist:
+Allow for zero-sided dice for sets that always get initiative.
+Other dice types: reserve, etc
+-->
  <style>
     body {
         background-color: #320032;
@@ -262,68 +268,35 @@
 //Dice Types
 //https://buttonmen.fandom.com/wiki/Button_Men_Rules#Chart_of_Button_Men_Online_Dice_Symbols
   var playerChoices = {
-    'Buckminster': {
-      'Dice': [6, 10, 15, 31]
-      ,'Link': ''
-    }
-    ,'Fibonacci': {
-      'Dice': [2, 3, 5, 8, 13, 21]
-      //,'Reserve': []
-      ,'Link': ''
-    }
-    ,'Heegner': {
-      'Dice': [2, 4, 7, 11, 19]
-      ,'Link': ''
-    }
-    ,'Narayana': {
-      'Dice': [1, 3, 6, 10, 15, 21, 28]
-      ,'Link': 'https://en.wikipedia.org/wiki/Narayana_number'
-    }
-    ,'Oblong': {
-      'Dice': [2, 6, 12, 20, 30]
-      ,'Link': ''
-    }
-    ,'Orchard': {
-      'Dice': [4, 5, 7, 22, 28]
-      ,'Link': ''
-    }
-    ,'Pascal': {
-      'Dice': [4, 6, 4, 10, 10, 20]
-      //,'Reserve': [20]
-      ,'Link': ''
-    }
-    ,'Platonic': {
-      'Dice': [4, 6, 8, 12, 20]
-      ,'Link': ''
-    }
-    ,'Primes': {
-      'Dice': [1, 2, 3, 5, 7, 11, 13, 17, 19]
-      //,'Reserve': [25]
-      ,'Link': ''
-    }
-    ,'Pythagorus': {
-      'Dice': [3, 4, 5, 9, 16, 25]
-      //,'Reserve': [25]
-      ,'Link': ''
-    }
-    ,'Social Golfers': {
-      'Dice': [4, 5, 5, 16, 20]
-      ,'Link': ''
-    }
-    ,'Tetrahedral': {
-      'Dice': [1, 4,10,20,35]
-      //,'Reserve': [1]
-      ,'Link': ''
-    }
-    ,'Triangular': {
-      'Dice': [3, 6, 10, 15, 21]
-      ,'Link': ''
-    }
-    ,'Vedic': {
-      'Dice': [108]
-      //,'Reserve': [10^3, 12^3]
-      ,'Link': ''
-    }
+    'Abundant 5-104': {'Dice': [12, 18, 20, 24, 30]}
+    ,'Buckminster 4-62': {'Dice': [6, 10, 15, 31]}
+    ,'Cage 5-84':{'Dice': [6, 10, 14, 24, 30]}
+    ,'Composite 5-37': {'Dice': [4, 6, 8, 9, 10]}
+    ,'Descartes 5-45': {'Dice': [5, 8, 8, 12, 12]}
+    ,'Difference 5-43': {'Dice': [2, 3, 8, 10, 20]}
+    //,'Farey': {'Dice': [0, 1, 1, 2, 1]}
+    ,'Fibonacci 5-50': {'Dice': [3, 5, 8, 13, 21]}
+    ,'Fibonacci 6-52': {'Dice': [2, 3, 5, 8, 13, 21]}
+    ,'Heegner 6-43': {'Dice': [1, 2, 3, 7, 11, 19]}
+    ,'Looney 5-85': {'Dice': [7, 11, 13, 17, 37]}
+    ,'Narayana 5-55': {'Dice': [3, 6, 10, 15, 21]}
+    ,'Narayana 7-84': {'Dice': [1, 3, 6, 10, 15, 21, 28]}
+    ,'Oblong 5-70': {'Dice': [2, 6, 12, 20, 30]}
+    ,'Orchard 5-66': {'Dice': [4, 5, 7, 22, 28]}
+    ,'Pascal 5-34': {'Dice': [4, 6, 4, 10, 10]}
+    ,'Pascal 6-54': {'Dice': [4, 6, 4, 10, 10, 20]}
+    ,'Pell 5-49': {'Dice': [1, 2, 5, 12, 29]}
+    ,'Platonic 5-50': {'Dice': [4, 6, 8, 12, 20]}
+    ,'Polite 5-30': {'Dice': [3, 5, 6, 7, 9]}
+    ,'Primes 5-39': {'Dice': [3, 5, 7, 11, 13]}
+    ,'Primes 7-58': {'Dice': [2, 3, 5, 7, 11, 13, 17]}
+    ,'Pythagorus 5-37': {'Dice': [3, 4, 5, 9, 16]}
+    ,'Pythagorus 6-62': {'Dice': [3, 4, 5, 9, 16, 25]}
+    ,'Social Golfers 5-50': {'Dice': [4, 5, 5, 16, 20]}
+    ,'Tetrahedral 5-70': {'Dice': [1, 4, 10, 20, 35]}
+    ,'Triangular 5-35': {'Dice': [1, 3, 6, 10, 15]}
+    ,'Triangular 6-56': {'Dice': [1, 3, 6, 10, 15, 21]}
+    ,'Vedic 1-108': {'Dice': [108]}
   }
 
 //******************************************
@@ -619,7 +592,7 @@
       updateGameHistory(currentPlayer.toUpperCase() + " has no possible plays.");
       if (playsCheck == 2)
       {
-          let winner = (parseInt($("#humanScore").html()) > parseInt($("#aiScore").html())) ?
+          let winner = (parseFloat($("#humanScore").html()) > parseFloat($("#aiScore").html())) ?
               "human" : "ai";
           if (winner == "human")
           {
@@ -883,6 +856,8 @@
   var anotherRound = function()
   {
       if (animatingBlock) return;
+      //No new round until current is complete.
+      if (anyPossiblePlayCheck()) return;
       diceDuelStart();      
   }
 
@@ -901,8 +876,8 @@
   $(document).ready(function() {
       $('#ruleslink').click(function(){ showRules(); return false; });
       $('#closeRuleslink').click(function(){ closeRules(); return false; });
-      populatePlayerChoiceOptions("human", "Platonic");
-      populatePlayerChoiceOptions("ai", "Platonic");
+      populatePlayerChoiceOptions("human", "Platonic 5-50");
+      populatePlayerChoiceOptions("ai", "Platonic 5-50");
       setPlayerDice("human");
       setPlayerDice("ai");
   });
