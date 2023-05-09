@@ -857,7 +857,7 @@ Other dice types: reserve, etc
   {
       if (animatingBlock) return;
       //No new round until current is complete.
-      if (anyPossiblePlayCheck()) return;
+      if (playsCheck < 2) return;
       diceDuelStart();      
   }
 
