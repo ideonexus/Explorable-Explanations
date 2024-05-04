@@ -1,0 +1,540 @@
+<html>
+<head>
+<style>
+    body {
+        background-color: darkgreen;
+        color: white;
+    }
+
+    a {
+      color: lightblue;
+    }
+
+    canvas.number {
+        width: 7%;
+        background-color: yellow;
+        border: solid 3px;
+        margin-bottom: 3%;
+        margin-right: 0.5%;
+    }
+
+    #container {
+        text-align: center;
+    }
+
+    #header {
+        width: 100%;
+        text-align: center;
+    }
+
+    #toggle {
+        margin: auto;
+        text-align: center;
+        background-color: lightgreen;
+        width: 250px;
+        height: 25px;
+        line-height: 25px;
+    }
+
+    #toggle a {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+.myButton {
+  -moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  -webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  box-shadow:inset 0px 1px 0px 0px #bee2f9;
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf));
+  background:-moz-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-webkit-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-o-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:-ms-linear-gradient(top, #63b8ee 5%, #468ccf 100%);
+  background:linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf',GradientType=0);
+  background-color:#63b8ee;
+  -moz-border-radius:6px;
+  -webkit-border-radius:6px;
+  border-radius:6px;
+  border:1px solid #3866a3;
+  display:inline-block;
+  cursor:pointer;
+  color:#14396a;
+  font-family:Arial;
+  font-size:15px;
+  font-weight:bold;
+  padding:6px 24px;
+  text-decoration:none;
+  text-shadow:0px 1px 0px #7cacde;
+}
+.myButton:hover {
+  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee));
+  background:-moz-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-webkit-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-o-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:-ms-linear-gradient(top, #468ccf 5%, #63b8ee 100%);
+  background:linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee',GradientType=0);
+  background-color:#468ccf;
+}
+
+.myButton:active {
+  position:relative;
+  top:1px;
+}
+
+#numbers {
+    width: 100%;
+    text-align: center;
+}
+
+#diceDiv {
+    bottom: 0px;  /* you can delete these two lines if you want the position as it is */
+    position:fixed;
+    width: 100%; 
+    text-align: center;
+    background-color: rgba(0, 0, 255, 0.4);
+}
+
+#bottommargin {
+    width: 100%;
+    height: 200px;
+}
+
+.decrement, .increment
+{
+    font-size:25px;
+    width: 35px;
+    height: 40px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+input, select
+{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.form-field {
+   border: 5px solid #000000;
+   background: #ffffff;
+   -webkit-border-radius: 15px;
+   -moz-border-radius: 15px;
+   border-radius: 15px;
+   color: #000000;
+   -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(000,000,000,0.7) 0 0px 0px;
+   padding:8px;
+   margin-bottom:20px;
+   width:50px;
+}
+
+.form-field:focus {
+   background: #c4f0ff;
+   color: #ff00e1;
+}
+
+
+</style>
+
+<script src="js/jquery-1.9.1.min.js"></script>
+<script>
+
+var rows = 3;
+var columns = 3;
+var die1Value, die2Value;
+var numberRowsCount, rowsComplete = 0;
+var maxNumbers = 10;
+var startingNumberRows = 2;
+
+/**
+https://softwareengineering.stackexchange.com/questions/311113/generate-pips-on-a-die-based-on-value
+ */
+var faces = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0], //Dummy row for 0-based array
+  [0, 0, 0, 0, 1, 0, 0, 0, 0],
+  [0, 0, 1, 0, 0, 0, 1, 0, 0],
+  [0, 0, 1, 0, 1, 0, 1, 0, 0],
+  [1, 0, 1, 0, 0, 0, 1, 0, 1],
+  [1, 0, 1, 0, 1, 0, 1, 0, 1],
+  [1, 0, 1, 1, 0, 1, 1, 0, 1]
+];
+
+function drawDie(context, count, faces, rows, columns) {
+  var width = context.canvas.clientWidth;
+  var height = context.canvas.clientHeight;
+  drawBackground(context, width, height);
+  if (count > 0) {
+    drawPips(context, width, height, count, faces, rows, columns);
+  }
+}
+
+function drawBackground(context, width, height) {
+  context.fillStyle = '#FFFFFF';
+  context.strokeStyle = '#FF0000';
+  roundRect(context, 0, 0, width, height, width * 0.2, true, true);
+}
+
+function drawPips(context, width, height, count, faces, rows, columns) {
+  var x = measure(width, columns, 0.05);
+  var y = measure(height, rows, 0.05);
+  var radius = Math.min(x.off, y.off) * 0.33;
+  var hue = randRange(0, 360);
+  var fill = hslToHex(hue, 0.85, 0.55);
+  var stroke = hslToHex(hue, 0.85, 0.33);
+  var pipMap = faces[count];
+  var index = 0;
+
+  for (var yPos = y.start; yPos < y.avail; yPos += y.off) {
+    for (var xPos = x.start; xPos < x.avail; xPos += x.off) {
+      if (pipMap[index++] === 1) {
+        drawPip(context, xPos, yPos, radius, fill, stroke);
+      }
+    }
+  }
+}
+
+function drawPip(context, x, y, radius, fill, stroke) {
+  context.beginPath();
+  context.arc(x, y, radius, 0, 2 * Math.PI, false);
+  context.fillStyle = fill;
+  context.fill();
+  context.lineWidth = 2;
+  context.strokeStyle = stroke;
+  context.stroke();
+}
+
+// http://stackoverflow.com/a/3368118/1762224
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+  if (typeof stroke == 'undefined') stroke = true;
+  if (typeof radius === 'undefined') radius = 5;
+  if (typeof radius === 'number') {
+    radius = {
+      tl: radius,
+      tr: radius,
+      br: radius,
+      bl: radius
+    };
+  } else {
+    var defaultRadius = {
+      tl: 0,
+      tr: 0,
+      br: 0,
+      bl: 0
+    };
+    for (var side in defaultRadius) {
+      radius[side] = radius[side] || defaultRadius[side];
+    }
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + radius.tl, y);
+  ctx.lineTo(x + width - radius.tr, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+  ctx.lineTo(x + width, y + height - radius.br);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+  ctx.lineTo(x + radius.bl, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+  ctx.lineTo(x, y + radius.tl);
+  ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+  ctx.closePath();
+  if (fill) ctx.fill();
+  if (stroke) ctx.stroke();
+}
+
+function measure(length, partitions, inset) {
+  var pad = length * inset;
+  var avail = length - (pad * 2);
+  var off = avail / partitions;
+  var start = pad + (off / 2);
+
+  return {
+    length: length,
+    pad: pad,
+    avail: avail,
+    off: off,
+    start: start
+  };
+}
+
+function hslToRgb(h, s, l) {
+  var m1, m2, hue;
+  var r, g, b
+  if (s == 0) r = g = b = (l * 255);
+  else {
+    if (l <= 0.5) m2 = l * (s + 1);
+    else m2 = l + s - l * s;
+    m1 = l * 2 - m2;
+    hue = h / 360;
+    r = Math.round(hueToRgb(m1, m2, hue + 1 / 3));
+    g = Math.round(hueToRgb(m1, m2, hue));
+    b = Math.round(hueToRgb(m1, m2, hue - 1 / 3));
+  }
+  return [r, g, b];
+}
+
+function hueToRgb(m1, m2, hue) {
+  var v;
+  if (hue < 0) hue += 1;
+  else if (hue > 1) hue -= 1;
+
+  if (6 * hue < 1) v = m1 + (m2 - m1) * hue * 6;
+  else if (2 * hue < 1) v = m2;
+  else if (3 * hue < 2) v = m1 + (m2 - m1) * (2 / 3 - hue) * 6;
+  else v = m1;
+
+  return 255 * v;
+}
+
+function rgbToHex(r, g, b) {
+  return '#' + [].slice.apply(arguments).map(function(c) {
+    return (function(hex) {
+      return hex.length === 1 ? '0' + hex : hex;
+    }(Math.floor(c).toString(16)));
+  }).join('');
+}
+
+function hslToHex(h, s, l) {
+  return rgbToHex.apply(null, hslToRgb.apply(null, arguments));
+}
+
+function randRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/*********
+ * END DICE DISPLAY
+*/
+
+var checkAnswer = function(element) {
+    var id = element.id;
+    var number = id.split("_")[1];
+    var row = id.split("_")[2];
+
+    //if number hasn't been x'ed
+    //if number matches dice
+    if (!$("#" + id).hasClass("x")
+        && (die1Value == number 
+            || die2Value == number 
+            || (die1Value + die2Value) == number)) {
+
+        //if number on all lower-number rows are x'ed
+        var allLowerRowsXed = true;
+        for (var i = (row-1); i >= rowsComplete; i--) {
+            if (!$("#number_" + number + "_" + i).hasClass("x")) {
+                allLowerRowsXed = false;
+            }
+        }
+
+
+        if (allLowerRowsXed) {
+            var ctx = element.getContext("2d");
+            ctx.fillStyle = "#ff0000";
+            ctx.font = "bold 120pt sans-serif";
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillText("X", (element.width/2), (element.height/2)+10);
+
+            $("#" + id).addClass("x");
+
+            //Zero-Out Spent dice
+            if (die1Value == number) {
+                die1Value = 0;
+            } 
+            else if (die2Value == number) {
+                die2Value = 0;
+
+            }
+            else if ((die1Value + die2Value) == number) {
+                die1Value = 0;
+                die2Value = 0;
+            }
+
+            if (die1Value == 0 && die2Value == 0) {
+                rollDice();
+            }
+            else {
+                drawDie($("#die1")[0].getContext('2d'), die1Value, faces, rows, columns);
+                drawDie($("#die2")[0].getContext('2d'), die2Value, faces, rows, columns);
+            }
+
+            //Check for cleared row and add another
+            var rowComplete = true;
+            for (var i = 1; i <= maxNumbers; i++) {
+                if (!$("#number_" + i + "_" + row).hasClass("x")) {
+                    rowComplete = false;
+                    break;
+                }
+
+            }
+
+            if (rowComplete) {
+                for (var i=0; i <= maxNumbers; i++)
+                    $("#number_" + i + "_" + row).remove();
+                rowsComplete++;
+                $('#score').html(rowsComplete);
+            }
+        }
+
+    }
+}
+
+var buildNumberCanvases = function() {
+    for (var i = 1; i <= maxNumbers; i++) {
+        //Create the Number Canvas element
+        var id = "number_" + i + "_" + numberRowsCount;
+        var newCanvas = $('<canvas/>');
+        newCanvas.attr('id', id);;
+        newCanvas.addClass("number");
+        newCanvas.on("click", function() { checkAnswer(this) });
+
+        if (numberRowsCount == 0) {
+            $("#numbers").append(newCanvas);
+        }
+        else {
+            $(newCanvas).insertBefore("#number_1_"+(numberRowsCount-1));
+        }
+
+        //Draw the number on it
+        var canvas = $("#" + id).get(0);
+        var ctx = canvas.getContext("2d");
+        ctx.font = "bold 100pt sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+        ctx.fillText(i, (canvas.width/2), (canvas.height/2)+10);
+
+        if (i == maxNumbers) { 
+            $('<br class="numberbr" />').insertAfter("#"+id);
+        }
+    }
+    numberRowsCount++;
+}
+
+var rollDice = function() {
+    die1Value = Math.floor(Math.random()*6)+1
+    drawDie($("#die1")[0].getContext('2d'), die1Value, faces, rows, columns);
+
+    die2Value = Math.floor(Math.random()*6)+1
+    drawDie($("#die2")[0].getContext('2d'), die2Value, faces, rows, columns);
+}
+
+var newGame = function() {
+    rowsComplete = 0;
+    $('#score').html(rowsComplete);
+    $('.number').remove();
+    $('.numberbr').remove();
+
+    numberRowsCount = 0;
+    maxNumbers = $('#initialRange').val();
+
+    for (var i = 1; i <= startingNumberRows; i++) {
+        buildNumberCanvases();
+    }
+    rollDice();    
+}
+
+var incrementDecrement = function(button, incdec) {
+    // Get the field name
+    var fieldName = $(button).attr('field');
+    var field = $('#'+fieldName);
+    // Get increment/decrement value
+    var precision = 0;
+    if (typeof(field.attr("data-precision")) != "undefined")
+    {
+      precision = parseFloat(field.attr("data-precision"));
+    }
+    var amt = parseFloat(field.attr("data-incdec"));
+    // Get its current value
+    var currentVal = parseFloat(field.val());
+    // If it isn't undefined
+    if (!isNaN(currentVal)) {
+        if (incdec == "-")
+        {
+          // Decrement one
+          newValue = parseFloat(currentVal - amt).toFixed(precision);
+          if (newValue < 0) {
+              newValue = 0;
+          }
+        }
+        else
+        {
+          // Increment one
+          newValue = parseFloat(currentVal + amt).toFixed(precision);
+        }
+
+        if (newValue < 6) newValue = 6;
+        if (newValue > 12) newValue = 12;
+    } else {
+        // Otherwise put a 0 there
+        newValue = 10;
+    }
+
+    field.val(newValue);
+    newGame();
+}
+
+var handleEnterKeydown = function (sender, args) {
+    args = args || window.event;
+    if (args.keyCode == 13) {
+        args.cancelBubble = true;
+        args.returnValue = false;
+        if (args.preventDefault) args.preventDefault();
+        if (args.stopPropagation) args.stopPropagation();
+        newGame();
+    }
+}
+
+$(document).ready(function() {
+  // This button will increment the value
+  $('.increment').click(function(e){
+      // Stop acting like a button
+      e.preventDefault();
+      incrementDecrement(this, "+");
+  });
+
+  // This button will decrement the value till 0
+  $(".decrement").click(function(e) {
+      // Stop acting like a button
+      e.preventDefault();
+      incrementDecrement(this, "-");
+  });
+
+    newGame();
+});
+
+</script>
+</head>
+<body>
+<div id="header">
+    <h1 id="sentence">Shut the Box Infinite</h1>
+    <form >
+      <input type="button" value="New Game" onclick="newGame();" class="myButton" />
+      <input type="button" value="Add Row" onclick="buildNumberCanvases();" class="myButton" id="addRow" />
+      <input type='button' value='-' class='decrement' field='initialRange' />
+      <input id="initialRange" class="form-field" type="number" data-incdec="1" value="10" onkeydown="handleEnterKeydown();">
+      <input type='button' value='+' class='increment' field='initialRange' />
+      <h2>Rows Complete: <span id="score">0</span></h2>
+    </form>
+    <h2 id="task"></h2>
+</div>
+
+<div id="numbers"></div>
+
+<div id="bottommargin"></div>
+
+<div id="diceDiv">
+    <canvas id="die1" width="124" height="124"></canvas>
+    <canvas id="die2" width="124" height="124"></canvas>
+</div>
+
+</body>
+</html>
