@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spanish Match — Madrigal's Magic Key</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f5f0e8;
+    --paper:     #fdfaf4;
+    --ink:       #1c1610;
+    --ink-dim:   #6b5e4a;
+    --rule:      #d4c9b0;
+    --gold:      #b5860d;
+    --gold-bg:   #fdf3d0;
+    --red:       #a33;
+    --red-bg:    #fce8e8;
+    --green:     #2a6e3f;
+    --green-bg:  #e6f4ec;
+    --blue:      #1a4a7a;
+    --blue-bg:   #e6eff8;
+    --selected:  #ddeeff;
+    --sel-border:#2266cc;
+    --matched:   #d4edda;
+    --mat-border:#27843f;
+    --wrong:     #f8d7da;
+    --wrg-border:#842734;
+    --shadow:    rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      var(--rule) 27px,
+      var(--rule) 28px
+    );
+    font-family: 'Lora', Georgia, serif;
+    min-height: 100vh;
+    padding: 1.5rem 1rem 4rem;
+    color: var(--ink);
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    margin-bottom: 1.8rem;
+    position: relative;
+  }
+
+  .book-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-bottom: 0.3rem;
+  }
+
+  h1 {
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  h1 em {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 0.6rem 0;
+    color: var(--ink-dim);
+    font-size: 0.8rem;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    max-width: 120px;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── SCOREBAR ── */
+  .scorebar {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .stat-val {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--gold);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    font-family: 'Source Code Pro', monospace;
+  }
+
+  /* ── ROUND INFO ── */
+  .round-info {
+    text-align: center;
+    margin-bottom: 1.2rem;
+    font-size: 0.8rem;
+    color: var(--ink-dim);
+    font-family: 'Source Code Pro', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── INSTRUCTIONS ── */
+  .instructions {
+    background: var(--gold-bg);
+    border: 1px solid #e5c65d;
+    border-radius: 2px;
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+    color: var(--ink-dim);
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 1.4rem;
+    font-style: italic;
+  }
+
+  /* ── TWO-COLUMN LAYOUT ── */
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 600px) {
+    .columns { grid-template-columns: 1fr; }
+  }
+
+  .col-header {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .col-flag { font-size: 1rem; }
+
+  /* ── CARDS ── */
+  .card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 0.65rem 0.9rem;
+    cursor: pointer;
+    transition: transform 0.12s, box-shadow 0.12s, background 0.15s, border-color 0.15s;
+    box-shadow: 0 1px 3px var(--shadow);
+    position: relative;
+    user-select: none;
+    line-height: 1.45;
+    font-size: 0.9rem;
+  }
+
+  .card:hover:not(.matched):not(.wrong-flash) {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    transform: translateY(-1px);
+  }
+
+  .card.selected {
+    background: var(--selected);
+    border-color: var(--sel-border);
+    box-shadow: 0 0 0 2px rgba(34,102,204,0.2);
+  }
+
+  .card.matched {
+    background: var(--matched);
+    border-color: var(--mat-border);
+    cursor: default;
+    opacity: 0.85;
+  }
+
+  .card.wrong-flash {
+    background: var(--wrong);
+    border-color: var(--wrg-border);
+    animation: wrongShake 0.35s ease;
+    cursor: default;
+  }
+
+  .card .num {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.65rem;
+    color: var(--ink-dim);
+    position: absolute;
+    top: 0.45rem;
+    left: 0.6rem;
+    opacity: 0.6;
+  }
+
+  .card .text {
+    padding-left: 0;
+  }
+
+  .card .match-badge {
+    display: none;
+    position: absolute;
+    right: 0.55rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+  }
+
+  .card.matched .match-badge { display: block; }
+
+  @keyframes wrongShake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+  }
+
+  @keyframes matchPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+
+  .card.matched { animation: matchPop 0.25s ease; }
+
+  /* ── BUTTONS ── */
+  .btn-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.6rem;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  button {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.55rem 1.5rem;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .btn-primary:hover { background: #3a2e20; }
+
+  .btn-secondary {
+    background: transparent;
+    border-color: var(--rule);
+    color: var(--ink-dim);
+  }
+  .btn-secondary:hover { border-color: var(--ink-dim); color: var(--ink); }
+
+  /* ── COMPLETION BANNER ── */
+  .completion {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28,22,16,0.7);
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .completion.show { display: flex; }
+
+  .completion-box {
+    background: var(--paper);
+    border: 2px solid var(--gold);
+    padding: 2.5rem 3rem;
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .completion-box h2 {
+    font-size: 1.6rem;
+    margin-bottom: 0.4rem;
+    color: var(--gold);
+  }
+
+  .completion-box p {
+    color: var(--ink-dim);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+
+  .completion-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .c-stat { text-align: center; }
+  .c-stat-val { font-size: 2rem; font-weight: 600; display: block; color: var(--ink); }
+  .c-stat-label { font-family: 'Source Code Pro', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-dim); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(-60px);
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    padding: 0.55rem 1.4rem;
+    z-index: 100;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">✓ Correct!</div>
+
+<div class="completion" id="completion">
+  <div class="completion-box">
+    <h2>¡Excelente!</h2>
+    <p>All ten pairs matched correctly.</p>
+    <div class="completion-stats">
+      <div class="c-stat">
+        <span class="c-stat-val" id="c-time">0s</span>
+        <span class="c-stat-label">Time</span>
+      </div>
+      <div class="c-stat">
+        <span class="c-stat-val" id="c-errors">0</span>
+        <span class="c-stat-label">Errors</span>
+      </div>
+      <div class="c-stat">
+        <span class="c-stat-val" id="c-score">0</span>
+        <span class="c-stat-label">Points</span>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="nextRound()">Next Round →</button>
+  </div>
+</div>
+
+<header>
+  <div class="book-label">Madrigal's Magic Key to Spanish · Translation Exercises</div>
+  <h1>English ↔ <em>Español</em> Matching</h1>
+  <div class="divider">Match each sentence to its translation</div>
+</header>
+
+<div class="scorebar">
+  <div class="stat"><span class="stat-val" id="totalScore">0</span><span class="stat-label">Total Score</span></div>
+  <div class="stat"><span class="stat-val" id="roundNum">1</span><span class="stat-label">Round</span></div>
+  <div class="stat"><span class="stat-val" id="timerDisplay">0s</span><span class="stat-label">Time</span></div>
+  <div class="stat"><span class="stat-val" id="errorsDisplay">0</span><span class="stat-label">Errors</span></div>
+</div>
+
+<div class="instructions">
+  Click an English sentence, then click its Spanish translation to match them. All 10 pairs must be found.
+</div>
+
+<div class="round-info" id="roundInfo">Round 1 · 0 / 10 matched</div>
+
+<div class="columns" id="columnsWrapper">
+  <div id="colEn">
+    <div class="col-header"><span class="col-flag">🇬🇧</span> English</div>
+    <div class="card-list" id="enList"></div>
+  </div>
+  <div id="colEs">
+    <div class="col-header"><span class="col-flag">🇪🇸</span> Español</div>
+    <div class="card-list" id="esList"></div>
+  </div>
+</div>
+
+<div class="btn-row">
+  <button class="btn-secondary" onclick="showHint()">Hint</button>
+  <button class="btn-secondary" onclick="revealAll()">Reveal All</button>
+  <button class="btn-secondary" id="toggleBtn" onclick="toggleColumns()">🇪🇸 Spanish Left</button>
+  <button class="btn-primary" onclick="nextRound()">New Round →</button>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const ALL_PAIRS = [{"en": "The actor is popular.", "es": "El actor es popular."}, {"en": "The tenor is popular.", "es": "El tenor es popular."}, {"en": "The restaurant is excellent.", "es": "El restaurante es excelente."}, {"en": "The doctor is intelligent.", "es": "El doctor es inteligente."}, {"en": "The cable is urgent.", "es": "El cable es urgente."}, {"en": "The hospital is excellent.", "es": "El hospital es excelente."}, {"en": "The client is important.", "es": "El diente es importante."}, {"en": "The conductor is patient.", "es": "El conductor es paciente."}, {"en": "The general is important.", "es": "El general es importante."}, {"en": "The president is democratic.", "es": "El presidente es democrático."}, {"en": "The inventor is intelligent.", "es": "El inventor es inteligente."}, {"en": "The general is diplomatic.", "es": "El general es diplomático."}, {"en": "The cable is important.", "es": "El cable es importante."}, {"en": "The pianist is famous.", "es": "El pianista es famoso."}, {"en": "The artist is ambitious.", "es": "El artista es ambicioso."}, {"en": "The doctor is generous.", "es": "El doctor es generoso."}, {"en": "The novelist is intelligent.", "es": "El novelista es inteligente."}, {"en": "The hotel is excellent.", "es": "El hotel es excelente."}, {"en": "The doctor is very patient.", "es": "El doctor es muy paciente."}, {"en": "The roast beef is delicious.", "es": "El rosbif es delicioso."}, {"en": "The program is very interesting.", "es": "El programa es muy interesante."}, {"en": "I prepared the lesson this morning.", "es": "Preparé la lección esta mañana."}, {"en": "I prepared (the) dinner.", "es": "Preparé la cena."}, {"en": "I prepared the lesson for the class.", "es": "Preparé la lección para la clase."}, {"en": "I didn't prepare (the) dinner this afternoon.", "es": "No preparé la cena esta tarde."}, {"en": "I didn't prepare the lesson this morning.", "es": "No preparé la lección esta mañana."}, {"en": "Did you prepare the lesson?", "es": "¿Preparó usted la lección?"}, {"en": "Did you prepare (the) dinner?", "es": "¿Preparó usted la cena?"}, {"en": "Did you prepare the lesson this morning?", "es": "¿Preparó usted la lección esta mañana?"}, {"en": "Did you prepare (the) dinner this afternoon?", "es": "¿Preparó usted la cena esta tarde?"}, {"en": "Did you prepare the lesson for the class?", "es": "¿Preparó usted la lección para la clase?"}, {"en": "Did you prepare the lesson this afternoon?", "es": "¿Preparó usted la lección esta tarde?"}, {"en": "I had (took) roast beef.", "es": "Tomé rosbif."}, {"en": "I had (took) a salad in the restaurant.", "es": "Tomé una ensalada en el restaurante."}, {"en": "I had (took) soup.", "es": "Tomé sopa."}, {"en": "I had (took) tea at (in) the club.", "es": "Tomé té en el club."}, {"en": "I had (took) a sandwich in the station.", "es": "Tomé un sandwich en la estación."}, {"en": "I took an aspirin this morning.", "es": "Tomé una aspirina esta mañana."}, {"en": "I took a taxi this afternoon.", "es": "Tomé un taxi esta tarde."}, {"en": "I didn't have (take) beef-steak.", "es": "No tomé biftec."}, {"en": "I took the plane at (in) the airport.", "es": "Tomé el avión en el aeropuerto."}, {"en": "Did you have (take) soup?", "es": "¿Tomó usted sopa?"}, {"en": "Did you have (take) a salad?", "es": "¿Tomó usted una ensalada?"}, {"en": "Did you have (take) dinner at (in) the airport?", "es": "¿Tomó usted la cena en el aeropuerto?"}, {"en": "Did you have (take) coffee at (in) the club?", "es": "¿Tomó usted café en el club?"}, {"en": "Did you take an aspirin?", "es": "¿Tomó usted una aspirina?"}, {"en": "Did you take a taxi?", "es": "¿Tomó usted un taxi?"}, {"en": "Did you take the train?", "es": "¿Tomó usted el tren?"}, {"en": "Did you take the plane?", "es": "¿Tomó usted el avión?"}, {"en": "I invited my mother to the movies.", "es": "Invité a mi mamá al cine."}, {"en": "I invited your mother to the party.", "es": "Invité a su mamá a la fiesta."}, {"en": "I invited Robert to the movies tonight.", "es": "Invité a Roberto al cine esta noche."}, {"en": "I visited your mother this morning.", "es": "Visité a su mamá esta mañana."}, {"en": "I visited Robert this afternoon.", "es": "Visité a Roberto esta tarde."}, {"en": "Did you visit my father this afternoon?", "es": "¿Visitó usted a mi papá esta tarde?"}, {"en": "Did you visit my mother this morning?", "es": "¿Visitó usted a mi mamá esta mañana?"}, {"en": "Did you visit Robert tonight?", "es": "¿Visitó usted a Roberto esta noche?"}, {"en": "Did you invite Robert to the party?", "es": "¿Invitó usted a Roberto a la fiesta?"}, {"en": "Did you invite a friend to the class?", "es": "¿Invitó usted a un amigo a la clase?"}, {"en": "Did you invite your mother to the movies?", "es": "¿Invitó usted a su mamá al cine?"}, {"en": "Did you invite your father to the theatre?", "es": "¿Invitó usted a su papá al teatro?"}, {"en": "I talked about Mexico in the class.", "es": "Hablé de México en la clase."}, {"en": "The doctor called up. (The doctor talked on the phone.).", "es": "El doctor habló por teléfono."}, {"en": "The doctor talked about the accident.", "es": "El doctor habló del accidente."}, {"en": "Did you talk with the doctor?", "es": "¿Habló usted con el doctor?"}, {"en": "Did you talk about Mexico in the class?", "es": "¿Habló usted de México en la clase?"}, {"en": "Did you talk about the theater?", "es": "¿Habló usted del teatro?"}, {"en": "Did you call up? (Did you talk on the phone?).", "es": "¿Habló usted por teléfono?"}, {"en": "Did mother talk with the doctor?", "es": "¿Habló mamá con el doctor?"}, {"en": "Did Robert talk in the class this morning?", "es": "¿Habló Roberto en la clase esta mañana?"}, {"en": "Did Mary talk about the theater?", "es": "¿Habló María del teatro?"}, {"en": "The patient worried the doctor.", "es": "El paciente preocupó al doctor."}, {"en": "The general saved his friend.", "es": "El general salvó a su amigo."}, {"en": "Who invited John?", "es": "¿Quién invitó a Juan?"}, {"en": "Who recommended John?", "es": "¿Quién recomendó a Juan?"}, {"en": "Who invited Robert?", "es": "¿Quién invitó a Roberto?"}, {"en": "The novelist accumulated a fortune.", "es": "El novelista acumuló una fortuna."}, {"en": "The student used the vocabulary.", "es": "El estudiante usó el vocabulario."}, {"en": "My mother prepared the dinner.", "es": "Mi mamá preparó la cena."}, {"en": "My father called up (talked on the phone).", "es": "Mi papá habló por teléfono."}, {"en": "Who installed the phonograph?", "es": "¿Quién instaló el fonógrafo?"}, {"en": "Where is the station?", "es": "¿Dónde está la estación?"}, {"en": "Where is the bank?", "es": "¿Dónde está el banco?"}, {"en": "Where is the telephone?", "es": "¿Dónde está el teléfono?"}, {"en": "Where is your father?", "es": "¿Dónde está su papá?"}, {"en": "Where is the car?", "es": "¿Dónde está el auto?"}, {"en": "The mechanic is in the garage.", "es": "El mecánico está en el garage."}, {"en": "The money is in the bank.", "es": "El dinero está en el banco."}, {"en": "The train is in the station.", "es": "El tren está en la estación."}, {"en": "The cream is in the refrigerator.", "es": "La crema está en el refrigerador."}, {"en": "How are you?", "es": "¿Cómo está usted?"}, {"en": "How is your mother?", "es": "¿Cómo está su mamá?"}, {"en": "My mother is well, thank you.", "es": "Mi mamá está bien, gracias."}, {"en": "The patient is better.", "es": "El paciente está mejor."}, {"en": "My father is better, thank you.", "es": "Mi papá está mejor, gracias."}, {"en": "Did you buy a blouse this morning?", "es": "¿Compró usted una blusa esta mañana?"}, {"en": "Did you buy the car in the automobile agency?", "es": "¿Compró usted el auto en la agencia de automóviles?"}, {"en": "Did you buy perfume in Paris?", "es": "¿Compró usted perfume en París?"}, {"en": "Did you buy the car last week?", "es": "¿Compró usted el auto la semana pasada?"}, {"en": "Did you buy chocolates for your mother?", "es": "¿Compró usted chocolates para su mamá?"}, {"en": "Did you buy a sweater for your father?", "es": "¿Compró usted un suéter para su papá?"}, {"en": "I bought a hat this morning.", "es": "Compré un sombrero esta mañana."}, {"en": "Did Martha buy a hat in Paris?", "es": "¿Compró Marta un sombrero en París?"}, {"en": "What did Martha buy in the store?", "es": "¿Qué compró Marta en la tienda?"}, {"en": "What did Robert buy in the drugstore?", "es": "¿Qué compró Roberto en la farmacia?"}, {"en": "What did your father buy this afternoon?", "es": "¿Qué compró su papá esta tarde?"}, {"en": "When did you buy the house?", "es": "¿Cuándo compró usted la casa?"}, {"en": "When did you buy the car?", "es": "¿Cuándo compró usted el auto?"}, {"en": "When did Martha buy the blouse?", "es": "¿Cuándo compró Marta la blusa?"}, {"en": "Are you going to finish the composition?", "es": "¿Va a terminar la composición?"}, {"en": "Are you going to Cuba?", "es": "¿Va a Cuba?"}, {"en": "Are you going to the class?", "es": "¿Va a la clase?"}, {"en": "Are you going to be at home tonight?", "es": "¿Va a estar en casa esta noche?"}, {"en": "Are you going to park your car?", "es": "¿Va a estacionar su auto?"}, {"en": "Is Robert going to buy a house?", "es": "¿Va a comprar una casa Roberto?"}, {"en": "Is Mary going to work tomorrow?", "es": "¿Va a trabajar mañana María?"}, {"en": "Is Charles going to park the car?", "es": "¿Va a estacionar el auto Carlos?"}, {"en": "Is your father going to take a taxi?", "es": "¿Va a tomar un taxi su papá?"}, {"en": "Is your mother going to prepare dinner?", "es": "¿Va a preparar la cena su mamá?"}, {"en": "Is the doctor going to buy the car?", "es": "¿Va a comprar el auto el doctor?"}, {"en": "Is Charles going to prepare the lesson?", "es": "¿Va a preparar la lección Carlos?"}, {"en": "Is Martha going to have (take) dinner?", "es": "¿Va tomar la cena Marta?"}, {"en": "The doctor is going to visit the patient.", "es": "El doctor va a visitar al paciente."}, {"en": "My mother is going to accept the invitation.", "es": "Mi mamá va a aceptar la invitación."}, {"en": "My father is going to have (take) dinner.", "es": "Mi papá va a tomar la cena."}, {"en": "Is Mary going to write the letter?", "es": "¿Va a escribir la carta María?"}, {"en": "Is Charles going to sell the radio?", "es": "¿Va a vender el radio Carlos?"}, {"en": "Is Martha going to understand the cable?", "es": "¿Va a comprender el cable Marta?"}, {"en": "Is your secretary going to receive the telegram?", "es": "¿Va a recibir el telegrama su secretaria?"}, {"en": "Is Robert going to understand the lesson?", "es": "¿Va a comprender la lección Roberto?"}, {"en": "My mother is going to serve coffee.", "es": "Mi mamá va a servir café."}, {"en": "Did you receive a letter this morning?", "es": "¿Recibió usted una carta esta mañana?"}, {"en": "Did you receive a cable from Charles?", "es": "¿Recibió usted un cable de Carlos?"}, {"en": "Did you receive a telegram from my father?", "es": "¿Recibió usted un telegrama de mi papá?"}, {"en": "I received many letters this morning.", "es": "Recibí muchas cartas esta mañana."}, {"en": "I received a telegram from my father.", "es": "Recibí un telegrama de mi papá."}, {"en": "I received a package from Mexico.", "es": "Recibí un paquete de México."}, {"en": "I wrote a composition last night.", "es": "Escribí una composición anoche."}, {"en": "I wrote a letter this morning.", "es": "Escribí una carta esta mañana."}, {"en": "Did you write a poem?", "es": "¿Escribió usted un poema?"}, {"en": "Did you sell the house last week?", "es": "¿Vendió usted la casa la semana pasada?"}, {"en": "Did you sell the radio this morning?", "es": "¿Vendió usted el radio esta mañana?"}, {"en": "Did you sell the car this afternoon?", "es": "¿Vendió usted el auto esta tarde?"}, {"en": "Did you buy the guitar in Colombia?", "es": "¿Compró usted la guitarra en Colombia?"}, {"en": "I bought the car in Mexico.", "es": "Compré el auto en México."}, {"en": "I bought a ranch in Mexico.", "es": "Compré un rancho en México."}, {"en": "Did you see Charles last night?", "es": "¿Vió usted a Carlos anoche?"}, {"en": "Did you see the doctor this afternoon?", "es": "¿Vió usted al doctor esta tarde?"}, {"en": "Did you see the general last week?", "es": "¿Vió usted al general la semana pasada?"}, {"en": "Did you see Anthony last night?", "es": "¿Vió usted a Antonio anoche?"}, {"en": "I saw a television program.", "es": "Ví un programa de televisión."}, {"en": "I saw your secretary this afternoon.", "es": "Ví a su secretaria esta tarde."}, {"en": "I saw Anthony last night.", "es": "Ví a Antonio anoche."}, {"en": "I saw Charles this morning.", "es": "Ví a Carlos está mañana."}, {"en": "We are going to see a television program.", "es": "Vamos a ver un programa de televisión."}, {"en": "Did you read the newspaper this morning?", "es": "¿Leyó usted el periódico esta mañana?"}, {"en": "Did you read a novel last week?", "es": "¿Leyó usted una novela la semana pasada?"}, {"en": "Did you read the sentences in the class?", "es": "¿Leyó usted las frases en la clase?"}, {"en": "Did you read many letters in the office?", "es": "¿Leyó usted muchas cartas en el despacho?"}, {"en": "Did you read the magazine on the train?", "es": "¿Leyó usted la revista en el tren?"}, {"en": "I read an article in the newspaper.", "es": "Leí un artículo en el periódico."}, {"en": "I read a book on the plane.", "es": "Leí un libro en el avión."}, {"en": "I read a poem in the class.", "es": "Leí un poema en la clase."}, {"en": "Are you going to read the sentences?", "es": "¿Va a leer las frases?"}, {"en": "Are you going to read the magazine on the train?", "es": "¿Va a leer la revista en el tren?"}, {"en": "Did Robert read a book on the plane?", "es": "¿Leyó Roberto un libro en el avión?"}, {"en": "Did you see the pictures (photographs) in the newspaper?", "es": "¿Vió usted las fotografías en el periódico?"}, {"en": "Did you see the flowers in the park?", "es": "¿Vió usted las flores en el parque?"}, {"en": "I saw Robert in the club.", "es": "Ví a Roberto en el club."}, {"en": "I saw the pictures (photographs) in the magazine.", "es": "Ví las fotografías en la revista."}, {"en": "Did they have (take) dinner in the restaurant?", "es": "¿Tomaron la cena en el restaurante?"}, {"en": "Did they have (take) roast beef for dinner?", "es": "¿Tomaron rosbif para la cena?"}, {"en": "Did they visit Mary in the hospital?", "es": "¿Visitaron a María en el hospital?"}, {"en": "Did they invite John to the party?", "es": "¿Invitaron a Juan a la fiesta?"}, {"en": "The doctor and I took a taxi.", "es": "El doctor y yo tomamos un taxi."}, {"en": "My mother and I bought a car.", "es": "Mi mamá y yo compramos un auto."}, {"en": "The students prepared a composition.", "es": "Los estudiantes prepararon una composición."}, {"en": "The students understood the lesson.", "es": "Los estudiantes comprendie-ron la lección."}, {"en": "The Mexicans applauded with enthusiasm.", "es": "Los mexicanos aplaudieron con entusiasmo."}, {"en": "The students saw a Mexican film.", "es": "Los estudiantes vieron una película mexicana."}, {"en": "I sang a song in (the) class.", "es": "Canté una canción en la clase."}, {"en": "I saw a newsreel at the movies.", "es": "Ví un noticiario en el cine."}, {"en": "I saw a movie (film) last night.", "es": "Ví una película anoche."}, {"en": "My friends saw a television program.", "es": "Mis amigos vieron un programa de televisión."}, {"en": "My friends read (past) the news in the newspaper.", "es": "Mis amigos leyeron las noticias en el periódico."}, {"en": "I read the letter last night.", "es": "Leí la carta anoche."}, {"en": "Did you hear the speech yesterday?", "es": "¿Oyó usted el discurso ayer?"}, {"en": "We heard the conversation in the class.", "es": "Oímos la conversación en la clase."}, {"en": "Did you hear the concert on the radio?", "es": "¿Oyó usted el concierto por radio?"}, {"en": "Are you well?", "es": "¿Está usted bien?"}, {"en": "Are you sad?", "es": "¿Está usted triste?"}, {"en": "Are you alone (when speaking to a man)?", "es": "¿Está solo?"}, {"en": "Are you alone (when speak-in to a woman)?", "es": "¿Está sola?"}, {"en": "Are you worried (when speaking to a man)?", "es": "¿Está preocupado?"}, {"en": "Are you worried (when speaking to a woman)?", "es": "¿Está preocupada?"}, {"en": "We are tired (men).", "es": "Estámos cansados."}, {"en": "We are tired (women).", "es": "Estámos cansadas."}, {"en": "They are ready (men).", "es": "Están listos."}, {"en": "They are ready (women).", "es": "Están listas."}, {"en": "Are they alone (men)?", "es": "¿Están solos?"}, {"en": "They are at (in) the club.", "es": "Están en el club."}, {"en": "Are you at home?", "es": "¿Está usted en casa?"}, {"en": "They are at home.", "es": "Están en casa."}, {"en": "Are you copying the sentences?", "es": "¿Está copiando las frases?"}, {"en": "I am writing an article.", "es": "Estoy escribiendo un artículo."}, {"en": "Are you reading a novel?", "es": "¿Está leyendo una novela?"}, {"en": "My grandfather is dictating a letter.", "es": "Mi abuelo está dictando una carta."}, {"en": "My grandfather is smoking a cigar.", "es": "Mi abuelo esta fumando un puro."}, {"en": "They are writing the sentences.", "es": "Están escribiendo las frases."}, {"en": "They are preparing dinner.", "es": "Están preparando la cena."}, {"en": "Is Robert studying?", "es": "¿Está estudiando Roberto?"}, {"en": "Is your grandmother reading?", "es": "¿Está leyendo su abuela?"}, {"en": "Is your grandfather smoking?", "es": "¿Está fumando su abuelo?"}, {"en": "Is your father working?", "es": "¿Está trabajando su papá?"}, {"en": "I understand the situation very well.", "es": "Comprendo la situación muy bien."}, {"en": "I study the lesson after dinner.", "es": "Estudio la lección después de la cena."}, {"en": "I read (present) the newspaper in the morning.", "es": "Leo el periódico en la mañana."}, {"en": "I have tea for lunch.", "es": "Tomo té para el almuerzo."}, {"en": "I have coffee for dinner.", "es": "Tomo café para la cena."}, {"en": "My grandfather smokes after dinner.", "es": "Mi abuelo fuma después de la cena."}, {"en": "Do you speak Spanish?", "es": "¿Habla usted español?"}, {"en": "Do you study after dinner?", "es": "¿Estudia usted después de la cena?"}, {"en": "Do you work in the bank?", "es": "¿Trabaja usted en el banco?"}, {"en": "I read the newspaper every morning.", "es": "Leo el periódico todas las mañanas."}, {"en": "I understand the lesson very well.", "es": "Comprendo la lección muy bien."}, {"en": "I read (present) the lesson in the class.", "es": "Leo la lección en la clase."}, {"en": "Do you read a lot every day?", "es": "¿Lee usted mucho todos los días?"}, {"en": "Do you live in a house or in an apartment?", "es": "¿Vive usted en una casa o en un departamento?"}, {"en": "Do you write the sentences in the class?", "es": "¿Escribe usted las frases en la clase?"}, {"en": "Do you learn the vocabulary in the class?", "es": "¿Aprende usted el vocabu-lario en la clase?"}, {"en": "Do you read a magazine in the class?", "es": "¿Lee usted una revista en la clase?"}, {"en": "We understand the lesson very well.", "es": "Comprendemos la lección muy bien."}, {"en": "We have coffee in the office.", "es": "Tomamos café en el despacho."}, {"en": "The students speak very well.", "es": "Los estudiantes hablan muy bien."}, {"en": "The women carry baskets.", "es": "Las mujeres llevan canastas."}, {"en": "The secretaries write many letters.", "es": "Las secretarias escriben muchas cartas."}, {"en": "I had company on Saturday.", "es": "Tuve visitas el sábado."}, {"en": "Did you have a party last night?", "es": "¿Tuvo una fiesta anoche?"}, {"en": "Did you have an interesting conversation?", "es": "¿Tuvo una conversación interesante?"}, {"en": "Did you have company last night?", "es": "¿Tuvo visitas anoche?"}, {"en": "Did you have a party on Saturday?", "es": "¿Tuvo una fiesta el sábado?"}, {"en": "Did Charles come to the party last night?", "es": "¿Vino Carlos a la fiesta anoche?"}, {"en": "Did Mary come to the beach last week?", "es": "¿Vino María a la playa la semana pasada?"}, {"en": "Did you have company on Saturday?", "es": "¿Tuvo visitas el sábado?"}, {"en": "Did you come to Mexico by plane?", "es": "¿Vino a México en avión?"}, {"en": "Did Charles come to the office this afternoon?", "es": "¿Vino Carlos al despacho esta tarde?"}, {"en": "Did you do the work this morning?", "es": "¿Hizo el trabajo esta mañana?"}, {"en": "Are you going fishing (to fish) tomorrow?", "es": "¿Va a pescar mañana?"}, {"en": "Are you going swimming (to swim) tomorrow?", "es": "¿Va a nadar mañana?"}, {"en": "Are you going to the class tomorrow?", "es": "¿Va a la clase mañana?"}, {"en": "We are going to the country on Saturday.", "es": "Vamos al campo el sábado."}, {"en": "They are going to the country on Saturday.", "es": "Van al campo el sábado."}, {"en": "Are you going to the movies tonight?", "es": "¿Va al cine esta noche?"}, {"en": "We go to the opera every week.", "es": "Vamos a la ópera todas las semanas."}, {"en": "They went to the station with Martha.", "es": "Fueron a la estación con Marta."}, {"en": "Did you go to the country on Saturday?", "es": "¿Fué al campo el sábado?"}, {"en": "Did you go to the class this afternoon?", "es": "¿Fué a la clase esta tarde?"}, {"en": "I went to the movies with Charles.", "es": "Fuí al cine con Carlos."}, {"en": "I went to a party on Saturday.", "es": "Fuí a una fiesta el sábado."}, {"en": "I have studied the lesson.", "es": "He estudiado la lección."}, {"en": "I have finished the composition.", "es": "He terminado la composición."}, {"en": "I have answered the phone.", "es": "He contestado el teléfono."}, {"en": "Have you deposited the money?", "es": "¿Ha depositado el dinero?"}, {"en": "Have you studied Spanish?", "es": "¿Ha estudiado español?"}, {"en": "Have you sent the cable?", "es": "¿Ha mandado el cable?"}, {"en": "Have you worked today?", "es": "¿Ha trabajado hoy?"}, {"en": "Have you seen Robert lately?", "es": "¿Ha visto a Roberto últimamente?"}, {"en": "Have you read the book?", "es": "¿Ha leído el libro?"}, {"en": "I played tennis this afternoon.", "es": "Jugué tenis esta tarde."}, {"en": "Have you played tennis with Mary?", "es": "¿Ha jugado tenis con María?"}, {"en": "I got to the theater early.", "es": "Llegué al teatro temprano."}, {"en": "The train arrived in New York on time.", "es": "El tren llegó a Nueva York a tiempo."}, {"en": "Did you get to the theater on time?", "es": "¿Llegó al teatro a tiempo?"}, {"en": "Did you play the accordion at the party?", "es": "¿Tocó el acordeón en la fiesta?"}, {"en": "Who played the guitar at the party?", "es": "¿Quién tocó la guitarra en la fiesta?"}, {"en": "I paid the check in the restaurant.", "es": "Pagué la cuenta en el restaurante."}, {"en": "How much did you pay for the dress?", "es": "¿Cuánto pagó por el vestido?"}, {"en": "I paid five dollars for the pipe.", "es": "Pagué cinco dólares por la pipa."}, {"en": "I paid six dollars for the perfume.", "es": "Pagué seis dólares por el perfume."}, {"en": "They paid four dollars for the records.", "es": "Pagaron cuatro dólares por los discos."}, {"en": "Where do you live?", "es": "¿Dónde vive usted?"}, {"en": "Where does Charles live?", "es": "¿Dónde vive Carlos?"}, {"en": "Did you write the letter?", "es": "¿Escribió usted la carta?"}, {"en": "I read (past) the newspaper this morning.", "es": "Leí el periódico esta mañana."}, {"en": "Have you read \"Don Quixote\"?", "es": "¿Ha leído \"Don Quixote\"?"}, {"en": "I had eggs for breakfast this morning.", "es": "Tomé huevos para el desayuno esta mañana."}, {"en": "Is he going by boat or by plane?", "es": "¿Va en barco o en avión?"}, {"en": "Who bought the tickets?", "es": "¿Quién compró los boletos?"}, {"en": "Have you seen Henry?", "es": "¿Ha visto a Enrique?"}, {"en": "Have you written the card?", "es": "¿Ha escrito la tarjeta?"}, {"en": "Did you have a cup of coffee for breakfast?", "es": "¿Tomó usted una taza de café para el desayuno?"}, {"en": "Where is your sister?", "es": "¿Dónde está su hermana?"}, {"en": "Who is going to buy the tickets?", "es": "¿Quién va a comprar los boletos?"}, {"en": "Have you received the cable?", "es": "¿Ha recibido el cable?"}, {"en": "I saw an interesting film last night.", "es": "Ví una película interesante anoche."}, {"en": "What did you decide?", "es": "¿Qué decidió?"}, {"en": "He is talking on the phone.", "es": "Está hablando por teléfono."}, {"en": "My grandfather always smokes a pipe after dinner.", "es": "Mi abuelo siempre fuma una pipa después de la cena."}, {"en": "When did you sell the house?", "es": "¿Cuándo vendió la casa?"}, {"en": "Have you answered the letter?", "es": "¿Ha contestado la carta?"}, {"en": "Do you play tennis?", "es": "¿Juega usted tenis?"}, {"en": "Do they play baseball?", "es": "¿Juegan beisbol?"}, {"en": "I played golf.", "es": "Jugué golf."}, {"en": "Did you play tennis?", "es": "¿Jugó usted tenis?"}, {"en": "I played tennis this morning.", "es": "Jugué tenis esta mañana."}, {"en": "I played tennis with Robert.", "es": "Jugué tenis con Roberto."}, {"en": "Do you understand the lesson?", "es": "¿Entiende la lección?"}, {"en": "Do you understand Spanish?", "es": "¿Entiende español?"}, {"en": "I understand the lesson.", "es": "Entiendo la lección."}, {"en": "Who opened the window?", "es": "¿Quién abrió la ventana?"}, {"en": "I opened the windows.", "es": "Abrí las ventanas."}, {"en": "Who closed the door?", "es": "¿Quién cerró la puerta?"}, {"en": "I closed the windows.", "es": "Cerré las ventanas."}, {"en": "Do you remember the telephone number?", "es": "¿Recuerda el número de teléfono?"}, {"en": "I remember the address.", "es": "Recuerdo la dirección."}, {"en": "Do you remember the poem?", "es": "¿Recuerda el poema?"}, {"en": "I don't remember the telephone number.", "es": "No recuerdo el número de teléfono."}, {"en": "Do you remember the address?", "es": "¿Recuerda la dirección?"}, {"en": "Have you a horse?", "es": "¿Tiene un caballo?"}, {"en": "I have to work on Saturday.", "es": "Tengo que trabajar el sábado."}, {"en": "Do you have to wash the clothes?", "es": "¿Tiene que lavar la ropa?"}, {"en": "Did you have to sell the car?", "es": "¿Tuvo que vender el auto?"}, {"en": "My uncle has to pay the bill.", "es": "Mi tío tiene que pagar la cuenta."}, {"en": "My uncle has to work on Saturday.", "es": "Mi tío tiene que trabajar el sábado."}, {"en": "When are you coming to Mexico?", "es": "¿Cuándo viene a México?"}, {"en": "When are you coming to the class?", "es": "¿Cuándo viene a la clase?"}, {"en": "My uncle is going to come to the party.", "es": "Mi tío va a venir a la fiesta."}, {"en": "Do you want to finish the work?", "es": "¿Quiere terminar el trabajo?"}, {"en": "We wanted to see the house.", "es": "Queríamos ver la casa."}, {"en": "They wanted to buy a car.", "es": "Querían comprar un auto."}, {"en": "Do you want to see the house?", "es": "¿Quiere ver la casa?"}, {"en": "Can you go to the office?", "es": "¿Puede ir al despacho?"}, {"en": "I can't finish the work.", "es": "No puedo terminar el trabajo."}, {"en": "I couldn't sell the house.", "es": "No pude vender la casa."}, {"en": "Did you make coffee for my uncle?", "es": "¿Hizo café para mi tío?"}, {"en": "I left the theater at eleven o'clock.", "es": "Salí del teatro a las once."}, {"en": "I left the hotel at five o'clock.", "es": "Salí del hotel a las cinco."}, {"en": "My grandfather saw them this afternoon.", "es": "Mi abuelo los vió esta tarde."}, {"en": "My grandfather greeted him when he came in.", "es": "Mi abuelo lo saludó cuando entró."}, {"en": "My uncle punished him.", "es": "Mi tío lo castigó."}, {"en": "My aunt took care of them.", "es": "Mi tía los cuidó."}, {"en": "My uncle surprised me.", "es": "Mi tío me sorprendió."}, {"en": "My aunt kissed me.", "es": "Mi tía me besó."}, {"en": "My uncle saw us.", "es": "Mi tío nos vió."}, {"en": "I saw him last week.", "es": "Lo ví la semana pasada."}, {"en": "I saw her this afternoon.", "es": "La ví esta tarde."}, {"en": "I invited them to the party.", "es": "Los invité a la fiesta."}, {"en": "I kissed him when he came in.", "es": "Lo besé cuando entró."}, {"en": "I took care of him all afternoon.", "es": "Lo cuidé toda la tarde."}, {"en": "I invited them to the movies.", "es": "Los invité al cine."}, {"en": "I visited them the other day.", "es": "Los visité el otro día."}, {"en": "I saw them on Saturday.", "es": "Los ví el sábado."}, {"en": "I saw him yesterday.", "es": "Lo ví ayer."}, {"en": "My uncle took them (masc.) to the circus.", "es": "Mi tío los llevó al circo."}, {"en": "My aunt took them (fem.) to the party.", "es": "Mi tía las llevó a la fiesta."}, {"en": "My sister took us to the market.", "es": "Mi hermana nos llevó al mercado."}, {"en": "The doctor took us to the opera.", "es": "El doctor nos llevó a la ópera."}, {"en": "My uncle took her to the office.", "es": "Mi tío la llevó al despacho."}, {"en": "My uncle took me to the country.", "es": "Mi tío me llevó al campo."}, {"en": "I have seen them often (many times).", "es": "Los he visto muchas veces."}, {"en": "Have you seen him lately?", "es": "¿Lo ha visto últimamente?"}, {"en": "He has seen them three times.", "es": "Los ha visto tres veces."}, {"en": "We are going to see him on Saturday.", "es": "Vamos a verlo el sábado."}, {"en": "Have you seen them lately?", "es": "¿Los ha visto ültimamente?"}, {"en": "I wrote Robert a letter (To him I wrote a letter to Robert).", "es": "Le escribí una carta a Roberto."}, {"en": "I sold Louis a house.", "es": "Le vendí una casa a Luis."}, {"en": "I called up (talked on the phone with) the doctor.", "es": "Le hablé por teléfono al doctor."}, {"en": "I bought my grandfather a pipe.", "es": "Le compré una pipa a mi abuelo."}, {"en": "I bought my grandmother a blouse.", "es": "Le compré una blusa a mi abuela."}, {"en": "I bought Elizabeth a book.", "es": "Le compré un libro a Isabel."}, {"en": "Did you buy your grandfather a pipe?", "es": "¿Le compró una pipa a su abuelo?"}, {"en": "Did you buy your grandmother a blouse?", "es": "¿Le compró una blusa a su abuela?"}, {"en": "Did you sell the house to Louis?", "es": "¿Le vendió la casa a Luis?"}, {"en": "I sent him some records.", "es": "Le mandé unos discos."}, {"en": "I sent you a book.", "es": "Le mandé un libro."}, {"en": "I sent her a cable.", "es": "Le mandé un cable."}, {"en": "He sent me some roses.", "es": "Me mandó unas rosas."}, {"en": "He sent us a telegram.", "es": "Nos mandó un telegrama."}, {"en": "I explained the situation to him.", "es": "Le expliqué la situación."}, {"en": "I delivered the package to him.", "es": "Le entregué el paquete."}, {"en": "I explained the lesson to her.", "es": "Le expliqué la lección."}, {"en": "I gave my cousin (fem.) a record.", "es": "Le dí un disco a mi prima."}, {"en": "He gave his sister a blouse.", "es": "Le dió una blusa a su hermana."}, {"en": "They gave your mother a camera.", "es": "Le dieron una cámara a su mamá."}, {"en": "Are you going to give Albert a tractor?", "es": "¿Va a darle un tractor a Alberto?"}, {"en": "Are you going to give Elizabeth a novel?", "es": "¿Va a darle una novela a Isabel?"}, {"en": "He gave your brother a necktie.", "es": "Le dió una corbata a su hermano."}, {"en": "I gave your sister a blouse.", "es": "Le dí una blusa a su hermana."}, {"en": "I gave your cousin (masc.) a necktie.", "es": "Le dí una corbata a su primo."}, {"en": "We gave Robert a camera.", "es": "Le dimos una cámara a Roberto."}, {"en": "I sent Charles a book.", "es": "Le mandé un libro a Carlos."}, {"en": "Did you send your uncle a cable?", "es": "¿Le mandó un cable a su tío?"}, {"en": "They sent your aunt a cable.", "es": "Le mandaron un cable a su tía."}, {"en": "I sent your aunt a present.", "es": "Le mandé un regalo a su tía."}, {"en": "Are you going to send the flowers to Helen?", "es": "¿Va a mandarle las flores a Elena?"}, {"en": "I brought my uncle a book.", "es": "Le traje un libro a mi tío."}, {"en": "Did you bring my grandfather a pipe?", "es": "¿Le trajo una pipa a mi abuelo?"}, {"en": "We brought my grandfather the newspaper.", "es": "Le trajimos el periódico a mi abuelo."}, {"en": "I gave my cousin a necktie.", "es": "Le dí una corbata a mi primo."}, {"en": "I told him that I had studied.", "es": "Le dije que había estudiado."}, {"en": "You told me that he had studied.", "es": "Me dijo que había estudiado."}, {"en": "You told me that they had rested.", "es": "Me dijo que habían descansado."}, {"en": "Do you want to go to Cuba?", "es": "¿Quiere ir a Cuba?"}, {"en": "I wanted to swim this afternoon.", "es": "Quería nadar esta tarde."}, {"en": "We wanted to have dinner.", "es": "Queríamos tomar la cena."}, {"en": "They wanted to say many things.", "es": "Querían decir muchas cosas."}, {"en": "He wanted to drive the tractor.", "es": "Quería manejar el tractor."}, {"en": "She wanted to drive the car.", "es": "Quería manejar el auto."}, {"en": "Do you know how to dance the tango?", "es": "¿Sabe bailar el tango?"}, {"en": "They knew how to make candy.", "es": "Sabían hacer dulces."}, {"en": "Can you go to the party?", "es": "¿Puede ir a la fiesta?"}, {"en": "Can they finish the work?", "es": "¿Pueden terminar el trabajo?"}, {"en": "Do you know Robert?", "es": "¿Conoce a Roberto?"}, {"en": "They know your uncle.", "es": "Conocen a su tío."}, {"en": "I met Louis on the boat.", "es": "Conocí a Luis en el barco."}, {"en": "I met Henry at a party.", "es": "Conocí a Enrique en una fiesta."}, {"en": "I met your uncle last year.", "es": "Conocí a su tío el año pasado."}, {"en": "Do you like the record?", "es": "¿Le gusta el disco?"}, {"en": "Do they like the house?", "es": "¿Les gusta la casa?"}, {"en": "Do you like the film?", "es": "¿Le gusta la película?"}, {"en": "Did you like the book?", "es": "¿Le gustó el libro?"}, {"en": "We liked the film.", "es": "Nos gustó la película."}, {"en": "Did they like the record?", "es": "¿Les gustó el disco?"}, {"en": "I love ham.", "es": "Me encanta el jamón."}, {"en": "She loves tea.", "es": "Le encanta el té."}, {"en": "We liked the bacon.", "es": "Nos gustó el tocino."}, {"en": "Do you like asparagus?", "es": "¿Le gustan los espárragos?"}, {"en": "Do you like beans?", "es": "¿Le gustan los frijoles?"}, {"en": "Do you like onions?", "es": "¿Le gustan las cebollas?"}, {"en": "Did you like the records?", "es": "¿Le gustaron los discos?"}, {"en": "They loved the radishes.", "es": "Les encantaron los rábanos."}, {"en": "My uncle likes the book.", "es": "A mi tío le gusta el libro."}, {"en": "Does Helen like the hat?", "es": "¿Le gusta el sombrero a Elena?"}, {"en": "Does your sister like the blouse?", "es": "¿Le gusta la blusa a su her-mana?"}, {"en": "Does Henry like the record?", "es": "¿Le gusta el disco a Enrique?"}, {"en": "Does your cousin like the film?", "es": "¿Le gusta la película a su primo?"}, {"en": "Do you go to bed very early?", "es": "¿Se acuesta muy temprano?"}, {"en": "Do you get up at eight?", "es": "¿Se levanta a las ocho?"}, {"en": "Did you go to bed early?", "es": "¿Se acostó temprano?"}, {"en": "I got up at six.", "es": "Me levanté a las seis."}, {"en": "Did you get up late?", "es": "¿Se levantó tarde?"}, {"en": "I got married in June.", "es": "Me casé en junio."}, {"en": "I wanted to buy the horse.", "es": "Quería comprar el caballo."}, {"en": "I wanted to play tennis.", "es": "Quería jugar tenis."}, {"en": "We wanted to make candy.", "es": "Queríamos hacer dulces."}, {"en": "They wanted to stay at home.", "es": "Querían quedarse en casa."}, {"en": "They wanted to get up early.", "es": "Querían levantarse temprano."}, {"en": "I used to have a horse.", "es": "Tenía un caballo."}, {"en": "We used to have a maid.", "es": "Teníamos una criada."}, {"en": "They used to have a car.", "es": "Tenían un auto."}, {"en": "We used to get up at six.", "es": "Nos levantábamos a las seis."}, {"en": "We used to go to bed at ten-thirty.", "es": "Nos acostábamos a las diez y media."}, {"en": "We said that he was charming.", "es": "Dijimos que era simpático."}, {"en": "I thought that he was handsome.", "es": "Creía que era guapo."}, {"en": "I went to see the paintings.", "es": "Fuí a ver las pinturas."}, {"en": "I hope that he will give it to me.", "es": "Espero que me lo dé."}, {"en": "I don't want you to get sick.", "es": "No quiero que se enferme."}, {"en": "I don't want him to get frightened.", "es": "No quiero que se asuste."}, {"en": "I don't want him to go.", "es": "No quiero que se vaya."}, {"en": "Does he want her to sing?", "es": "¿Quiere que cante?"}, {"en": "Do you want them to sing?", "es": "¿Quiere que canten?"}, {"en": "I certainly hope that you will find the money.", "es": "Ojalá que encuentre el dinero."}, {"en": "I certainly hope that they will come to the party.", "es": "Ojalá que vengan a la fiesta."}, {"en": "I wanted you to work tomorrow.", "es": "Quería que trabajara mañana."}, {"en": "He wanted her to work this afternoon.", "es": "Quería que trabajara esta tarde."}, {"en": "She wanted him to work this morning.", "es": "Quería que trabajara esta mañana."}, {"en": "We wanted him to work tomorrow.", "es": "Queríamos que trabajara mañana."}, {"en": "They wanted her to work this morning.", "es": "Querían que trabajara esta mañana."}, {"en": "I wanted you to go to the party.", "es": "Quería que fuera a la fiesta."}, {"en": "He wanted her to go to the party.", "es": "Quería que fuera a la fiesta."}, {"en": "We wanted him to go to the class.", "es": "Queríamos que fuera a la clase."}, {"en": "They wanted her to go to the movies.", "es": "Querían que fuera al cine."}, {"en": "I wanted him to sell the house.", "es": "Quería que vendiera la casa."}, {"en": "He wanted her to sell the car.", "es": "Quería que vendiera el auto."}, {"en": "They wanted him to sell the building.", "es": "Querían que vendiera el edifico."}, {"en": "I wanted you to bring the guitar.", "es": "Quería que trajera la guitarra."}, {"en": "We hoped that you would bring your cousin.", "es": "Esperábamos que trajera a su primo."}, {"en": "I wanted you to get up.", "es": "Quería que se levantara."}, {"en": "We wanted him to get up.", "es": "Queríamos que se levantara."}, {"en": "She wanted him to give it to me.", "es": "Quería que me lo diera."}, {"en": "They wanted her to give it to me.", "es": "Querían que me lo diera."}, {"en": "I laughed when I saw the clown.", "es": "Me reí cuando ví al payaso."}, {"en": "We laughed when we saw the clown.", "es": "Nos reímos cuando vimos al payaso."}, {"en": "I smiled when I saw him last night.", "es": "Me sonreí cuando lo ví anoche."}, {"en": "We smiled when we saw the baby.", "es": "Nos sonreímos cuando vimos al nene."}];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+const ROUND_SIZE = 10;
+let round = 1;
+let totalScore = 0;
+let roundErrors = 0;
+let matchedCount = 0;
+let selectedEn = null;   // { el, idx }
+let selectedEs = null;
+let roundPairs = [];     // [{en, es, id}]
+let usedIndices = new Set();
+let timerInterval = null;
+let timerSeconds = 0;
+let roundStartTime = 0;
+let locked = false;      // prevent clicks during wrong flash
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function pickRound() {
+  // Reset used if we've exhausted the pool
+  if (usedIndices.size + ROUND_SIZE > ALL_PAIRS.length) usedIndices.clear();
+
+  const available = ALL_PAIRS.map((p,i) => i).filter(i => !usedIndices.has(i));
+  const chosen = shuffle(available).slice(0, ROUND_SIZE);
+  chosen.forEach(i => usedIndices.add(i));
+  return chosen.map((i, id) => ({ ...ALL_PAIRS[i], id }));
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerSeconds = 0;
+  roundStartTime = Date.now();
+  timerInterval = setInterval(() => {
+    timerSeconds = Math.floor((Date.now() - roundStartTime) / 1000);
+    document.getElementById('timerDisplay').textContent = timerSeconds + 's';
+  }, 500);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerSeconds = Math.floor((Date.now() - roundStartTime) / 1000);
+  document.getElementById('timerDisplay').textContent = timerSeconds + 's';
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+// ── TOGGLE COLUMNS ───────────────────────────────────────────────────────────
+let spanishLeft = false;
+function toggleColumns() {
+  spanishLeft = !spanishLeft;
+  const wrapper = document.getElementById('columnsWrapper');
+  const colEn = document.getElementById('colEn');
+  const colEs = document.getElementById('colEs');
+  if (spanishLeft) {
+    wrapper.insertBefore(colEs, colEn);
+    document.getElementById('toggleBtn').textContent = '🇬🇧 English Left';
+  } else {
+    wrapper.insertBefore(colEn, colEs);
+    document.getElementById('toggleBtn').textContent = '🇪🇸 Spanish Left';
+  }
+}
+
+function buildRound() {
+  roundPairs = pickRound();
+  matchedCount = 0;
+  roundErrors = 0;
+  selectedEn = null;
+  selectedEs = null;
+  locked = false;
+
+  document.getElementById('roundNum').textContent = round;
+  document.getElementById('errorsDisplay').textContent = '0';
+  updateRoundInfo();
+  startTimer();
+
+  // Build EN list (in order)
+  const enList = document.getElementById('enList');
+  enList.innerHTML = '';
+  roundPairs.forEach((pair, i) => {
+    const card = makeCard(pair.en, 'en', i);
+    enList.appendChild(card);
+  });
+
+  // Build ES list (shuffled)
+  const esList = document.getElementById('esList');
+  esList.innerHTML = '';
+  const esOrder = shuffle(roundPairs.map((_, i) => i));
+  esOrder.forEach((pairIdx, pos) => {
+    const card = makeCard(roundPairs[pairIdx].es, 'es', pairIdx);
+    esList.appendChild(card);
+  });
+}
+
+function makeCard(text, lang, pairIdx) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.pair = pairIdx;
+  card.dataset.lang = lang;
+
+  const txt = document.createElement('span');
+  txt.className = 'text';
+  txt.textContent = text;
+
+  const badge = document.createElement('span');
+  badge.className = 'match-badge';
+  badge.textContent = '✓';
+
+  card.appendChild(txt);
+  card.appendChild(badge);
+  card.addEventListener('click', () => handleClick(card, lang, pairIdx));
+  return card;
+}
+
+// ── INTERACTION ───────────────────────────────────────────────────────────────
+function handleClick(card, lang, pairIdx) {
+  if (locked) return;
+  if (card.classList.contains('matched')) return;
+
+  if (lang === 'en') {
+    // Deselect previous EN
+    if (selectedEn) selectedEn.el.classList.remove('selected');
+    selectedEn = { el: card, idx: pairIdx };
+    card.classList.add('selected');
+  } else {
+    if (selectedEs) selectedEs.el.classList.remove('selected');
+    selectedEs = { el: card, idx: pairIdx };
+    card.classList.add('selected');
+  }
+
+  // If both selected, check match
+  if (selectedEn && selectedEs) {
+    if (selectedEn.idx === selectedEs.idx) {
+      // ✅ Match!
+      markMatched(selectedEn.el, selectedEs.el, selectedEn.idx);
+      selectedEn = null;
+      selectedEs = null;
+    } else {
+      // ❌ Wrong
+      roundErrors++;
+      document.getElementById('errorsDisplay').textContent = roundErrors;
+      const enEl = selectedEn.el;
+      const esEl = selectedEs.el;
+      locked = true;
+      enEl.classList.remove('selected');
+      esEl.classList.remove('selected');
+      enEl.classList.add('wrong-flash');
+      esEl.classList.add('wrong-flash');
+      setTimeout(() => {
+        enEl.classList.remove('wrong-flash');
+        esEl.classList.remove('wrong-flash');
+        locked = false;
+      }, 500);
+      selectedEn = null;
+      selectedEs = null;
+    }
+  }
+}
+
+function markMatched(enEl, esEl, pairIdx) {
+  enEl.classList.remove('selected');
+  esEl.classList.remove('selected');
+  enEl.classList.add('matched');
+  esEl.classList.add('matched');
+  matchedCount++;
+  updateRoundInfo();
+  showToast(`✓ Match ${matchedCount} of ${ROUND_SIZE}`);
+
+  if (matchedCount === ROUND_SIZE) {
+    stopTimer();
+    setTimeout(showCompletion, 400);
+  }
+}
+
+function updateRoundInfo() {
+  document.getElementById('roundInfo').textContent =
+    `Round ${round} · ${matchedCount} / ${ROUND_SIZE} matched`;
+}
+
+// ── BUTTONS ──────────────────────────────────────────────────────────────────
+function nextRound() {
+  document.getElementById('completion').classList.remove('show');
+  round++;
+  buildRound();
+}
+
+function showHint() {
+  // Highlight one unmatched pair briefly
+  const unmatched = roundPairs
+    .map((_, i) => i)
+    .filter(i => {
+      const enCard = document.querySelector(`#enList .card[data-pair="${i}"]`);
+      return enCard && !enCard.classList.contains('matched');
+    });
+  if (!unmatched.length) return;
+  const pick = unmatched[Math.floor(Math.random() * unmatched.length)];
+  const enCard = document.querySelector(`#enList .card[data-pair="${pick}"]`);
+  const esCard = document.querySelector(`#esList .card[data-pair="${pick}"]`);
+  if (!enCard || !esCard) return;
+
+  roundErrors++;
+  document.getElementById('errorsDisplay').textContent = roundErrors;
+
+  [enCard, esCard].forEach(c => {
+    c.style.outline = '2px solid var(--gold)';
+    c.style.background = 'var(--gold-bg)';
+    setTimeout(() => {
+      c.style.outline = '';
+      c.style.background = '';
+    }, 1200);
+  });
+}
+
+function revealAll() {
+  const unmatched = roundPairs
+    .map((_, i) => i)
+    .filter(i => {
+      const enCard = document.querySelector(`#enList .card[data-pair="${i}"]`);
+      return enCard && !enCard.classList.contains('matched');
+    });
+  if (!unmatched.length) return;
+  roundErrors += unmatched.length;
+  document.getElementById('errorsDisplay').textContent = roundErrors;
+
+  unmatched.forEach(i => {
+    const enCard = document.querySelector(`#enList .card[data-pair="${i}"]`);
+    const esCard = document.querySelector(`#esList .card[data-pair="${i}"]`);
+    if (enCard && esCard) markMatched(enCard, esCard, i);
+  });
+}
+
+function showCompletion() {
+  // Score: base 100 - deductions for errors and time
+  const timeBonus = Math.max(0, 60 - timerSeconds);
+  const errorPenalty = roundErrors * 8;
+  const roundScore = Math.max(10, 100 + timeBonus - errorPenalty);
+  totalScore += roundScore;
+
+  document.getElementById('totalScore').textContent = totalScore;
+  document.getElementById('c-time').textContent = timerSeconds + 's';
+  document.getElementById('c-errors').textContent = roundErrors;
+  document.getElementById('c-score').textContent = '+' + roundScore;
+  document.getElementById('completion').classList.add('show');
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────────
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+buildRound();
+</script>
+</body>
+</html>

@@ -9,6 +9,119 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <style>
+      /* ── Section Accordion ── */
+      .section-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 24px 0 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #f4f4f4;
+        padding: 10px 0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      }
+
+      .section-btn {
+        background: #159957;
+        background-image: linear-gradient(120deg, #155799, #159957);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 12px 28px;
+        font-size: 1.1em;
+        font-family: inherit;
+        cursor: pointer;
+        letter-spacing: 0.03em;
+        transition: opacity 0.15s, transform 0.1s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+      .section-btn.active { outline: 3px solid #fff9; }
+
+      .section-btn .arrow {
+        display: inline-block;
+        transition: transform 0.2s;
+        font-style: normal;
+        font-size: 0.85em;
+      }
+      .section-btn.active .arrow { transform: rotate(90deg); }
+
+      /* ── App grid panels ── */
+      .section-panel {
+        display: none;
+        margin-bottom: 28px;
+      }
+      .section-panel.open { display: block; }
+
+      .app-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        padding: 20px 0;
+      }
+
+      .app-card {
+        background: #fff;
+        border: 1px solid #dce0e4;
+        border-radius: 8px;
+        width: calc(33.33% - 16px);
+        min-width: 220px;
+        box-sizing: border-box;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        transition: box-shadow 0.15s, transform 0.1s;
+      }
+      .app-card:hover {
+        box-shadow: 0 4px 14px rgba(0,0,0,0.13);
+        transform: translateY(-2px);
+      }
+
+      .app-card a.thumb-link { display: block; overflow: hidden; }
+      .app-card img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.2s;
+      }
+      .app-card:hover img { transform: scale(1.04); }
+
+      .app-card-body {
+        padding: 12px 14px 14px;
+      }
+      .app-card-body h2 {
+        margin: 0 0 6px;
+        font-size: 1em;
+        border: none;
+      }
+      .app-card-body h2 a {
+        color: #155799;
+        text-decoration: none;
+      }
+      .app-card-body h2 a:hover { text-decoration: underline; }
+      .app-card-body p {
+        margin: 0;
+        font-size: 0.85em;
+        color: #555;
+        line-height: 1.45;
+      }
+
+      /* ── External Links ── */
+      .external-links h2 { font-size: 1em; margin: 6px 0; }
+
+      @media (max-width: 700px) {
+        .app-card { width: 100%; }
+        .section-btn { width: 100%; justify-content: center; }
+      }
+      @media (min-width: 701px) and (max-width: 1050px) {
+        .app-card { width: calc(50% - 12px); }
+      }
+    </style>
   </head>
   <body>
     <section class="page-header">
@@ -16,429 +129,583 @@
         <a href="https://github.com/ideonexus/Explorable-Explanations" class="btn">View on GitHub</a>
         <a href="https://github.com/ideonexus/Explorable-Explanations/zipball/master" class="btn">Download .zip</a>
         <a href="https://github.com/ideonexus/Explorable-Explanations/tarball/master" class="btn">Download .tar.gz</a>
-
         <p>Here is an evolving list of one-shot standalone virtual manipulatives.</p>
     </section>
 
     <section class="main-content">
 
-        <div style="width: 90%">
-            <b>Welcome!</b> Here you will find a growing collection of javascript apps I have built or built-upon to help explain concepts and tutor my two boys in math and literacy. If you like this collection, please fork it and make it your own! Here are a few principles I try to maintain with each new app I add to the collection:
-            <ul>
-                <li>I <em>try</em> to keep them mobile-friendly as young children can interact with touch-screens easier than with a mouse and keyboard.</li>
-                <li>I put all of the main javascript, css, and html into the index.html file so that new and younger programmers can see everything in one place.</li>
-                <li>With a few exceptions, all of these are capable of loading into a browser from the local drive. This way new and budding hackers don't need to mess with setting up web servers or needing an internet connection to run them and can develop in a text editor.</li>
-            </ul>
-        </div>
-
-        <div style="float:left; width: 45%">
-
-            <h1>Literacy</h1>
-
-            <h2><a href="reading/wordfamilies/">Word Families</a></h2>
-
-            <p>JavaScript Word Families flashcard page for teaching my kids.</p>
-
-            <p><a href="reading/wordfamilies/"><img src="images/wordfamilies.png" alt="Image of Word Families" title="" /></a></p>
-
-            <h2><a href="reading/sightwordsmemory/">Sight Words Memory Game</a></h2>
-
-            <p>The Dolche Words as a memory game. Goes from Pre-K to Third Grade.</p>
-
-            <p>Exended from <a href="http://codepen.io/jamesbarnett/pen/kiGsl">LOLCatz Memory Game</a> by jamesbarnett and Dolch Site Words from <a href="http://www.mrsperkins.com/files/dolch_book.pdf">Jill Perkins' Workbook</a>.</p>
-
-            <p><a href="reading/sightwordsmemory/"><img src="images/sightwordsmemory.png" alt="Image of Sight Word Memory" title="" /></a></p>
-
-            <h2><a href="reading/nbackspelling/">n-Back Spelling Game</a></h2>
-
-            <p>Type the word that the application spells for you and level up.</p>
-
-            <p><a href="reading/nbackspelling/"><img src="images/nbackspelling.png" alt="Image of n-Back Spelling Game" title="" /></a></p>
-
-            <h2><a href="reading/compoundwords/">Compound Word Match Game</a></h2>
-
-            <p>Build compound words from a random selection of over 1,000 words.</p>
-
-            <p>Exended from <a href="http://codepen.io/jamesbarnett/pen/kiGsl">LOLCatz Memory Game</a> by jamesbarnett.</p>
-
-            <p><a href="reading/compoundwords/"><img src="images/compoundwords.png" alt="Image of Compound Word Match Game" title="" /></a></p>
-
-            <h2><a href="reading/wordcategories/">Word Categories Hunt Game</a></h2>
-
-            <p>Find all the words that match the category.</p>
-
-            <p><a href="reading/wordcategories/"><img src="images/wordcategories.png" alt="Image of Word Categories Hunt Game" title="" /></a></p>
-
-            <h2><a href="reading/alphabetrace/">Alphabet Race</a></h2>
-
-            <p>JavaScript alphabet typing game. Teaches childred both alphabetical order and orients them as to where letters are on the keyboard.</p>
-
-            <p><a href="reading/alphabetrace/"><img src="images/alphabetrace.png" alt="Image of Alphabet Race" title="" /></a></p>
-
-            <h2><a href="reading/sightwordstyping/">Sight Words Typing Game</a></h2>
-
-            <p>Combining the Alphabet Race Typing game with the Sight Words Memory Game.</p>
-
-            <p><a href="reading/sightwordstyping/"><img src="images/sightwordstyping.png" alt="Image of Sight Word Typing" title="" /></a></p>
-
-            <h2><a href="reading/alphabeticalordersort/">Alphabetical Order Sort</a></h2>
-
-            <p>Sort the word family into alphabetical order by dragging-and-dropping the words into the right places.</p>
-
-            <p><a href="reading/alphabeticalordersort/"><img src="images/alphabeticalordersort.png" alt="Image of Alphabetical Order Sort" title="" /></a></p>
-
-            <h2><a href="reading/wordsearch/">Word Search</a></h2>
-
-            <p>The Dolche Words as a wordsearch game. Goes from Pre-K to Third Grade.</p>
-
-            <p>Credit to wordfind.js by <a href="https://github.com/bunkat/wordfind">bunkat</a> and Dolch Site Words from <a href="http://www.mrsperkins.com/files/dolch_book.pdf">Jill Perkins' Workbook</a>.</p>
-
-            <p><a href="reading/wordsearch/"><img src="images/wordsearch.png" alt="Word Search" title="" /></a></p>
-
-            <h2><a href="reading/oneletterwordchanger/">One-Letter Word-Changer</a></h2>
-
-            <p>Change one letter to create new words. For teaching phonetics.</p>
-
-            <p>Word Groups from <a href="http://www.montessorimom.com/phonetic-word-list/">Montessori Mom Phonentic Word List</a></p>
-
-            <p><a href="reading/oneletterwordchanger/"><img src="images/oneletterwordchanger.png" alt="Image of One-Letter Word-Changer" title="" /></a></p>
-
-            <h2><a href="reading/onewordsentencechanger/">One-Word Sentence-Changer</a></h2>
-
-            <p>Change one word to create a new sentence. Student gets confidence in reading the same words and learns new words with pictures to help.</p>
-
-            <p>BY-NC-SA Creative Commons pictures by <a href="http://www.senteacher.org/worksheet/118/PictureLottoBingoCreator.html">SEN Teacher</a>.</p>
-
-            <p><a href="reading/onewordsentencechanger/"><img src="images/onewordsentencechanger.png" alt="Image of One-Word Sentence-Changer" title="" /></a></p>
-
-            <h2><a href="reading/alphabetflashcards/">Alphabet Flashcards</a></h2>
-
-            <p>JavaScript alphabet flashcard page for teaching my kids.</p>
-
-            <p>Credit to <a href="http://menscher.com/teaching/woaa/examples/jsexampleapp3.html">Corey Menscher</a>.</p>
-
-            <p><a href="reading/alphabetflashcards/"><img src="images/alphabetflashcards.png" alt="Image of Alphabet Flash Cards" title="" /></a></p>
-
-            <h2><a href="reading/creativecommonsbookreader/">Creative Commons Book Reader</a></h2>
-
-            <p>Interface for reading books to children. Allows stepping through by page, sentence, and word. Also allows for click-highlighting words to read them aloud.</p>
-
-            <p>Creative Commons books by <a href="http://brotherswhim.com/">Brothers Whim</a> and <a href="http://prathambooks.org/">Pratham Books</a> (<a href="https://www.scribd.com/collections/2300329/Creative-Commons-Originals">Pratham Scribd</a>).</p>
-
-            <p><a href="reading/creativecommonsbookreader/"><img src="images/creativecommonsbookreader.png" alt="Image of Creative Commons Book Reader" title="" /></a></p>        
-
-            <h2><a href="reading/partsofspeech/">Parts of Speech Game</a></h2>
-
-            <p>Similar to the game Mad Libs, a simple application that prompts for various kinds of words and then inserts them into classic public domain texts.</p>
-
-            <p><a href="reading/partsofspeech/"><img src="images/partsofspeech.png" alt="Image of Parts of Speech" title="" /></a></p>
-
-            <h2><a href="reading/shakespeareaninsultgenerator/">Shakespearean Insult Generator</a></h2>
-
-            <p>Based on the classic meme, generates a Shakespearean insult. Included here as a demonstration of a very easy program anyone can write if they "View Source" and read the code.</p>
-
-            <p>Adapted from <a href="https://gist.github.com/matthewtole/3550487">matthewtole ShakespeareaInsult.js</a> and <a href="http://web.mit.edu/afs/athena.mit.edu/user/d/r/dryfoo/www/Funny-pages/shakespeare-insult-kit.html">Shakespeare Insult Kit</a>.</p>
-            
-            <p><a href="reading/shakespeareaninsultgenerator/"><img src="images/shakespeareaninsultgenerator.png" alt="Image of Shakespearean Insult Generator" title="" /></a></p>
-
-            <h2><a href="science/daisyworld/">Daisyworld</a></h2>
-
-            <p>A javascript <a href="https://en.wikipedia.org/wiki/Daisyworld">Daisyworld Simulation</a> that starts with Earth values and allows you to adjust them, seeing how the daisy populations shift to change the albedo (reflectiveness) of the planet to maintain a habitable temperature.</p>
-
-            <p>Credit to <a href="http://www.gingerbooth.com/flash/daisyball/daisyworldmath.html">Ginger Booth's mathematical explanations</a>, <a href="https://astronomy.stackexchange.com/questions/10113/how-to-calculate-the-expected-surface-temperature-of-a-planet">Irigi</a> temperature explanations, <a href="http://jsfiddle.net/AyexeM/zMZ9y/">AyexeM</a> random map generation, and <a href="https://codepen.io/HowToDevCode/pen/ORzzJm">HowToDevCode</a> map on a rotating sphere projection.</p>
-
-            <p><a href="science/daisyworld/"><img src="images/daisyworld.png" alt="Image of Daisyworld" title="" /></a></p>
-
-            <h2><a href="science/kaleidostrobe/">Kaleidostrobe</a></h2>
-
-            <p>Wrote this after seeing how strobelights affect the appearance of fans rotating. Add shapes to the canvase and adjust their rotation rates to create different kaleidoscopic effects.</p>
-
-            <p><a href="science/kaleidostrobe/"><img src="images/kaleidostrobe.png" alt="Image of Kaleidostrobe" title="" /></a></p>
-
-            <h2><a href="reading/typingquest/">Typing Quest</a></h2>
-
-            <p>A really fun and mind-bending typing game. I have cleaned up the off-color language from the original and refactored the code a bit to support different skill levels with options easy enough a toddler can hunt-and-peck to play.</p>
-
-            <p>Credit to <a href="http://milosz.ca">Miłosz Kośmider</a> with input from <a href="http://abielinski.com">Adam Bielinski</a>.</p>
-
-            <p><a href="reading/typingquest/"><img src="images/typingquest.png" alt="Image of Typing Quest" title="" /></a></p>
-
-            <h2><a href="reading/speechboard/">Speechboard</a></h2>
-
-            <p>Simulates the speechboard used by Stephen Hawking.</p>
-
-            <p>Credit to <a href="http://www.cranklin.com/alphabetboard/">Cranky's Alphabet Board</a>.</p>
-
-            <p><a href="reading/speechboard/"><img src="images/speechboard.png" alt="Image of Speechboard" title="" /></a></p>
-
-            <h2><a href="math/booleaniching/">The Boolean iChing</a></h2>
-
-            <p>Execute boolean transformations on iChing concepts to find their relationships.</p>
-
-            <p><a href="math/booleaniching/"><img src="images/booleaniching.png" alt="Image of Boolean iChing" title="" /></a></p>
-
-            <h1>Science</h1>
-
-            <h2><a href="science/mastermind/">Mastermind</a></h2>
-
-            <p>Reproduction of the board game where you try to guess the color sequence, getting hints about what you have correct with each experiment.</p>
-
-            <p><a href="science/mastermind/"><img src="images/mastermind.png" alt="Image of color matcher" title="" /></a></p>
-
-            <h2><a href="science/colormatcher/">Color Matcher</a></h2>
-
-            <p>Add red, green, blue values in hexadecimal until you match the background color. Inspired by <a href="https://github.com/LeaVerou/whathecolor">What the Color</a> by <a href="http://lea.verou.me/">Lea Verou</a>.</p>
-
-            <p><a href="science/colormatcher/"><img src="images/colormatcher.png" alt="Image of color matcher" title="" /></a></p>
-
-            <h2><a href="science/daysoftheweek/">Days of the Week Carousel</a></h2>
-
-            <p>Carousel of the days of the week with the planets for which they are named.</p>
-
-            <p><a href="science/daysoftheweek/"><img src="images/daysoftheweek.png" alt="Image of Days of the Week Carousel" title="" /></a></p>
-
-            <h1>Games</h1>
-
-            <h2><a href="games/gotcha/">Gotcha!</a></h2>
-
-            <p>Find the AI before it finds you by balancing evasion, reconnaissance, and attacking. Based on the game <em>Gotcha!</em> described in the book <a href="http://www.kcl.ac.uk/sspp/departments/warstudies/people/professors/sabin/simwar.aspx"><em>Simulating War</em></a> by Philip Sabin. Credit to <a href="https://github.com/web-tiki/responsive-grid-of-hexagons">web-tiki</a> for the hexagons CSS.</p>
-
-            <p><a href="games/gotcha/"><img src="images/gotcha.png" alt="Image of Gotcha!" title="" /></a></p>
-
-            <h2><a href="games/twisttactoe/">Twist-Tac-Toe</a></h2>
-
-            <p>Variation on the game tic-tac-toe, "<a href="https://boardgamegeek.com/boardgame/11557/chung-toi">Chung Toi</a>." Where players get three tiles and must move those tiles to get three-in-a-row; however, they may only move their tiles based on the directions of the arrows drawn on them. Includes three levels of AI, but more advanced AI take awhile to process moves.</p>
-
-            <p><a href="games/twisttactoe/"><img src="images/twisttactoe.png" alt="Image of Twist-Tac-Toe" title="" /></a></p>
+      <div style="width: 90%">
+        <b>Welcome!</b> Here you will find a growing collection of javascript apps I have built or built-upon to help explain concepts and tutor my two boys in math and literacy. If you like this collection, please fork it and make it your own! Here are a few principles I try to maintain with each new app I add to the collection:
+        <ul>
+          <li>I <em>try</em> to keep them mobile-friendly as young children can interact with touch-screens easier than with a mouse and keyboard.</li>
+          <li>I put all of the main javascript, css, and html into the index.html file so that new and younger programmers can see everything in one place.</li>
+          <li>With a few exceptions, all of these are capable of loading into a browser from the local drive. This way new and budding hackers don't need to mess with setting up web servers or needing an internet connection to run them and can develop in a text editor.</li>
+        </ul>
+      </div>
+
+      <!-- ── Section Navigation Buttons ── -->
+      <div class="section-nav">
+        <button class="section-btn" onclick="toggleSection('literacy')">
+          <span class="arrow">&#9654;</span> Literacy
+        </button>
+        <button class="section-btn" onclick="toggleSection('math')">
+          <span class="arrow">&#9654;</span> Math
+        </button>
+        <button class="section-btn" onclick="toggleSection('science')">
+          <span class="arrow">&#9654;</span> Science
+        </button>
+        <button class="section-btn" onclick="toggleSection('games')">
+          <span class="arrow">&#9654;</span> Games
+        </button>
+        <button class="section-btn" onclick="toggleSection('spanish')">
+          <span class="arrow">&#9654;</span> Spanish
+        </button>
+      </div>
+
+      <!-- ══════════════════════════════════════════════ LITERACY ══ -->
+      <div id="section-literacy" class="section-panel">
+        <div class="app-grid">
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/wordfamilies/"><img src="images/wordfamilies.png" alt="Word Families"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/wordfamilies/">Word Families</a></h2>
+              <p>JavaScript Word Families flashcard page for teaching my kids.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/sightwordsmemory/"><img src="images/sightwordsmemory.png" alt="Sight Words Memory Game"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/sightwordsmemory/">Sight Words Memory Game</a></h2>
+              <p>The Dolche Words as a memory game. Goes from Pre-K to Third Grade. Extended from <a href="http://codepen.io/jamesbarnett/pen/kiGsl">LOLCatz Memory Game</a> by jamesbarnett and Dolch Site Words from <a href="http://www.mrsperkins.com/files/dolch_book.pdf">Jill Perkins' Workbook</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/nbackspelling/"><img src="images/nbackspelling.png" alt="n-Back Spelling Game"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/nbackspelling/">n-Back Spelling Game</a></h2>
+              <p>Type the word that the application spells for you and level up.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/compoundwords/"><img src="images/compoundwords.png" alt="Compound Word Match Game"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/compoundwords/">Compound Word Match Game</a></h2>
+              <p>Build compound words from a random selection of over 1,000 words. Extended from <a href="http://codepen.io/jamesbarnett/pen/kiGsl">LOLCatz Memory Game</a> by jamesbarnett.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/wordcategories/"><img src="images/wordcategories.png" alt="Word Categories Hunt Game"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/wordcategories/">Word Categories Hunt Game</a></h2>
+              <p>Find all the words that match the category.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/alphabetrace/"><img src="images/alphabetrace.png" alt="Alphabet Race"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/alphabetrace/">Alphabet Race</a></h2>
+              <p>JavaScript alphabet typing game. Teaches children both alphabetical order and orients them as to where letters are on the keyboard.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/sightwordstyping/"><img src="images/sightwordstyping.png" alt="Sight Words Typing Game"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/sightwordstyping/">Sight Words Typing Game</a></h2>
+              <p>Combining the Alphabet Race Typing game with the Sight Words Memory Game.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/alphabeticalordersort/"><img src="images/alphabeticalordersort.png" alt="Alphabetical Order Sort"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/alphabeticalordersort/">Alphabetical Order Sort</a></h2>
+              <p>Sort the word family into alphabetical order by dragging-and-dropping the words into the right places.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/wordsearch/"><img src="images/wordsearch.png" alt="Word Search"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/wordsearch/">Word Search</a></h2>
+              <p>The Dolche Words as a wordsearch game. Goes from Pre-K to Third Grade. Credit to wordfind.js by <a href="https://github.com/bunkat/wordfind">bunkat</a> and Dolch Site Words from <a href="http://www.mrsperkins.com/files/dolch_book.pdf">Jill Perkins' Workbook</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/oneletterwordchanger/"><img src="images/oneletterwordchanger.png" alt="One-Letter Word-Changer"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/oneletterwordchanger/">One-Letter Word-Changer</a></h2>
+              <p>Change one letter to create new words. For teaching phonetics. Word Groups from <a href="http://www.montessorimom.com/phonetic-word-list/">Montessori Mom Phonetic Word List</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/onewordsentencechanger/"><img src="images/onewordsentencechanger.png" alt="One-Word Sentence-Changer"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/onewordsentencechanger/">One-Word Sentence-Changer</a></h2>
+              <p>Change one word to create a new sentence. Student gets confidence reading the same words and learns new words with pictures to help. BY-NC-SA Creative Commons pictures by <a href="http://www.senteacher.org/worksheet/118/PictureLottoBingoCreator.html">SEN Teacher</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/alphabetflashcards/"><img src="images/alphabetflashcards.png" alt="Alphabet Flashcards"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/alphabetflashcards/">Alphabet Flashcards</a></h2>
+              <p>JavaScript alphabet flashcard page for teaching my kids. Credit to <a href="http://menscher.com/teaching/woaa/examples/jsexampleapp3.html">Corey Menscher</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/creativecommonsbookreader/"><img src="images/creativecommonsbookreader.png" alt="Creative Commons Book Reader"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/creativecommonsbookreader/">Creative Commons Book Reader</a></h2>
+              <p>Interface for reading books to children. Allows stepping through by page, sentence, and word. Also allows click-highlighting words to read them aloud. Creative Commons books by <a href="http://brotherswhim.com/">Brothers Whim</a> and <a href="http://prathambooks.org/">Pratham Books</a> (<a href="https://www.scribd.com/collections/2300329/Creative-Commons-Originals">Pratham Scribd</a>).</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/partsofspeech/"><img src="images/partsofspeech.png" alt="Parts of Speech Game"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/partsofspeech/">Parts of Speech Game</a></h2>
+              <p>Similar to Mad Libs, a simple application that prompts for various kinds of words and then inserts them into classic public domain texts.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/shakespeareaninsultgenerator/"><img src="images/shakespeareaninsultgenerator.png" alt="Shakespearean Insult Generator"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/shakespeareaninsultgenerator/">Shakespearean Insult Generator</a></h2>
+              <p>Based on the classic meme, generates a Shakespearean insult. Adapted from <a href="https://gist.github.com/matthewtole/3550487">matthewtole ShakespeareaInsult.js</a> and <a href="http://web.mit.edu/afs/athena.mit.edu/user/d/r/dryfoo/www/Funny-pages/shakespeare-insult-kit.html">Shakespeare Insult Kit</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/typingquest/"><img src="images/typingquest.png" alt="Typing Quest"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/typingquest/">Typing Quest</a></h2>
+              <p>A really fun and mind-bending typing game. Cleaned up and refactored to support different skill levels easy enough a toddler can hunt-and-peck to play. Credit to <a href="http://milosz.ca">Miłosz Kośmider</a> with input from <a href="http://abielinski.com">Adam Bielinski</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="reading/speechboard/"><img src="images/speechboard.png" alt="Speechboard"></a>
+            <div class="app-card-body">
+              <h2><a href="reading/speechboard/">Speechboard</a></h2>
+              <p>Simulates the speechboard used by Stephen Hawking. Credit to <a href="http://www.cranklin.com/alphabetboard/">Cranky's Alphabet Board</a>.</p>
+            </div>
+          </div>
 
         </div>
-
-        <div style="float:right;width:45%">
-
-            <h1>Mathmatics</h1>
-
-            <h2><a href="math/numberline/">Number Line</a></h2>
-
-            <p>Numberline Navigator page for teaching addition, subtraction, multiplication, and division.</p>
-
-            <p>Credit to <a href="http://stackoverflow.com/questions/4182494/how-to-draw-number-lines-using-html">user372551</a>.</p>
-
-            <p><a href="math/numberline/"><img src="images/numberline.png" alt="Image of Number Line" title="" /></a></p>
-
-            <h2><a href="math/patternblocks/">Pattern Blocks</a></h2>
-
-            <p>A javascript version of pattern blocks built with Fabric JS.</p>
-
-            <p><a href="math/patternblocks/"><img src="images/patternblocks.png" alt="Image of Pattern Blocks" title="" /></a></p>
-
-            <h2><a href="math/shapehuntcardinality/">Shape Hunt Cardinality Game</a></h2>
-
-            <p>Has children look for both the correct shape and number of shapes. Used to work on n-back skills.</p>
-
-            <p><a href="math/shapehuntcardinality/"><img src="images/shapehuntcardinality.png" alt="Image of Shape Hunt Cardinality Game" title="" /></a></p>
-
-            <h2><a href="math/hundredboard/">Hundred Board Guessing Game</a></h2>
-
-            <p>Click on the odds, evens, or factors. Also a Wolf-Fence Number guessing game, with the computer giving greater-than/less-than hints.</p>
-
-            <p><a href="math/hundredboard/"><img src="images/hundredboard.png" alt="Image of Hundred Board Guesing Game" title="" /></a></p>
-
-            <h2><a href="math/wingdingcardinality/">Wingding Cardinality Visualizer</a></h2>
-
-            <p>To help children visualize sets of numbers.</p>
-
-            <p><a href="math/wingdingcardinality/"><img src="images/wingdingcardinality.png" alt="Image of Wingding Cardinality" title="" /></a></p>
-
-            <h2><a href="math/basetenblocks/">Base-10 Block Game</a></h2>
-
-            <p>For teaching children base-10 number placement values, which are the foundation of our mathematics.</p>
-
-            <p><a href="math/basetenblocks/"><img src="images/basetenblocks.png" alt="Image of Base-10 Blocks" title="" /></a></p>
-
-            <h2><a href="math/moneycounting/">Money Counting Game</a></h2>
-
-            <p>For familiarizing children with American currency and counting by dollars and cents.</p>
-
-            <p><a href="math/moneycounting/"><img src="images/moneycounting.png" alt="Image of Base-10 Blocks" title="" /></a></p>
-
-            <h2><a href="math/coordinates/">Coordinate Finder / Multiplication Table Primer</a></h2>
-
-            <p>Made this when my son wanted to play Battleship, but was having trouble understanding X and Y coordinates. Updated it to serve as a Multiplication table primer when x and y are both numeric.</p>
-
-            <p><a href="math/coordinates/"><img src="images/coordinates.png" alt="Image of Coordinate Finder" title="" /></a></p>
-
-            <h2><a href="math/equivalencyhunt/">Equivalency Hunt Game</a></h2>
-
-            <p>Find all of the equations that produce a random number.</p>
-
-            <p><a href="math/equivalencyhunt/"><img src="images/equivalencyhunt.png" alt="Image of Equivalency Hunt Game" title="" /></a></p>
-
-            <h2><a href="math/equivalencymatch/">Equivalency Match Game</a></h2>
-
-            <p>Match equivalent equations.</p>
-
-            <p><a href="math/equivalencymatch/"><img src="images/equivalencymatch.png" alt="Image of Equivalency Match Game" title="" /></a></p>
-
-            <h2><a href="math/24/">24</a></h2>
-
-            <p>Find the sequence of operations that produces the number 24 from the four given numbers. Click "I Give Up" if you think there is no solution to see if the game can find any.</p>
-
-            <p><a href="math/24/"><img src="images/24.png" alt="Image of 24 Game" title="" /></a></p>
-
-            <h2><a href="math/operationsmaze/">Operations Maze Game</a></h2>
-
-            <p>From the top-left square, navigate the grid of operations to find the sequence that will get the max score (or minimum score if you toggle the variant). Many configuration options and navigable with keyboard arrows.</p>
-
-            <p><a href="math/operationsmaze/"><img src="images/operationsmaze.png" alt="Image of Operations Maze Game" title="" /></a></p>
-
-            <h2><a href="math/zeckendorfstheorem/">Zeckendorf's Theorem</a></h2>
-
-            <p>Without using numbers neighboring one another, find the unique combination of numbers from the Fibonacci set that will sum to the target number.</p>
-
-            <p><a href="math/zeckendorfstheorem/"><img src="images/zeckendorfstheorem.png" alt="Image of Zeckendorf's Theorem Game" title="" /></a></p>
-
-            <h2><a href="math/primefactortree/">Prime Factor Tree Generator</a></h2>
-
-            <p>Slightly tweeked from original code by <a href="https://github.com/collectivecognition/primeFactorTree">William Blanchette</a>. Takes any number and breaks it down into a tree of its prime factors.</p>
-
-            <p><a href="math/primefactortree/"><img src="images/primefactortree.png" alt="Image of Prime Factor Tree" title="" /></a></p>
-
-            <h2><a href="math/fractionvisualizer/">Fraction Visualizer</a></h2>
-
-            <p>Built on the idea of fraction blocks as a manipulative. Represents fractions visually, as percentage, decimal, and fraction.</p>
-
-            <p><a href="math/fractionvisualizer/"><img src="images/fractionvisualizer.png" alt="Image of Fraction Visualizer" title="" /></a></p>
-
-            <h2><a href="math/vectorracer/">Vector Racer</a></h2>
-
-            <p>The graph-paper game <a href="https://en.wikipedia.org/wiki/Racetrack_(game)">Racetrack</a>. Good for teaching the concepts of velocity and acceleration, this game can only be mastered with mathematics. Built with code snippets from <a href="http://jsfiddle.net/m1erickson/sAFku/">m1erickson</a>, <a href="https://stackoverflow.com/questions/4672279/bresenham-algorithm-in-javascript">Boris Hamanov/Bresenham</a>, and <a href="https://codepen.io/Cthulahoop/pen/sxqpL">Cthulahoop</a>.</p>
-
-            <p><a href="math/vectorracer/"><img src="images/vectorracer.png" alt="Image of Vector Racer" title="" /></a></p>
-
-            <h2><a href="games/dicechallenge/">Dice Challenge</a></h2>
-
-            <p>The game <a href="">Button Men</a> or <a href="https://boardgamegeek.com/boardgame/226085/sailor-moon-crystal-dice-challenge">Sailor Moon Crystal: Dice Challenge</a>, where players roll dice and then take turns spending one die of equal or greater value to capture an opponent's die or spending multiple dice that sum to the value of an opponent's die. All spent dice are re-rolled. Player scores are the sum of all dice-sides they've captured plus one-half the sum of all dice-sides they haven't lost.</p>
-
-            <p><a href="games/dicechallenge/"><img src="images/dicechallenge.png" alt="Image of Dice Challenge" title="" /></a></p>
-
-            <h2><a href="math/shuttheboxinfinite/">Shut the Box Infinite</a></h2>
-
-            <p>Classic game of rolling dice and using the result to knock out numbers. This version allows the player to add rows or increase/decrease the number range to play with probability. Knocking out the numbers on the bottom row opens up knocking out the same numbers on the row(s) above.</p>
-
-            <p>Credit to <a href="https://softwareengineering.stackexchange.com/questions/311113/generate-pips-on-a-die-based-on-value">Mr. Polywhirl</a> for the dice faces.</p>
-
-            <p><a href="math/shuttheboxinfinite/"><img src="images/shuttheboxinfinite.png" alt="Image of Shut the Box Infinite" title="" /></a></p>
-
-            <h2><a href="math/magicsquaretictactoe/">Magic Squre Tic Tac Toe</a></h2>
-
-            <p>A isomorph of tic tac toe where the first player to get three numbers adding up to 15 wins. Try turning off the grid for a harder challenge. Comes with an unbeatable AI and the option to change the target number.</p>
-
-            <p><a href="math/magicsquaretictactoe/"><img src="images/magicsquaretictactoe.png" alt="Image of Magic Squre Tic Tac Toe" title="" /></a></p>
-
-            <h2><a href="math/puzzlearithmetic/">Puzzle-Piece Arithmetic</a></h2>
-
-            <p>My youngest loves puzzles, so this interface for adding numbers really engages him.</p>
-
-            <p>Credit to <a href="https://codepen.io/ProfessorSamoff/pen/ByJoaE">Tim Samoff</a> for the CSS to make the puzzle-pieces and <a href="https://boardgamegeek.com/boardgame/20393/thomas-tank-engine-thomas-numbers-game">Thomas and Friends Number Game</a> board game for the concept.</p>
-
-            <p><a href="math/puzzlearithmetic/"><img src="images/puzzlearithmetic.png" alt="Image of Puzzle-Piece Arithmetic" title="" /></a></p>
-
-            <h2><a href="math/numbertypes/">Number Types</a></h2>
-
-            <p>Generate products from random numbers and then try to categorize the products by type.</p>
-
-            <p><a href="math/numbertypes/"><img src="images/numbertypes.png" alt="Image of Number Types" title="" /></a></p>
-
-            <h2><a href="math/fractalexplorer/">Fractal Explorer</a></h2>
-
-            <p>For exploring binary trees, dragon curves, Mandelbrot, and Julia sets.</p>
-
-            <p>Credit to <a href="http://thecodeplayer.com/walkthrough/create-binary-trees-using-javascript-and-html5-canvas">CodePlayer</a> (Binary Trees), <a href="http://britseyeview.com/software/articles/drawing.html">britseyeview</a> (Dragon Fractal), <a href="http://code.activestate.com/recipes/577277-mandelbrot-fractal-using-html5-canvas/">FB36</a> (Mandelbrot), and <a href="https://github.com/evangambit/JavaScript-Julia-Set/blob/master/Julia%20Sets.html">evangambit</a> (Julia Set).</p>
-
-            <p><a href="math/fractalexplorer/"><img src="images/fractalexplorer.png" alt="Image of Fractal Explorer" title="" /></a></p>
-
-            <h2><a href="math/nbacksimon/">N-Back Simon Says</a></h2>
-
-            <p>Simon Says exercises memory. I have added a number-only version where the player must memorize increasing-length strings of numbers.</p>
-
-            <p>Built on <a href="https://github.com/kellyk/javascript-simon">Javascript Simon</a> by <a href="http://kellyking.me">Kelly King</a>.</p>
-
-            <p><a href="math/nbacksimon/"><img src="images/nbacksimon.png" alt="Image of N-Back Simon Says" title="" /></a></p>        
-
-            <h2><a href="math/numbermandala/">Number Mandela Generator</a></h2>
-
-            <p>Generates a number mandela for exploring primes and factors.</p>
-
-            <p>Credit to <a href="http://12xspiral.com/">Joey Grether</a> for the idea. Combines memes from <a href="http://krazydad.com/tutorials/circles/">KrazyDad</a>, <a href="http://jsfiddle.net/jingshaochen/xJc7M/">jingshaochen</a>, <a href="http://www.dhtmlgoodies.com/tutorials/canvas-clock/">dhtmlgoodies</a>, <a href="http://www.script-tutorials.com/html5-clocks/">script-tutorials</a>, and <a href="http://www.javascripter.net/faq/numberisprime.htm">javascripter</a>.</p>
-
-            <p><a href="math/numbermandala/"><img src="images/numbermandela.png" alt="Image of Number Mandela" title="" /></a></p>
-
-            <h2><a href="games/WOW/">WOW! An RPG of Really Large Numbers</a></h2>
-
-            <p>Using a very simple text-based RPG engine, I built this very simple game under direction from my kids. Using this simple framework you can also adapt this example to make your own games. But do enjoy this brief adventure!</p>
-
-            <p><a href="games/WOW/"><img src="images/wow.png" alt="Image of WOW!" title="" /></a></p>
-
-            <h2><a href="math/mazenavigator/">Maze Navigator</a></h2>
-
-            <p>Written by <a href="https://github.com/goshdarngames/HTML5-Maze">GoshDarnGames</a>. I have updated the code to animate the rendering of the maze and have added a "Programmable" variant--under the "Options" tab--where you can input a set of moves and run them.</p>
-
-            <p><a href="math/mazenavigator/"><img src="images/mazenavigator.png" alt="Image of Maze Navigator" title="" /></a></p>
-
-            <h2><a href="math/gameoflife/">Conway's Game of Life</a></h2>
-
-            <p>Posted here unmodified. Written by <a href="http://pmav.eu/stuff/javascript-game-of-life-v3.1.1/">Pedro Verruma</a>.</p>
-
-            <p><a href="math/gameoflife/"><img src="images/gameoflife.png" alt="Image of Maze Navigator" title="" /></a></p>
-
-            <h2><a href="math/bayestheorem/">Bayes Theorem Calculator</a></h2>
-
-            <p>Posted here unmodified. Written by <a href="https://ludios.org/bayes/">ludios.org</a>.</p>
-
-            <p><a href="math/bayestheorem/"><img src="images/bayestheorem.png" alt="Image of Bayes Theorem Calculator" title="" /></a></p>
-
-            <h2><a href="math/binarycountingmachine/">Binary Counting Machine</a></h2>
-
-            <p>A set of processes that step through counting in binary.</p>
-
-            <p><a href="math/binarycountingmachine/"><img src="images/binarycountingmachine.png" alt="Image of Binary Counting Machine" title="" /></a></p>
+      </div>
+
+      <!-- ══════════════════════════════════════════════ MATH ══ -->
+      <div id="section-math" class="section-panel">
+        <div class="app-grid">
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/numberline/"><img src="images/numberline.png" alt="Number Line"></a>
+            <div class="app-card-body">
+              <h2><a href="math/numberline/">Number Line</a></h2>
+              <p>Numberline Navigator page for teaching addition, subtraction, multiplication, and division. Credit to <a href="http://stackoverflow.com/questions/4182494/how-to-draw-number-lines-using-html">user372551</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/patternblocks/"><img src="images/patternblocks.png" alt="Pattern Blocks"></a>
+            <div class="app-card-body">
+              <h2><a href="math/patternblocks/">Pattern Blocks</a></h2>
+              <p>A javascript version of pattern blocks built with Fabric JS.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/shapehuntcardinality/"><img src="images/shapehuntcardinality.png" alt="Shape Hunt Cardinality Game"></a>
+            <div class="app-card-body">
+              <h2><a href="math/shapehuntcardinality/">Shape Hunt Cardinality Game</a></h2>
+              <p>Has children look for both the correct shape and number of shapes. Used to work on n-back skills.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/hundredboard/"><img src="images/hundredboard.png" alt="Hundred Board Guessing Game"></a>
+            <div class="app-card-body">
+              <h2><a href="math/hundredboard/">Hundred Board Guessing Game</a></h2>
+              <p>Click on the odds, evens, or factors. Also a Wolf-Fence Number guessing game, with the computer giving greater-than/less-than hints.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/wingdingcardinality/"><img src="images/wingdingcardinality.png" alt="Wingding Cardinality Visualizer"></a>
+            <div class="app-card-body">
+              <h2><a href="math/wingdingcardinality/">Wingding Cardinality Visualizer</a></h2>
+              <p>To help children visualize sets of numbers.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/basetenblocks/"><img src="images/basetenblocks.png" alt="Base-10 Block Game"></a>
+            <div class="app-card-body">
+              <h2><a href="math/basetenblocks/">Base-10 Block Game</a></h2>
+              <p>For teaching children base-10 number placement values, which are the foundation of our mathematics.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/moneycounting/"><img src="images/moneycounting.png" alt="Money Counting Game"></a>
+            <div class="app-card-body">
+              <h2><a href="math/moneycounting/">Money Counting Game</a></h2>
+              <p>For familiarizing children with American currency and counting by dollars and cents.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/coordinates/"><img src="images/coordinates.png" alt="Coordinate Finder"></a>
+            <div class="app-card-body">
+              <h2><a href="math/coordinates/">Coordinate Finder / Multiplication Table Primer</a></h2>
+              <p>Made this when my son wanted to play Battleship but was having trouble understanding X and Y coordinates. Updated to serve as a Multiplication table primer when x and y are both numeric.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/equivalencyhunt/"><img src="images/equivalencyhunt.png" alt="Equivalency Hunt Game"></a>
+            <div class="app-card-body">
+              <h2><a href="math/equivalencyhunt/">Equivalency Hunt Game</a></h2>
+              <p>Find all of the equations that produce a random number.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/equivalencymatch/"><img src="images/equivalencymatch.png" alt="Equivalency Match Game"></a>
+            <div class="app-card-body">
+              <h2><a href="math/equivalencymatch/">Equivalency Match Game</a></h2>
+              <p>Match equivalent equations.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/24/"><img src="images/24.png" alt="24 Game"></a>
+            <div class="app-card-body">
+              <h2><a href="math/24/">24</a></h2>
+              <p>Find the sequence of operations that produces the number 24 from the four given numbers. Click "I Give Up" if you think there is no solution to see if the game can find any.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/operationsmaze/"><img src="images/operationsmaze.png" alt="Operations Maze Game"></a>
+            <div class="app-card-body">
+              <h2><a href="math/operationsmaze/">Operations Maze Game</a></h2>
+              <p>From the top-left square, navigate the grid of operations to find the sequence that will get the max score. Many configuration options and navigable with keyboard arrows.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/zeckendorfstheorem/"><img src="images/zeckendorfstheorem.png" alt="Zeckendorf's Theorem"></a>
+            <div class="app-card-body">
+              <h2><a href="math/zeckendorfstheorem/">Zeckendorf's Theorem</a></h2>
+              <p>Without using numbers neighboring one another, find the unique combination of numbers from the Fibonacci set that will sum to the target number.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/primefactortree/"><img src="images/primefactortree.png" alt="Prime Factor Tree Generator"></a>
+            <div class="app-card-body">
+              <h2><a href="math/primefactortree/">Prime Factor Tree Generator</a></h2>
+              <p>Slightly tweaked from original code by <a href="https://github.com/collectivecognition/primeFactorTree">William Blanchette</a>. Takes any number and breaks it down into a tree of its prime factors.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/fractionvisualizer/"><img src="images/fractionvisualizer.png" alt="Fraction Visualizer"></a>
+            <div class="app-card-body">
+              <h2><a href="math/fractionvisualizer/">Fraction Visualizer</a></h2>
+              <p>Built on the idea of fraction blocks as a manipulative. Represents fractions visually, as percentage, decimal, and fraction.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/vectorracer/"><img src="images/vectorracer.png" alt="Vector Racer"></a>
+            <div class="app-card-body">
+              <h2><a href="math/vectorracer/">Vector Racer</a></h2>
+              <p>The graph-paper game <a href="https://en.wikipedia.org/wiki/Racetrack_(game)">Racetrack</a>. Good for teaching the concepts of velocity and acceleration; this game can only be mastered with mathematics.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/shuttheboxinfinite/"><img src="images/shuttheboxinfinite.png" alt="Shut the Box Infinite"></a>
+            <div class="app-card-body">
+              <h2><a href="math/shuttheboxinfinite/">Shut the Box Infinite</a></h2>
+              <p>Classic game of rolling dice and using the result to knock out numbers. This version allows the player to add rows or increase/decrease the number range to play with probability. Credit to <a href="https://softwareengineering.stackexchange.com/questions/311113/generate-pips-on-a-die-based-on-value">Mr. Polywhirl</a> for the dice faces.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/magicsquaretictactoe/"><img src="images/magicsquaretictactoe.png" alt="Magic Square Tic Tac Toe"></a>
+            <div class="app-card-body">
+              <h2><a href="math/magicsquaretictactoe/">Magic Square Tic Tac Toe</a></h2>
+              <p>An isomorph of tic tac toe where the first player to get three numbers adding up to 15 wins. Try turning off the grid for a harder challenge. Comes with an unbeatable AI and the option to change the target number.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/puzzlearithmetic/"><img src="images/puzzlearithmetic.png" alt="Puzzle-Piece Arithmetic"></a>
+            <div class="app-card-body">
+              <h2><a href="math/puzzlearithmetic/">Puzzle-Piece Arithmetic</a></h2>
+              <p>My youngest loves puzzles, so this interface for adding numbers really engages him. Credit to <a href="https://codepen.io/ProfessorSamoff/pen/ByJoaE">Tim Samoff</a> for the CSS and <a href="https://boardgamegeek.com/boardgame/20393/thomas-tank-engine-thomas-numbers-game">Thomas and Friends Number Game</a> for the concept.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/numbertypes/"><img src="images/numbertypes.png" alt="Number Types"></a>
+            <div class="app-card-body">
+              <h2><a href="math/numbertypes/">Number Types</a></h2>
+              <p>Generate products from random numbers and then try to categorize the products by type.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/fractalexplorer/"><img src="images/fractalexplorer.png" alt="Fractal Explorer"></a>
+            <div class="app-card-body">
+              <h2><a href="math/fractalexplorer/">Fractal Explorer</a></h2>
+              <p>For exploring binary trees, dragon curves, Mandelbrot, and Julia sets. Credit to <a href="http://thecodeplayer.com/walkthrough/create-binary-trees-using-javascript-and-html5-canvas">CodePlayer</a>, <a href="http://britseyeview.com/software/articles/drawing.html">britseyeview</a>, <a href="http://code.activestate.com/recipes/577277-mandelbrot-fractal-using-html5-canvas/">FB36</a>, and <a href="https://github.com/evangambit/JavaScript-Julia-Set/blob/master/Julia%20Sets.html">evangambit</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/nbacksimon/"><img src="images/nbacksimon.png" alt="N-Back Simon Says"></a>
+            <div class="app-card-body">
+              <h2><a href="math/nbacksimon/">N-Back Simon Says</a></h2>
+              <p>Simon Says exercises memory. Added a number-only version where the player must memorize increasing-length strings of numbers. Built on <a href="https://github.com/kellyk/javascript-simon">Javascript Simon</a> by <a href="http://kellyking.me">Kelly King</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/numbermandala/"><img src="images/numbermandela.png" alt="Number Mandala Generator"></a>
+            <div class="app-card-body">
+              <h2><a href="math/numbermandala/">Number Mandala Generator</a></h2>
+              <p>Generates a number mandala for exploring primes and factors. Credit to <a href="http://12xspiral.com/">Joey Grether</a> for the idea.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/mazenavigator/"><img src="images/mazenavigator.png" alt="Maze Navigator"></a>
+            <div class="app-card-body">
+              <h2><a href="math/mazenavigator/">Maze Navigator</a></h2>
+              <p>Written by <a href="https://github.com/goshdarngames/HTML5-Maze">GoshDarnGames</a>. Updated to animate the rendering of the maze and added a "Programmable" variant where you can input a set of moves and run them.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/gameoflife/"><img src="images/gameoflife.png" alt="Conway's Game of Life"></a>
+            <div class="app-card-body">
+              <h2><a href="math/gameoflife/">Conway's Game of Life</a></h2>
+              <p>Posted here unmodified. Written by <a href="http://pmav.eu/stuff/javascript-game-of-life-v3.1.1/">Pedro Verruma</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/bayestheorem/"><img src="images/bayestheorem.png" alt="Bayes Theorem Calculator"></a>
+            <div class="app-card-body">
+              <h2><a href="math/bayestheorem/">Bayes Theorem Calculator</a></h2>
+              <p>Posted here unmodified. Written by <a href="https://ludios.org/bayes/">ludios.org</a>.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/binarycountingmachine/"><img src="images/binarycountingmachine.png" alt="Binary Counting Machine"></a>
+            <div class="app-card-body">
+              <h2><a href="math/binarycountingmachine/">Binary Counting Machine</a></h2>
+              <p>A set of processes that step through counting in binary.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="math/booleaniching/"><img src="images/booleaniching.png" alt="The Boolean iChing"></a>
+            <div class="app-card-body">
+              <h2><a href="math/booleaniching/">The Boolean iChing</a></h2>
+              <p>Execute boolean transformations on iChing concepts to find their relationships.</p>
+            </div>
+          </div>
 
         </div>
+      </div>
 
-        <div style="clear: both;"></div>
+      <!-- ══════════════════════════════════════════════ SCIENCE ══ -->
+      <div id="section-science" class="section-panel">
+        <div class="app-grid">
 
-        <div width="100%">
+          <div class="app-card">
+            <a class="thumb-link" href="science/mastermind/"><img src="images/mastermind.png" alt="Mastermind"></a>
+            <div class="app-card-body">
+              <h2><a href="science/mastermind/">Mastermind</a></h2>
+              <p>Reproduction of the board game where you try to guess the color sequence, getting hints about what you have correct with each experiment.</p>
+            </div>
+          </div>
 
-            <h1>External Links</h1>
+          <div class="app-card">
+            <a class="thumb-link" href="science/colormatcher/"><img src="images/colormatcher.png" alt="Color Matcher"></a>
+            <div class="app-card-body">
+              <h2><a href="science/colormatcher/">Color Matcher</a></h2>
+              <p>Add red, green, blue values in hexadecimal until you match the background color. Inspired by <a href="https://github.com/LeaVerou/whathecolor">What the Color</a> by <a href="http://lea.verou.me/">Lea Verou</a>.</p>
+            </div>
+          </div>
 
-            <h2><a href="https://toytheater.com/" target="_blank">Toy Theater</a></h2>
+          <div class="app-card">
+            <a class="thumb-link" href="science/daysoftheweek/"><img src="images/daysoftheweek.png" alt="Days of the Week Carousel"></a>
+            <div class="app-card-body">
+              <h2><a href="science/daysoftheweek/">Days of the Week Carousel</a></h2>
+              <p>Carousel of the days of the week with the planets for which they are named.</p>
+            </div>
+          </div>
 
-            <h2><a href="http://binarypuzzle.com/" target="_blank">Binary Puzzles</a></h2>
+          <div class="app-card">
+            <a class="thumb-link" href="science/daisyworld/"><img src="images/daisyworld.png" alt="Daisyworld"></a>
+            <div class="app-card-body">
+              <h2><a href="science/daisyworld/">Daisyworld</a></h2>
+              <p>A javascript <a href="https://en.wikipedia.org/wiki/Daisyworld">Daisyworld Simulation</a> that starts with Earth values and allows you to adjust them, seeing how daisy populations shift to change the albedo of the planet to maintain a habitable temperature. Credit to <a href="http://www.gingerbooth.com/flash/daisyball/daisyworldmath.html">Ginger Booth</a>, <a href="https://astronomy.stackexchange.com/questions/10113/how-to-calculate-the-expected-surface-temperature-of-a-planet">Irigi</a>, <a href="http://jsfiddle.net/AyexeM/zMZ9y/">AyexeM</a>, and <a href="https://codepen.io/HowToDevCode/pen/ORzzJm">HowToDevCode</a>.</p>
+            </div>
+          </div>
 
-            <h2><a href="https://www.filamentgames.com/" target="_blank">Filament Games</a></h2>
+          <div class="app-card">
+            <a class="thumb-link" href="science/kaleidostrobe/"><img src="images/kaleidostrobe.png" alt="Kaleidostrobe"></a>
+            <div class="app-card-body">
+              <h2><a href="science/kaleidostrobe/">Kaleidostrobe</a></h2>
+              <p>Wrote this after seeing how strobelights affect the appearance of fans rotating. Add shapes to the canvas and adjust their rotation rates to create different kaleidoscopic effects.</p>
+            </div>
+          </div>
 
-            <h2><a href="https://github.com/stared/science-based-games-list" target="_blank">GitHub: Science-based games</a></h2>
-
-            <h2><a href="https://www.khanacademy.org/" target="_blank">Khan Academy</a></h2>
-
-            <h2><a href="https://www.kcl.ac.uk/sspp/departments/warstudies/people/professors/sabin/consim.aspx" target="_blank">Kings College Conflict Simulation</a></h2>
-
-            <h2><a href="https://mathoverflow.net/questions/281447/mathematical-games-interesting-to-both-you-and-a-5-year-old-child" target="_blank">MathoverFlow: Games Interesting to Both You and a 5-Year-Old</a></h2>
-
-            <h2><a href="http://www.mensaforkids.org/play/games/">Mensa Kids Games</a></h2>
-
-            <h2><a href="http://www.molleindustria.org/">Socially Conscious Games</a></h2>
+          <div class="app-card">
+            <a class="thumb-link" href="science/taxonomyquest/"><img src="images/taxonomyquest.png" alt="Kaleidostrobe"></a>
+            <div class="app-card-body">
+              <h2><a href="science/taxonomyquest/">Taxonomy Quest</a></h2>
+              <p>Beat your own score game. Given a species, identify its Kingdom, Phylum, Class, Order, Family, Subfamily, and Genus.</p>
+            </div>
+          </div>
 
         </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════ GAMES ══ -->
+      <div id="section-games" class="section-panel">
+        <div class="app-grid">
+
+          <div class="app-card">
+            <a class="thumb-link" href="games/gotcha/"><img src="images/gotcha.png" alt="Gotcha!"></a>
+            <div class="app-card-body">
+              <h2><a href="games/gotcha/">Gotcha!</a></h2>
+              <p>Find the AI before it finds you by balancing evasion, reconnaissance, and attacking. Based on the game <em>Gotcha!</em> described in <a href="http://www.kcl.ac.uk/sspp/departments/warstudies/people/professors/sabin/simwar.aspx"><em>Simulating War</em></a> by Philip Sabin. Credit to <a href="https://github.com/web-tiki/responsive-grid-of-hexagons">web-tiki</a> for the hexagons CSS.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="games/twisttactoe/"><img src="images/twisttactoe.png" alt="Twist-Tac-Toe"></a>
+            <div class="app-card-body">
+              <h2><a href="games/twisttactoe/">Twist-Tac-Toe</a></h2>
+              <p>Variation on tic-tac-toe, "<a href="https://boardgamegeek.com/boardgame/11557/chung-toi">Chung Toi</a>." Players get three tiles and must move those tiles to get three-in-a-row using the directional arrows drawn on them. Includes three levels of AI.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="games/dicechallenge/"><img src="images/dicechallenge.png" alt="Dice Challenge"></a>
+            <div class="app-card-body">
+              <h2><a href="games/dicechallenge/">Dice Challenge</a></h2>
+              <p>The game <a href="">Button Men</a> or <a href="https://boardgamegeek.com/boardgame/226085/sailor-moon-crystal-dice-challenge">Sailor Moon Crystal: Dice Challenge</a>, where players roll dice and then take turns spending dice to capture an opponent's die. Player scores are the sum of all dice-sides captured plus one-half the sum of all dice-sides not lost.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="games/WOW/"><img src="images/wow.png" alt="WOW!"></a>
+            <div class="app-card-body">
+              <h2><a href="games/WOW/">WOW! An RPG of Really Large Numbers</a></h2>
+              <p>Using a very simple text-based RPG engine, I built this very simple game under direction from my kids. Using this simple framework you can also adapt this example to make your own games. Do enjoy this brief adventure!</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="games/dungeonlabyrinth/"><img src="images/dungeonlabyrinth.png" alt="Dungeon Labyrinth"></a>
+            <div class="app-card-body">
+              <h2><a href="games/dungeonlabyrinth/">Dungeon Labyrinth</a></h2>
+              <p>Reskin of bobwhitley implementation of the <a href="https://github.com/bobwhitley/dndlabyrinth">Dungeons & Dragons™ Computer Labyrinth Game Simulator</a> a 1980 electronic game that relied entirely on electronic sounds to communicate the game state to the player.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════ SPANISH ══ -->
+      <div id="section-spanish" class="section-panel">
+        <div class="app-grid">
+          <div class="app-card">
+            <a class="thumb-link" href="spanish/translationmatchinggame.html/"><img src="images/translationmatchinggame.png" alt="Translation Matching Game"></a>
+            <div class="app-card-body">
+              <h2><a href="spanish/translationmatchinggame.html/">Translation Matching Game</a></h2>
+              <p>Match the English sentences to their Spanish translations.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="spanish/spanishverbs.html/"><img src="images/spanishverbs.png" alt="Spanish Verbs"></a>
+            <div class="app-card-body">
+              <h2><a href="spanish/spanishverbs.html/">Spanish Verbs</a></h2>
+              <p>Multiple-choice game of picking the correct verb to fill in the blank.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="spanish/spanishnumbers.html/"><img src="images/spanishnumbers.png" alt="Spanish Numbers"></a>
+            <div class="app-card-body">
+              <h2><a href="spanish/spanishnumbers.html/">Spanish Numbers</a></h2>
+              <p>Choose the words to construct the given number.</p>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <a class="thumb-link" href="spanish/spanishverbspelling.html/"><img src="images/spanishverbspelling.png" alt="Spanish Verb Spelling"></a>
+            <div class="app-card-body">
+              <h2><a href="spanish/spanishverbspelling.html/">Spanish Verb Spelling</a></h2>
+              <p>Given a verb, write out all the different forms of it. A recommended exercise from chapter 29 of <a href="https://www.goodreads.com/book/show/168813.Madrigal_s_Magic_Key_to_Spanish">Madrigals Magic Key to Spanish</a>.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/ideonexus/Explorable-Explanations">Explorable-Explanations</a> is maintained by <a href="https://github.com/ideonexus">ideonexus</a>.</span>
-
         <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
 
     </section>
 
-   
+    <script>
+      function toggleSection(id) {
+        const panel = document.getElementById('section-' + id);
+        const buttons = document.querySelectorAll('.section-btn');
+        const isOpen = panel.classList.contains('open');
+
+        // Close all panels
+        document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('open'));
+        buttons.forEach(b => b.classList.remove('active'));
+
+        // Open clicked panel if it was closed
+        if (!isOpen) {
+          panel.classList.add('open');
+          // Mark corresponding button active
+          buttons.forEach(b => {
+            if (b.getAttribute('onclick').includes("'" + id + "'")) {
+              b.classList.add('active');
+            }
+          });
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+    </script>
+
   </body>
 </html>

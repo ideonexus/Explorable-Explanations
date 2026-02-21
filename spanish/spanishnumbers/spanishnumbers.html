@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Números — Spanish Number Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --surface-raised: #1c2a4a;
+    --accent: #e94560;
+    --accent-glow: rgba(233, 69, 96, 0.3);
+    --gold: #f0c040;
+    --gold-dim: rgba(240, 192, 64, 0.15);
+    --text: #eaeaea;
+    --text-dim: #8892a8;
+    --success: #2ecc71;
+    --success-glow: rgba(46, 204, 113, 0.25);
+    --wrong: #e74c3c;
+    --tile-bg: #1e2d50;
+    --tile-border: #2a3f6a;
+    --tile-hover: #283d68;
+  }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle animated gradient bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(233, 69, 96, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(240, 192, 64, 0.05) 0%, transparent 50%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 2.4rem;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, var(--gold), #ffd97d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    color: var(--text-dim);
+    margin-top: 0.3rem;
+    font-size: 0.95rem;
+  }
+
+  /* Stats bar */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.8rem;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+  .stats span { font-weight: 700; color: var(--text); }
+  .stats .correct-count span { color: var(--success); }
+  .stats .wrong-count span { color: var(--wrong); }
+
+  /* Difficulty selector */
+  .difficulty-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .diff-btn {
+    background: var(--surface);
+    border: 1px solid var(--tile-border);
+    color: var(--text-dim);
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .diff-btn:hover { border-color: var(--gold); color: var(--text); }
+  .diff-btn.active {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* Number display card */
+  .number-card {
+    background: var(--surface);
+    border: 1px solid var(--tile-border);
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .number-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+  }
+  .number-display {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 3.2rem;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    word-spacing: 0.15em;
+  }
+  .number-label {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+
+  /* Answer construction area */
+  .answer-area {
+    background: var(--surface);
+    border: 1px solid var(--tile-border);
+    border-radius: 1rem;
+    padding: 1.2rem 1.5rem;
+    min-height: 3.8rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .answer-area:hover { border-color: var(--text-dim); }
+  .answer-area.correct-flash {
+    border-color: var(--success);
+    box-shadow: 0 0 20px var(--success-glow);
+  }
+  .answer-area.wrong-flash {
+    border-color: var(--wrong);
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.25);
+  }
+  .answer-placeholder {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 0.95rem;
+    pointer-events: none;
+  }
+
+  .answer-word {
+    background: var(--accent);
+    color: #fff;
+    padding: 0.3rem 0.7rem;
+    border-radius: 0.4rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+    animation: popIn 0.2s ease-out;
+  }
+  .answer-word:hover { transform: scale(1.05); opacity: 0.85; }
+
+  @keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* Word tiles grid */
+  .tiles-section {
+    margin-bottom: 1.5rem;
+  }
+  .tiles-section h3 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    margin-bottom: 0.6rem;
+  }
+  .tiles-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .word-tile {
+    background: var(--tile-bg);
+    border: 1px solid var(--tile-border);
+    color: var(--text);
+    padding: 0.45rem 0.85rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .word-tile:hover {
+    background: var(--tile-hover);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+  }
+  .word-tile:active { transform: translateY(0); }
+  .word-tile.used {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  /* Action buttons */
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 0.7rem 1.6rem;
+    border-radius: 0.6rem;
+    border: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-check {
+    background: linear-gradient(135deg, var(--accent), #d63851);
+    color: #fff;
+  }
+  .btn-check:hover { transform: translateY(-1px); box-shadow: 0 4px 15px var(--accent-glow); }
+  .btn-skip {
+    background: var(--surface-raised);
+    color: var(--text-dim);
+    border: 1px solid var(--tile-border);
+  }
+  .btn-skip:hover { color: var(--text); border-color: var(--text-dim); }
+  .btn-clear {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid transparent;
+  }
+  .btn-clear:hover { color: var(--wrong); }
+
+  /* Feedback */
+  .feedback {
+    text-align: center;
+    margin-top: 1.2rem;
+    min-height: 1.5rem;
+    font-weight: 600;
+  }
+  .feedback.correct { color: var(--success); }
+  .feedback.wrong { color: var(--wrong); }
+
+  .correct-answer {
+    margin-top: 0.6rem;
+    padding: 1rem 1.5rem;
+    background: rgba(46, 204, 113, 0.08);
+    border: 1px solid rgba(46, 204, 113, 0.2);
+    border-radius: 0.75rem;
+    text-align: center;
+    font-size: 1.05rem;
+    color: var(--success);
+    font-weight: 600;
+    animation: popIn 0.3s ease-out;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .number-display { font-size: 2.2rem; }
+    .app { padding: 1.2rem 1rem 2rem; }
+    header h1 { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Números</h1>
+    <p>Click the words to build each number in Spanish</p>
+  </header>
+
+  <div class="stats">
+    <div class="correct-count">Correct: <span id="correctCount">0</span></div>
+    <div class="wrong-count">Wrong: <span id="wrongCount">0</span></div>
+    <div>Streak: <span id="streakCount">0</span></div>
+  </div>
+
+  <div class="difficulty-bar" id="diffBar"></div>
+
+  <div class="number-card">
+    <div class="number-display" id="numberDisplay">—</div>
+    <div class="number-label" id="numberLabel"></div>
+  </div>
+
+  <div class="answer-area" id="answerArea" title="Click a placed word to remove it">
+    <span class="answer-placeholder">Your answer will appear here…</span>
+  </div>
+
+  <div id="tilesContainer"></div>
+
+  <div class="actions">
+    <button class="btn btn-check" id="checkBtn">Check ✓</button>
+    <button class="btn btn-clear" id="clearBtn">Clear</button>
+    <button class="btn btn-skip" id="skipBtn">Skip →</button>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+  <div id="correctAnswerBox"></div>
+</div>
+
+<script>
+// ============================================================
+//  SPANISH NUMBER WORD GENERATOR
+// ============================================================
+
+const ONES = ['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'];
+const TEENS = ['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve'];
+const TENS = ['','diez','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+const HUNDREDS = ['','ciento','doscientos','trescientos','cuatrocientos','quinientos',
+                  'seiscientos','setecientos','ochocientos','novecientos'];
+
+function numberToSpanish(n) {
+  if (n === 0) return ['cero'];
+  const words = [];
+  buildSpanish(n, words);
+  return words;
+}
+
+function buildSpanish(n, words) {
+  if (n === 0) return;
+
+  // billones (10^12 in Spanish = trillions)
+  if (n >= 1000000000000) {
+    const b = Math.floor(n / 1000000000000);
+    if (b === 1) {
+      words.push('un', 'billón');
+    } else {
+      buildSpanish(b, words);
+      words.push('billones');
+    }
+    const rem = n % 1000000000000;
+    if (rem > 0) buildSpanish(rem, words);
+    return;
+  }
+
+  // millones
+  if (n >= 1000000) {
+    const m = Math.floor(n / 1000000);
+    if (m === 1) {
+      words.push('un', 'millón');
+    } else {
+      buildSpanish(m, words);
+      words.push('millones');
+    }
+    const rem = n % 1000000;
+    if (rem > 0) buildSpanish(rem, words);
+    return;
+  }
+
+  // mil
+  if (n >= 1000) {
+    const k = Math.floor(n / 1000);
+    if (k === 1) {
+      words.push('mil');
+    } else {
+      buildSpanish(k, words);
+      words.push('mil');
+    }
+    const rem = n % 1000;
+    if (rem > 0) buildSpanish(rem, words);
+    return;
+  }
+
+  // hundreds
+  if (n >= 100) {
+    if (n === 100) {
+      words.push('cien');
+      return;
+    }
+    words.push(HUNDREDS[Math.floor(n / 100)]);
+    const rem = n % 100;
+    if (rem > 0) buildSpanish(rem, words);
+    return;
+  }
+
+  // tens
+  if (n >= 20) {
+    const t = Math.floor(n / 10);
+    const o = n % 10;
+    if (t === 2 && o > 0) {
+      // 21-29: single compound word
+      const compounds = ['','veintiuno','veintidós','veintitrés','veinticuatro',
+                         'veinticinco','veintiséis','veintisiete','veintiocho','veintinueve'];
+      words.push(compounds[o]);
+    } else if (o > 0) {
+      words.push(TENS[t]);
+      words.push('y');
+      words.push(ONES[o]);
+    } else {
+      words.push(TENS[t]);
+    }
+    return;
+  }
+
+  // teens
+  if (n >= 10) {
+    words.push(TEENS[n - 10]);
+    return;
+  }
+
+  // ones
+  if (n >= 1) {
+    words.push(ONES[n]);
+    return;
+  }
+}
+
+// ============================================================
+//  FORMAT NUMBER WITH DOTS (Spanish-style thousands separator)
+// ============================================================
+function formatNumber(n) {
+  return n.toLocaleString('es-ES');
+}
+
+// ============================================================
+//  DIFFICULTY LEVELS
+// ============================================================
+const DIFFICULTIES = [
+  { label: '0–99', max: 99 },
+  { label: '0–999', max: 999 },
+  { label: '0–9.999', max: 9999 },
+  { label: '0–999.999', max: 999999 },
+  { label: '0–999.999.999', max: 999999999 },
+  { label: 'Máximo', max: 1999999999999 },
+];
+
+let currentDifficulty = 1;
+let currentNumber = 0;
+let answerWords = [];
+let stats = { correct: 0, wrong: 0, streak: 0 };
+
+// ============================================================
+//  GENERATE DISTRACTOR WORDS
+// ============================================================
+function allPossibleWords() {
+  // Gather a broad set of Spanish number words
+  const s = new Set(['cero','un','uno','y','mil','cien','millón','millones','billón','billones']);
+  ONES.forEach(w => w && s.add(w));
+  TEENS.forEach(w => s.add(w));
+  TENS.forEach(w => w && s.add(w));
+  HUNDREDS.forEach(w => w && s.add(w));
+  // 21-29 compounds
+  ['veintiuno','veintidós','veintitrés','veinticuatro','veinticinco',
+   'veintiséis','veintisiete','veintiocho','veintinueve'].forEach(w => s.add(w));
+  return [...s];
+}
+
+function pickDistractors(correctWords, count) {
+  const all = allPossibleWords();
+  const correctSet = new Set(correctWords);
+  const pool = all.filter(w => !correctSet.has(w));
+  // Shuffle and pick
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count);
+}
+
+// ============================================================
+//  UI RENDERING
+// ============================================================
+const $ = id => document.getElementById(id);
+
+function renderDifficultyBar() {
+  const bar = $('diffBar');
+  bar.innerHTML = '';
+  DIFFICULTIES.forEach((d, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'diff-btn' + (i === currentDifficulty ? ' active' : '');
+    btn.textContent = d.label;
+    btn.onclick = () => { currentDifficulty = i; renderDifficultyBar(); newRound(); };
+    bar.appendChild(btn);
+  });
+}
+
+function newRound() {
+  const max = DIFFICULTIES[currentDifficulty].max;
+  currentNumber = Math.floor(Math.random() * (max + 1));
+  answerWords = [];
+  $('feedback').textContent = '';
+  $('feedback').className = 'feedback';
+  $('correctAnswerBox').innerHTML = '';
+
+  $('numberDisplay').textContent = formatNumber(currentNumber);
+  $('numberLabel').textContent = '';
+
+  renderAnswer();
+  renderTiles();
+}
+
+function renderAnswer() {
+  const area = $('answerArea');
+  area.className = 'answer-area';
+  if (answerWords.length === 0) {
+    area.innerHTML = '<span class="answer-placeholder">Your answer will appear here…</span>';
+  } else {
+    area.innerHTML = '';
+    answerWords.forEach((w, i) => {
+      const el = document.createElement('span');
+      el.className = 'answer-word';
+      el.textContent = w;
+      el.onclick = () => removeWord(i);
+      area.appendChild(el);
+    });
+  }
+}
+
+function renderTiles() {
+  const correct = numberToSpanish(currentNumber);
+  // Count occurrences needed in correct answer
+  const correctCounts = {};
+  correct.forEach(w => correctCounts[w] = (correctCounts[w] || 0) + 1);
+
+  // We need enough tiles: all correct words + some distractors
+  const numDistractors = Math.min(12, Math.max(6, correct.length));
+  const distractors = pickDistractors(correct, numDistractors);
+
+  // Build tile list: include each correct word the number of times it appears, plus distractors
+  let tiles = [...correct, ...distractors];
+
+  // Shuffle
+  for (let i = tiles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+  }
+
+  const container = $('tilesContainer');
+  container.innerHTML = '';
+
+  const section = document.createElement('div');
+  section.className = 'tiles-section';
+  const title = document.createElement('h3');
+  title.textContent = 'Available Words';
+  section.appendChild(title);
+
+  const grid = document.createElement('div');
+  grid.className = 'tiles-grid';
+  grid.id = 'tilesGrid';
+
+  tiles.forEach((word, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'word-tile';
+    btn.textContent = word;
+    btn.dataset.idx = idx;
+    btn.onclick = () => addWord(word, btn);
+    grid.appendChild(btn);
+  });
+
+  section.appendChild(grid);
+  container.appendChild(section);
+}
+
+function addWord(word, btnEl) {
+  answerWords.push(word);
+  btnEl.classList.add('used');
+  btnEl.dataset.answerPos = answerWords.length - 1;
+  renderAnswer();
+}
+
+function removeWord(index) {
+  const removed = answerWords.splice(index, 1)[0];
+  // Un-use the corresponding tile (find the first used tile matching this word at this answer position)
+  const tiles = document.querySelectorAll('#tilesGrid .word-tile.used');
+  for (const t of tiles) {
+    if (t.textContent === removed) {
+      t.classList.remove('used');
+      delete t.dataset.answerPos;
+      break;
+    }
+  }
+  renderAnswer();
+}
+
+function clearAnswer() {
+  answerWords = [];
+  document.querySelectorAll('#tilesGrid .word-tile.used').forEach(t => {
+    t.classList.remove('used');
+    delete t.dataset.answerPos;
+  });
+  renderAnswer();
+}
+
+function checkAnswer() {
+  const correct = numberToSpanish(currentNumber);
+  const isCorrect = answerWords.length === correct.length &&
+                    answerWords.every((w, i) => w === correct[i]);
+
+  const area = $('answerArea');
+  const fb = $('feedback');
+
+  if (isCorrect) {
+    stats.correct++;
+    stats.streak++;
+    area.classList.add('correct-flash');
+    fb.textContent = '¡Correcto! 🎉';
+    fb.className = 'feedback correct';
+    updateStats();
+    setTimeout(() => newRound(), 1200);
+  } else {
+    stats.wrong++;
+    stats.streak = 0;
+    area.classList.add('wrong-flash');
+    fb.textContent = 'Not quite — here\'s the correct answer:';
+    fb.className = 'feedback wrong';
+    $('correctAnswerBox').innerHTML =
+      `<div class="correct-answer">${correct.join(' ')}</div>`;
+    updateStats();
+    setTimeout(() => { area.classList.remove('wrong-flash'); }, 600);
+  }
+}
+
+function skipRound() {
+  const correct = numberToSpanish(currentNumber);
+  $('feedback').textContent = 'Skipped — the answer was:';
+  $('feedback').className = 'feedback wrong';
+  $('correctAnswerBox').innerHTML =
+    `<div class="correct-answer">${correct.join(' ')}</div>`;
+  stats.streak = 0;
+  updateStats();
+  setTimeout(() => newRound(), 2200);
+}
+
+function updateStats() {
+  $('correctCount').textContent = stats.correct;
+  $('wrongCount').textContent = stats.wrong;
+  $('streakCount').textContent = stats.streak;
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+$('checkBtn').onclick = checkAnswer;
+$('clearBtn').onclick = clearAnswer;
+$('skipBtn').onclick = skipRound;
+
+renderDifficultyBar();
+newRound();
+</script>
+</body>
+</html>

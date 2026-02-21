@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dungeons &amp; Dragons™ Computer Labyrinth Game Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --stone-dark: #1a1612;
+            --stone-mid: #2d2520;
+            --stone-light: #3d352d;
+            --gold: #c9a227;
+            --gold-dim: #8a7020;
+            --blood: #8b0000;
+            --torch-glow: rgba(255, 147, 41, 0.15);
+            --cell-size: min(10.5vw, 10.5vh);
+            --wall-thickness: max(2px, 0.4vmin);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--stone-dark);
+            font-family: 'Crimson Text', Georgia, serif;
+            color: #d4c4a8;
+            overflow-x: hidden;
+        }
+
+        /* Atmospheric background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 30%, var(--torch-glow) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, var(--torch-glow) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0.3) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1000;
+            animation: flicker 4s ease-in-out infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+            75% { opacity: 0.95; }
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            height: 100vh;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        /* GAME CONTAINER */
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1vh;
+            max-height: 100%;
+        }
+
+        /* GAME BOARD */
+        #board {
+            position: relative;
+            background: var(--stone-dark);
+            padding: 1vmin;
+            border: max(2px, 0.3vmin) solid var(--gold-dim);
+            box-shadow: 
+                0 0 40px rgba(0,0,0,0.8),
+                inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        #grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .row {
+            display: flex;
+            gap: 0;
+        }
+
+        /* CONTROL BUTTONS COLUMN */
+        .col.button {
+            width: calc(var(--cell-size) * 0.6);
+            height: var(--cell-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--stone-mid);
+            border: 1px solid var(--stone-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 1vmin;
+        }
+
+        .col.button:hover {
+            background: var(--stone-light);
+        }
+
+        .col.button.switch {
+            background: var(--blood);
+        }
+
+        .col.button.switch.selected {
+            background: #cc0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .col.button .cell {
+            font-family: 'Cinzel', serif;
+            font-size: max(0.5rem, 1.2vmin);
+            color: var(--gold-dim);
+            text-align: center;
+        }
+
+        /* CHAMBER CELLS */
+        .col.chamber {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+
+        .col.chamber:hover {
+            filter: brightness(1.2);
+        }
+
+        .col.chamber .cell {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* WALLS */
+        .southWall, .eastWall {
+            position: absolute;
+            background: transparent;
+            visibility: hidden;
+            z-index: 10;
+        }
+
+        .southWall {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--wall-thickness);
+            background: linear-gradient(90deg, 
+                var(--stone-light) 0%, 
+                #5a4d40 50%, 
+                var(--stone-light) 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .eastWall {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: var(--wall-thickness);
+            background: linear-gradient(180deg, 
+                var(--stone-light) 0%, 
+                #5a4d40 50%, 
+                var(--stone-light) 100%);
+            box-shadow: 2px 0 4px rgba(0,0,0,0.8);
+        }
+
+        /* GAME PIECES */
+        .warriorOne, .warriorTwo, .dragon, .treasure, 
+        .secretRoomOne, .secretRoomTwo, .treasureRoom {
+            position: absolute;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .warriorOne {
+            width: 70%;
+            height: 70%;
+            top: 15%;
+            left: 15%;
+            background: radial-gradient(circle, #4a90d9 0%, #2563a0 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(74, 144, 217, 0.6);
+            animation: pulse 2s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: calc(var(--cell-size) * 0.45);
+        }
+
+        .warriorOne::after {
+            content: '⚔️';
+        }
+
+        .warriorTwo {
+            width: 70%;
+            height: 70%;
+            top: 15%;
+            left: 15%;
+            background: radial-gradient(circle, #9b59b6 0%, #6c3483 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(155, 89, 182, 0.6);
+            animation: pulse 2s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: calc(var(--cell-size) * 0.45);
+        }
+
+        .warriorTwo::after {
+            content: '🛡️';
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .dragon {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            background: radial-gradient(circle, #e74c3c 0%, #8b0000 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.8);
+            animation: dragonGlow 1.5s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: calc(var(--cell-size) * 0.5);
+        }
+
+        .dragon::after {
+            content: '🐉';
+        }
+
+        @keyframes dragonGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        .treasure {
+            width: 50%;
+            height: 50%;
+            top: 25%;
+            left: 25%;
+            background: radial-gradient(circle, #f1c40f 0%, #c9a227 100%);
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.8);
+            animation: treasureShine 3s ease-in-out infinite;
+        }
+
+        .treasure.withWarrior {
+            width: 30%;
+            height: 30%;
+            top: 5%;
+            left: 5%;
+        }
+
+        @keyframes treasureShine {
+            0%, 100% { filter: brightness(1) saturate(1); }
+            50% { filter: brightness(1.4) saturate(1.2); }
+        }
+
+        .secretRoomOne, .secretRoomTwo {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border: 3px dashed;
+            box-sizing: border-box;
+            opacity: 0.6;
+        }
+
+        .secretRoomOne {
+            border-color: #4a90d9;
+        }
+
+        .secretRoomTwo {
+            border-color: #9b59b6;
+        }
+
+        .treasureRoom {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border: 3px solid var(--gold);
+            box-sizing: border-box;
+            animation: treasurePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes treasurePulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+        }
+
+        /* MENU */
+        #menu {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5vmin;
+            width: 100%;
+            max-width: calc(var(--cell-size) * 9);
+            padding: 1.5vmin 2vmin;
+            background: var(--stone-mid);
+            border: 1px solid var(--stone-light);
+        }
+
+        #menu a, #menu button {
+            font-family: 'Cinzel', serif;
+            font-size: max(0.7rem, 1.4vmin);
+            color: var(--gold);
+            background: transparent;
+            border: 1px solid var(--gold-dim);
+            padding: 1vmin 2vmin;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        #menu a:hover, #menu button:hover {
+            background: var(--gold-dim);
+            color: var(--stone-dark);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5vmin;
+            color: var(--gold-dim);
+            font-size: max(0.7rem, 1.4vmin);
+            white-space: nowrap;
+        }
+
+        .menu-item input[type="checkbox"] {
+            accent-color: var(--gold);
+            width: max(14px, 1.8vmin);
+            height: max(14px, 1.8vmin);
+        }
+
+        .menu-item.dragon-toggle {
+            padding: 0.8vmin 1.5vmin;
+            background: var(--stone-dark);
+            border: 1px solid var(--gold-dim);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item.dragon-toggle:hover {
+            background: var(--stone-light);
+        }
+
+        .menu-item.dragon-toggle.active {
+            background: var(--blood);
+            border-color: #cc0000;
+        }
+
+        /* HELP MESSAGE */
+        #helpMessage {
+            display: none;
+            max-width: calc(var(--cell-size) * 9);
+            padding: 1.5vmin 2vmin;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--gold-dim);
+            font-size: max(0.8rem, 1.5vmin);
+            text-align: center;
+            min-height: 5vmin;
+        }
+
+        #helpMessage.show {
+            display: block;
+        }
+
+        /* DEBUG STYLES */
+        body.debug .col.chamber .cell {
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #container.layoutDebug .southWall,
+        #container.layoutDebug .eastWall {
+            visibility: visible !important;
+            opacity: 0.3;
+        }
+
+        .northWallDebug { border-top: 2px solid red !important; }
+        .eastWallDebug { border-right: 2px solid red !important; }
+        .southWallDebug { border-bottom: 2px solid red !important; }
+        .westWallDebug { border-left: 2px solid red !important; }
+
+        .northOpenDebug { border-top: 2px solid green !important; }
+        .eastOpenDebug { border-right: 2px solid green !important; }
+        .southOpenDebug { border-bottom: 2px solid green !important; }
+        .westOpenDebug { border-left: 2px solid green !important; }
+
+        .northDoorDebug { border-top: 2px solid blue !important; }
+        .eastDoorDebug { border-right: 2px solid blue !important; }
+        .southDoorDebug { border-bottom: 2px solid blue !important; }
+        .westDoorDebug { border-left: 2px solid blue !important; }
+
+        .traveledDebug { background-color: rgba(255,255,0,0.2) !important; }
+        .travelingDebug { background-color: rgba(255,0,0,0.3) !important; }
+        .treasureOptionDebug { background-color: rgba(0,255,0,0.2) !important; }
+        .treasureDebug { background-color: rgba(255,215,0,0.4) !important; }
+
+        /* Landscape optimization */
+        @media (max-aspect-ratio: 1/1) {
+            :root {
+                --cell-size: min(11vw, 9vh);
+            }
+        }
+    </style>
+</head>
+<body class="play">
+    <main>
+        <div id="container">
+            <div id="board"></div>
+            <div id="menu">
+                <button id="reset">Reset</button>
+                <div class="menu-item">
+                    <input id="help" type="checkbox" value="help" /> 
+                    <label for="help">Help</label> 
+                </div>
+                <div id="dragonToggle" class="menu-item dragon-toggle">
+                    🐉 Show Dragon
+                </div>
+            </div>
+            <div id="helpMessage"></div>
+        </div>
+    </main>
+
+    <script>
+    const labyrinth = {
+        VERSION: 2.0,
+        
+        // Enums
+        DIR_TYPE: { North: 0, East: 1, South: 2, West: 3 },
+        PATH_TYPE: { Undefined: 0, Open: 1, Wall: 2, Door: 3 },
+        GAME_STATE: { 
+            Wait: 0, 
+            WarriorOneSelectRoom: 1, 
+            WarriorTwoSelectRoom: 2, 
+            WarriorOneTurn: 3, 
+            WarriorTwoTurn: 4, 
+            GameOver: 5 
+        },
+        DRAGON_STATE: { Asleep: 0, Awake: 1 },
+
+        // Settings
+        settings: {
+            debug: false,
+            travelSpeed: 200,
+            doorProb: 0.1,
+            wallProb: 0.8,
+            removeWallThreshold: 2,
+            removeWallProb: 0,
+            edgeWallBias: true,
+            treasureRoomDistance: 3,
+            maxLives: 3,
+            baseMoves: 2,
+            movesPerLife: 2,
+            movesWithTreasure: 4,
+            doorClosedProb: 0.2,
+            dragonWakeDistance: 3,
+            dragonFollows: 1,
+            iconCount: 16
+        },
+
+        // DOM Elements
+        elements: {
+            board: null,
+            grid: null,
+            buttons: [],
+            chambers: [],
+            help: null
+        },
+
+        // Maze State
+        maze: {
+            chamberPaths: [],
+            stack: null,
+            visited: {},
+            lastChamber: null,
+            cancelTravel: false
+        },
+
+        // Game State
+        game: {
+            init: false,
+            state: 0,
+            delayTimeout: null,
+            numberOfWarriors: 1,
+            warrior: [
+                { lives: null, secretRoom: null, position: null, moves: null },
+                { lives: null, secretRoom: null, position: null, moves: null }
+            ],
+            dragon: { position: null, state: null, visible: false },
+            treasure: { room: null, warrior: -1, visible: false },
+            switchButtonOn: false,
+            level: 1,
+            help: null,
+            helpTimeout: null,
+            helpMessage: "",
+            showDragonAlways: false
+        },
+
+        // Audio
+        audio: {
+            on: new Audio("audio/on.mp3"),
+            levelOne: new Audio("audio/levelOne.mp3"),
+            levelTwo: new Audio("audio/levelTwo.mp3"),
+            dragonFlying: new Audio("audio/dragonFlying.mp3"),
+            defeat: new Audio("audio/defeat.mp3"),
+            dragonAttacks: new Audio("audio/dragonAttacks.mp3"),
+            dragonWakes: new Audio("audio/dragonWakes.mp3"),
+            wall: new Audio("audio/wall.mp3"),
+            door: new Audio("audio/door.mp3"),
+            illegalMove: new Audio("audio/illegalMove.mp3"),
+            warriorMoves: new Audio("audio/warriorMoves.mp3"),
+            warriorOne: new Audio("audio/warriorOne.mp3"),
+            winner: new Audio("audio/winner.mp3"),
+            warriorTwo: new Audio("audio/warriorTwo.mp3"),
+            treasure: new Audio("audio/treasure.mp3")
+        },
+
+        serialAudio: new Audio(),
+        audioPlayResolve: null,
+        audioPlayTimeout: null,
+
+        boardIcons: [
+                1,2,3,4,1,2,3,4,
+                5,6,7,8,5,6,7,8,
+                9,10,11,12,9,10,11,12,
+                13,14,15,16,13,14,15,16,
+                1,2,3,4,1,2,3,4,
+                5,6,7,8,5,6,7,8,
+                9,10,11,12,9,10,11,12,
+                13,14,15,16,13,14,15,16,
+            ],
+
+        // Utility Methods
+        log(msg) {
+            if (this.settings.debug) console.log(msg);
+        },
+
+        trackEvent(action, category, label, value) {
+            if (window.gaEnabled) {
+                try {
+                    gtag('event', action, {
+                        'event_category': category,
+                        'event_label': label,
+                        'value': value
+                    });
+                } catch (ex) {}
+            }
+        },
+
+        getRandomIcon() {
+            const iconNum = Math.floor(Math.random() * this.settings.iconCount) + 1;
+            const paddedNum = iconNum.toString().padStart(2, '0');
+            return `icons/${paddedNum}_icon.png`;
+        },
+
+        getIcon(num) {
+            const paddedNum = num.toString().padStart(2, '0');
+            return `icons/${paddedNum}_icon.png`;
+        },
+
+        // Audio Methods
+        audioMetadataListener() {
+            const duration = this.serialAudio.duration;
+            this.audioPlayTimeout = setTimeout(() => {
+                this.audioPlayTimeout = null;
+                const resolve = this.audioPlayResolve;
+                this.audioPlayResolve = null;
+                if (resolve) resolve();
+            }, duration * 1000);
+        },
+
+        playAudio(audio) {
+            return new Promise((resolve) => {
+                if (this.audioPlayTimeout && this.audioPlayResolve) {
+                    clearTimeout(this.audioPlayTimeout);
+                    this.audioPlayTimeout = null;
+                    const previousResolve = this.audioPlayResolve;
+                    this.audioPlayResolve = null;
+                    previousResolve();
+                }
+                this.audioPlayResolve = resolve;
+                this.serialAudio.src = audio.src;
+                this.serialAudio.play().catch(() => {
+                    // Audio play failed, resolve anyway
+                    setTimeout(resolve, 500);
+                });
+            });
+        },
+
+        // Initialization
+        init() {
+            if (!window.URL || !window.Promise) {
+                alert("Sorry! Your browser is not supported.");
+                return;
+            }
+
+            const location = new URL(document.location);
+            if (location.searchParams.get("debug") === "1") {
+                this.settings.debug = true;
+            }
+            
+            const travelSpeed = location.searchParams.get("travelSpeed");
+            if (!isNaN(parseInt(travelSpeed))) {
+                this.settings.travelSpeed = parseInt(travelSpeed);
+            }
+
+            if (this.settings.debug) {
+                document.body.classList.add("debug");
+                document.getElementById("container").classList.add("layoutDebug");
+            } else {
+                document.addEventListener("contextmenu", (e) => e.preventDefault(), false);
+            }
+
+            this.loadSettings();
+            this.initMenus();
+            this.initAudio();
+            // Auto-start the game
+            this.reset();
+            this.game.init = true;
+        },
+
+        loadSettings() {
+            try {
+                const helpEnabled = localStorage.getItem("helpEnabled");
+                this.toggleHelp(helpEnabled === null || helpEnabled === "true");
+            } catch (ex) {}
+        },
+
+        saveSetting(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (ex) {}
+        },
+
+        toggleHelp(checked) {
+            const helpCheckbox = document.getElementById("help");
+            helpCheckbox.checked = checked;
+            const helpMessage = document.getElementById("helpMessage");
+            helpMessage.className = checked ? "show" : "";
+            this.saveSetting("helpEnabled", checked);
+        },
+
+        initMenus() {
+            document.getElementById("reset").onclick = () => {
+                this.trackEvent("Game Reset");
+                this.reset();
+            };
+
+            document.getElementById("help").onclick = function() {
+                labyrinth.trackEvent("Help " + (this.checked ? "Enabled" : "Disabled"));
+                labyrinth.toggleHelp(this.checked);
+            };
+
+            document.getElementById("dragonToggle").onclick = () => {
+                this.toggleDragonVisibility();
+            };
+        },
+
+        toggleDragonVisibility() {
+            this.game.showDragonAlways = !this.game.showDragonAlways;
+            const toggle = document.getElementById("dragonToggle");
+            toggle.classList.toggle("active", this.game.showDragonAlways);
+            toggle.textContent = this.game.showDragonAlways ? "🐉 Hide Dragon" : "🐉 Show Dragon";
+            this.renderDragonPosition();
+        },
+
+        initAudio() {
+            this.audioIndex = [
+                [this.audio.dragonFlying, this.audio.dragonAttacks, this.audio.wall, 
+                 this.audio.illegalMove, this.audio.warriorOne, this.audio.warriorTwo],
+                [this.audio.defeat, this.audio.dragonWakes, this.audio.door,
+                 this.audio.warriorMoves, this.audio.winner, this.audio.treasure]
+            ];
+            
+            this.audioNameIndex = [
+                ["Dragon Flying", "Dragon Attacks", "Wall", "Illegal Move", "Warrior One", "Warrior Two"],
+                ["Defeat", "Dragon Wakes", "Door", "Warrior Moves", "Winner", "Treasure"]
+            ];
+
+            this.serialAudio.addEventListener("loadedmetadata", () => {
+                this.audioMetadataListener();
+            }, false);
+        },
+
+        // Board Setup
+        initBoard() {
+            this.elements.help = document.getElementById("helpMessage");
+            this.elements.board = document.getElementById("board");
+            this.elements.board.innerHTML = "";
+            
+            this.elements.grid = document.createElement("div");
+            this.elements.grid.id = "grid";
+            
+            this.elements.buttons = [];
+            this.elements.chambers = [];
+            this.maze.chamberPaths = [];
+
+            var tileCount = 0;
+
+            for (let r = 0; r < 8; r++) {
+                this.maze.chamberPaths.push([]);
+                const row = document.createElement("div");
+                row.className = "row";
+
+                for (let c = 0; c < 9; c++) {
+                    const col = document.createElement("div");
+                    col.className = "col";
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+
+                    if (c === 0) {
+                        // Button column
+                        col.id = `button-${r}`;
+                        col.classList.add("button");
+
+                        if (r === 0) {
+                            col.classList.add("switch");
+                            col.onmousedown = () => this.toggleSwitch();
+                        } else if (r === 1) {
+                            cell.textContent = "NEXT";
+                            col.onmousedown = (e) => {
+                                if (e.button === 0) this.nextTurn();
+                                else if (e.button === 2) this.toggleLevel();
+                            };
+                        } else {
+                            cell.textContent = `S${r - 1}`;
+                            col.onmousedown = (e) => {
+                                const secondary = e.button === 2 || this.game.switchButtonOn;
+                                this.playAudioClick(r - 2, secondary);
+                            };
+                        }
+                        this.elements.buttons.push(col);
+                    } else {
+                        // Chamber cell
+                        this.maze.chamberPaths[r].push([
+                            r === 0 ? this.PATH_TYPE.Wall : this.PATH_TYPE.Undefined,
+                            c === 8 ? this.PATH_TYPE.Wall : this.PATH_TYPE.Undefined,
+                            r === 7 ? this.PATH_TYPE.Wall : this.PATH_TYPE.Undefined,
+                            c === 1 ? this.PATH_TYPE.Wall : this.PATH_TYPE.Undefined
+                        ]);
+
+                        col.id = `chamber-${r}-${c - 1}`;
+                        col.classList.add("chamber");
+                        col.style.backgroundImage = `url('${this.getIcon(this.boardIcons[tileCount])}')`;
+                        tileCount++;
+                        cell.onmousedown = (e) => this.chamberSelect([r, c - 1], e);
+
+                        if (r === 0) this.elements.chambers.push([]);
+                        this.elements.chambers[r].push(col);
+
+                        // Add wall elements
+                        if (r < 7) {
+                            const southWall = document.createElement("div");
+                            southWall.className = "southWall";
+                            col.appendChild(southWall);
+                        }
+                        if (c < 8) {
+                            const eastWall = document.createElement("div");
+                            eastWall.className = "eastWall";
+                            col.appendChild(eastWall);
+                        }
+                    }
+
+                    col.appendChild(cell);
+                    row.appendChild(col);
+                }
+                this.elements.grid.appendChild(row);
+            }
+            this.elements.board.appendChild(this.elements.grid);
+        },
+
+        // Maze Generation
+        showSep(row, col, dir, type) {
+            if (!this.settings.debug) return;
+            
+            const classSuffix = type === this.PATH_TYPE.Wall ? "WallDebug" : 
+                               (type === this.PATH_TYPE.Door ? "DoorDebug" : "OpenDebug");
+            const chamberCell = this.elements.chambers[row][col].querySelector(".cell");
+            const prefixes = ["north", "east", "south", "west"];
+            const classPrefix = prefixes[dir];
+            
+            chamberCell.className = chamberCell.className
+                .replace(new RegExp(`\\s${classPrefix}[^\\s]+`), "") + ` ${classPrefix}${classSuffix}`;
+        },
+
+        setPath(row, col, dir, type) {
+            const chamberPaths = this.maze.chamberPaths;
+            chamberPaths[row][col][dir] = type;
+
+            if (dir === this.DIR_TYPE.East || dir === this.DIR_TYPE.South) {
+                this.showSep(row, col, dir, type);
+            }
+
+            // Update adjacent cell's path
+            if (dir === this.DIR_TYPE.North && row !== 0) {
+                chamberPaths[row - 1][col][this.DIR_TYPE.South] = type;
+                this.showSep(row - 1, col, this.DIR_TYPE.South, type);
+            } else if (dir === this.DIR_TYPE.East && col !== 7) {
+                chamberPaths[row][col + 1][this.DIR_TYPE.West] = type;
+            } else if (dir === this.DIR_TYPE.South && row !== 7) {
+                chamberPaths[row + 1][col][this.DIR_TYPE.North] = type;
+            } else if (dir === this.DIR_TYPE.West && col !== 0) {
+                chamberPaths[row][col - 1][this.DIR_TYPE.East] = type;
+                this.showSep(row, col - 1, this.DIR_TYPE.East, type);
+            }
+        },
+
+        getPaths(row, col) {
+            const p = this.maze.chamberPaths[row][col];
+            return { north: p[0], east: p[1], south: p[2], west: p[3] };
+        },
+
+        wallOrNot() {
+            return Math.random() <= this.settings.wallProb ? this.PATH_TYPE.Wall : this.openOrDoor();
+        },
+
+        openOrDoor() {
+            return Math.random() <= this.settings.doorProb ? this.PATH_TYPE.Door : this.PATH_TYPE.Open;
+        },
+
+        travelMaze() {
+            return new Promise((resolve) => {
+                const stack = this.maze.stack;
+                const pos = stack[stack.length - 1];
+                const visited = this.maze.visited;
+                const chamberPaths = this.maze.chamberPaths;
+                const row = pos[0];
+                const col = pos[1];
+
+                visited[`${row}_${col}`] = true;
+
+                if (this.settings.debug) {
+                    const chamber = this.elements.chambers[row][col];
+                    if (!chamber.classList.contains("traveledDebug")) {
+                        chamber.classList.add("traveledDebug");
+                    }
+                    chamber.classList.add("travelingDebug");
+                    if (this.maze.lastChamber) {
+                        this.maze.lastChamber.classList.remove("travelingDebug");
+                    }
+                    this.maze.lastChamber = chamber;
+                    const chamberCell = chamber.querySelector(".cell");
+                    if (chamberCell.innerHTML === "") chamberCell.innerHTML = stack.length;
+                }
+
+                // Edge wall bias checks
+                const { edgeWallBias, wallProb } = this.settings;
+                if (edgeWallBias && row > 0 && chamberPaths[row][col][0] === this.PATH_TYPE.Undefined && 
+                    visited[`${row - 1}_${col}`]) {
+                    this.setPath(row, col, this.DIR_TYPE.North, this.wallOrNot());
+                }
+                if (edgeWallBias && col < 7 && chamberPaths[row][col][1] === this.PATH_TYPE.Undefined && 
+                    visited[`${row}_${col + 1}`]) {
+                    this.setPath(row, col, this.DIR_TYPE.East, this.wallOrNot());
+                }
+                if (edgeWallBias && row < 7 && chamberPaths[row][col][2] === this.PATH_TYPE.Undefined && 
+                    visited[`${row + 1}_${col}`]) {
+                    this.setPath(row, col, this.DIR_TYPE.South, this.wallOrNot());
+                }
+                if (edgeWallBias && col > 0 && chamberPaths[row][col][3] === this.PATH_TYPE.Undefined && 
+                    visited[`${row}_${col - 1}`]) {
+                    this.setPath(row, col, this.DIR_TYPE.West, this.wallOrNot());
+                }
+
+                // Find available directions
+                const opts = [];
+                const paths = this.getPaths(row, col);
+
+                if (paths.north === this.PATH_TYPE.Undefined) {
+                    opts.push(this.DIR_TYPE.North);
+                } else if (edgeWallBias && row === 0 && paths.south === this.PATH_TYPE.Undefined) {
+                    opts.push(this.DIR_TYPE.South, this.DIR_TYPE.South);
+                }
+
+                if (paths.east === this.PATH_TYPE.Undefined) {
+                    opts.push(this.DIR_TYPE.East);
+                } else if (edgeWallBias && col === 7 && paths.west === this.PATH_TYPE.Undefined) {
+                    opts.push(this.DIR_TYPE.West, this.DIR_TYPE.West);
+                }
+
+                if (paths.south === this.PATH_TYPE.Undefined) {
+                    opts.push(this.DIR_TYPE.South);
+                } else if (edgeWallBias && row === 7 && paths.north === this.PATH_TYPE.Undefined) {
+                    opts.push(this.DIR_TYPE.North, this.DIR_TYPE.North);
+                }
+
+                if (paths.west === this.PATH_TYPE.Undefined) {
+                    opts.push(this.DIR_TYPE.West);
+                } else if (edgeWallBias && col === 0 && paths.east === this.PATH_TYPE.Undefined) {
+                    opts.push(this.DIR_TYPE.East, this.DIR_TYPE.East);
+                }
+
+                if (opts.length === 0) {
+                    if (this.settings.debug) {
+                        const [popRow, popCol] = stack[stack.length - 1];
+                        const cell = this.elements.chambers[popRow][popCol].querySelector(".cell");
+                        cell.innerHTML = "";
+                    }
+                    stack.pop();
+                } else {
+                    const dir = opts[Math.floor(Math.random() * opts.length)];
+                    this.setPath(row, col, dir, this.openOrDoor());
+                    stack.push([
+                        row + (dir === this.DIR_TYPE.North ? -1 : (dir === this.DIR_TYPE.South ? 1 : 0)),
+                        col + (dir === this.DIR_TYPE.West ? -1 : (dir === this.DIR_TYPE.East ? 1 : 0))
+                    ]);
+                }
+
+                if (!this.maze.cancelTravel && stack.length > 0) {
+                    if (this.settings.debug) {
+                        setTimeout(() => this.travelMaze().then(resolve), this.settings.travelSpeed);
+                    } else {
+                        this.travelMaze().then(resolve);
+                    }
+                } else {
+                    resolve();
+                }
+            });
+        },
+
+        removeWalls() {
+            return new Promise((resolve) => {
+                if (this.settings.removeWallProb > 0 && this.settings.removeWallThreshold < 4) {
+                    const chamberPaths = this.maze.chamberPaths;
+                    for (let r = 1; r < 7; r++) {
+                        for (let c = 1; c < 7; c++) {
+                            const opts = [];
+                            for (let dir = 0; dir < 4; dir++) {
+                                if (chamberPaths[r][c][dir] === this.PATH_TYPE.Wall) {
+                                    opts.push(dir);
+                                }
+                            }
+                            if (opts.length >= this.settings.removeWallThreshold && 
+                                Math.random() <= this.settings.removeWallProb) {
+                                const removeDir = Math.floor(Math.random() * opts.length);
+                                this.setPath(r, c, opts[removeDir], this.openOrDoor());
+                            }
+                        }
+                    }
+                }
+                resolve();
+            });
+        },
+
+        initMaze() {
+            return new Promise((resolve) => {
+                this.maze.stack = [[Math.floor(Math.random() * 8), Math.floor(Math.random() * 8)]];
+                this.maze.visited = {};
+                this.maze.lastChamber = null;
+                this.maze.cancelTravel = false;
+                
+                this.travelMaze().then(() => {
+                    setTimeout(() => this.removeWalls().then(resolve), this.settings.travelSpeed);
+                });
+            });
+        },
+
+        // Game Control
+        reset() {
+            this.initBoard();
+            this.initMaze().then(() => this.startGame());
+        },
+
+        startGame() {
+            this.game.level = 1;
+            this.game.numberOfWarriors = 1;
+            this.game.warrior = [
+                { lives: this.settings.maxLives, secretRoom: null, position: null, moves: null },
+                { lives: this.settings.maxLives, secretRoom: null, position: null, moves: null }
+            ];
+            this.game.treasure = { room: null, warrior: -1, visible: false };
+            this.game.dragon = { position: null, state: this.DRAGON_STATE.Asleep, visible: false };
+            this.selectWarriorRoom(0);
+        },
+
+        toggleSwitch() {
+            this.game.switchButtonOn = !this.game.switchButtonOn;
+            this.elements.buttons[0].classList.toggle("selected", this.game.switchButtonOn);
+        },
+
+        toggleSwitchOff() {
+            if (this.game.switchButtonOn) {
+                this.elements.buttons[0].classList.remove("selected");
+                this.game.switchButtonOn = false;
+            }
+        },
+
+        toggleLevel() {
+            this.game.level = this.game.level === 1 ? 2 : 1;
+            const sound = this.game.level === 1 ? this.audio.levelOne : this.audio.levelTwo;
+            this.help(`Switched to game level ${this.game.level === 1 ? "one (no doors)" : "two (with doors)"}`);
+            this.playAudio(sound);
+        },
+
+        playAudioClick(index, secondary) {
+            if (!secondary) secondary = this.game.switchButtonOn;
+            this.toggleSwitchOff();
+            const message = `Playing sound "${this.audioNameIndex[secondary ? 1 : 0][index]}"`;
+            this.help(message, true, true);
+            const timestamp = Date.now();
+            this.playAudio(this.audioIndex[secondary ? 1 : 0][index]).then(() => {
+                const duration = Date.now() - timestamp;
+                if (duration < 1000) {
+                    setTimeout(() => this.resetHelpMessage(), 1000 - duration);
+                } else {
+                    this.resetHelpMessage();
+                }
+            });
+        },
+
+        numToText(warriorNumber, oneText = "one", twoText = "two") {
+            return warriorNumber === 0 ? oneText : twoText;
+        },
+
+        selectWarriorRoom(warriorNumber) {
+            this.game.state = warriorNumber === 0 ? 
+                this.GAME_STATE.WarriorOneSelectRoom : this.GAME_STATE.WarriorTwoSelectRoom;
+            this.playAudio(warriorNumber === 0 ? this.audio.warriorOne : this.audio.warriorTwo);
+            this.help(`Pick a secret room for warrior ${this.numToText(warriorNumber)} ${
+                warriorNumber === 0 ? 'or tap "Next Turn" for a one player game' : ''}`);
+            this.log(`Select secret room for warrior ${this.numToText(warriorNumber)}`);
+        },
+
+        illegalWarriorRoom(warriorNumber) {
+            this.log(`No room selected for warrior ${this.numToText(warriorNumber)}`);
+            this.help("Invalid secret room", true);
+            this.playAudio(this.audio.illegalMove);
+        },
+
+        nextTurn() {
+            if (this.game.switchButtonOn) {
+                this.toggleSwitchOff();
+                this.toggleLevel();
+                return;
+            }
+
+            switch (this.game.state) {
+                case this.GAME_STATE.WarriorOneSelectRoom:
+                    if (!this.game.warrior[0].secretRoom) {
+                        this.illegalWarriorRoom(0);
+                    } else {
+                        this.selectWarriorRoom(1);
+                    }
+                    break;
+                case this.GAME_STATE.WarriorTwoSelectRoom:
+                    this.startTurns();
+                    break;
+                case this.GAME_STATE.WarriorOneTurn:
+                    this.finishWarriorTurn(0);
+                    break;
+                case this.GAME_STATE.WarriorTwoTurn:
+                    this.finishWarriorTurn(1);
+                    break;
+            }
+        },
+
+        startTurns() {
+            document.body.classList.add("gameStarted");
+            this.game.numberOfWarriors = this.game.warrior[1].secretRoom ? 2 : 1;
+            this.log(`Number of players: ${this.game.numberOfWarriors}`);
+            this.setTreasureRoom();
+            this.log(`Treasure room at: ${this.game.treasure.room}`);
+            this.warriorTurn(0);
+        },
+
+        warriorTurn(warriorNumber) {
+            this.game.state = warriorNumber === 0 ? 
+                this.GAME_STATE.WarriorOneTurn : this.GAME_STATE.WarriorTwoTurn;
+            const moves = this.resetWarriorMoves(warriorNumber);
+            const message = `Warrior ${this.numToText(warriorNumber)}'s turn with ${moves} move${moves === 1 ? '' : 's'}`;
+            this.help(message);
+            this.log(message);
+            this.playAudio(warriorNumber === 0 ? this.audio.warriorOne : this.audio.warriorTwo);
+        },
+
+        illegalMove(warriorNumber, chamber) {
+            this.help(`Illegal move for warrior ${this.numToText(warriorNumber)}`, true);
+            this.log(`Illegal move to ${chamber} for warrior ${this.numToText(warriorNumber)}`);
+            this.playAudio(this.audio.illegalMove);
+        },
+
+        chamberSelect(chamber, event) {
+            if (this.game.delayTimeout || this.audioPlayTimeout) return;
+
+            this.game.delayTimeout = setTimeout(() => { this.game.delayTimeout = null; }, 250);
+
+            switch (this.game.state) {
+                case this.GAME_STATE.WarriorOneSelectRoom:
+                    this.setWarriorRoom(0, chamber);
+                    break;
+                case this.GAME_STATE.WarriorTwoSelectRoom:
+                    const w0Room = this.game.warrior[0].secretRoom;
+                    if (chamber[0] === w0Room[0] && chamber[1] === w0Room[1]) {
+                        this.playAudio(this.audio.illegalMove);
+                    } else {
+                        this.setWarriorRoom(1, chamber);
+                    }
+                    break;
+                case this.GAME_STATE.WarriorOneTurn:
+                case this.GAME_STATE.WarriorTwoTurn:
+                    const warriorNumber = this.game.state === this.GAME_STATE.WarriorOneTurn ? 0 : 1;
+                    this.warriorMoving(warriorNumber, chamber);
+                    break;
+                case this.GAME_STATE.GameOver:
+                    this.log("Ignoring selection since game is over");
+                    break;
+            }
+        },
+
+        setWarriorRoom(warriorNumber, chamber) {
+            this.help('Pick a different room or tap "Next Turn"');
+            this.log(`Secret room for warrior ${this.numToText(warriorNumber)} is ${chamber}`);
+
+            if (this.settings.debug) {
+                document.querySelectorAll(".traveledDebug,.travelingDebug").forEach(c => {
+                    c.classList.remove("traveledDebug", "travelingDebug");
+                });
+                const container = document.querySelector("#container:not(.layoutDebug)");
+                if (container) container.classList.add("layoutDebug");
+            }
+
+            this.playAudio(this.audio.warriorMoves);
+            this.removeSecretRoom(warriorNumber);
+
+            const markerClass = `secretRoom${this.numToText(warriorNumber, "One", "Two")}`;
+            const warriorMarker = document.createElement("div");
+            warriorMarker.className = markerClass;
+            this.elements.chambers[chamber[0]][chamber[1]].appendChild(warriorMarker);
+
+            this.game.warrior[warriorNumber].secretRoom = chamber;
+            this.game.warrior[warriorNumber].position = chamber;
+            this.renderWarriorPosition(warriorNumber);
+        },
+
+        removeSecretRoom(warriorNumber) {
+            const secretRoom = this.game.warrior[warriorNumber].secretRoom;
+            if (!secretRoom) return;
+            
+            const markerClass = `secretRoom${this.numToText(warriorNumber, "One", "Two")}`;
+            const chamberElement = this.elements.chambers[secretRoom[0]][secretRoom[1]];
+            const marker = chamberElement.querySelector(`.${markerClass}`);
+            if (marker) chamberElement.removeChild(marker);
+        },
+
+        warriorMoving(warriorNumber, chamber) {
+            if (this.settings.debug) {
+                document.querySelectorAll(".treasureOptionDebug,.treasureDebug").forEach(el => {
+                    el.classList.remove("treasureOptionDebug", "treasureDebug");
+                });
+            }
+
+            const position = this.game.warrior[warriorNumber].position;
+            const dir = this.getMoveDirection(position, chamber);
+
+            if (dir === null) {
+                this.illegalMove(warriorNumber, chamber);
+                return;
+            }
+
+            this.game.warrior[warriorNumber].moves--;
+            const type = this.getPathType(position, dir);
+            const warriorName = this.numToText(warriorNumber);
+
+            if (type === this.PATH_TYPE.Wall) {
+                const message = `Warrior ${warriorName} moves into wall`;
+                this.help(message, true);
+                this.log(message);
+                this.renderWall(position, dir);
+                this.playAudio(this.audio.wall).then(() => this.finishWarriorTurn(warriorNumber));
+            } else if (this.game.level === 2 && type === this.PATH_TYPE.Door) {
+                if (Math.random() <= this.settings.doorClosedProb) {
+                    const message = `Warrior ${warriorName} moves into closed door`;
+                    this.help(message);
+                    this.log(message);
+                    this.playAudio(this.audio.door).then(() => this.finishWarriorTurn(warriorNumber));
+                } else {
+                    this.log(`Warrior ${warriorName} moves successfully thru door`);
+                    this.warriorMoved(warriorNumber, chamber);
+                }
+            } else {
+                this.log(`Warrior ${warriorName} moves successfully`);
+                this.warriorMoved(warriorNumber, chamber);
+            }
+        },
+
+        warriorMoved(warriorNumber, chamber) {
+            this.playAudio(this.audio.warriorMoves).then(() => {
+                this.game.warrior[warriorNumber].position = chamber;
+                this.renderWarriorPosition(warriorNumber);
+                
+                this.checkTreasureFound(warriorNumber).then(() => {
+                    const secretRoom = this.game.warrior[warriorNumber].secretRoom;
+                    if (this.game.treasure.warrior === warriorNumber && 
+                        this.getDistance(chamber, secretRoom) === 0) {
+                        this.help(`Warrior ${this.numToText(warriorNumber)} wins!!`);
+                        this.log(`Warrior ${this.numToText(warriorNumber)} wins`);
+                        this.trackEvent("Game Won");
+                        this.game.warrior[warriorNumber].moves = 0;
+                        this.playAudio(this.audio.winner).then(() => {
+                            this.game.state = this.GAME_STATE.GameOver;
+                        });
+                    } else {
+                        this.checkWarriorBattle().then(() => {
+                            this.checkDragonWakes(warriorNumber).then(() => {
+                                this.checkDragonAttacks().then((attacked) => {
+                                    if (attacked) this.game.warrior[warriorNumber].moves = 0;
+                                    const remainingMoves = this.game.warrior[warriorNumber].moves;
+                                    if (remainingMoves === 0) {
+                                        this.finishWarriorTurn(warriorNumber);
+                                    } else {
+                                        const message = `Warrior ${this.numToText(warriorNumber)} has ${remainingMoves} move${remainingMoves === 1 ? '' : 's'} remaining`;
+                                        this.help(message);
+                                        this.log(message);
+                                    }
+                                });
+                            });
+                        });
+                    }
+                });
+            });
+        },
+
+        renderWall(position, dir) {
+            if (this.getPathType(position, dir) !== this.PATH_TYPE.Wall) return;
+
+            let wall = null;
+            if (dir === this.DIR_TYPE.North && position[0] !== 0) {
+                wall = this.elements.chambers[position[0] - 1][position[1]].querySelector(".southWall");
+            } else if (dir === this.DIR_TYPE.West && position[1] !== 0) {
+                wall = this.elements.chambers[position[0]][position[1] - 1].querySelector(".eastWall");
+            } else if (dir === this.DIR_TYPE.South && position[0] !== 7) {
+                wall = this.elements.chambers[position[0]][position[1]].querySelector(".southWall");
+            } else if (dir === this.DIR_TYPE.East && position[1] !== 7) {
+                wall = this.elements.chambers[position[0]][position[1]].querySelector(".eastWall");
+            }
+
+            if (wall) wall.style.visibility = "visible";
+        },
+
+        finishWarriorTurn(currentWarrior) {
+            if (this.game.state === this.GAME_STATE.GameOver) return;
+
+            if (currentWarrior === 0 && this.game.numberOfWarriors === 2 && 
+                this.game.warrior[1].lives > 0) {
+                this.warriorTurn(1);
+            } else {
+                this.moveDragon().then(() => {
+                    this.warriorTurn(this.game.warrior[0].lives > 0 ? 0 : 1);
+                });
+            }
+        },
+
+        // Rendering Methods
+        renderWarriorPosition(warriorNumber) {
+            this.removeWarrior(warriorNumber);
+            const name = `warrior${this.numToText(warriorNumber, "One", "Two")}`;
+            const position = this.game.warrior[warriorNumber].position;
+            const warriorMarker = document.createElement("div");
+            warriorMarker.id = name;
+            warriorMarker.className = name;
+            warriorMarker.style.zIndex = (position[0] * 100) + warriorNumber + 1;
+            this.elements.chambers[position[0]][position[1]].appendChild(warriorMarker);
+            if (this.game.treasure.warrior === warriorNumber) this.renderTreasurePosition();
+        },
+
+        removeWarrior(warriorNumber) {
+            const name = `warrior${this.numToText(warriorNumber, "One", "Two")}`;
+            const el = document.getElementById(name);
+            if (el) el.parentNode.removeChild(el);
+        },
+
+        renderDragonPosition() {
+            const existing = document.getElementById("dragon");
+            if (existing) existing.parentNode.removeChild(existing);
+
+            if (this.game.dragon.position && (this.game.dragon.visible || this.game.showDragonAlways || this.settings.debug)) {
+                const position = this.game.dragon.position;
+                const dragonMarker = document.createElement("div");
+                dragonMarker.id = "dragon";
+                dragonMarker.className = "dragon";
+                dragonMarker.style.zIndex = (position[0] * 100) + 4;
+                this.elements.chambers[position[0]][position[1]].appendChild(dragonMarker);
+            }
+        },
+
+        renderTreasurePosition() {
+            if (!this.game.treasure.visible && !this.settings.debug) return;
+
+            const existing = document.getElementById("treasure");
+            if (existing) existing.parentNode.removeChild(existing);
+
+            const withWarrior = this.game.treasure.warrior >= 0;
+            let position = this.game.treasure.room;
+            if (withWarrior) {
+                position = this.game.warrior[this.game.treasure.warrior].position;
+            }
+
+            const treasureMarker = document.createElement("div");
+            treasureMarker.id = "treasure";
+            treasureMarker.className = `treasure${withWarrior ? " withWarrior" : ""}`;
+            treasureMarker.style.zIndex = (position[0] * 100) + 3;
+            this.elements.chambers[position[0]][position[1]].appendChild(treasureMarker);
+        },
+
+        renderTreasureMarker() {
+            const treasureRoom = this.game.treasure.room;
+            const treasureMarker = document.createElement("div");
+            treasureMarker.className = "treasureRoom";
+            this.elements.chambers[treasureRoom[0]][treasureRoom[1]].appendChild(treasureMarker);
+        },
+
+        // Game Logic Methods
+        getDistance(posA, posB) {
+            return Math.abs(posA[0] - posB[0]) + Math.abs(posA[1] - posB[1]);
+        },
+
+        getMoveDirection(startPos, nextPos) {
+            if (this.getDistance(startPos, nextPos) !== 1) return null;
+
+            const y = startPos[0] - nextPos[0];
+            const x = startPos[1] - nextPos[1];
+
+            if (y === 1) return this.DIR_TYPE.North;
+            if (y === -1) return this.DIR_TYPE.South;
+            if (x === 1) return this.DIR_TYPE.West;
+            if (x === -1) return this.DIR_TYPE.East;
+            return null;
+        },
+
+        getPathType(position, dir) {
+            return this.maze.chamberPaths[position[0]][position[1]][dir];
+        },
+
+        resetWarriorMoves(warriorNumber) {
+            let moves = this.settings.movesPerLife + 
+                       (this.game.warrior[warriorNumber].lives * this.settings.movesPerLife);
+            if (this.game.treasure.warrior === warriorNumber) {
+                moves = this.settings.movesWithTreasure;
+            }
+            this.game.warrior[warriorNumber].moves = moves;
+            return moves;
+        },
+
+        warriorSafe(warriorNumber) {
+            return this.getDistance(
+                this.game.warrior[warriorNumber].position,
+                this.game.warrior[warriorNumber].secretRoom
+            ) === 0;
+        },
+
+        unsafeWarriors() {
+            const warriors = [];
+            if (this.game.warrior[0].lives > 0 && !this.warriorSafe(0)) warriors.push(0);
+            if (this.game.numberOfWarriors === 2 && this.game.warrior[1].lives > 0 && 
+                !this.warriorSafe(1)) warriors.push(1);
+            return warriors;
+        },
+
+        setTreasureRoom() {
+            const opts = [];
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if (this.getDistance([row, col], this.game.warrior[0].secretRoom) > this.settings.treasureRoomDistance) {
+                        if (this.game.numberOfWarriors === 1 || 
+                            this.getDistance([row, col], this.game.warrior[1].secretRoom) > this.settings.treasureRoomDistance) {
+                            opts.push([row, col]);
+                            if (this.settings.debug) {
+                                this.elements.chambers[row][col].classList.add("treasureOptionDebug");
+                            }
+                        }
+                    }
+                }
+            }
+
+            const treasurePos = opts[Math.floor(Math.random() * opts.length)];
+            this.game.treasure.room = treasurePos;
+            this.game.dragon.position = treasurePos;
+
+            if (this.settings.debug) {
+                this.elements.chambers[treasurePos[0]][treasurePos[1]].classList.add("treasureDebug");
+                this.renderDragonPosition();
+                this.renderTreasurePosition();
+            }
+        },
+
+        checkTreasureFound(warriorNumber) {
+            return new Promise((resolve) => {
+                const warriorPosition = this.game.warrior[warriorNumber].position;
+                const treasureRoom = this.game.treasure.room;
+
+                if (this.game.treasure.warrior < 0 && 
+                    this.getDistance(warriorPosition, treasureRoom) === 0) {
+                    const message = `Warrior ${this.numToText(warriorNumber)} found the treasure!`;
+                    this.trackEvent("Treasure Found");
+                    this.help(message, true);
+                    this.log(message);
+                    this.game.warrior[warriorNumber].moves = 0;
+                    this.game.treasure.warrior = warriorNumber;
+                    this.game.treasure.visible = true;
+                    this.renderTreasureMarker();
+                    this.renderTreasurePosition();
+                    this.playAudio(this.audio.treasure).then(resolve);
+                } else {
+                    resolve();
+                }
+            });
+        },
+
+        checkWarriorBattle() {
+            return new Promise((resolve) => {
+                const bothWarriorsLive = this.game.numberOfWarriors === 2 && 
+                    this.game.warrior[0].lives > 0 && this.game.warrior[1].lives > 0;
+
+                if (bothWarriorsLive && this.game.treasure.warrior >= 0 && 
+                    this.getDistance(this.game.warrior[0].position, this.game.warrior[1].position) === 0) {
+                    this.log("Warriors battle for the treasure");
+                    const winner = Math.floor(Math.random() * 2);
+                    const message = `Warrior ${winner === 0 ? "one" : "two"} ${
+                        winner === this.game.treasure.warrior ? "keeps" : "steals"} the treasure`;
+                    this.game.treasure.warrior = winner;
+                    this.help(message);
+                    this.log(message);
+                    this.playAudio(winner === 0 ? this.audio.warriorOne : this.audio.warriorTwo)
+                        .then(() => this.playAudio(this.audio.treasure))
+                        .then(resolve);
+                } else {
+                    resolve();
+                }
+            });
+        },
+
+        checkDragonWakes(warriorNumber) {
+            return new Promise((resolve) => {
+                if (this.game.dragon.state !== this.DRAGON_STATE.Asleep) {
+                    resolve();
+                    return;
+                }
+
+                if (this.getDistance(this.game.warrior[warriorNumber].position,
+                    this.game.warrior[warriorNumber].secretRoom) !== 0) {
+                    const dragonDistance = this.getDistance(
+                        this.game.warrior[warriorNumber].position,
+                        this.game.dragon.position
+                    );
+
+                    if (dragonDistance <= this.settings.dragonWakeDistance) {
+                        this.help("Dragon awakes!");
+                        this.log("Dragon awakes");
+                        this.trackEvent("Dragon Awakes");
+                        this.playAudio(this.audio.dragonWakes).then(() => {
+                            this.help("");
+                            this.game.dragon.state = this.DRAGON_STATE.Awake;
+                            resolve();
+                        });
+                        return;
+                    }
+                }
+                resolve();
+            });
+        },
+
+        moveDragon() {
+            return new Promise((resolve) => {
+                if (this.game.dragon.state !== this.DRAGON_STATE.Awake) {
+                    resolve();
+                    return;
+                }
+
+                let dragonFlies = true;
+                let moveTowards = null;
+                let followWarrior = -1;
+
+                if (this.game.treasure.warrior < 0) {
+                    const warriors = this.unsafeWarriors();
+                    if (warriors.length === 2) {
+                        const d0 = this.getDistance(this.game.dragon.position, this.game.warrior[0].position);
+                        const d1 = this.getDistance(this.game.dragon.position, this.game.warrior[1].position);
+                        followWarrior = d0 < d1 ? 0 : (d0 > d1 ? 1 : Math.floor(Math.random() * 2));
+                    } else {
+                        followWarrior = warriors[0];
+                    }
+                }
+
+                if (this.game.treasure.warrior >= 0) {
+                    followWarrior = this.game.treasure.warrior;
+                    this.help(`Dragon follows treasure with warrior ${followWarrior === 0 ? "one" : "two"}`, true);
+                    this.log(`Dragon follows treasure with warrior ${followWarrior === 0 ? "one" : "two"}`);
+                    moveTowards = this.game.warrior[followWarrior].position;
+                } else if (followWarrior >= 0) {
+                    const message = `Dragon follows warrior ${followWarrior === 0 ? "one" : "two"}`;
+                    if (this.game.dragon.visible) {
+                        this.help(message, true);
+                    } else {
+                        let warriorText = "closest warrior";
+                        if (this.game.numberOfWarriors === 1 || this.game.warrior[1].lives === 0) {
+                            warriorText = "warrior one";
+                        } else if (this.game.numberOfWarriors === 2 && this.game.warrior[0].lives === 0) {
+                            warriorText = "warrior two";
+                        }
+                        this.help(`Dragon follows ${warriorText}`, true);
+                    }
+                    this.log(message);
+                    moveTowards = this.game.warrior[followWarrior].position;
+                } else if (this.getDistance(this.game.dragon.position, this.game.treasure.room) > 0) {
+                    this.log("Dragon returns towards treasure");
+                    if (!this.game.treasure.visible) {
+                        this.help("Dragon moves to an unknown location towards the treasure room", true);
+                        this.log("Hiding dragon since the treasure room location is unknown");
+                        this.game.dragon.visible = false;
+                    } else {
+                        this.help("Dragon moves back towards the treasure room", true);
+                    }
+                    moveTowards = this.game.treasure.room;
+                } else {
+                    this.log("Dragon stays in treasure room");
+                    if (!this.game.treasure.visible) {
+                        this.game.dragon.visible = false;
+                    }
+                    dragonFlies = false;
+                }
+
+                if (dragonFlies) {
+                    if (moveTowards) {
+                        const lastPosition = this.game.dragon.position;
+                        const moveY = Math.sign(moveTowards[0] - lastPosition[0]);
+                        const moveX = Math.sign(moveTowards[1] - lastPosition[1]);
+                        this.game.dragon.position = [lastPosition[0] + moveY, lastPosition[1] + moveX];
+                        this.renderDragonPosition();
+                    }
+                    this.playAudio(this.audio.dragonFlying)
+                        .then(() => this.checkDragonAttacks())
+                        .then(resolve);
+                } else {
+                    resolve();
+                }
+            });
+        },
+
+        checkDragonAttacks() {
+            return new Promise((resolve) => {
+                const warriors = this.unsafeWarriors();
+                const threatenedWarriors = warriors.filter(w => 
+                    this.getDistance(this.game.dragon.position, this.game.warrior[w].position) === 0
+                );
+
+                let attackWarrior = threatenedWarriors.length === 1 ? threatenedWarriors[0] : -1;
+
+                if (threatenedWarriors.length === 2) {
+                    attackWarrior = this.game.treasure.warrior >= 0 ? 
+                        this.game.treasure.warrior : Math.floor(Math.random() * 2);
+                }
+
+                if (attackWarrior >= 0) {
+                    this.dragonAttack(attackWarrior).then(() => resolve(true));
+                } else {
+                    resolve(false);
+                }
+            });
+        },
+
+        dragonAttack(warriorNumber) {
+            return new Promise((resolve) => {
+                const message = `Dragon attacks warrior ${this.numToText(warriorNumber)}`;
+                this.help(message);
+                this.log(message);
+
+                if (!this.game.dragon.visible) {
+                    this.game.dragon.visible = true;
+                    this.renderDragonPosition();
+                }
+
+                this.playAudio(warriorNumber === 0 ? this.audio.warriorOne : this.audio.warriorTwo)
+                    .then(() => this.completeAttack(warriorNumber))
+                    .then(resolve);
+            });
+        },
+
+        completeAttack(warriorNumber) {
+            return new Promise((resolve) => {
+                if (this.game.treasure.warrior === warriorNumber) {
+                    this.game.treasure.warrior = -1;
+                }
+                this.playAudio(this.audio.dragonAttacks).then(() => {
+                    this.help("");
+                    this.renderTreasurePosition();
+                    this.removeLife(warriorNumber).then(resolve);
+                });
+            });
+        },
+
+        removeLife(warriorNumber) {
+            return new Promise((resolve) => {
+                this.game.warrior[warriorNumber].lives--;
+                const lives = this.game.warrior[warriorNumber].lives;
+                this.log(`Warrior ${this.numToText(warriorNumber)} has ${lives} lives`);
+
+                if (lives < 1) {
+                    this.killWarrior(warriorNumber).then(resolve);
+                } else {
+                    this.help(`Warrior ${this.numToText(warriorNumber)} has ${lives} lives left`, true);
+                    this.game.warrior[warriorNumber].position = this.game.warrior[warriorNumber].secretRoom;
+                    this.renderWarriorPosition(warriorNumber);
+                    resolve();
+                }
+            });
+        },
+
+        killWarrior(warriorNumber) {
+            return new Promise((resolve) => {
+                const message = `Warrior ${this.numToText(warriorNumber)} has been killed!`;
+                if (this.game.warrior[0].lives < 1 && 
+                    (this.game.numberOfWarriors === 1 || this.game.warrior[1].lives < 1)) {
+                    this.game.state = this.GAME_STATE.GameOver;
+                    this.trackEvent("Game Lost");
+                }
+                this.trackEvent("Warrior Killed");
+                this.help(message, true);
+                this.log(message);
+                this.playAudio(this.audio.defeat).then(() => {
+                    this.removeWarrior(warriorNumber);
+                    this.removeSecretRoom(warriorNumber);
+                    resolve();
+                });
+            });
+        },
+
+        // Help Message System
+        help(message, temporary, skipTimeout) {
+            if (!temporary) {
+                this.game.helpMessage = message;
+            }
+            if (temporary || !this.game.helpTimeout) {
+                this.elements.help.innerText = message;
+                if (temporary && !skipTimeout) {
+                    if (this.game.helpTimeout) clearTimeout(this.game.helpTimeout);
+                    this.game.helpTimeout = setTimeout(() => {
+                        this.game.helpTimeout = null;
+                        this.resetHelpMessage();
+                    }, 2500);
+                }
+            }
+        },
+
+        resetHelpMessage() {
+            this.elements.help.innerText = this.game.helpMessage;
+        }
+    };
+
+    // Initialize on DOM load
+    window.addEventListener('DOMContentLoaded', () => labyrinth.init());
+    </script>
+</body>
+</html>
