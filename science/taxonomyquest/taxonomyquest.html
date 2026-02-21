@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taxonomy Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --parchment: #e8dfc8;
+    --brown-dark: #2c1a0e;
+    --brown-mid: #5c3d1e;
+    --brown-light: #a0714f;
+    --green-dark: #1a3a2a;
+    --green-mid: #2d5a3d;
+    --green-accent: #4a8c5c;
+    --gold: #c8943a;
+    --gold-light: #e8b84a;
+    --red-accent: #8b2020;
+    --ink: #1a1208;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--green-dark);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(45,90,61,0.6) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(26,58,42,0.8) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 Q35 20 50 25 Q35 30 30 55 Q25 30 10 25 Q25 20 30 5Z' fill='none' stroke='%23ffffff08' stroke-width='1'/%3E%3C/svg%3E");
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    font-family: 'EB Garamond', serif;
+  }
+
+  .journal {
+    background: var(--cream);
+    background-image:
+      linear-gradient(rgba(160,113,79,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(160,113,79,0.03) 1px, transparent 1px);
+    background-size: 100% 28px, 28px 100%;
+    max-width: 820px;
+    width: 100%;
+    border-radius: 3px;
+    box-shadow: 0 0 0 1px var(--brown-light), 0 4px 20px rgba(0,0,0,0.5), inset 0 0 80px rgba(160,113,79,0.1);
+    position: relative;
+    overflow: visible;
+  }
+
+  .journal::before {
+    content: '';
+    position: absolute;
+    left: 64px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, rgba(200,148,58,0.4) 10%, rgba(200,148,58,0.4) 90%, transparent);
+    pointer-events: none;
+  }
+
+  .journal-header {
+    background: var(--green-dark);
+    background-image: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+    padding: 28px 40px 24px;
+    border-bottom: 3px double var(--gold);
+    text-align: center;
+    border-radius: 3px 3px 0 0;
+  }
+
+  .journal-header::after {
+    content: '❧';
+    color: var(--gold);
+    font-size: 24px;
+    display: block;
+    margin-top: 8px;
+    opacity: 0.7;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold-light);
+    font-size: 2.4rem;
+    letter-spacing: 0.08em;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  h1 span {
+    display: block;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    color: var(--parchment);
+    font-style: italic;
+    margin-bottom: 4px;
+    opacity: 0.8;
+  }
+
+  .journal-body { padding: 30px 40px 30px 90px; }
+
+  /* HUD */
+  .hud {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .hud-badge {
+    background: var(--green-dark);
+    color: var(--gold-light);
+    border: 1px solid var(--gold);
+    border-radius: 2px;
+    padding: 6px 14px;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+
+  .hud-badge span {
+    color: var(--cream);
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+
+  .lives-wrap { display: flex; gap: 6px; align-items: center; }
+
+  .life-pip {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    background: var(--gold-light);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .life-pip.lost {
+    background: var(--red-accent);
+    border-color: var(--red-accent);
+    transform: scale(0.85);
+  }
+
+  .life-pip.lost::after {
+    content: '✕';
+    color: white;
+    font-size: 9px;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Target card */
+  .target-card {
+    background: var(--parchment);
+    border: 1px solid var(--brown-light);
+    border-left: 4px solid var(--gold);
+    border-radius: 2px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+  }
+
+  .target-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--brown-light);
+    margin-bottom: 6px;
+  }
+
+  .target-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--green-dark);
+    font-style: italic;
+    transition: all 0.4s ease;
+  }
+
+  .target-name.hidden-sci {
+    color: var(--brown-light);
+    letter-spacing: 0.3em;
+    font-style: normal;
+    font-size: 1.1rem;
+  }
+
+  .target-common { font-size: 1rem; color: var(--brown-mid); margin-top: 2px; }
+  .hint-text { font-size: 0.88rem; color: var(--brown-mid); font-style: italic; margin-top: 6px; opacity: 0.8; }
+
+  /* Rank section */
+  .rank-section { margin-bottom: 22px; }
+
+  .rank-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--brown-light);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rank-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--brown-light), transparent);
+  }
+
+  .rank-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--green-dark);
+    margin-bottom: 14px;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+    font-size: 0.82rem;
+    min-height: 30px;
+  }
+
+  /* Tooltip crumb */
+  .crumb {
+    background: var(--green-dark);
+    color: var(--gold-light);
+    padding: 4px 10px;
+    border-radius: 2px;
+    border: 1px solid var(--gold);
+    opacity: 0.9;
+    cursor: help;
+    position: relative;
+    border-bottom: 2px dashed var(--gold-light);
+  }
+
+  .crumb-rank {
+    color: rgba(232,184,74,0.6);
+    margin-right: 4px;
+    font-style: italic;
+  }
+
+  .tooltip-box {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--brown-dark);
+    border: 1px solid var(--gold);
+    border-radius: 3px;
+    padding: 12px 15px;
+    width: 250px;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.85rem;
+    color: var(--cream);
+    line-height: 1.55;
+    z-index: 999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    pointer-events: none;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .tooltip-box::after {
+    content: '';
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-top-color: var(--gold);
+  }
+
+  .tooltip-box strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: var(--gold-light);
+    margin-bottom: 5px;
+  }
+
+  .tooltip-box em {
+    display: block;
+    font-size: 0.76rem;
+    color: var(--gold);
+    margin-bottom: 4px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-style: normal;
+  }
+
+  .crumb:hover .tooltip-box { display: block; animation: fadeIn 0.18s ease; }
+
+  /* Options */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .option-btn {
+    background: white;
+    border: 1px solid var(--brown-light);
+    border-radius: 2px;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: 'EB Garamond', serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-btn::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--green-accent);
+    transform: scaleY(0);
+    transition: transform 0.15s ease;
+  }
+
+  .option-btn:hover:not(.disabled):not(.wrong):not(.correct) {
+    background: var(--parchment);
+    border-color: var(--green-mid);
+    transform: translateX(2px);
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .option-btn:hover:not(.disabled):not(.wrong):not(.correct)::before { transform: scaleY(1); }
+
+  .option-btn.correct {
+    background: #d4edda;
+    border-color: var(--green-mid);
+    color: var(--green-dark);
+    font-weight: bold;
+    pointer-events: none;
+  }
+
+  .option-btn.wrong {
+    background: #f8d7da;
+    border-color: var(--red-accent);
+    color: var(--red-accent);
+    opacity: 0.55;
+    pointer-events: none;
+    text-decoration: line-through;
+  }
+
+  .option-btn.disabled { pointer-events: none; opacity: 0.45; }
+
+  /* Feedback */
+  .feedback {
+    padding: 14px 18px;
+    border-radius: 2px;
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .feedback.correct { background:#d4edda; border:1px solid var(--green-mid); color:var(--green-dark); display:block; }
+  .feedback.wrong   { background:#f8d7da; border:1px solid var(--red-accent); color:var(--red-accent); display:block; }
+  .feedback.reveal  { background:var(--parchment); border:2px solid var(--gold); color:var(--brown-dark); display:block; font-style:italic; }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(-6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    20%     { transform:translateX(-6px); }
+    40%     { transform:translateX(6px); }
+    60%     { transform:translateX(-4px); }
+    80%     { transform:translateX(4px); }
+  }
+
+  .shake { animation: shake 0.35s ease; }
+
+  /* Results */
+  .results-screen { text-align:center; padding:30px 0; display:none; }
+  .results-screen.show { display:block; }
+
+  .results-title { font-family:'Playfair Display',serif; font-size:2rem; color:var(--green-dark); margin-bottom:6px; }
+  .results-score { font-size:4rem; font-family:'Playfair Display',serif; color:var(--gold); margin:8px 0 2px; line-height:1; }
+  .highscore-line { font-size:0.85rem; color:var(--brown-light); letter-spacing:0.1em; margin-bottom:6px; }
+  .new-record { color:var(--gold); font-weight:bold; font-family:'Playfair Display',serif; font-size:1.1rem; animation:fadeIn 0.5s ease 0.3s both; }
+  .results-grade { font-size:1.05rem; color:var(--brown-mid); font-style:italic; margin-bottom:20px; }
+
+  .divider { border:none; border-top:1px solid var(--brown-light); margin:18px 0; opacity:0.4; }
+
+  .results-summary {
+    text-align:left;
+    background:var(--parchment);
+    border:1px solid var(--brown-light);
+    border-radius:2px;
+    padding:18px;
+    margin-bottom:22px;
+    max-height:280px;
+    overflow-y:auto;
+  }
+
+  .result-row { display:flex; gap:10px; align-items:baseline; padding:6px 0; border-bottom:1px dashed var(--brown-light); font-size:0.9rem; }
+  .result-row:last-child { border-bottom:none; }
+  .result-species { font-style:italic; flex:1; }
+
+  .btn-restart {
+    background:var(--green-mid);
+    color:var(--gold-light);
+    border:2px solid var(--gold);
+    padding:12px 36px;
+    font-family:'Playfair Display',serif;
+    font-size:1.1rem;
+    cursor:pointer;
+    border-radius:2px;
+    letter-spacing:0.1em;
+    transition:all 0.2s ease;
+  }
+
+  .btn-restart:hover { background:var(--green-dark); transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,0.3); }
+
+  /* Next Species button — shown after genus identified */
+  .species-complete-panel {
+    display: none;
+    margin-top: 10px;
+    padding: 20px 22px;
+    background: var(--parchment);
+    border: 1px solid var(--brown-light);
+    border-left: 4px solid var(--green-accent);
+    border-radius: 2px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .species-complete-panel.show { display: block; }
+
+  .species-complete-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--green-dark);
+    margin-bottom: 14px;
+  }
+
+  .species-complete-title em {
+    color: var(--brown-mid);
+    font-size: 0.9rem;
+    display: block;
+    margin-top: 2px;
+    font-style: italic;
+  }
+
+  .chain-review {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .chain-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    position: relative;
+  }
+
+  .chain-step:not(:last-child)::after {
+    content: '›';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--brown-light);
+    font-size: 1rem;
+  }
+
+  .chain-rank-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--brown-light);
+  }
+
+  .chain-value {
+    background: var(--green-dark);
+    color: var(--gold-light);
+    border: 1px solid var(--gold);
+    border-radius: 2px;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+    cursor: help;
+    position: relative;
+  }
+
+  .chain-value .tooltip-box {
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .chain-value:hover .tooltip-box { display: block; animation: fadeIn 0.18s ease; }
+
+  .btn-next-species {
+    background: var(--green-mid);
+    color: var(--gold-light);
+    border: 2px solid var(--gold);
+    padding: 10px 28px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-next-species:hover {
+    background: var(--green-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  /* ── Field Log (persistent, lives below the journal) ── */
+  #field-log-wrap {
+    max-width: 820px;
+    width: 100%;
+    margin-top: 18px;
+    display: none;
+  }
+
+  #field-log-wrap.show { display: block; }
+
+  .field-log-header {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--parchment);
+    opacity: 0.6;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+
+  .field-log-entry {
+    background: var(--cream);
+    background-image: linear-gradient(rgba(160,113,79,0.04) 1px, transparent 1px);
+    background-size: 100% 28px;
+    border-radius: 2px;
+    border: 1px solid var(--brown-light);
+    border-left: 4px solid var(--green-accent);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    padding: 14px 18px 14px 22px;
+    margin-bottom: 10px;
+    animation: slideInEntry 0.35s ease both;
+  }
+
+  @keyframes slideInEntry {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .fle-top {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .fle-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem;
+    color: var(--brown-light);
+    min-width: 22px;
+  }
+
+  .fle-sci {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--green-dark);
+    flex: 1;
+  }
+
+  .fle-common {
+    font-size: 0.88rem;
+    color: var(--brown-mid);
+  }
+
+  .fle-chain {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .fle-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    position: relative;
+  }
+
+  .fle-chip:not(:last-child)::after {
+    content: '›';
+    position: absolute;
+    right: -8px;
+    top: 55%;
+    transform: translateY(-50%);
+    color: var(--brown-light);
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+
+  .fle-chip-rank {
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brown-light);
+  }
+
+  .fle-chip-val {
+    background: var(--green-dark);
+    color: var(--gold-light);
+    border: 1px solid rgba(200,148,58,0.5);
+    border-radius: 2px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    cursor: help;
+    position: relative;
+  }
+
+  /* reuse existing .tooltip-box styles */
+  .fle-chip-val .tooltip-box {
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 230px;
+  }
+
+  .fle-chip-val:hover .tooltip-box { display: block; animation: fadeIn 0.18s ease; }
+</style>
+</head>
+<body>
+
+<div class="journal">
+  <div class="journal-header">
+    <h1>Taxonomy Quest</h1>
+  </div>
+
+  <div class="journal-body">
+
+    <div class="hud">
+      <div class="hud-badge">Species <span id="round-num">1</span></div>
+      <div class="hud-badge">Score <span id="score-num">0</span></div>
+      <div class="hud-badge" style="display:flex;align-items:center;gap:8px;">
+        Lives&nbsp;<div class="lives-wrap" id="lives-wrap"></div>
+      </div>
+      <div class="hud-badge" style="margin-left:auto;">Best <span id="hi-num">0</span></div>
+    </div>
+
+    <div id="game-area">
+
+      <div class="target-card">
+        <div class="target-label">Identify the Species</div>
+        <div class="target-name hidden-sci" id="target-sci">· · · · · · · · · · · ·</div>
+        <div class="target-common" id="target-common">—</div>
+        <div class="hint-text" id="target-hint">Navigate the taxonomic hierarchy to find this organism.</div>
+      </div>
+
+      <div class="breadcrumb" id="breadcrumb"></div>
+
+      <div class="rank-section">
+        <div class="rank-label" id="rank-label">Kingdom</div>
+        <div class="rank-title" id="rank-question">Select the correct Kingdom:</div>
+      </div>
+
+      <div class="options-grid" id="options-grid"></div>
+      <div class="feedback" id="feedback"></div>
+
+      <!-- Shown after genus correctly identified -->
+      <div class="species-complete-panel" id="species-complete-panel">
+        <div class="species-complete-title">
+          Classification complete!
+          <em id="complete-sci-name">—</em>
+        </div>
+        <div class="chain-review" id="chain-review"></div>
+        <button class="btn-next-species" onclick="proceedNextSpecies()">Next Species →</button>
+      </div>
+
+    </div>
+
+    <div class="results-screen" id="results-screen">
+      <div class="results-title">Classification Complete</div>
+      <div class="results-score" id="final-score">0</div>
+      <div class="highscore-line">Personal Best: <span id="final-best">0</span></div>
+      <div id="new-record-msg"></div>
+      <div class="results-grade" id="final-grade">—</div>
+      <hr class="divider">
+      <div class="results-summary" id="results-summary"></div>
+      <button class="btn-restart" onclick="startGame()">Begin New Quest</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Field Log: grows as species are identified ── -->
+<div id="field-log-wrap">
+  <div class="field-log-header">✦ Field Log — Species Identified</div>
+  <div id="field-log"></div>
+</div>
+<script>
+// ====================================================
+//  TAXON DESCRIPTIONS (tooltips)
+// ====================================================
+const TAXON_INFO = {
+
+  // ══════════════════════════════════════════════════
+  //  KINGDOMS
+  // ══════════════════════════════════════════════════
+  "Animalia":  { rank:"Kingdom", desc:"Multicellular eukaryotes that obtain energy by consuming other organisms. Includes all animals, from sponges to vertebrates." },
+  "Plantae":   { rank:"Kingdom", desc:"Multicellular photosynthetic eukaryotes. Includes mosses, ferns, conifers, and all flowering plants — the base of most food webs." },
+  "Fungi":     { rank:"Kingdom", desc:"Eukaryotes that absorb nutrients externally. Includes mushrooms, molds, and yeasts — the planet's essential decomposers." },
+  "Protista":  { rank:"Kingdom", desc:"A diverse catch-all kingdom of mostly single-celled eukaryotes, including algae, amoeba, and parasites like Plasmodium." },
+  "Bacteria":  { rank:"Kingdom", desc:"Prokaryotic single-celled organisms found in virtually every habitat on Earth, from hot springs to the human gut." },
+  "Archaea":   { rank:"Kingdom", desc:"Prokaryotes distinct from bacteria, often thriving in extreme environments such as salt lakes, hot springs, and deep-sea vents." },
+
+  // ══════════════════════════════════════════════════
+  //  PHYLA
+  // ══════════════════════════════════════════════════
+  "Chordata":         { rank:"Phylum", desc:"Animals with a notochord at some life stage, a dorsal nerve cord, and pharyngeal slits. Includes all vertebrates." },
+  "Arthropoda":       { rank:"Phylum", desc:"The largest animal phylum — jointed exoskeletons, segmented bodies. Includes insects, spiders, and crustaceans." },
+  "Mollusca":         { rank:"Phylum", desc:"Soft-bodied invertebrates, often with shells. Includes snails, clams, squid, and octopuses. The second-largest animal phylum." },
+  "Echinodermata":    { rank:"Phylum", desc:"Marine invertebrates with 5-fold radial symmetry and a water vascular system. Includes sea stars, urchins, and cucumbers." },
+  "Annelida":         { rank:"Phylum", desc:"Segmented worms — earthworms, leeches, and polychaetes. Important decomposers in terrestrial and aquatic ecosystems." },
+  "Nematoda":         { rank:"Phylum", desc:"Roundworms — among the most numerous animals on Earth. Found in nearly every ecosystem; many species are parasitic." },
+  "Cnidaria":         { rank:"Phylum", desc:"Aquatic invertebrates with radial symmetry and stinging cells (nematocysts). Includes jellyfish, corals, and sea anemones." },
+  "Porifera":         { rank:"Phylum", desc:"Sponges — the simplest multicellular animals. Filter feeders with no true tissues, found mostly in marine environments." },
+  "Tracheophyta":     { rank:"Phylum", desc:"Vascular plants with specialized xylem and phloem for transporting water and nutrients. Includes ferns and all seed plants." },
+  "Bryophyta":        { rank:"Phylum", desc:"Non-vascular land plants (mosses and allies). Among the earliest land plants, colonizing bare rock and soil worldwide." },
+  "Ascomycota":       { rank:"Phylum", desc:"The largest fungal phylum — 'sac fungi.' Includes yeasts, morels, truffles, and many important plant pathogens." },
+  "Basidiomycota":    { rank:"Phylum", desc:"Club fungi producing spores on club-shaped basidia. Includes most familiar mushrooms, bracket fungi, puffballs, and rusts." },
+  "Ochrophyta":       { rank:"Phylum", desc:"Brown and golden algae — photosynthetic stramenopiles including kelp, diatoms, and golden algae. Critical ocean primary producers." },
+  "Dinoflagellata":   { rank:"Phylum", desc:"Single-celled aquatic protists, many photosynthetic. Key components of marine plankton; some species produce dangerous toxins." },
+  "Apicomplexa":      { rank:"Phylum", desc:"Obligate intracellular parasites defined by a specialized apical organelle. Includes the agents of malaria, toxoplasmosis, and more." },
+  "Pseudomonadota":   { rank:"Phylum", desc:"The largest and most metabolically diverse bacterial phylum, formerly Proteobacteria. Includes E. coli, Salmonella, and nitrogen-fixers." },
+  "Actinomycetota":   { rank:"Phylum", desc:"Gram-positive bacteria common in soil. Responsible for the earthy smell of soil and the production of many clinical antibiotics." },
+  "Cyanobacteria":    { rank:"Phylum", desc:"Photosynthetic bacteria that oxygenated Earth's early atmosphere. Still among the most important primary producers in aquatic systems." },
+  "Deinococcota":     { rank:"Phylum", desc:"Bacteria renowned for extreme resistance to radiation and desiccation, and for thriving in geothermal environments." },
+  "Euryarchaeota":    { rank:"Phylum", desc:"A major archaeal phylum encompassing methanogens, extreme halophiles, and thermophiles — masters of inhabiting hostile environments." },
+
+  // ══════════════════════════════════════════════════
+  //  CLASSES
+  // ══════════════════════════════════════════════════
+  "Mammalia":             { rank:"Class", desc:"Warm-blooded vertebrates with hair or fur, three middle-ear bones, and mammary glands for nursing young." },
+  "Aves":                 { rank:"Class", desc:"Birds — feathered, warm-blooded vertebrates with beaks and hollow bones, evolved from theropod dinosaurs." },
+  "Reptilia":             { rank:"Class", desc:"Ectothermic (cold-blooded) vertebrates with scales. Includes lizards, snakes, turtles, and crocodilians." },
+  "Amphibia":             { rank:"Class", desc:"Vertebrates bridging water and land life cycles. Includes frogs, salamanders, and caecilians. Sensitive pollution indicators." },
+  "Actinopterygii":       { rank:"Class", desc:"Ray-finned fishes — the dominant vertebrate class by species count, comprising the vast majority of bony fishes." },
+  "Actinistia":           { rank:"Class", desc:"Lobe-finned fishes represented today only by the coelacanths — a lineage once thought extinct for 65 million years." },
+  "Chondrichthyes":       { rank:"Class", desc:"Cartilaginous fishes — sharks, rays, and chimaeras. Their skeletons are made of cartilage rather than bone." },
+  "Insecta":              { rank:"Class", desc:"The most species-rich animal class. Six legs, three body segments, and most species have wings at some life stage." },
+  "Arachnida":            { rank:"Class", desc:"Eight-legged arthropods including spiders, scorpions, mites, and ticks. No antennae or wings." },
+  "Malacostraca":         { rank:"Class", desc:"The largest crustacean class, including crabs, lobsters, shrimps, and krill. Most have 19 body segments." },
+  "Cephalopoda":          { rank:"Class", desc:"Highly intelligent molluscs with arms or tentacles arranged around the head. Includes octopuses, squid, and nautiluses." },
+  "Bivalvia":             { rank:"Class", desc:"Molluscs with two hinged shells — clams, oysters, mussels, and scallops. Filter feeders that are vital to water quality." },
+  "Gastropoda":           { rank:"Class", desc:"The largest mollusc class — snails and slugs. Defined by a broad muscular foot and, in many species, a coiled shell." },
+  "Echinoidea":           { rank:"Class", desc:"Sea urchins and sand dollars — spiny echinoderms with a rigid internal shell (test) and five-part symmetry." },
+  "Asteroidea":           { rank:"Class", desc:"Sea stars — predatory echinoderms with radial arms used to pry open bivalves. Keystone species in many marine habitats." },
+  "Holothuroidea":        { rank:"Class", desc:"Sea cucumbers — elongated, soft-bodied echinoderms that feed on detritus and are important nutrient recyclers on the seafloor." },
+  "Scyphozoa":            { rank:"Class", desc:"True jellyfish — free-swimming cnidarians with a dominant medusa stage. Some species have tentacles stretching tens of metres." },
+  "Anthozoa":             { rank:"Class", desc:"Corals and sea anemones — cnidarians that exist only as polyps, with no medusa stage. Reef-building corals support ~25% of marine life." },
+  "Hydrozoa":             { rank:"Class", desc:"A diverse cnidarian class that includes hydroids, fire corals, and siphonophores like the Portuguese Man o' War." },
+  "Clitellata":           { rank:"Class", desc:"Annelids with a clitellum (a mucus-secreting band used in reproduction). Includes earthworms and leeches." },
+  "Chromadorea":          { rank:"Class", desc:"The largest nematode class, encompassing most free-living and many parasitic roundworms, including the model organism C. elegans." },
+  "Demospongiae":         { rank:"Class", desc:"The most diverse sponge class, comprising ~90% of all sponge species. Includes bath sponges and reef-dwelling barrel sponges." },
+  "Magnoliopsida":        { rank:"Class", desc:"Dicotyledonous flowering plants — seeds with two embryonic leaves. Includes most broadleaved trees, shrubs, and herbs." },
+  "Liliopsida":           { rank:"Class", desc:"Monocotyledonous flowering plants — seeds with one embryonic leaf. Includes grasses, palms, lilies, and orchids." },
+  "Pinopsida":            { rank:"Class", desc:"Conifers — cone-bearing seed plants including pines, firs, spruces, and redwoods. Dominate many of the world's forests." },
+  "Polypodiopsida":       { rank:"Class", desc:"The largest fern class, encompassing most living ferns. They reproduce via spores and dominated forests 350 million years ago." },
+  "Sphagnopsida":         { rank:"Class", desc:"Peat mosses — a small but ecologically vast class that stores more carbon in peatlands than all the world's forests combined." },
+  "Saccharomycetes":      { rank:"Class", desc:"Budding yeasts in Ascomycota. Many are used industrially in baking, brewing, winemaking, and modern biotechnology." },
+  "Agaricomycetes":       { rank:"Class", desc:"The 'mushroom class' of Basidiomycota — most familiar gilled mushrooms as well as bracket fungi and coral fungi." },
+  "Eurotiomycetes":       { rank:"Class", desc:"Ascomycetes including Penicillium, Aspergillus, and other medically and economically important molds and pathogens." },
+  "Pezizomycetes":        { rank:"Class", desc:"Cup fungi and truffles — Ascomycetes that produce large, often edible fruiting bodies. Many form vital mycorrhizal partnerships." },
+  "Sordariomycetes":      { rank:"Class", desc:"A large and diverse ascomycete class including Neurospora (a genetics model) and Cordyceps fungi that parasitize insects." },
+  "Phaeophyceae":         { rank:"Class", desc:"Brown algae — the dominant seaweeds of cold coastal waters. Kelp forests are among the most productive ecosystems on Earth." },
+  "Dinophyceae":          { rank:"Class", desc:"Dinoflagellates — armored single-celled protists that spin as they swim. Key photosynthesizers and the cause of toxic red tides." },
+  "Aconoidasida":         { rank:"Class", desc:"Apicomplexan parasites that lack a conoid structure. Includes Plasmodium, the causative agent of malaria." },
+  "Gammaproteobacteria":  { rank:"Class", desc:"A massive and diverse class of bacteria including E. coli, Salmonella, Vibrio, and many nitrogen-fixing species." },
+  "Actinomycetes":        { rank:"Class", desc:"Filamentous soil bacteria that produce the majority of natural antibiotics used in medicine, including streptomycin and erythromycin." },
+  "Cyanophyceae":         { rank:"Class", desc:"Cyanobacteria proper — oxygenic photosynthesizers that transformed Earth's atmosphere ~2.4 billion years ago." },
+  "Deinococci":           { rank:"Class", desc:"Bacteria with extraordinary resistance to radiation, desiccation, and extreme heat. Thermus aquaticus belongs here." },
+  "Methanobacteria":      { rank:"Class", desc:"Strictly anaerobic methane-producing archaea found in swamps, animal digestive tracts, and deep subsurface environments." },
+  "Halobacteria":         { rank:"Class", desc:"Extreme halophiles that require very high salt concentrations to survive. They can turn salt flats and evaporation ponds vivid pink." },
+
+  // ══════════════════════════════════════════════════
+  //  ORDERS
+  // ══════════════════════════════════════════════════
+  "Carnivora":            { rank:"Order", desc:"Mammals with teeth and claws adapted for eating flesh. Includes cats, dogs, bears, seals, and weasels." },
+  "Primates":             { rank:"Order", desc:"Highly encephalized mammals with grasping hands, forward-facing eyes, and complex social structures." },
+  "Artiodactyla":         { rank:"Order", desc:"Even-toed ungulates bearing weight on an even number of toes. Includes deer, pigs, hippos, and whales (Cetacea is nested here)." },
+  "Proboscidea":          { rank:"Order", desc:"Elephants and extinct relatives (mammoths, mastodons). Defined by the elongated prehensile trunk and ivory tusks." },
+  "Perissodactyla":       { rank:"Order", desc:"Odd-toed ungulates bearing weight on an odd number of toes. Includes horses, tapirs, and rhinoceroses." },
+  "Chiroptera":           { rank:"Order", desc:"Bats — the only mammals capable of sustained powered flight. Make up ~20% of all mammal species and are vital pollinators." },
+  "Cingulata":            { rank:"Order", desc:"Armadillos — the only living mammals with a true bony shell (carapace). Descended from ancient armored South American mammals." },
+  "Didelphimorphia":      { rank:"Order", desc:"American opossums — the largest marsupial order in the Western Hemisphere. Highly opportunistic omnivores." },
+  "Diprotodontia":        { rank:"Order", desc:"The largest marsupial order, containing kangaroos, wallabies, wombats, possums, and koalas — mostly Australasian." },
+  "Monotremata":          { rank:"Order", desc:"Egg-laying mammals — platypus and echidnas. The most ancient surviving mammalian lineage, retaining reptilian reproductive traits." },
+  "Erinaceomorpha":       { rank:"Order", desc:"Hedgehogs and moonrats — small insectivores with a relatively primitive mammalian body plan." },
+  "Accipitriformes":      { rank:"Order", desc:"Diurnal birds of prey — hawks, eagles, kites, and Old World vultures, with sharp talons and hooked beaks." },
+  "Sphenisciformes":      { rank:"Order", desc:"Penguins — flightless seabirds perfectly adapted for aquatic life, with flipper-like wings and dense, waterproof feathers." },
+  "Struthioniformes":     { rank:"Order", desc:"Ostriches — the ratite order containing the world's largest bird, native to African savannahs." },
+  "Falconiformes":        { rank:"Order", desc:"Falcons and caracaras — fast, aerobatic birds of prey more closely related to parrots than to other raptors." },
+  "Apodiformes":          { rank:"Order", desc:"Swifts and hummingbirds — birds with tiny feet and remarkable flight ability. Hummingbirds are the only birds that can fly backwards." },
+  "Charadriiformes":      { rank:"Order", desc:"Shorebirds, gulls, terns, and auks — ecologically diverse birds associated with water, from sandpipers to puffins." },
+  "Passeriformes":        { rank:"Order", desc:"Perching birds — the largest bird order, comprising over half of all bird species. Includes crows, sparrows, and warblers." },
+  "Procellariiformes":    { rank:"Order", desc:"Tubenoses — albatrosses, petrels, and shearwaters. Masters of oceanic soaring; some travel millions of kilometres in a lifetime." },
+  "Testudines":           { rank:"Order", desc:"Turtles and tortoises — reptiles with a bony shell fused to the spine. Among the oldest living reptile lineages." },
+  "Crocodilia":           { rank:"Order", desc:"Crocodilians — large semi-aquatic reptiles with armored skin. The closest living relatives of birds." },
+  "Squamata":             { rank:"Order", desc:"The largest reptile order — lizards and snakes. Defined by overlapping scales and a highly flexible jaw." },
+  "Urodela":              { rank:"Order", desc:"Salamanders and newts — tailed amphibians; some retain larval features into adulthood (neoteny)." },
+  "Anura":                { rank:"Order", desc:"Frogs and toads — tailless amphibians and the most species-rich amphibian order. Found on every continent except Antarctica." },
+  "Gymnophiona":          { rank:"Order", desc:"Caecilians — limbless, burrowing or aquatic amphibians that resemble worms. Poorly studied due to their secretive lifestyles." },
+  "Salmoniformes":        { rank:"Order", desc:"Salmon, trout, and relatives. Distinguished by an adipose fin and often complex anadromous migratory behavior." },
+  "Perciformes":          { rank:"Order", desc:"Perch-like fishes — formerly the largest vertebrate order, containing clownfish, tuna, cichlids, and thousands more." },
+  "Syngnathiformes":      { rank:"Order", desc:"Pipefishes and seahorses — distinctive bony-plated fishes, many with prehensile tails and unique male pregnancy." },
+  "Lamniformes":          { rank:"Order", desc:"Mackerel sharks — large, fast pelagic sharks including the great white, mako, and thresher. Ancient lineage over 100 million years old." },
+  "Coelacanthiformes":    { rank:"Order", desc:"An ancient order of lobe-finned fishes. All but two species are extinct; the living coelacanths are relics of the Devonian." },
+  "Lepidoptera":          { rank:"Order", desc:"Butterflies and moths — four scaly wings and a coiled proboscis. One of the largest and most diverse insect orders." },
+  "Hymenoptera":          { rank:"Order", desc:"Ants, bees, and wasps — known for complex social behavior and critical roles as pollinators and ecosystem engineers." },
+  "Diptera":              { rank:"Order", desc:"True flies — two functional wings, with hindwings reduced to halteres. Includes mosquitoes, gnats, and fruit flies." },
+  "Coleoptera":           { rank:"Order", desc:"Beetles — hardened forewings (elytra) protect hindwings. By species count, the largest order of any organism on Earth." },
+  "Mantodea":             { rank:"Order", desc:"Praying mantises — ambush predators with raptorial forelimbs. Remarkable vision allows them to track moving prey with precision." },
+  "Orthoptera":           { rank:"Order", desc:"Grasshoppers, crickets, and locusts — jumping insects that communicate by stridulation. Some species form devastating migratory swarms." },
+  "Hemiptera":            { rank:"Order", desc:"True bugs — defined by piercing-sucking mouthparts. Includes aphids, cicadas, bed bugs, and giant water bugs." },
+  "Araneae":              { rank:"Order", desc:"Spiders — eight-legged predatory arachnids that produce silk. Found on every continent except Antarctica; over 45,000 species." },
+  "Scorpiones":           { rank:"Order", desc:"Scorpions — ancient arachnids with pincers and a venomous stinger. Among the oldest land animals, little changed in 430 million years." },
+  "Decapoda":             { rank:"Order", desc:"Ten-legged crustaceans — crabs, lobsters, shrimps, and prawns. Among the most economically important marine animals." },
+  "Octopoda":             { rank:"Order", desc:"Octopuses — eight-armed cephalopods with no internal shell. Masters of camouflage with highly distributed nervous systems." },
+  "Oegopsida":            { rank:"Order", desc:"Open-ocean squid — including the giant and colossal squid. Fast, predatory cephalopods with complex eyes rivaling vertebrates." },
+  "Nautilida":            { rank:"Order", desc:"Nautiluses — the only living cephalopods with an external coiled shell. Ancient survivors little changed in half a billion years." },
+  "Cardiida":             { rank:"Order", desc:"A large and diverse bivalve order including cockles, giant clams, and many other marine and freshwater bivalves." },
+  "Stylommatophora":      { rank:"Order", desc:"Land snails and slugs — the dominant gastropod order on land, with eyes at the tips of retractable tentacles." },
+  "Haplotaxida":          { rank:"Order", desc:"Earthworms and relatives — burrowing annelids that aerate and enrich soil, making them foundational to terrestrial ecosystems." },
+  "Arhynchobdellida":     { rank:"Order", desc:"Jawless leeches that pierce skin with a muscular proboscis. Includes the medicinal leech, used in modern microsurgery." },
+  "Rhabditida":           { rank:"Order", desc:"Free-living and parasitic roundworms. C. elegans, the most studied animal in genetics, belongs to this order." },
+  "Haplosclerida":        { rank:"Order", desc:"A large order of freshwater and marine sponges, including barrel sponges — some of the oldest and largest living invertebrates." },
+  "Asterales":            { rank:"Order", desc:"Flowering plants with flowers clustered into composite heads. Includes daisies, sunflowers, and lettuce." },
+  "Fagales":              { rank:"Order", desc:"Wind-pollinated trees and shrubs — oaks, beeches, birches, and walnuts. Dominant in temperate forest ecosystems." },
+  "Poales":               { rank:"Order", desc:"Monocots including grasses, sedges, rushes, and cattails. Grasses alone cover ~40% of Earth's non-polar land surface." },
+  "Liliales":             { rank:"Order", desc:"Monocots with often showy flowers. Includes true lilies, tulips, and fritillaries — many of great horticultural importance." },
+  "Malvales":             { rank:"Order", desc:"Flowering plants including mallows, hibiscus, cotton, and cacao. Many are economically vital fiber, food, and medicine sources." },
+  "Caryophyllales":       { rank:"Order", desc:"Diverse flowering plant order including carnivorous plants, cacti, beets, and carnations. Many tolerate extreme environments." },
+  "Ranunculales":         { rank:"Order", desc:"Buttercups, poppies, and barberries. One of the earliest-diverging eudicot orders, with many alkaloid-producing species." },
+  "Brassicales":          { rank:"Order", desc:"Mustards, cabbages, and capers. Defined by glucosinolates — sulfur-containing compounds giving these plants their sharp flavor." },
+  "Lamiales":             { rank:"Order", desc:"A large angiosperm order including lavender, mint, olive, snapdragon, and many important medicinal and aromatic herbs." },
+  "Rosales":              { rank:"Order", desc:"Roses, apples, plums, figs, nettles, and hemp. One of the most economically important plant orders for food and fiber." },
+  "Cupressales":          { rank:"Order", desc:"Cypresses, junipers, sequoias, and relatives. Includes some of the oldest and most massive organisms on Earth." },
+  "Pinales":              { rank:"Order", desc:"Pines, firs, spruces, larches, and cedars. The dominant trees of boreal forests, covering vast areas of the Northern Hemisphere." },
+  "Polypodiales":         { rank:"Order", desc:"The largest fern order, containing the majority of living fern species. Highly diverse in both temperate and tropical habitats." },
+  "Sphagnales":           { rank:"Order", desc:"Peat mosses — a single genus (Sphagnum) that creates and sustains bog ecosystems, locking away vast stores of carbon." },
+  "Saccharomycetales":    { rank:"Order", desc:"Budding yeasts including Saccharomyces cerevisiae. Fundamental to fermentation, biotechnology, and as a model eukaryote." },
+  "Agaricales":           { rank:"Order", desc:"The largest order of gilled mushrooms. Includes beloved edibles (chanterelles, button mushrooms) and deadly species (death caps)." },
+  "Polyporales":          { rank:"Order", desc:"Bracket fungi and polypores — mostly wood-rotting Basidiomycetes. Includes Ganoderma (reishi) and the edible chicken of the woods." },
+  "Eurotiales":           { rank:"Order", desc:"Ascomycetes including Penicillium and Aspergillus. Critical producers of antibiotics, enzymes, and industrial chemicals." },
+  "Pezizales":            { rank:"Order", desc:"Cup fungi, morels, and truffles. Many form essential mycorrhizal relationships with trees; some are among the most prized edibles." },
+  "Hypocreales":          { rank:"Order", desc:"Ascomycetes including Cordyceps, Trichoderma, and Fusarium. Some are biocontrol agents; others are devastating plant pathogens." },
+  "Laminariales":         { rank:"Order", desc:"Kelps — the largest and most structurally complex brown algae. Form dense underwater forests that rival rainforests in productivity." },
+  "Gymnodiniales":        { rank:"Order", desc:"Unarmored dinoflagellates including toxic bloom-forming species. Key members of marine plankton in open oceans worldwide." },
+  "Haemosporida":         { rank:"Order", desc:"Blood parasites transmitted by biting insects. Includes Plasmodium, responsible for malaria — one of the leading causes of human death." },
+  "Enterobacterales":     { rank:"Order", desc:"Gram-negative bacteria including E. coli, Salmonella, and Klebsiella. Many are gut inhabitants; some are serious pathogens." },
+  "Kitasatosporales":     { rank:"Order", desc:"Soil actinobacteria including Streptomyces — the source of more than half of all naturally derived antibiotics used clinically." },
+  "Nostocales":           { rank:"Order", desc:"Filamentous cyanobacteria capable of nitrogen fixation. Crucial in fertilizing aquatic and terrestrial ecosystems worldwide." },
+  "Thermales":            { rank:"Order", desc:"Thermophilic bacteria thriving in hot springs and hydrothermal environments. Source of heat-stable enzymes invaluable to biotechnology." },
+  "Methanobacteriales":   { rank:"Order", desc:"Strictly anaerobic methanogens found in wetlands, deep sediments, and animal guts. Important contributors to atmospheric methane." },
+  "Halobacteriales":      { rank:"Order", desc:"Extreme halophiles requiring very high salinity to grow. Thrive in places like the Dead Sea and commercial salt evaporation ponds." },
+
+  // ══════════════════════════════════════════════════
+  //  FAMILIES
+  // ══════════════════════════════════════════════════
+  "Felidae":              { rank:"Family", desc:"The cat family — 37 species of obligate carnivores with retractile claws and binocular vision. From cheetahs to domestic cats." },
+  "Canidae":              { rank:"Family", desc:"Dogs, wolves, foxes, and jackals — digitigrade runners with non-retractile claws and omnivorous diets." },
+  "Hominidae":            { rank:"Family", desc:"The great apes — humans, chimpanzees, gorillas, and orangutans. Defined by large brains and the absence of a tail." },
+  "Elephantidae":         { rank:"Family", desc:"True elephants — the only living Proboscidean family, with three surviving species across Africa and Asia." },
+  "Ursidae":              { rank:"Family", desc:"Bears — large omnivorous plantigrades with massive bodies and non-retractile claws. Eight living species on four continents." },
+  "Giraffidae":           { rank:"Family", desc:"Giraffes and okapis — the two surviving members of a once-diverse family of long-necked African ruminants." },
+  "Rhinocerotidae":       { rank:"Family", desc:"Rhinoceroses — five living species of massive, thick-skinned perissodactyls. All are threatened or endangered." },
+  "Delphinidae":          { rank:"Family", desc:"Oceanic dolphins — the largest family of cetaceans, including bottlenose dolphins, killer whales, and pilot whales." },
+  "Balaenopteridae":      { rank:"Family", desc:"Rorqual whales — baleen whales with throat pleats for gulp-feeding. Includes the blue whale, fin whale, and humpback." },
+  "Dasypodidae":          { rank:"Family", desc:"Long-nosed armadillos — the most species-rich armadillo family, widespread from southern North America through South America." },
+  "Didelphidae":          { rank:"Family", desc:"American opossums — the most species-rich marsupial family, highly adaptable and found from Canada to Patagonia." },
+  "Macropodidae":         { rank:"Family", desc:"Kangaroos, wallabies, and their relatives — hindlimb-dominated hoppers native primarily to Australia and New Guinea." },
+  "Ornithorhynchidae":    { rank:"Family", desc:"The platypus — a monotypic family containing the only duck-billed, egg-laying, venomous, electroreceptive mammal." },
+  "Vespertilionidae":     { rank:"Family", desc:"Evening bats — the largest bat family, found worldwide. Insectivorous and echolocating, vital for pest control." },
+  "Erinaceidae":          { rank:"Family", desc:"Hedgehogs and moonrats — small insectivores with a distinctive coat of spines (in hedgehogs) used for defense." },
+  "Accipitridae":         { rank:"Family", desc:"Hawks, eagles, kites, and Old World vultures — the largest family of diurnal raptors, found on every continent except Antarctica." },
+  "Spheniscidae":         { rank:"Family", desc:"Penguins — 18 species of flightless seabirds. Their wings have evolved into efficient flippers for underwater pursuit of fish." },
+  "Struthionidae":        { rank:"Family", desc:"Ostriches — a monotypic family containing the world's largest bird. Can run at 70 km/h to escape predators." },
+  "Falconidae":           { rank:"Family", desc:"Falcons and caracaras — fast raptors with pointed wings designed for high-speed aerial pursuit of prey." },
+  "Trochilidae":          { rank:"Family", desc:"Hummingbirds — the only birds capable of sustained hovering and backward flight. Found exclusively in the Americas." },
+  "Alcidae":              { rank:"Family", desc:"Auks, murres, and puffins — seabirds of the Northern Hemisphere that use their wings to 'fly' underwater." },
+  "Corvidae":             { rank:"Family", desc:"Crows, ravens, jays, and magpies — renowned for exceptional intelligence, tool use, and complex social behavior." },
+  "Diomedeidae":          { rank:"Family", desc:"Albatrosses — the largest seabirds, built for dynamic soaring over open oceans. Some individuals fly millions of kilometres in a lifetime." },
+  "Cheloniidae":          { rank:"Family", desc:"Hard-shelled sea turtles — streamlined ocean dwellers with flippers. All species are threatened or endangered." },
+  "Crocodylidae":         { rank:"Family", desc:"True crocodiles — 14 species of large aquatic reptiles, distinguished by a pointed snout and visible lower teeth when closed." },
+  "Varanidae":            { rank:"Family", desc:"Monitor lizards — large, intelligent, and active predators with forked tongues. The Komodo dragon is the largest living lizard." },
+  "Elapidae":             { rank:"Family", desc:"Front-fanged venomous snakes including cobras, mambas, kraits, and sea snakes. Many produce potent neurotoxic venom." },
+  "Testudinidae":         { rank:"Family", desc:"Tortoises — fully terrestrial turtles with domed shells and elephantine feet. Among the longest-lived vertebrates known." },
+  "Iguanidae":            { rank:"Family", desc:"Iguanas — large herbivorous lizards of the Americas and the Galápagos, including the unique sea-going marine iguana." },
+  "Ambystomatidae":       { rank:"Family", desc:"Mole salamanders of North America. Includes the axolotl, famous for retaining larval features and extraordinary regenerative ability." },
+  "Dendrobatidae":        { rank:"Family", desc:"Poison dart frogs — small, vividly colored Neotropical frogs that sequester toxins from their diet for skin defense." },
+  "Ranidae":              { rank:"Family", desc:"True frogs — the archetypal frogs, widespread across all continents except Antarctica and Australia. Smooth-skinned, long-legged jumpers." },
+  "Dermophiidae":         { rank:"Family", desc:"Worm-like burrowing caecilians of Central and South America. Legless, nearly blind, and rarely encountered by humans." },
+  "Salmonidae":           { rank:"Family", desc:"Salmon, trout, chars, and whitefishes. Many are anadromous — spawning in freshwater but maturing at sea." },
+  "Pomacentridae":        { rank:"Family", desc:"Damselfish and clownfish — small, colorful reef fish. Clownfishes are famous for their mutualistic relationship with sea anemones." },
+  "Syngnathidae":         { rank:"Family", desc:"Pipefishes, seahorses, and seadragons — bony-plated fishes where the male carries and broods the fertilized eggs." },
+  "Lamnidae":             { rank:"Family", desc:"Mackerel sharks — apex predators including the great white, mako, and salmon shark, all capable of endothermy." },
+  "Latimeriidae":         { rank:"Family", desc:"Coelacanths — two living species of ancient lobe-finned fish. Once thought extinct for 65 million years until rediscovered in 1938." },
+  "Scarabaeidae":         { rank:"Family", desc:"Scarab beetles — a huge family including dung beetles, rhinoceros beetles, and june bugs. Sacred in ancient Egyptian culture." },
+  "Saturniidae":          { rank:"Family", desc:"Giant silk moths — including luna moths, emperor moths, and atlas moths, some of the most spectacular insects on Earth." },
+  "Formicidae":           { rank:"Family", desc:"Ants — eusocial insects that form colonies of up to millions. Among the most ecologically dominant land animals on Earth." },
+  "Lampyridae":           { rank:"Family", desc:"Fireflies — bioluminescent beetles that use species-specific flash patterns for mate attraction on warm summer nights." },
+  "Mantidae":             { rank:"Family", desc:"True praying mantises — ambush predators with remarkable camouflage, stereoscopic vision, and raptorial forelegs." },
+  "Acrididae":            { rank:"Family", desc:"Locusts and grasshoppers — the largest family of Orthoptera. Several species form devastating migratory swarms across continents." },
+  "Belostomatidae":       { rank:"Family", desc:"Giant water bugs — fierce aquatic predators that can subdue prey many times their size and are considered a delicacy in Southeast Asia." },
+  "Theridiidae":          { rank:"Family", desc:"Cobweb spiders — includes the notorious black widow. Build irregular, tangled webs and are found on every continent except Antarctica." },
+  "Scorpionidae":         { rank:"Family", desc:"True scorpions — including the largest species. Glow blue-green under UV light due to compounds in their exoskeleton." },
+  "Theraphosidae":        { rank:"Family", desc:"Tarantulas — large, hairy spiders. The largest species are the Goliath birdeater and the giant huntsman. Widely kept as pets." },
+  "Nephropidae":          { rank:"Family", desc:"Clawed lobsters — large marine crustaceans. The American and European lobsters are major commercial fishery species." },
+  "Coenobitidae":         { rank:"Family", desc:"Hermit crabs including the coconut crab — the largest land-dwelling arthropod, capable of cracking open coconuts with its claws." },
+  "Octopodidae":          { rank:"Family", desc:"True octopuses — highly intelligent, solitary cephalopods capable of changing color, texture, and shape in milliseconds." },
+  "Enteroctopodidae":     { rank:"Family", desc:"Large-bodied octopuses of cold Pacific waters, including the giant Pacific octopus — the world's largest octopus species." },
+  "Architeuthidae":       { rank:"Family", desc:"Giant squids — rarely observed deep-sea predators with the largest eyes of any living animal. The basis of sea monster legends." },
+  "Nautilidae":           { rank:"Family", desc:"Nautiluses — the only living cephalopods with an external spiral shell. They use jet propulsion and have survived five mass extinctions." },
+  "Cardiidae":            { rank:"Family", desc:"Cockles and giant clams — bivalves with ribbed shells. Giant clams are the heaviest bivalves and can live for over a century." },
+  "Helicidae":            { rank:"Family", desc:"Land snails including the garden snail and edible Roman snail. Common in Europe and widely consumed as escargot." },
+  "Strongylocentrotidae": { rank:"Family", desc:"Typical sea urchins of cold ocean waters. Key grazers in kelp forest ecosystems; their population explosions can devastate kelp." },
+  "Asteriidae":           { rank:"Family", desc:"Common sea stars — voracious predators of mussels and other bivalves. Keystone species in temperate intertidal zones." },
+  "Holothuriidae":        { rank:"Family", desc:"Sea cucumbers found in tropical marine environments. Important nutrient cyclers on reefs; heavily harvested for food in Asia." },
+  "Cyaneidae":            { rank:"Family", desc:"Lion's mane jellyfish and relatives — among the largest gelatinous predators in the ocean, with trailing tentacles reaching 30 metres." },
+  "Mussidae":             { rank:"Family", desc:"Large-polyp stony corals common on tropical reefs, including brain corals. Significant contributors to reef-building and structure." },
+  "Physaliidae":          { rank:"Family", desc:"The Portuguese Man o' War — not a true jellyfish but a colonial siphonophore whose tentacles can deliver a powerful sting." },
+  "Lumbricidae":          { rank:"Family", desc:"European earthworms — introduced worldwide through soil movement. Darwin called them the most important animals in natural history." },
+  "Hirudinidae":          { rank:"Family", desc:"Medicinal leeches — used since antiquity for bloodletting and still employed in modern microsurgery to restore blood flow." },
+  "Rhabditidae":          { rank:"Family", desc:"Free-living soil nematodes including C. elegans — the single most studied animal in the history of genetics and developmental biology." },
+  "Petrosiidae":          { rank:"Family", desc:"Encrusting and massive marine sponges including barrel sponges. Some are among the oldest living animals, exceeding 2,000 years." },
+  "Asteraceae":           { rank:"Family", desc:"The daisy/composite family — one of the largest plant families. What appears to be one flower is actually a dense head of tiny florets." },
+  "Fagaceae":             { rank:"Family", desc:"The beech-oak family — produces acorns, beechnuts, and chestnuts. Ecologically dominant across temperate forests worldwide." },
+  "Poaceae":              { rank:"Family", desc:"True grasses — the economically most important plant family. Wheat, rice, corn, sugarcane, and bamboo are all grasses." },
+  "Liliaceae":            { rank:"Family", desc:"True lilies — bulb-forming monocots with large, showy, often fragrant flowers. Many are cultivated widely as ornamentals." },
+  "Malvaceae":            { rank:"Family", desc:"Mallows, hibiscus, cotton, and cacao. A family of great economic importance for fiber, food, beverages, and timber." },
+  "Droseraceae":          { rank:"Family", desc:"Sundews and Venus flytraps — carnivorous plants of nutrient-poor wetlands that supplement their nitrogen by trapping insects." },
+  "Papaveraceae":         { rank:"Family", desc:"Poppies and relatives — flowering plants producing latex, often with alkaloids. Source of opium and many valued ornamentals." },
+  "Brassicaceae":         { rank:"Family", desc:"The mustard family — includes cabbage, broccoli, radish, arabidopsis, and canola. Many species are globally important crops." },
+  "Lamiaceae":            { rank:"Family", desc:"The mint family — aromatic herbs and shrubs including lavender, rosemary, sage, basil, and thyme. Square stems are diagnostic." },
+  "Cannabaceae":          { rank:"Family", desc:"Hemp, cannabis, and hops. A small family of great economic importance for fiber, medicine, and brewing." },
+  "Cupressaceae":         { rank:"Family", desc:"Cypresses, junipers, sequoias, and redwoods. Contains the most massive (giant sequoia) and tallest (coast redwood) trees on Earth." },
+  "Pinaceae":             { rank:"Family", desc:"Pines, firs, spruces, and larches — the dominant forest trees of the Northern Hemisphere's boreal and montane zones." },
+  "Dennstaedtiaceae":     { rank:"Family", desc:"A family of terrestrial ferns including bracken — the world's most widespread fern, colonizing open habitats on every continent." },
+  "Sphagnaceae":          { rank:"Family", desc:"Peat mosses — a single genus (~300 species) that creates bogs. Stores more carbon globally than any other plant genus." },
+  "Saccharomycetaceae":   { rank:"Family", desc:"Yeasts including baker's yeast — fundamental to food and beverage fermentation for over 9,000 years of human civilization." },
+  "Agaricaceae":          { rank:"Family", desc:"Mushrooms including Agaricus (button, portobello, cremini) — the most widely cultivated and consumed mushrooms worldwide." },
+  "Amanitaceae":          { rank:"Family", desc:"The Amanita family — contains both the deadly death cap and destroying angel, as well as edible species like the Caesar's mushroom." },
+  "Aspergillaceae":       { rank:"Family", desc:"Ascomycete molds including Penicillium and Aspergillus. Critical in antibiotic production, food science, and fermentation." },
+  "Tuberaceae":           { rank:"Family", desc:"Truffles — subterranean fruiting body fungi that form mycorrhizal partnerships with tree roots. Among the most expensive foods by weight." },
+  "Ophiocordycipitaceae": { rank:"Family", desc:"Entomopathogenic fungi that parasitize insects. Cordyceps species manipulate host behavior before consuming them entirely." },
+  "Ganodermataceae":      { rank:"Family", desc:"Bracket fungi including Ganoderma (reishi/lingzhi). Revered in East Asian medicine and studied for immunomodulatory compounds." },
+  "Laminariaceae":        { rank:"Family", desc:"Kelps — large brown algae that form towering underwater forests along cold, nutrient-rich coastlines worldwide." },
+  "Gymnodiniaceae":       { rank:"Family", desc:"Unarmored dinoflagellates. Some form toxic red tides that devastate fisheries; others are bioluminescent, causing glowing seas." },
+  "Plasmodiidae":         { rank:"Family", desc:"The malaria parasite family. Plasmodium species are transmitted by Anopheles mosquitoes and infect red blood cells." },
+  "Enterobacteriaceae":   { rank:"Family", desc:"A large family of gut bacteria including E. coli, Salmonella, and Shigella. Many are normal flora; some are major pathogens." },
+  "Streptomycetaceae":    { rank:"Family", desc:"Soil bacteria responsible for producing most clinical antibiotics, including streptomycin, erythromycin, and vancomycin." },
+  "Nostocaceae":          { rank:"Family", desc:"Filamentous cyanobacteria capable of nitrogen fixation in specialized cells called heterocysts. Found in soil and aquatic habitats." },
+  "Thermaceae":           { rank:"Family", desc:"Thermophilic bacteria thriving in hot springs. Thermus aquaticus provided the Taq polymerase that makes modern PCR analysis possible." },
+  "Methanobacteriaceae":  { rank:"Family", desc:"Hydrogen-consuming methanogens found in anaerobic environments from swamps to the rumen of cattle. Key players in the carbon cycle." },
+  "Halobacteriaceae":     { rank:"Family", desc:"Extreme halophiles whose pink/red pigments (bacteriorhodopsin) color salt lakes and evaporation ponds around the world." },
+
+  // ══════════════════════════════════════════════════
+  //  SUBFAMILIES
+  // ══════════════════════════════════════════════════
+  "Felinae":              { rank:"Subfamily", desc:"Small to medium cats that cannot roar — domestic cats, cougars, cheetahs, and lynxes all belong here." },
+  "Pantherinae":          { rank:"Subfamily", desc:"The roaring cats — lions, tigers, leopards, jaguars, and snow leopards. Defined by a modified hyoid bone allowing roaring." },
+  "Caninae":              { rank:"Subfamily", desc:"The majority of living canids — wolves, dogs, foxes, and jackals." },
+  "Homininae":            { rank:"Subfamily", desc:"Humans, chimpanzees, bonobos, and gorillas — characterized by large brains, complex social behavior, and habitual tool use." },
+  "Elephantinae":         { rank:"Subfamily", desc:"True elephants and extinct mammoths and mastodons — defined by high-crowned cheek teeth and immense body size." },
+  "Ailuropodinae":        { rank:"Subfamily", desc:"Giant pandas and extinct relatives. Descended from carnivorous bears but evolved to feed almost exclusively on bamboo." },
+  "Ursinae":              { rank:"Subfamily", desc:"Brown bears, black bears, polar bears, and relatives — the true bears. The polar bear is the largest terrestrial carnivore." },
+  "Dicerotinae":          { rank:"Subfamily", desc:"African two-horned rhinoceroses — the black rhino and white rhino. Both are critically threatened by poaching and habitat loss." },
+  "Giraffinae":           { rank:"Subfamily", desc:"Giraffes — the tallest land animals. Their long necks result from elongated cervical vertebrae, not additional vertebrae." },
+  "Delphininae":          { rank:"Subfamily", desc:"Oceanic dolphins including bottlenose, spinner, and common dolphins. Highly social, fast-swimming, and widely distributed." },
+  "Balaenopterinae":      { rank:"Subfamily", desc:"Rorquals — including the blue whale, the largest animal that has ever lived, reaching up to 33 metres in length." },
+  "Dasypodinae":          { rank:"Subfamily", desc:"Long-nosed armadillos of the Americas. The nine-banded armadillo is the only species that has naturally colonized North America." },
+  "Didelphinae":          { rank:"Subfamily", desc:"New World opossums including the Virginia opossum — North America's only marsupial. They 'play dead' as an involuntary reflex." },
+  "Macropodinae":         { rank:"Subfamily", desc:"Kangaroos and wallabies proper. The red kangaroo is the world's largest marsupial and can leap 9 metres in a single bound." },
+  "Ornithorhynchinae":    { rank:"Subfamily", desc:"The platypus — uses electroreception to detect prey underwater, navigating with its eyes and ears closed." },
+  "Myotinae":             { rank:"Subfamily", desc:"Mouse-eared bats — a diverse bat group widespread across temperate and tropical zones. Key insect controllers." },
+  "Erinaceinae":          { rank:"Subfamily", desc:"Hedgehogs — covered in up to 7,000 non-venomous spines. They roll into a tight ball when threatened, protecting their soft underside." },
+  "Haliaeetinae":         { rank:"Subfamily", desc:"Sea-eagles — large fish-eating raptors of coastlines and large inland waters. The bald eagle is North America's national bird." },
+  "Aptenodytinae":        { rank:"Subfamily", desc:"Great penguins — emperor and king penguins. The emperor penguin is the only bird that breeds during the Antarctic winter." },
+  "Struthioninae":        { rank:"Subfamily", desc:"Ostriches — the world's largest and heaviest bird. Lays the largest eggs of any living bird; its eggs weigh ~1.4 kg each." },
+  "Falconinae":           { rank:"Subfamily", desc:"True falcons — fast, aerial raptors. The peregrine falcon is the world's fastest animal, diving at over 320 km/h." },
+  "Trochilinae":          { rank:"Subfamily", desc:"Typical hummingbirds — the largest hummingbird subfamily. Can enter torpor overnight to conserve energy." },
+  "Fraterculinae":        { rank:"Subfamily", desc:"Puffins — compact auks with striking bills used to carry dozens of small fish at once to feed their chicks." },
+  "Corvinae":             { rank:"Subfamily", desc:"Crows, ravens, and their relatives. Ravens demonstrate planning, self-control, and theory of mind — cognitive skills once thought uniquely human." },
+  "Diomedeinae":          { rank:"Subfamily", desc:"Albatrosses — up to 3.5 m wingspan. They can glide for hours without flapping, covering thousands of kilometres with minimal effort." },
+  "Cheloniinae":          { rank:"Subfamily", desc:"Green sea turtles and relatives. Named for the green color of their fat (from their seagrass diet), not their shell." },
+  "Crocodylinae":         { rank:"Subfamily", desc:"True crocodiles — including Nile, saltwater, American, and mugger crocodiles. The saltwater crocodile is the world's largest living reptile." },
+  "Varaninae":            { rank:"Subfamily", desc:"Monitor lizards proper. The Komodo dragon is the world's largest lizard and can bring down prey as large as a water buffalo." },
+  "Elapinae":             { rank:"Subfamily", desc:"Cobras, mambas, and their relatives — front-fanged venomous snakes with neurotoxic venom. King cobra is the world's longest venomous snake." },
+  "Testudininae":         { rank:"Subfamily", desc:"Tortoises of dry environments. The Galápagos tortoise can exceed 170 years in age, making it among the longest-lived vertebrates." },
+  "Iguaninae":            { rank:"Subfamily", desc:"Large herbivorous iguanas of the Americas. The marine iguana is uniquely adapted to feed on submarine algae in the Galápagos." },
+  "Ambystomatinae":       { rank:"Subfamily", desc:"Mole salamanders of North America. The axolotl is the iconic member — neotenous, aquatic, and capable of regenerating lost limbs." },
+  "Dendrobatinae":        { rank:"Subfamily", desc:"Poison dart frogs with skin alkaloids derived from their diet of mites and ants. The most toxic produce batrachotoxin." },
+  "Raninae":              { rank:"Subfamily", desc:"True frogs — widespread, smooth-skinned, long-legged jumpers found on every continent except Australia and Antarctica." },
+  "Dermophiinae":         { rank:"Subfamily", desc:"Tropical burrowing caecilians of Central and South America. Their dermal scales are unlike any other living amphibian." },
+  "Salmoninae":           { rank:"Subfamily", desc:"Salmon, trout, and chars — highly prized sportfish and food fish that undertake epic anadromous migrations." },
+  "Amphiprioninae":       { rank:"Subfamily", desc:"Clownfishes and their relatives — immune to anemone stings through a protective mucus coating. All are born male; some become female." },
+  "Hippocampinae":        { rank:"Subfamily", desc:"Seahorses — the only animals where the male becomes pregnant, gestating eggs in a specialized brood pouch." },
+  "Lamninae":             { rank:"Subfamily", desc:"Mackerel sharks — including the great white, mako, and salmon shark. Can maintain body temperature above ambient water temperature." },
+  "Latiimeriinae":        { rank:"Subfamily", desc:"Living coelacanths — two species surviving in deep waters off Africa and Indonesia. They move their paired fins alternately like legs." },
+  "Dynastinae":           { rank:"Subfamily", desc:"Rhinoceros beetles — the world's strongest animals relative to size. Males use horns to wrestle rivals from prime feeding sites." },
+  "Saturniinae":          { rank:"Subfamily", desc:"Giant silk moths — including the luna moth and atlas moth. Adults have no functional mouthparts; they live solely to reproduce." },
+  "Myrmicinae":           { rank:"Subfamily", desc:"A diverse ant subfamily including leaf-cutter ants, fire ants, and harvester ants. The most species-rich ant subfamily." },
+  "Lampyrinae":           { rank:"Subfamily", desc:"Typical fireflies — the largest lampyrid subfamily. Their cold light (bioluminescence) is produced with nearly 100% efficiency." },
+  "Mantinae":             { rank:"Subfamily", desc:"True praying mantises. The most widespread mantis subfamily, found across temperate and tropical regions worldwide." },
+  "Oedipodinae":          { rank:"Subfamily", desc:"Band-winged grasshoppers and migratory locusts. The desert locust and migratory locust in this subfamily can form swarms of billions." },
+  "Lethocerinae":         { rank:"Subfamily", desc:"Giant water bugs — aquatic ambush predators that inject digestive saliva into their prey and suck out the liquefied contents." },
+  "Latrodectinae":        { rank:"Subfamily", desc:"Widow spiders — notorious for potent neurotoxic venom. Despite their fearsome reputation, bites are rarely fatal with modern treatment." },
+  "Scorpioninae":         { rank:"Subfamily", desc:"True scorpions including the emperor scorpion. Despite their intimidating size, their venom is relatively mild to humans." },
+  "Theraphosinae":        { rank:"Subfamily", desc:"New World tarantulas — including the goliath birdeater. They use urticating hairs as defense, kicking them into attackers' eyes." },
+  "Homarinae":            { rank:"Subfamily", desc:"True clawed lobsters. American lobsters are among the longest-lived crustaceans, with some individuals estimated at over 100 years old." },
+  "Birginae":             { rank:"Subfamily", desc:"Coconut crabs — the sole member is the world's largest terrestrial arthropod. Can open coconuts and has been recorded eating seabirds." },
+  "Octopodinae":          { rank:"Subfamily", desc:"Benthic octopuses — bottom-dwelling with large mantle and web between arms. The common octopus can open jars to access prey." },
+  "Enteroctopodinae":     { rank:"Subfamily", desc:"Giant Pacific octopuses and relatives — the largest octopus species, with arm spans over 4 metres and high problem-solving ability." },
+  "Architeuthinae":       { rank:"Subfamily", desc:"Giant squids — denizens of the deep ocean. Their eyes, the size of basketballs, are the largest of any living animal." },
+  "Nautilinae":           { rank:"Subfamily", desc:"Nautiluses — living fossils that use a buoyancy-regulating chambered shell. Have survived all five major mass extinction events." },
+  "Tridacninae":          { rank:"Subfamily", desc:"Giant clams — the largest bivalves. They harbor symbiotic algae (zooxanthellae) in their mantle tissues, supplementing their filter feeding." },
+  "Helicinae":            { rank:"Subfamily", desc:"Garden and land snails including Helix pomatia (Roman snail). Considered a culinary delicacy and farmed commercially for escargot." },
+  "Strongylocentrotinae": { rank:"Subfamily", desc:"Sea urchins of cold Pacific and Atlantic waters. Their grazing maintains kelp ecosystems, but overabundance can create barren 'urchin barrens'." },
+  "Asteriinae":           { rank:"Subfamily", desc:"Common sea stars — including Asterias rubens, an aggressive predator of oyster and mussel beds in Atlantic waters." },
+  "Holothuriinae":        { rank:"Subfamily", desc:"Sea cucumbers of coral reef environments. They process sediment and recycle nutrients, playing a vital role in reef health." },
+  "Cyaneinae":            { rank:"Subfamily", desc:"Lion's mane jellyfish — the largest jellyfish species, found in cold Arctic and sub-Arctic waters. Named for their trailing tentacle 'mane'." },
+  "Faviinae":             { rank:"Subfamily", desc:"Brain and star corals — colonial Scleractinians that build the massive rounded heads central to tropical reef structure." },
+  "Physaliinae":          { rank:"Subfamily", desc:"Portuguese Man o' War — a floating colonial siphonophore whose pneumatophore (gas bladder) acts as a sail on ocean currents." },
+  "Lumbricinae":          { rank:"Subfamily", desc:"European earthworms, including Lumbricus terrestris — the most widely studied earthworm. Darwin estimated 53,000 per acre in productive soil." },
+  "Hirudininae":          { rank:"Subfamily", desc:"Medicinal leeches — their saliva contains hirudin (an anticoagulant) and anesthetics, making bites initially painless." },
+  "Rhabditinae":          { rank:"Subfamily", desc:"Free-living soil nematodes. C. elegans was the first multicellular animal to have its genome sequenced and entire nervous system mapped." },
+  "Xestospongiidae":      { rank:"Subfamily", desc:"Barrel sponges — massive, long-lived marine sponges. Some individuals in the Caribbean are estimated to be over 2,000 years old." },
+  "Asteroideae":          { rank:"Subfamily", desc:"The largest Asteraceae subfamily — typical daisies, including sunflowers, chamomile, and chrysanthemums." },
+  "Cichorioideae":        { rank:"Subfamily", desc:"Chicory subfamily of Asteraceae, including dandelions, chicory, lettuce, and artichokes. Many produce milky latex." },
+  "Lilioideae":           { rank:"Subfamily", desc:"True lilies and tulips — bulbous monocots with large, often fragrant flowers cultivated worldwide as ornamentals." },
+  "Byttnerioideae":       { rank:"Subfamily", desc:"A Malvaceae subfamily including cacao (Theobroma) and cola. Tropical trees producing seeds rich in stimulants and fats." },
+  "Dioncophylloideae":    { rank:"Subfamily", desc:"Carnivorous plants related to the Venus flytrap. The Venus flytrap itself is native only to a small region of the Carolinas." },
+  "Papaveroideae":        { rank:"Subfamily", desc:"True poppies — the poppy subfamily, containing Papaver somniferum (opium poppy) and the Flanders poppy of remembrance." },
+  "Brassicoideae":        { rank:"Subfamily", desc:"The core mustard subfamily — includes cabbage, broccoli, cauliflower, kale, Brussels sprouts, and Arabidopsis thaliana." },
+  "Lamioideae":           { rank:"Subfamily", desc:"Lamiaceae subfamily including lavender — characterized by square stems, opposite leaves, and strongly aromatic oils." },
+  "Cannaboideae":         { rank:"Subfamily", desc:"Cannabis and hop plants — small subfamily providing both psychoactive compounds and hops for beer brewing." },
+  "Sequoioideae":         { rank:"Subfamily", desc:"Redwoods and sequoias — three species containing the tallest (coast redwood), most massive (giant sequoia), and oldest conifer trees." },
+  "Pinoideae":            { rank:"Subfamily", desc:"Pines proper — over 100 species. Ecologically dominant in boreal and temperate forests; enormously important in timber production." },
+  "Pteridioideae":        { rank:"Subfamily", desc:"Bracken ferns — a nearly cosmopolitan genus that colonizes disturbed and open habitats, sometimes forming dense monocultures." },
+  "Sphagninae":           { rank:"Subfamily", desc:"Peat mosses — their unique cell structure holds water like a sponge, enabling them to build deep peat deposits over millennia." },
+  "Saccharomycoideae":    { rank:"Subfamily", desc:"Includes Saccharomyces cerevisiae — central to baking, brewing, winemaking, and the production of many industrial enzymes." },
+  "Agaricinae":           { rank:"Subfamily", desc:"Button mushrooms and allies (genus Agaricus). Most cultivated mushrooms eaten globally are produced from this subfamily." },
+  "Amanitinae":           { rank:"Subfamily", desc:"Amanita mushrooms — contains both deadly species (death cap, destroying angel) and edible species (fly agaric is mildly toxic)." },
+  "Aspergillinae":        { rank:"Subfamily", desc:"Penicillium and Aspergillus molds. Fleming's accidental discovery of penicillin from Penicillium chrysogenum revolutionized medicine." },
+  "Tuberinae":            { rank:"Subfamily", desc:"Truffles — subterranean ascomycetes. The Périgord black truffle can sell for over $1,000 per kilogram and is sniffed out by trained pigs or dogs." },
+  "Ophiocordycipitinae":  { rank:"Subfamily", desc:"Zombie-ant fungi — Ophiocordyceps unilateralis forces infected ants to climb vegetation before sprouting from their heads to disperse spores." },
+  "Ganodermatinae":       { rank:"Subfamily", desc:"Reishi and varnished bracket fungi — hard, shelf-like fruiting bodies with a shiny lacquered appearance. Used medicinally across Asia." },
+  "Macrocystinae":        { rank:"Subfamily", desc:"Giant kelp — can grow 60 cm per day, forming the world's fastest-growing and most structurally complex marine algae forests." },
+  "Kareniaceae":          { rank:"Subfamily", desc:"Toxin-producing dinoflagellates including Karenia brevis — the main cause of Florida red tides that kill fish and strand sea turtles." },
+  "Plasmodiinae":         { rank:"Subfamily", desc:"Malaria parasites — Plasmodium falciparum causes the most severe form and is responsible for the majority of malaria fatalities." },
+  "Enterobacterinae":     { rank:"Subfamily", desc:"Includes E. coli — a normal gut commensal but also the cause of food poisoning, urinary tract infections, and neonatal meningitis." },
+  "Streptomycetinae":     { rank:"Subfamily", desc:"Streptomyces bacteria — filamentous soil microbes that produce the earthy smell of fresh soil (geosmin) and two-thirds of all antibiotics." },
+  "Nostocinae":           { rank:"Subfamily", desc:"Filamentous nitrogen-fixing cyanobacteria that form gelatinous colonies. Some are used as food in Asia (Nostoc commune)." },
+  "Therminae":            { rank:"Subfamily", desc:"Thermophilic bacteria of hot springs. Thermus aquaticus from Yellowstone's Mushroom Spring gave science Taq polymerase for PCR." },
+  "Methanobacterinae":    { rank:"Subfamily", desc:"Hydrogen-oxidizing methanogens that produce methane in anaerobic environments. Important in ruminant digestion and biogas production." },
+  "Halobacterinae":       { rank:"Subfamily", desc:"Classic extreme halophiles — including Halobacterium salinarum, which uses light-driven proton pumping (bacteriorhodopsin) for energy." },
+
+  // ══════════════════════════════════════════════════
+  //  GENERA
+  // ══════════════════════════════════════════════════
+  "Felis":              { rank:"Genus", desc:"Small felids including the domestic cat (F. catus) and wildcat (F. silvestris). Solitary, mostly nocturnal hunters." },
+  "Canis":              { rank:"Genus", desc:"Dogs and wolves — including the gray wolf (C. lupus), domestic dog (C. lupus familiaris), coyote, and golden jackal." },
+  "Pan":                { rank:"Genus", desc:"Chimpanzees — two species (common chimp and bonobo) sharing ~99% DNA with humans. Use tools, hunt cooperatively, and wage warfare." },
+  "Loxodonta":          { rank:"Genus", desc:"African elephants — two species: the larger savanna elephant and the smaller forest elephant. Both are threatened by poaching." },
+  "Ailuropoda":         { rank:"Genus", desc:"The giant panda (A. melanoleuca) — descended from carnivores, now consuming ~99% bamboo. Fewer than 2,000 remain in the wild." },
+  "Homo":               { rank:"Genus", desc:"The human genus — once included Neanderthals, Denisovans, and many other species. Only Homo sapiens survives today." },
+  "Balaenoptera":       { rank:"Genus", desc:"Rorqual whales — including B. musculus (blue whale), the largest animal ever known to have lived on Earth at up to 33 metres." },
+  "Tursiops":           { rank:"Genus", desc:"Bottlenose dolphins — among the most intelligent non-human animals. They use signature whistles as individual names." },
+  "Dasypus":            { rank:"Genus", desc:"Long-nosed armadillos, including the nine-banded armadillo — the only mammal known to naturally contract leprosy." },
+  "Didelphis":          { rank:"Genus", desc:"Large American opossums including D. virginiana. Their immune systems neutralize many snake venoms that would kill other mammals." },
+  "Osphranter":         { rank:"Genus", desc:"Red and antilopine kangaroos — the largest genus of kangaroos. Red kangaroos can reach 90 km/h in short bursts." },
+  "Ornithorhynchus":    { rank:"Genus", desc:"The platypus — the sole living species. Males carry ankle spurs that deliver venom causing intense pain in large animals." },
+  "Myotis":             { rank:"Genus", desc:"Mouse-eared bats — the most species-rich bat genus with over 100 species. They use echolocation to hunt insects in complete darkness." },
+  "Erinaceus":          { rank:"Genus", desc:"Hedgehogs of Eurasia — nocturnal insectivores that hibernate in winter. Their spines are modified hollow hairs made of keratin." },
+  "Ursus":              { rank:"Genus", desc:"Bears including brown bears, black bears, and polar bears. The polar bear (U. maritimus) is a recent evolutionary divergence from brown bears." },
+  "Panthera":           { rank:"Genus", desc:"The roaring cats — lion, tiger, leopard, jaguar, and snow leopard. All can roar, with the tiger being the largest wild cat." },
+  "Giraffa":            { rank:"Genus", desc:"Giraffes — the tallest living terrestrial animals. Their 1.8-metre necks have only 7 cervical vertebrae, the same number as humans." },
+  "Diceros":            { rank:"Genus", desc:"African black rhinoceroses — two species, both critically endangered. Despite the name, their skin color is similar to white rhinos." },
+  "Haliaeetus":         { rank:"Genus", desc:"Sea-eagles — 8 species worldwide. H. leucocephalus (bald eagle) is the national bird of the United States." },
+  "Aptenodytes":        { rank:"Genus", desc:"Great penguins — emperor and king penguins. The emperor penguin is the deepest-diving bird, reaching depths of over 500 metres." },
+  "Struthio":           { rank:"Genus", desc:"Ostriches — the only living species is S. camelus. Their eggs are the largest of any living bird and their eyes are larger than their brains." },
+  "Falco":              { rank:"Genus", desc:"True falcons — over 40 species. F. peregrinus (peregrine) is the fastest animal on Earth in a hunting stoop." },
+  "Archilochus":        { rank:"Genus", desc:"Hummingbirds — including the ruby-throated hummingbird, the only hummingbird that breeds in eastern North America." },
+  "Fratercula":         { rank:"Genus", desc:"Puffins — three species of compact, charismatic auks. Atlantic puffins can carry up to 62 small fish in their bills simultaneously." },
+  "Corvus":             { rank:"Genus", desc:"Crows and ravens — among the most cognitively sophisticated birds. C. corax (common raven) demonstrates planning and episodic memory." },
+  "Diomedea":           { rank:"Genus", desc:"Wandering and royal albatrosses — the largest flying birds by wingspan. A wandering albatross can circumnavigate the globe in 46 days." },
+  "Chelonia":           { rank:"Genus", desc:"The green sea turtle (C. mydas) — a circumtropical marine reptile that returns to the exact beach where it hatched to lay eggs." },
+  "Crocodylus":         { rank:"Genus", desc:"True crocodiles — 7–13 species. C. porosus (saltwater crocodile) is the world's largest living reptile, reaching over 6 metres." },
+  "Varanus":            { rank:"Genus", desc:"Monitor lizards — over 80 species, ranging from tiny to the Komodo dragon. They have forked tongues and excellent chemoreception." },
+  "Ophiophagus":        { rank:"Genus", desc:"The king cobra — the sole species in this genus. It is the world's longest venomous snake, reaching up to 5.5 metres." },
+  "Chelonoidis":        { rank:"Genus", desc:"Galápagos and South American tortoises. Some Galápagos giants are over 170 years old and can weigh more than 300 kg." },
+  "Amblyrhynchus":      { rank:"Genus", desc:"The marine iguana — the only lizard in the world that forages in the sea, diving up to 30 metres to graze on algae." },
+  "Ambystoma":          { rank:"Genus", desc:"Mole salamanders — including the axolotl (A. mexicanum). Axolotls can regenerate entire limbs, heart tissue, and parts of their brain." },
+  "Dendrobates":        { rank:"Genus", desc:"Poison dart frogs — their toxins are among the most potent known to science. Indigenous peoples use them on blowgun darts for hunting." },
+  "Rana":               { rank:"Genus", desc:"True frogs — the archetypal frogs of literature and pond life. Widespread across Eurasia and North America." },
+  "Gymnopis":           { rank:"Genus", desc:"A burrowing caecilian of Central America. Almost entirely underground, these amphibians are rarely encountered and poorly understood." },
+  "Salmo":              { rank:"Genus", desc:"Atlantic salmon and brown trout — the Atlantic salmon (S. salar) can travel thousands of kilometres to return to its birth river." },
+  "Amphiprion":         { rank:"Genus", desc:"Clownfishes — 28 species, all of which form symbiotic relationships with sea anemones. Made famous by the film Finding Nemo." },
+  "Hippocampus":        { rank:"Genus", desc:"Seahorses — ~46 species. They are monogamous and the male is the only male animal in the world that can become pregnant." },
+  "Carcharodon":        { rank:"Genus", desc:"The great white shark — the sole species. The largest predatory fish, it can detect a single drop of blood in 100 litres of water." },
+  "Latimeria":          { rank:"Genus", desc:"Coelacanths — two living species, the most famous 'living fossils.' Discovered alive in 1938, their discovery was like finding a live dinosaur." },
+  "Danaus":             { rank:"Genus", desc:"Milkweed butterflies — including the monarch (D. plexippus), famous for multigenerational annual migrations to overwintering sites in Mexico." },
+  "Apis":               { rank:"Genus", desc:"Honey bees — 7–12 species of eusocial bees. A. mellifera is the primary commercial pollinator and produces over 1.9 million tonnes of honey annually." },
+  "Musca":              { rank:"Genus", desc:"True house flies — M. domestica is found on every inhabited continent and can mechanically spread over 100 pathogens." },
+  "Dynastes":           { rank:"Genus", desc:"Rhinoceros beetles — the Hercules beetle (D. hercules) is the longest beetle on Earth. They are among the strongest animals relative to body weight." },
+  "Actias":             { rank:"Genus", desc:"Moon moths — including the luna moth (A. luna). Their long tails disrupt bat echolocation, reducing predation rates by up to 47%." },
+  "Atta":               { rank:"Genus", desc:"Leafcutter ants — cultivate fungus gardens underground. Their colonies can exceed 8 million workers and are major ecosystem engineers." },
+  "Photinus":           { rank:"Genus", desc:"Fireflies — each species has a unique flash pattern. Males flash from the air while females respond from vegetation below." },
+  "Mantis":             { rank:"Genus", desc:"Praying mantises — M. religiosa was the first insect species introduced to North America intentionally for biological pest control." },
+  "Locusta":            { rank:"Genus", desc:"Migratory locusts — L. migratoria is the world's most widespread locust. Swarms can contain 40–80 million individuals per square kilometre." },
+  "Lethocerus":         { rank:"Genus", desc:"Giant water bugs — among the largest insects in the world. They are eaten as a street food in Southeast Asia and Thailand." },
+  "Latrodectus":        { rank:"Genus", desc:"Widow spiders — ~30 species including the black widow. Their venom is 15× more potent than rattlesnake venom by volume." },
+  "Pandinus":           { rank:"Genus", desc:"Emperor and forest scorpions — among the world's largest. Their venom is relatively mild but their large claws are formidable weapons." },
+  "Theraphosa":         { rank:"Genus", desc:"The Goliath birdeater — the world's largest spider by mass, with a leg span up to 30 cm. Despite its name, it mostly eats invertebrates." },
+  "Homarus":            { rank:"Genus", desc:"Clawed lobsters — H. americanus (American lobster) can live over 100 years and continues to grow throughout its life." },
+  "Birgus":             { rank:"Genus", desc:"The coconut crab — the world's largest land arthropod. Can crack open a coconut with its claws and has a powerful sense of smell." },
+  "Octopus":            { rank:"Genus", desc:"True octopuses — over 100 species. O. vulgaris can solve puzzles, recognize individual humans, and has three hearts." },
+  "Enteroctopus":       { rank:"Genus", desc:"Giant Pacific octopuses — the world's largest octopus. Highly intelligent, with documented ability to use tools and escape sealed tanks." },
+  "Architeuthis":       { rank:"Genus", desc:"Giant squids — A. dux is the largest invertebrate. Eyes up to 30 cm in diameter help them detect sperm whale predators in the deep ocean." },
+  "Nautilus":           { rank:"Genus", desc:"Chambered nautiluses — living fossils whose spiral shell is a marvel of natural engineering. They use jet propulsion to navigate." },
+  "Tridacna":           { rank:"Genus", desc:"Giant clams — the world's largest bivalves, reaching 1.2 metres in length. They live in symbiosis with photosynthetic algae." },
+  "Helix":              { rank:"Genus", desc:"Land snails — including H. pomatia (Roman snail), prized as escargot. They secrete calcium carbonate shells and can seal themselves inside during drought." },
+  "Strongylocentrotus": { rank:"Genus", desc:"Sea urchins of cold Pacific and Atlantic coasts. S. purpuratus is a keystone herbivore that can graze entire kelp forests bare." },
+  "Asterias":           { rank:"Genus", desc:"Common sea stars — including A. rubens, the most abundant sea star of the Northeast Atlantic. A voracious predator of mussels and oysters." },
+  "Holothuria":         { rank:"Genus", desc:"Sea cucumbers — they expel their own intestines as a defense, then regenerate them. Some species share living spaces with parasitic fish." },
+  "Cyanea":             { rank:"Genus", desc:"Lion's mane jellyfish — C. capillata is the world's largest jellyfish. In Arctic waters, tentacles can reach over 36 metres long." },
+  "Diploria":           { rank:"Genus", desc:"Brain corals — their highly folded surface maximizes the number of polyps. Massive brain corals can be over 1,500 years old." },
+  "Physalia":           { rank:"Genus", desc:"Portuguese Man o' War — not a single organism but a colony of specialized polyps. Its tentacles can still sting for hours after the animal has died." },
+  "Lumbricus":          { rank:"Genus", desc:"Earthworms — L. terrestris creates permanent burrows that improve soil drainage and aeration. Darwin estimated their soil-turning exceeds ploughing." },
+  "Hirudo":             { rank:"Genus", desc:"Medicinal leeches — H. medicinalis is still used post-surgery to restore microcirculation after tissue reattachment procedures." },
+  "Caenorhabditis":     { rank:"Genus", desc:"C. elegans was the first animal to have its complete cell lineage, genome, and nervous system (302 neurons) fully mapped." },
+  "Xestospongia":       { rank:"Genus", desc:"Barrel sponges — X. testudinaria in the Indo-Pacific can be over 2 metres wide. Some individuals are estimated to be 2,300 years old." },
+  "Helianthus":         { rank:"Genus", desc:"Sunflowers — ~70 species native to North America. H. annuus is cultivated worldwide for its oil-rich seeds and as an ornamental." },
+  "Quercus":            { rank:"Genus", desc:"Oaks — ~500 species across the Northern Hemisphere. A single mature oak can support over 2,300 species of insects, birds, and fungi." },
+  "Triticum":           { rank:"Genus", desc:"Wheat — cultivated for ~10,000 years. T. aestivum (bread wheat) is the world's most widely grown crop by area." },
+  "Tulipa":             { rank:"Genus", desc:"Tulips — ~75 species native from the Mediterranean to Central Asia. The 1630s 'Tulip Mania' in the Netherlands was the first speculative bubble." },
+  "Theobroma":          { rank:"Genus", desc:"Cacao — T. cacao seeds are fermented, dried, and roasted to produce chocolate. The Aztecs valued cacao beans as currency." },
+  "Taraxacum":          { rank:"Genus", desc:"Dandelions — T. officinale is one of the world's most widespread plants. Every part is edible and it is rich in vitamins A and C." },
+  "Dionaea":            { rank:"Genus", desc:"Venus flytraps — the sole species (D. muscipula). Each trap can only close and open about 3–5 times before dying." },
+  "Papaver":            { rank:"Genus", desc:"Poppies — P. somniferum (opium poppy) is the source of morphine and codeine. P. rhoeas (red poppy) symbolizes wartime remembrance." },
+  "Arabidopsis":        { rank:"Genus", desc:"Thale cress — A. thaliana is to plant biology what E. coli is to microbiology: the primary model organism for genetics research." },
+  "Lavandula":          { rank:"Genus", desc:"Lavender — L. angustifolia is the most widely cultivated species. Its essential oil has demonstrated antimicrobial and anxiolytic properties." },
+  "Phyllostachys":      { rank:"Genus", desc:"Running bamboos — including moso bamboo (P. edulis), which can grow 91 cm in a single day and is the most commercially important bamboo." },
+  "Cannabis":           { rank:"Genus", desc:"Cannabis — C. sativa has been cultivated for fiber (hemp), food, and medicinal/recreational compounds for at least 6,000 years." },
+  "Sequoiadendron":     { rank:"Genus", desc:"Giant sequoias — the sole species is the most massive organism on Earth by volume. 'General Sherman' contains ~1,487 cubic metres of wood." },
+  "Pinus":              { rank:"Genus", desc:"Pines — the most species-rich conifer genus. Bristlecone pines (P. longaeva) are the world's oldest individual trees, living over 5,000 years." },
+  "Pteridium":          { rank:"Genus", desc:"Bracken ferns — P. aquilinum is the world's most widespread fern. Carcinogenic if eaten; its spores are also suspected to be carcinogenic." },
+  "Sphagnum":           { rank:"Genus", desc:"Peat moss — ~300 species collectively store more carbon than all the world's forests. Has been used as wound dressing and fuel for millennia." },
+  "Saccharomyces":      { rank:"Genus", desc:"Budding yeasts — S. cerevisiae has been used in fermentation for over 9,000 years and was the first eukaryote to have its genome sequenced." },
+  "Agaricus":           { rank:"Genus", desc:"Button mushrooms — A. bisporus (portobello, cremini, white button) is the world's most commercially cultivated mushroom, over 4 million tonnes/year." },
+  "Amanita":            { rank:"Genus", desc:"The most deadly mushroom genus — A. phalloides (death cap) causes most fatal mushroom poisonings. Its toxins have no antidote." },
+  "Penicillium":        { rank:"Genus", desc:"Molds including P. chrysogenum — source of penicillin. Also responsible for the blue veins in Roquefort and Gorgonzola cheeses." },
+  "Tuber":              { rank:"Genus", desc:"Truffles — T. melanosporum (Périgord black truffle) can sell for over €1,000/kg. They attract animals with pheromone-like volatiles." },
+  "Ophiocordyceps":     { rank:"Genus", desc:"Zombie-ant fungi — O. unilateralis infects ant brains, manipulates them to climb vegetation, then kills them to disperse spores." },
+  "Ganoderma":          { rank:"Genus", desc:"Reishi mushrooms — G. lucidum ('mushroom of immortality') has been used in Chinese medicine for 2,000 years and is studied for immunomodulation." },
+  "Macrocystis":        { rank:"Genus", desc:"Giant kelp — M. pyrifera is the fastest-growing organism on Earth, reaching 45 metres tall. Its forests shelter thousands of species." },
+  "Karenia":            { rank:"Genus", desc:"Toxic dinoflagellates — K. brevis produces brevetoxins that cause neurotoxic shellfish poisoning and are responsible for Florida red tides." },
+  "Plasmodium":         { rank:"Genus", desc:"Malaria parasites — P. falciparum is responsible for the most severe malaria and kills over 600,000 people annually, mostly children." },
+  "Escherichia":        { rank:"Genus", desc:"E. coli — E. coli K-12 is the most studied organism in biology. Engineered strains produce insulin, vaccines, and industrial chemicals." },
+  "Streptomyces":       { rank:"Genus", desc:"Soil actinobacteria — produce over 500 antibiotics including streptomycin, tetracycline, and erythromycin. Also make geosmin, the scent of rain on earth." },
+  "Anabaena":           { rank:"Genus", desc:"Filamentous cyanobacteria that fix atmospheric nitrogen in specialized heterocyst cells. Crucial natural fertilizers of aquatic ecosystems." },
+  "Thermus":            { rank:"Genus", desc:"Thermophilic bacteria of hot springs — T. aquaticus provided the heat-stable Taq polymerase that made PCR and the genomics revolution possible." },
+  "Methanobacterium":   { rank:"Genus", desc:"Methane-producing archaea — found in anaerobic environments worldwide. Key contributors to global methane cycling and climate." },
+  "Halobacterium":      { rank:"Genus", desc:"Extreme halophile archaea — H. salinarum thrives in salt concentrations that would kill most life. Uses light-driven bacteriorhodopsin for energy." },
+};
+
+// ====================================================
+//  SPECIES DATABASE
+// ====================================================
+const SPECIES_DB = [
+  // ── ANIMALIA: Mammalia ──────────────────────────────────────────────────
+  { common:"House Cat",             scientific:"Felis catus",               hint:"A domesticated carnivore, one of humanity's oldest companions.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Carnivora",         family:"Felidae",            subfamily:"Felinae",          genus:"Felis" },
+  { common:"Gray Wolf",             scientific:"Canis lupus",               hint:"Apex predator of northern forests, ancestor of domestic dogs.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Carnivora",         family:"Canidae",            subfamily:"Caninae",          genus:"Canis" },
+  { common:"Common Chimpanzee",     scientific:"Pan troglodytes",           hint:"Our closest living relative, sharing ~99% of DNA with humans.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Primates",          family:"Hominidae",          subfamily:"Homininae",        genus:"Pan" },
+  { common:"African Elephant",      scientific:"Loxodonta africana",        hint:"The largest land animal, with distinctive enormous ears.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Proboscidea",       family:"Elephantidae",       subfamily:"Elephantinae",     genus:"Loxodonta" },
+  { common:"Giant Panda",           scientific:"Ailuropoda melanoleuca",    hint:"Beloved bear native to China, feeding almost exclusively on bamboo.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Carnivora",         family:"Ursidae",            subfamily:"Ailuropodinae",    genus:"Ailuropoda" },
+  { common:"Human",                 scientific:"Homo sapiens",              hint:"The only surviving species of the genus Homo.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Primates",          family:"Hominidae",          subfamily:"Homininae",        genus:"Homo" },
+  { common:"Blue Whale",            scientific:"Balaenoptera musculus",     hint:"The largest animal ever known to have existed on Earth.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Artiodactyla",      family:"Balaenopteridae",    subfamily:"Balaenopterinae",  genus:"Balaenoptera" },
+  { common:"Bottlenose Dolphin",    scientific:"Tursiops truncatus",        hint:"Highly intelligent cetacean famous for its curved 'smile' and playful behavior.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Artiodactyla",      family:"Delphinidae",        subfamily:"Delphininae",      genus:"Tursiops" },
+  { common:"Nine-banded Armadillo", scientific:"Dasypus novemcinctus",      hint:"The only armadillo species found in North America; can cross water by walking on the bottom.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Cingulata",         family:"Dasypodidae",        subfamily:"Dasypodinae",      genus:"Dasypus" },
+  { common:"Virginia Opossum",      scientific:"Didelphis virginiana",      hint:"North America's only marsupial; famous for feigning death when threatened.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Didelphimorphia",   family:"Didelphidae",        subfamily:"Didelphinae",      genus:"Didelphis" },
+  { common:"Red Kangaroo",          scientific:"Osphranter rufus",          hint:"The largest marsupial and the largest native land mammal of Australia.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Diprotodontia",     family:"Macropodidae",       subfamily:"Macropodinae",     genus:"Osphranter" },
+  { common:"Platypus",              scientific:"Ornithorhynchus anatinus",  hint:"Egg-laying mammal with a duck-like bill, beaver tail, and venomous ankle spurs.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Monotremata",       family:"Ornithorhynchidae",  subfamily:"Ornithorhynchinae",genus:"Ornithorhynchus" },
+  { common:"Little Brown Bat",      scientific:"Myotis lucifugus",          hint:"Common North American bat that can catch up to 1,000 insects per hour using echolocation.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Chiroptera",        family:"Vespertilionidae",   subfamily:"Myotinae",         genus:"Myotis" },
+  { common:"European Hedgehog",     scientific:"Erinaceus europaeus",       hint:"Spiny insectivore with around 5,000 quills; hibernates through winter.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Erinaceomorpha",    family:"Erinaceidae",        subfamily:"Erinaceinae",      genus:"Erinaceus" },
+  { common:"Polar Bear",            scientific:"Ursus maritimus",           hint:"The world's largest land carnivore; dependent on sea ice for hunting seals.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Carnivora",         family:"Ursidae",            subfamily:"Ursinae",          genus:"Ursus" },
+  { common:"Snow Leopard",          scientific:"Panthera uncia",            hint:"Elusive big cat of the Central Asian mountains, with a tail nearly as long as its body.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Carnivora",         family:"Felidae",            subfamily:"Pantherinae",      genus:"Panthera" },
+  { common:"African Lion",          scientific:"Panthera leo",              hint:"The only truly social wild cat, living in groups called prides.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Carnivora",         family:"Felidae",            subfamily:"Pantherinae",      genus:"Panthera" },
+  { common:"Giraffe",               scientific:"Giraffa camelopardalis",    hint:"The tallest living terrestrial animal; its neck alone can exceed 1.8 metres.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Artiodactyla",      family:"Giraffidae",         subfamily:"Giraffinae",       genus:"Giraffa" },
+  { common:"Black Rhinoceros",      scientific:"Diceros bicornis",          hint:"Critically endangered browser with two horns; a browser rather than a grazer.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Mammalia",        order:"Perissodactyla",    family:"Rhinocerotidae",     subfamily:"Dicerotinae",      genus:"Diceros" },
+
+  // ── ANIMALIA: Aves ──────────────────────────────────────────────────────
+  { common:"Bald Eagle",            scientific:"Haliaeetus leucocephalus",  hint:"National symbol of the United States, a large bird of prey.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Aves",            order:"Accipitriformes",   family:"Accipitridae",       subfamily:"Haliaeetinae",     genus:"Haliaeetus" },
+  { common:"Emperor Penguin",       scientific:"Aptenodytes forsteri",      hint:"The tallest and heaviest penguin; males incubate eggs on their feet through Antarctic winter.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Aves",            order:"Sphenisciformes",   family:"Spheniscidae",       subfamily:"Aptenodytinae",    genus:"Aptenodytes" },
+  { common:"Common Ostrich",        scientific:"Struthio camelus",          hint:"The world's largest living bird and fastest two-legged animal.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Aves",            order:"Struthioniformes",  family:"Struthionidae",      subfamily:"Struthioninae",    genus:"Struthio" },
+  { common:"Peregrine Falcon",      scientific:"Falco peregrinus",          hint:"The fastest animal on Earth, reaching over 320 km/h in a hunting stoop.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Aves",            order:"Falconiformes",     family:"Falconidae",         subfamily:"Falconinae",       genus:"Falco" },
+  { common:"Ruby-throated Hummingbird", scientific:"Archilochus colubris",  hint:"Tiny nectar-feeder that can beat its wings 53 times per second.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Aves",            order:"Apodiformes",       family:"Trochilidae",        subfamily:"Trochilinae",      genus:"Archilochus" },
+  { common:"Atlantic Puffin",       scientific:"Fratercula arctica",        hint:"Seabird nicknamed 'sea parrot' for its colorful beak; nests in burrows on cliff tops.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Aves",            order:"Charadriiformes",   family:"Alcidae",            subfamily:"Fraterculinae",    genus:"Fratercula" },
+  { common:"Common Raven",          scientific:"Corvus corax",              hint:"The most widely distributed corvid; among the most intelligent birds, capable of tool use.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Aves",            order:"Passeriformes",     family:"Corvidae",           subfamily:"Corvinae",         genus:"Corvus" },
+  { common:"Wandering Albatross",   scientific:"Diomedea exulans",          hint:"Has the largest wingspan of any living bird — up to 3.5 metres.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Aves",            order:"Procellariiformes", family:"Diomedeidae",        subfamily:"Diomedeinae",      genus:"Diomedea" },
+
+  // ── ANIMALIA: Reptilia ──────────────────────────────────────────────────
+  { common:"Green Sea Turtle",      scientific:"Chelonia mydas",            hint:"Endangered marine reptile known for long oceanic migrations.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Reptilia",        order:"Testudines",        family:"Cheloniidae",        subfamily:"Cheloniinae",      genus:"Chelonia" },
+  { common:"Nile Crocodile",        scientific:"Crocodylus niloticus",      hint:"Large semi-aquatic reptile, apex predator of African rivers.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Reptilia",        order:"Crocodilia",        family:"Crocodylidae",       subfamily:"Crocodylinae",     genus:"Crocodylus" },
+  { common:"Komodo Dragon",         scientific:"Varanus komodoensis",       hint:"The world's largest living lizard; uses venom and bacteria-laced saliva to subdue prey.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Reptilia",        order:"Squamata",          family:"Varanidae",          subfamily:"Varaninae",        genus:"Varanus" },
+  { common:"King Cobra",            scientific:"Ophiophagus hannah",        hint:"The world's longest venomous snake; preys almost exclusively on other snakes.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Reptilia",        order:"Squamata",          family:"Elapidae",           subfamily:"Elapinae",         genus:"Ophiophagus" },
+  { common:"Galápagos Tortoise",    scientific:"Chelonoidis niger",         hint:"One of the longest-lived vertebrates; some individuals have exceeded 170 years.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Reptilia",        order:"Testudines",        family:"Testudinidae",       subfamily:"Testudininae",     genus:"Chelonoidis" },
+  { common:"Marine Iguana",         scientific:"Amblyrhynchus cristatus",   hint:"The only sea-going lizard; dives to graze on marine algae in the Galápagos.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Reptilia",        order:"Squamata",          family:"Iguanidae",          subfamily:"Iguaninae",        genus:"Amblyrhynchus" },
+
+  // ── ANIMALIA: Amphibia ──────────────────────────────────────────────────
+  { common:"Axolotl",               scientific:"Ambystoma mexicanum",       hint:"Neotenic salamander that retains juvenile features lifelong; famed for regenerating limbs.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Amphibia",        order:"Urodela",           family:"Ambystomatidae",     subfamily:"Ambystomatinae",   genus:"Ambystoma" },
+  { common:"Poison Dart Frog",      scientific:"Dendrobates tinctorius",    hint:"Vibrantly colored Amazonian frog whose skin toxins are used by indigenous hunters.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Amphibia",        order:"Anura",             family:"Dendrobatidae",      subfamily:"Dendrobatinae",    genus:"Dendrobates" },
+  { common:"Common European Frog",  scientific:"Rana temporaria",          hint:"Britain's most widespread amphibian; a key indicator of wetland ecosystem health.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Amphibia",        order:"Anura",             family:"Ranidae",            subfamily:"Raninae",          genus:"Rana" },
+  { common:"Caecilian",             scientific:"Gymnopis multiplicata",     hint:"Limbless burrowing amphibian often mistaken for a worm or snake; highly secretive.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Amphibia",        order:"Gymnophiona",       family:"Dermophiidae",       subfamily:"Dermophiinae",     genus:"Gymnopis" },
+
+  // ── ANIMALIA: Actinopterygii ────────────────────────────────────────────
+  { common:"Atlantic Salmon",       scientific:"Salmo salar",              hint:"Anadromous fish that returns to its birthplace to spawn.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Actinopterygii",  order:"Salmoniformes",     family:"Salmonidae",         subfamily:"Salmoninae",       genus:"Salmo" },
+  { common:"Clownfish",             scientific:"Amphiprion ocellaris",     hint:"Symbiotic reef fish that shelters among the stinging tentacles of sea anemones.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Actinopterygii",  order:"Perciformes",       family:"Pomacentridae",      subfamily:"Amphiprioninae",   genus:"Amphiprion" },
+  { common:"Seahorse",              scientific:"Hippocampus hippocampus",  hint:"The male of this species carries and gives birth to the young.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Actinopterygii",  order:"Syngnathiformes",   family:"Syngnathidae",       subfamily:"Hippocampinae",    genus:"Hippocampus" },
+  { common:"Great White Shark",     scientific:"Carcharodon carcharias",   hint:"The largest predatory fish on Earth; can detect blood from several kilometres away.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Chondrichthyes",  order:"Lamniformes",       family:"Lamnidae",           subfamily:"Lamninae",         genus:"Carcharodon" },
+  { common:"Coelacanth",            scientific:"Latimeria chalumnae",      hint:"A 'living fossil' rediscovered in 1938; thought extinct for 65 million years.",
+    kingdom:"Animalia", phylum:"Chordata",     class:"Actinistia",      order:"Coelacanthiformes", family:"Latimeriidae",       subfamily:"Latiimeriinae",    genus:"Latimeria" },
+
+  // ── ANIMALIA: Insecta ───────────────────────────────────────────────────
+  { common:"Monarch Butterfly",     scientific:"Danaus plexippus",         hint:"Famous for its annual migration spanning thousands of miles.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Lepidoptera",       family:"Nymphalidae",        subfamily:"Danainae",         genus:"Danaus" },
+  { common:"Honey Bee",             scientific:"Apis mellifera",           hint:"Critical pollinator responsible for much of our food supply.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Hymenoptera",       family:"Apidae",             subfamily:"Apinae",           genus:"Apis" },
+  { common:"Common Housefly",       scientific:"Musca domestica",          hint:"Ubiquitous insect found on every inhabited continent.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Diptera",           family:"Muscidae",           subfamily:"Muscinae",         genus:"Musca" },
+  { common:"Hercules Beetle",       scientific:"Dynastes hercules",        hint:"The longest beetle species in the world; the male's horn can exceed its body length.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Coleoptera",        family:"Scarabaeidae",       subfamily:"Dynastinae",       genus:"Dynastes" },
+  { common:"Luna Moth",             scientific:"Actias luna",              hint:"Large North American moth with distinctive lime-green wings and long twisted tails.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Lepidoptera",       family:"Saturniidae",        subfamily:"Saturniinae",      genus:"Actias" },
+  { common:"Leafcutter Ant",        scientific:"Atta cephalotes",          hint:"Fungus-farming ant that cuts and hauls leaf fragments to cultivate underground gardens.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Hymenoptera",       family:"Formicidae",         subfamily:"Myrmicinae",       genus:"Atta" },
+  { common:"Firefly",               scientific:"Photinus pyralis",         hint:"North America's most common firefly; bioluminescent beetle whose flash pattern attracts mates.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Coleoptera",        family:"Lampyridae",         subfamily:"Lampyrinae",       genus:"Photinus" },
+  { common:"Praying Mantis",        scientific:"Mantis religiosa",         hint:"Ambush predator named for its prayer-like forelimb posture; the female often eats the male after mating.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Mantodea",          family:"Mantidae",           subfamily:"Mantinae",         genus:"Mantis" },
+  { common:"Migratory Locust",      scientific:"Locusta migratoria",       hint:"The most widespread locust species; forms devastating swarms that strip entire landscapes.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Orthoptera",        family:"Acrididae",          subfamily:"Oedipodinae",      genus:"Locusta" },
+  { common:"Giant Water Bug",       scientific:"Lethocerus americanus",    hint:"One of the largest true bugs; can prey on small frogs and fish with its piercing beak.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Insecta",         order:"Hemiptera",         family:"Belostomatidae",     subfamily:"Lethocerinae",     genus:"Lethocerus" },
+
+  // ── ANIMALIA: Arachnida ─────────────────────────────────────────────────
+  { common:"Black Widow Spider",    scientific:"Latrodectus mactans",      hint:"Venomous spider recognized by the red hourglass marking on the female's abdomen.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Arachnida",       order:"Araneae",           family:"Theridiidae",        subfamily:"Latrodectinae",    genus:"Latrodectus" },
+  { common:"Emperor Scorpion",      scientific:"Pandinus imperator",       hint:"One of the world's largest scorpions; glows blue-green under ultraviolet light.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Arachnida",       order:"Scorpiones",        family:"Scorpionidae",       subfamily:"Scorpioninae",     genus:"Pandinus" },
+  { common:"Goliath Birdeater",     scientific:"Theraphosa blondi",        hint:"The world's largest spider by mass; despite its name, it mostly eats invertebrates.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Arachnida",       order:"Araneae",           family:"Theraphosidae",      subfamily:"Theraphosinae",    genus:"Theraphosa" },
+
+  // ── ANIMALIA: Crustacea ─────────────────────────────────────────────────
+  { common:"American Lobster",      scientific:"Homarus americanus",       hint:"Long-lived crustacean of the North Atlantic; individuals may live over 100 years.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Malacostraca",    order:"Decapoda",          family:"Nephropidae",        subfamily:"Homarinae",        genus:"Homarus" },
+  { common:"Coconut Crab",          scientific:"Birgus latro",             hint:"The largest land-living arthropod; can climb trees and crack open coconuts.",
+    kingdom:"Animalia", phylum:"Arthropoda",   class:"Malacostraca",    order:"Decapoda",          family:"Coenobitidae",       subfamily:"Birginae",         genus:"Birgus" },
+
+  // ── ANIMALIA: Mollusca ──────────────────────────────────────────────────
+  { common:"Common Octopus",        scientific:"Octopus vulgaris",         hint:"Highly intelligent mollusc with three hearts and blue blood.",
+    kingdom:"Animalia", phylum:"Mollusca",     class:"Cephalopoda",     order:"Octopoda",          family:"Octopodidae",        subfamily:"Octopodinae",      genus:"Octopus" },
+  { common:"Giant Pacific Octopus", scientific:"Enteroctopus dofleini",    hint:"The world's largest octopus, reaching arm spans of over 4 metres.",
+    kingdom:"Animalia", phylum:"Mollusca",     class:"Cephalopoda",     order:"Octopoda",          family:"Enteroctopodidae",   subfamily:"Enteroctopodinae", genus:"Enteroctopus" },
+  { common:"Giant Squid",           scientific:"Architeuthis dux",         hint:"The largest invertebrate; inspired sea monster legends with eyes the size of dinner plates.",
+    kingdom:"Animalia", phylum:"Mollusca",     class:"Cephalopoda",     order:"Oegopsida",         family:"Architeuthidae",     subfamily:"Architeuthinae",   genus:"Architeuthis" },
+  { common:"Nautilus",              scientific:"Nautilus pompilius",        hint:"The only cephalopod with an external coiled shell; a 'living fossil' little changed in 500 million years.",
+    kingdom:"Animalia", phylum:"Mollusca",     class:"Cephalopoda",     order:"Nautilida",         family:"Nautilidae",         subfamily:"Nautilinae",       genus:"Nautilus" },
+  { common:"Giant Clam",            scientific:"Tridacna gigas",           hint:"The largest bivalve; can weigh over 200 kg and live for more than a century on tropical reefs.",
+    kingdom:"Animalia", phylum:"Mollusca",     class:"Bivalvia",        order:"Cardiida",          family:"Cardiidae",          subfamily:"Tridacninae",      genus:"Tridacna" },
+  { common:"Roman Snail",           scientific:"Helix pomatia",            hint:"Large edible land snail of European vineyards; introduced across the world as escargot.",
+    kingdom:"Animalia", phylum:"Mollusca",     class:"Gastropoda",      order:"Stylommatophora",   family:"Helicidae",          subfamily:"Helicinae",        genus:"Helix" },
+
+  // ── ANIMALIA: Echinodermata ─────────────────────────────────────────────
+  { common:"Purple Sea Urchin",     scientific:"Strongylocentrotus purpuratus", hint:"Keystone herbivore of kelp forest ecosystems along the Pacific coast of North America.",
+    kingdom:"Animalia", phylum:"Echinodermata",class:"Echinoidea",      order:"Camarodonta",       family:"Strongylocentrotidae",subfamily:"Strongylocentrotinae",genus:"Strongylocentrotus" },
+  { common:"Common Starfish",       scientific:"Asterias rubens",          hint:"The most common sea star of the Northeast Atlantic; a voracious predator of mussels.",
+    kingdom:"Animalia", phylum:"Echinodermata",class:"Asteroidea",      order:"Forcipulatida",     family:"Asteriidae",         subfamily:"Asteriinae",       genus:"Asterias" },
+  { common:"Sea Cucumber",          scientific:"Holothuria scabra",        hint:"Bottom-dwelling echinoderm that breathes through its rear end and can expel its organs as defense.",
+    kingdom:"Animalia", phylum:"Echinodermata",class:"Holothuroidea",   order:"Holothuriida",      family:"Holothuriidae",      subfamily:"Holothuriinae",    genus:"Holothuria" },
+
+  // ── ANIMALIA: Cnidaria ──────────────────────────────────────────────────
+  { common:"Lion's Mane Jellyfish", scientific:"Cyanea capillata",         hint:"The world's largest jellyfish; its tentacles can exceed 30 metres in length.",
+    kingdom:"Animalia", phylum:"Cnidaria",     class:"Scyphozoa",       order:"Semaeostomeae",     family:"Cyaneidae",          subfamily:"Cyaneinae",        genus:"Cyanea" },
+  { common:"Brain Coral",           scientific:"Diploria labyrinthiformis", hint:"Reef-building coral whose convoluted surface resembles a human brain.",
+    kingdom:"Animalia", phylum:"Cnidaria",     class:"Anthozoa",        order:"Scleractinia",      family:"Mussidae",           subfamily:"Faviinae",         genus:"Diploria" },
+  { common:"Portuguese Man o' War", scientific:"Physalia physalis",        hint:"Not a true jellyfish but a siphonophore — a colonial organism made of specialized individuals.",
+    kingdom:"Animalia", phylum:"Cnidaria",     class:"Hydrozoa",        order:"Siphonophorae",     family:"Physaliidae",        subfamily:"Physaliinae",      genus:"Physalia" },
+
+  // ── ANIMALIA: Annelida ──────────────────────────────────────────────────
+  { common:"Common Earthworm",      scientific:"Lumbricus terrestris",     hint:"Critical aerator of soils; Darwin devoted his final book to its ecological importance.",
+    kingdom:"Animalia", phylum:"Annelida",     class:"Clitellata",      order:"Haplotaxida",       family:"Lumbricidae",        subfamily:"Lumbricinae",      genus:"Lumbricus" },
+  { common:"Medicinal Leech",       scientific:"Hirudo medicinalis",       hint:"Used in medicine for millennia to improve blood flow; still used in post-surgical care.",
+    kingdom:"Animalia", phylum:"Annelida",     class:"Clitellata",      order:"Arhynchobdellida",  family:"Hirudinidae",        subfamily:"Hirudininae",      genus:"Hirudo" },
+
+  // ── ANIMALIA: Nematoda ──────────────────────────────────────────────────
+  { common:"C. elegans",            scientific:"Caenorhabditis elegans",   hint:"1mm-long roundworm and cornerstone of genetics research; the first multicellular organism to have its genome sequenced.",
+    kingdom:"Animalia", phylum:"Nematoda",     class:"Chromadorea",     order:"Rhabditida",        family:"Rhabditidae",        subfamily:"Rhabditinae",      genus:"Caenorhabditis" },
+
+  // ── ANIMALIA: Porifera ──────────────────────────────────────────────────
+  { common:"Barrel Sponge",         scientific:"Xestospongia testudinaria",hint:"Among the largest sponges, living for centuries on tropical reefs and filtering hundreds of litres of water daily.",
+    kingdom:"Animalia", phylum:"Porifera",     class:"Demospongiae",    order:"Haplosclerida",     family:"Petrosiidae",        subfamily:"Xestospongiidae",  genus:"Xestospongia" },
+
+  // ── PLANTAE: Flowering plants ───────────────────────────────────────────
+  { common:"Common Sunflower",      scientific:"Helianthus annuus",        hint:"Tall heliotropic plant with a large seed-filled flower head.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Magnoliopsida",   order:"Asterales",         family:"Asteraceae",         subfamily:"Asteroideae",      genus:"Helianthus" },
+  { common:"White Oak",             scientific:"Quercus alba",             hint:"Long-lived hardwood tree of eastern North America.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Magnoliopsida",   order:"Fagales",           family:"Fagaceae",           subfamily:"Quercoideae",      genus:"Quercus" },
+  { common:"Common Wheat",          scientific:"Triticum aestivum",        hint:"Staple grain crop that forms the basis of bread worldwide.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Liliopsida",      order:"Poales",            family:"Poaceae",            subfamily:"Pooideae",         genus:"Triticum" },
+  { common:"Wild Tulip",            scientific:"Tulipa sylvestris",        hint:"Wild ancestor of the cultivated tulip; naturalized across Europe and Asia.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Liliopsida",      order:"Liliales",          family:"Liliaceae",          subfamily:"Lilioideae",       genus:"Tulipa" },
+  { common:"Cacao Tree",            scientific:"Theobroma cacao",          hint:"Source of all chocolate; the genus name means 'food of the gods' in Greek.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Magnoliopsida",   order:"Malvales",          family:"Malvaceae",          subfamily:"Byttnerioideae",   genus:"Theobroma" },
+  { common:"Common Dandelion",      scientific:"Taraxacum officinale",     hint:"Familiar 'weed' whose entire plant is edible and whose seeds are dispersed by pappus parachutes.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Magnoliopsida",   order:"Asterales",         family:"Asteraceae",         subfamily:"Cichorioideae",    genus:"Taraxacum" },
+  { common:"Venus Flytrap",         scientific:"Dionaea muscipula",        hint:"Carnivorous plant native to the Carolinas; its hinged leaves snap shut on insects in milliseconds.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Magnoliopsida",   order:"Caryophyllales",    family:"Droseraceae",        subfamily:"Dioncophylloideae",genus:"Dionaea" },
+  { common:"Common Poppy",          scientific:"Papaver rhoeas",           hint:"Bright red annual wildflower of disturbed soils; a symbol of wartime remembrance.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Magnoliopsida",   order:"Ranunculales",      family:"Papaveraceae",       subfamily:"Papaveroideae",    genus:"Papaver" },
+  { common:"Arabidopsis",           scientific:"Arabidopsis thaliana",     hint:"A small mustard weed and the 'lab rat of botany'; the first plant genome to be fully sequenced.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Magnoliopsida",   order:"Brassicales",       family:"Brassicaceae",       subfamily:"Brassicoideae",    genus:"Arabidopsis" },
+  { common:"Common Lavender",       scientific:"Lavandula angustifolia",   hint:"Fragrant Mediterranean shrub widely cultivated for perfume, aromatherapy, and culinary use.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Magnoliopsida",   order:"Lamiales",          family:"Lamiaceae",          subfamily:"Lamioideae",       genus:"Lavandula" },
+  { common:"Bamboo",                scientific:"Phyllostachys edulis",     hint:"The fastest-growing plant on Earth; a grass that can grow nearly a metre in a single day.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Liliopsida",      order:"Poales",            family:"Poaceae",            subfamily:"Bambusoideae",     genus:"Phyllostachys" },
+  { common:"Cannabis",              scientific:"Cannabis sativa",          hint:"Multipurpose plant cultivated for fiber (hemp), food (seeds), and psychoactive compounds for millennia.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Magnoliopsida",   order:"Rosales",           family:"Cannabaceae",        subfamily:"Cannaboideae",     genus:"Cannabis" },
+  { common:"Giant Sequoia",         scientific:"Sequoiadendron giganteum", hint:"The largest tree by volume on Earth; some individuals hold enough wood to build 40 houses.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Pinopsida",       order:"Cupressales",       family:"Cupressaceae",       subfamily:"Sequoioideae",     genus:"Sequoiadendron" },
+  { common:"Scots Pine",            scientific:"Pinus sylvestris",         hint:"The only native pine of northern Europe; one of the most widely distributed conifers on Earth.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Pinopsida",       order:"Pinales",           family:"Pinaceae",           subfamily:"Pinoideae",        genus:"Pinus" },
+  { common:"Common Bracken",        scientific:"Pteridium aquilinum",      hint:"The world's most widespread fern, covering vast tracts of moorland and woodland edge.",
+    kingdom:"Plantae",  phylum:"Tracheophyta", class:"Polypodiopsida",  order:"Polypodiales",      family:"Dennstaedtiaceae",   subfamily:"Pteridioideae",    genus:"Pteridium" },
+  { common:"Sphagnum Moss",         scientific:"Sphagnum magellanicum",    hint:"Peat-forming moss that can hold 20 times its weight in water, shaping entire bog ecosystems.",
+    kingdom:"Plantae",  phylum:"Bryophyta",    class:"Sphagnopsida",    order:"Sphagnales",        family:"Sphagnaceae",        subfamily:"Sphagninae",       genus:"Sphagnum" },
+
+  // ── FUNGI ───────────────────────────────────────────────────────────────
+  { common:"Baker's Yeast",         scientific:"Saccharomyces cerevisiae", hint:"Single-celled fungus used in baking and brewing for millennia.",
+    kingdom:"Fungi",    phylum:"Ascomycota",   class:"Saccharomycetes", order:"Saccharomycetales", family:"Saccharomycetaceae", subfamily:"Saccharomycoideae",genus:"Saccharomyces" },
+  { common:"Portobello Mushroom",   scientific:"Agaricus bisporus",        hint:"Common edible fungus sold in grocery stores worldwide.",
+    kingdom:"Fungi",    phylum:"Basidiomycota",class:"Agaricomycetes",  order:"Agaricales",        family:"Agaricaceae",        subfamily:"Agaricinae",       genus:"Agaricus" },
+  { common:"Death Cap",             scientific:"Amanita phalloides",       hint:"Responsible for ~90% of fatal mushroom poisonings worldwide; often mistaken for edible species.",
+    kingdom:"Fungi",    phylum:"Basidiomycota",class:"Agaricomycetes",  order:"Agaricales",        family:"Amanitaceae",        subfamily:"Amanitinae",       genus:"Amanita" },
+  { common:"Fly Agaric",            scientific:"Amanita muscaria",         hint:"Iconic red-and-white-spotted toadstool with psychoactive properties; origin of many fairy-tale images.",
+    kingdom:"Fungi",    phylum:"Basidiomycota",class:"Agaricomycetes",  order:"Agaricales",        family:"Amanitaceae",        subfamily:"Amanitinae",       genus:"Amanita" },
+  { common:"Penicillium Mold",      scientific:"Penicillium chrysogenum",  hint:"The mold from which Alexander Fleming discovered penicillin, transforming modern medicine.",
+    kingdom:"Fungi",    phylum:"Ascomycota",   class:"Eurotiomycetes",  order:"Eurotiales",        family:"Aspergillaceae",     subfamily:"Aspergillinae",    genus:"Penicillium" },
+  { common:"Black Truffle",         scientific:"Tuber melanosporum",       hint:"Subterranean delicacy of French cuisine; one of the most expensive foods by weight on Earth.",
+    kingdom:"Fungi",    phylum:"Ascomycota",   class:"Pezizomycetes",   order:"Pezizales",         family:"Tuberaceae",         subfamily:"Tuberinae",        genus:"Tuber" },
+  { common:"Reishi Mushroom",       scientific:"Ganoderma lucidum",        hint:"Bracket fungus revered in East Asian medicine for over 2,000 years as the 'mushroom of immortality'.",
+    kingdom:"Fungi",    phylum:"Basidiomycota",class:"Agaricomycetes",  order:"Polyporales",       family:"Ganodermataceae",    subfamily:"Ganodermatinae",   genus:"Ganoderma" },
+  { common:"Cordyceps",             scientific:"Ophiocordyceps sinensis",  hint:"Parasitic fungus that infects and manipulates insect hosts; a prized ingredient in Tibetan medicine.",
+    kingdom:"Fungi",    phylum:"Ascomycota",   class:"Sordariomycetes", order:"Hypocreales",       family:"Ophiocordycipitaceae",subfamily:"Ophiocordycipitinae",genus:"Ophiocordyceps" },
+
+  // ── PROTISTA / CHROMISTA ─────────────────────────────────────────────────
+  { common:"Giant Kelp",            scientific:"Macrocystis pyrifera",     hint:"The fastest-growing organism on Earth; forms vast underwater forests up to 45 metres tall.",
+    kingdom:"Protista", phylum:"Ochrophyta",   class:"Phaeophyceae",    order:"Laminariales",      family:"Laminariaceae",      subfamily:"Macrocystinae",    genus:"Macrocystis" },
+  { common:"Red Tide Dinoflagellate",scientific:"Karenia brevis",          hint:"Single-celled alga responsible for toxic red tides that kill fish and sicken humans eating shellfish.",
+    kingdom:"Protista", phylum:"Dinoflagellata",class:"Dinophyceae",    order:"Gymnodiniales",     family:"Gymnodiniaceae",     subfamily:"Kareniaceae",      genus:"Karenia" },
+  { common:"Plasmodium",            scientific:"Plasmodium falciparum",    hint:"Parasite responsible for the most deadly form of malaria, transmitted by Anopheles mosquitoes.",
+    kingdom:"Protista", phylum:"Apicomplexa",  class:"Aconoidasida",    order:"Haemosporida",      family:"Plasmodiidae",       subfamily:"Plasmodiinae",     genus:"Plasmodium" },
+
+  // ── BACTERIA ────────────────────────────────────────────────────────────
+  { common:"E. coli",               scientific:"Escherichia coli",         hint:"Workhorse of molecular biology and a normal gut inhabitant; some strains are dangerous pathogens.",
+    kingdom:"Bacteria", phylum:"Pseudomonadota",class:"Gammaproteobacteria",order:"Enterobacterales",family:"Enterobacteriaceae",subfamily:"Enterobacterinae", genus:"Escherichia" },
+  { common:"Streptomyces",          scientific:"Streptomyces griseus",     hint:"Soil bacterium that produces streptomycin, the first antibiotic effective against tuberculosis.",
+    kingdom:"Bacteria", phylum:"Actinomycetota",class:"Actinomycetes",   order:"Kitasatosporales",  family:"Streptomycetaceae",  subfamily:"Streptomycetinae", genus:"Streptomyces" },
+  { common:"Cyanobacterium",        scientific:"Anabaena cylindrica",      hint:"Nitrogen-fixing photosynthetic bacterium; these microbes produced Earth's first oxygen atmosphere.",
+    kingdom:"Bacteria", phylum:"Cyanobacteria", class:"Cyanophyceae",    order:"Nostocales",        family:"Nostocaceae",        subfamily:"Nostocinae",       genus:"Anabaena" },
+  { common:"Thermus aquaticus",     scientific:"Thermus aquaticus",        hint:"Heat-loving bacterium from Yellowstone hot springs; its enzyme Taq polymerase makes PCR possible.",
+    kingdom:"Bacteria", phylum:"Deinococcota",  class:"Deinococci",      order:"Thermales",         family:"Thermaceae",         subfamily:"Therminae",        genus:"Thermus" },
+
+  // ── ARCHAEA ─────────────────────────────────────────────────────────────
+  { common:"Methanogen",            scientific:"Methanobacterium formicicum",hint:"Anaerobic archaeon that produces methane; key players in swamps, animal guts, and climate change.",
+    kingdom:"Archaea",  phylum:"Euryarchaeota", class:"Methanobacteria", order:"Methanobacteriales", family:"Methanobacteriaceae",subfamily:"Methanobacterinae",genus:"Methanobacterium" },
+  { common:"Halobacterium",         scientific:"Halobacterium salinarum",  hint:"Extreme halophile that thrives in salt concentrations 10× that of seawater; turns salt pans pink.",
+    kingdom:"Archaea",  phylum:"Euryarchaeota", class:"Halobacteria",    order:"Halobacteriales",   family:"Halobacteriaceae",   subfamily:"Halobacterinae",   genus:"Halobacterium" },
+];
+
+const RANKS      = ["kingdom","phylum","class","order","family","subfamily","genus"];
+const RANK_NAMES = ["Kingdom","Phylum","Class","Order","Family","Subfamily","Genus"];
+const MAX_LIVES  = 5;
+
+const DISTRACTORS = {
+  kingdom:   ["Animalia","Plantae","Fungi","Protista","Bacteria","Archaea"],
+  phylum:    ["Chordata","Arthropoda","Mollusca","Echinodermata","Annelida","Nematoda","Tracheophyta","Bryophyta","Ascomycota","Basidiomycota","Cnidaria"],
+  class:     ["Mammalia","Aves","Reptilia","Amphibia","Actinopterygii","Insecta","Arachnida","Cephalopoda","Magnoliopsida","Liliopsida","Saccharomycetes","Agaricomycetes"],
+  order:     ["Carnivora","Primates","Rodentia","Artiodactyla","Lepidoptera","Hymenoptera","Diptera","Coleoptera","Asterales","Fagales","Poales","Salmoniformes","Accipitriformes","Testudines","Crocodilia","Octopoda","Proboscidea","Saccharomycetales","Agaricales"],
+  family:    ["Felidae","Canidae","Hominidae","Ursidae","Elephantidae","Nymphalidae","Apidae","Octopodidae","Salmonidae","Accipitridae","Cheloniidae","Asteraceae","Fagaceae","Poaceae","Saccharomycetaceae","Agaricaceae","Muscidae","Crocodylidae","Balaenopteridae"],
+  subfamily: ["Felinae","Caninae","Homininae","Ailuropodinae","Elephantinae","Danainae","Apinae","Octopodinae","Salmoninae","Haliaeetinae","Cheloniinae","Asteroideae","Quercoideae","Pooideae","Saccharomycoideae","Agaricinae","Muscinae","Crocodylinae","Balaenopterinae"],
+  genus:     ["Felis","Canis","Pan","Loxodonta","Danaus","Apis","Octopus","Salmo","Haliaeetus","Chelonia","Ailuropoda","Helianthus","Quercus","Saccharomyces","Agaricus","Homo","Musca","Crocodylus","Triticum","Balaenoptera"]
+};
+
+// ====================================================
+//  STATE
+// ====================================================
+let state = {};
+let highScore = 0;
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ====================================================
+//  START
+// ====================================================
+function startGame() {
+  state = {
+    lives: MAX_LIVES,
+    score: 0,
+    speciesCount: 0,
+    roundHistory: [],
+    usedSpecies: [],
+    currentSpecies: null,
+    currentRankIdx: 0,
+    wrongThisRank: 0,
+    answeredRanks: {},
+    eliminatedThisRank: []   // wrong choices eliminated this rank
+  };
+  document.getElementById('results-screen').classList.remove('show');
+  document.getElementById('game-area').style.display = 'block';
+  document.getElementById('feedback').className = 'feedback';
+  // Clear field log for new game
+  document.getElementById('field-log').innerHTML = '';
+  document.getElementById('field-log-wrap').classList.remove('show');
+  renderLives();
+  updateHUD();
+  nextSpecies();
+}
+
+// ====================================================
+//  LIVES
+// ====================================================
+function renderLives() {
+  const wrap = document.getElementById('lives-wrap');
+  wrap.innerHTML = '';
+  for (let i = 0; i < MAX_LIVES; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'life-pip' + (i >= state.lives ? ' lost' : '');
+    wrap.appendChild(pip);
+  }
+}
+
+function loseLife() {
+  state.lives--;
+  renderLives();
+  const wrap = document.getElementById('lives-wrap');
+  wrap.classList.remove('shake');
+  void wrap.offsetWidth;
+  wrap.classList.add('shake');
+}
+
+// ====================================================
+//  SPECIES SETUP
+// ====================================================
+function nextSpecies() {
+  // Recycle if we've used all species
+  if (state.usedSpecies.length >= SPECIES_DB.length) state.usedSpecies = [];
+  const pool = SPECIES_DB.filter(s => !state.usedSpecies.includes(s.scientific));
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  state.usedSpecies.push(target.scientific);
+  state.speciesCount++;
+  state.currentSpecies = target;
+  state.currentRankIdx = 0;
+  state.wrongThisRank  = 0;
+  state.answeredRanks  = {};
+  state.eliminatedThisRank = [];
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('species-complete-panel').classList.remove('show');
+  document.getElementById('options-grid').style.display = '';
+  document.querySelector('.rank-section').style.visibility = '';
+  revealTarget(false);
+  updateHUD();
+  updateBreadcrumb();
+  renderRank();
+}
+
+// ====================================================
+//  HUD
+// ====================================================
+function updateHUD() {
+  document.getElementById('round-num').textContent = state.speciesCount;
+  document.getElementById('score-num').textContent = state.score;
+  document.getElementById('hi-num').textContent    = highScore;
+}
+
+// ====================================================
+//  TARGET CARD
+// ====================================================
+function revealTarget(showScientific) {
+  const el = document.getElementById('target-sci');
+  if (showScientific) {
+    el.textContent = state.currentSpecies.scientific;
+    el.className   = 'target-name';
+  } else {
+    el.textContent = '· · · · · · · · · · · ·';
+    el.className   = 'target-name hidden-sci';
+  }
+  document.getElementById('target-common').textContent = state.currentSpecies.common;
+  document.getElementById('target-hint').textContent   = state.currentSpecies.hint;
+}
+
+// ====================================================
+//  BREADCRUMB  (with tooltips)
+// ====================================================
+function updateBreadcrumb() {
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = '';
+  RANKS.forEach((r, i) => {
+    if (!state.answeredRanks[r]) return;
+    const val  = state.answeredRanks[r];
+    const info = TAXON_INFO[val];
+    const tip  = info
+      ? `<div class="tooltip-box"><em>${info.rank}</em><strong>${val}</strong>${info.desc}</div>`
+      : '';
+    bc.innerHTML += `<div class="crumb">${tip}<span class="crumb-rank">${RANK_NAMES[i]}:</span>${val}</div>`;
+  });
+}
+
+// ====================================================
+//  RENDER RANK QUESTION
+// ====================================================
+function renderRank() {
+  const rankIdx  = state.currentRankIdx;
+  const rank     = RANKS[rankIdx];
+  const rankName = RANK_NAMES[rankIdx];
+  const correct  = state.currentSpecies[rank];
+
+  document.getElementById('rank-label').textContent    = `Step ${rankIdx + 1} of ${RANKS.length} — ${rankName}`;
+  document.getElementById('rank-question').textContent = `Select the correct ${rankName}:`;
+
+  // Build 4 options (correct + 3 random distractors, excluding already-eliminated wrong choices)
+  const pool = DISTRACTORS[rank].filter(d => d !== correct && !state.eliminatedThisRank.includes(d));
+  shuffle(pool);
+  const options = shuffle([correct, ...pool.slice(0, 3)]);
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className    = 'option-btn';
+    btn.textContent  = opt;
+    btn.dataset.value = opt;
+    if (state.eliminatedThisRank.includes(opt)) {
+      btn.classList.add('wrong');
+    } else {
+      btn.addEventListener('click', () => selectOption(btn, opt, correct, rank));
+    }
+    grid.appendChild(btn);
+  });
+}
+
+// ====================================================
+//  ANSWER HANDLER
+// ====================================================
+function selectOption(btn, chosen, correct, rank) {
+  const fb = document.getElementById('feedback');
+
+  if (chosen === correct) {
+    // ── CORRECT ──
+    // Lock all buttons immediately
+    document.querySelectorAll('.option-btn').forEach(b => {
+      b.classList.add('disabled');
+      b.replaceWith(b.cloneNode(true)); // remove event listeners
+    });
+    // Re-find the clicked button by value and mark correct
+    document.querySelectorAll('.option-btn').forEach(b => {
+      if (b.dataset.value === correct) b.classList.add('correct');
+    });
+
+    state.answeredRanks[rank] = chosen;
+    state.score += 1;
+    state.wrongThisRank       = 0;
+    state.eliminatedThisRank  = [];
+
+    fb.className  = 'feedback correct';
+    fb.textContent = `✓ Correct! +1 point.`;
+
+    updateHUD();
+    updateBreadcrumb();
+
+    const isLastRank = state.currentRankIdx >= RANKS.length - 1;
+
+    if (!isLastRank) {
+      setTimeout(() => {
+        state.currentRankIdx++;
+        fb.className = 'feedback';
+        renderRank();
+      }, 1300);
+    } else {
+      // Species fully identified — show review panel
+      revealTarget(true);
+      state.roundHistory.push({ species: state.currentSpecies, success: true });
+
+      // Hide options/rank section, show complete panel
+      document.getElementById('options-grid').style.display = 'none';
+      document.getElementById('feedback').className = 'feedback';
+      showSpeciesCompletePanel();
+    }
+
+  } else {
+    // ── WRONG ──
+    btn.classList.add('wrong');
+    // Remove this button's listener (mark it permanently wrong)
+    const fresh = btn.cloneNode(true);
+    btn.replaceWith(fresh);
+
+    state.eliminatedThisRank.push(chosen);
+    state.wrongThisRank++;
+
+    loseLife();
+
+    fb.className  = 'feedback wrong';
+    fb.textContent = `✗ Not this one. ${state.lives} life${state.lives !== 1 ? 's' : ''} remaining.`;
+
+    updateHUD();
+
+    if (state.lives <= 0) {
+      // Game over
+      revealTarget(true);
+      // Show the correct answer
+      document.querySelectorAll('.option-btn').forEach(b => {
+        b.classList.add('disabled');
+        const clone = b.cloneNode(true);
+        if (clone.dataset.value === correct) clone.classList.add('correct');
+        b.replaceWith(clone);
+      });
+      fb.className = 'feedback reveal';
+      fb.innerHTML = `Game over! The correct <em>${RANK_NAMES[state.currentRankIdx]}</em> was <strong>${correct}</strong>. The species was <em>${state.currentSpecies.scientific}</em>.`;
+      state.roundHistory.push({ species: state.currentSpecies, success: false });
+      document.getElementById('species-complete-panel').classList.remove('show');
+      setTimeout(showResults, 3200);
+    }
+  }
+}
+
+// ====================================================
+//  SPECIES COMPLETE PANEL
+// ====================================================
+function showSpeciesCompletePanel() {
+  const sp = state.currentSpecies;
+  document.getElementById('complete-sci-name').textContent = sp.scientific + ' — ' + sp.common;
+
+  // Build chain review with tooltips
+  const chainEl = document.getElementById('chain-review');
+  chainEl.innerHTML = '';
+  RANKS.forEach((r, i) => {
+    const val  = sp[r];
+    const info = TAXON_INFO[val];
+    const tip  = info
+      ? `<div class="tooltip-box"><em>${info.rank}</em><strong>${val}</strong>${info.desc}</div>`
+      : '';
+    chainEl.innerHTML += `
+      <div class="chain-step">
+        <span class="chain-rank-label">${RANK_NAMES[i]}</span>
+        <span class="chain-value">${tip}${val}</span>
+      </div>`;
+  });
+
+  document.getElementById('species-complete-panel').classList.add('show');
+  // Hide the rank question area while reviewing
+  document.querySelector('.rank-section').style.visibility = 'hidden';
+}
+
+function proceedNextSpecies() {
+  // Add the just-completed species to the field log
+  addToFieldLog(state.currentSpecies, state.roundHistory.length);
+
+  // Reset hidden/visibility states
+  document.getElementById('options-grid').style.display = '';
+  document.querySelector('.rank-section').style.visibility = '';
+  document.getElementById('species-complete-panel').classList.remove('show');
+
+  if (state.lives > 0) nextSpecies();
+  else showResults();
+}
+
+// ====================================================
+//  FIELD LOG
+// ====================================================
+function addToFieldLog(sp, num) {
+  const wrap = document.getElementById('field-log-wrap');
+  const log  = document.getElementById('field-log');
+  wrap.classList.add('show');
+
+  // Build chip chain with tooltips
+  const chips = RANKS.map((r, i) => {
+    const val  = sp[r];
+    const info = TAXON_INFO[val];
+    const tip  = info
+      ? `<div class="tooltip-box"><em>${info.rank}</em><strong>${val}</strong>${info.desc}</div>`
+      : '';
+    return `<div class="fle-chip">
+      <span class="fle-chip-rank">${RANK_NAMES[i]}</span>
+      <span class="fle-chip-val">${tip}${val}</span>
+    </div>`;
+  }).join('');
+
+  const entry = document.createElement('div');
+  entry.className = 'field-log-entry';
+  entry.innerHTML = `
+    <div class="fle-top">
+      <span class="fle-num">#${num}</span>
+      <span class="fle-sci">${sp.scientific}</span>
+      <span class="fle-common">${sp.common}</span>
+    </div>
+    <div class="fle-chain">${chips}</div>`;
+
+  // Prepend so newest is on top
+  log.insertBefore(entry, log.firstChild);
+}
+
+// ====================================================
+//  RESULTS SCREEN
+// ====================================================
+function showResults() {
+  document.getElementById('game-area').style.display = 'none';
+  document.getElementById('results-screen').classList.add('show');
+
+  const isNew = state.score > highScore;
+  if (isNew) highScore = state.score;
+
+  document.getElementById('final-score').textContent = state.score;
+  document.getElementById('final-best').textContent  = highScore;
+  document.getElementById('new-record-msg').innerHTML = isNew
+    ? '<div class="new-record">🏅 New Personal Best!</div>' : '';
+
+  const s = state.score;
+  document.getElementById('final-grade').textContent =
+    s >= 100 ? "Master Naturalist — Extraordinary classification acumen." :
+    s >= 60  ? "Field Biologist — A commendable depth of taxonomic knowledge." :
+    s >= 30  ? "Apprentice Naturalist — A promising start to your studies." :
+               "Novice — The natural world awaits your deeper study.";
+
+  const summary = document.getElementById('results-summary');
+  summary.innerHTML = '<div style="font-size:0.8rem;letter-spacing:0.15em;color:var(--brown-light);margin-bottom:10px;text-transform:uppercase;">Species Encountered</div>';
+  state.roundHistory.forEach(r => {
+    summary.innerHTML += `<div class="result-row">
+      <span style="font-size:1rem">${r.success ? '✓' : '✗'}</span>
+      <span class="result-species">${r.species.scientific}</span>
+      <span style="color:var(--brown-mid);font-size:0.85rem;">${r.species.common}</span>
+    </div>`;
+  });
+
+  updateHUD();
+}
+
+// ====================================================
+//  BOOT
+// ====================================================
+startGame();
+</script>
+</body>
+</html>

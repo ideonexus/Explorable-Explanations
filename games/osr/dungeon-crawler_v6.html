@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgotten Depths</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=MedievalSharp&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --parchment: #f4e4bc;
+            --parchment-dark: #d4c4a0;
+            --ink: #2a1810;
+            --blood: #8b0000;
+            --gold: #d4af37;
+            --gold-bright: #ffd700;
+            --dungeon-bg: #1a1a1a;
+            --dungeon-wall: #3d3d3d;
+            --dungeon-floor: #2a2a2a;
+            --dungeon-explored: #4a4a4a;
+            --health-green: #4a7c4e;
+            --mana-blue: #4a6a8c;
+            --initiative-purple: #8b5cf6;
+            --potion-red: #c41e3a;
+            --magic-cyan: #00ced1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Crimson Text', Georgia, serif; background: var(--dungeon-bg); color: var(--parchment); min-height: 100vh; overflow: hidden; }
+        .game-container { display: flex; height: 100vh; background: radial-gradient(ellipse at 30% 20%, rgba(139, 0, 0, 0.1) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%), var(--dungeon-bg); }
+        .character-panel { width: 340px; background: linear-gradient(135deg, #1a1410 0%, #2a1810 100%); border-right: 3px solid var(--gold); padding: 15px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; box-shadow: inset -20px 0 40px rgba(0,0,0,0.5); }
+        .party-header { font-family: 'Cinzel', serif; font-size: 1.3rem; text-align: center; color: var(--gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); padding-bottom: 8px; border-bottom: 2px solid var(--gold); letter-spacing: 2px; }
+        .party-resources { display: flex; gap: 10px; flex-wrap: wrap; }
+        .resource-box { flex: 1; min-width: 90px; font-family: 'MedievalSharp', cursive; text-align: center; font-size: 0.95rem; padding: 8px; border-radius: 5px; border: 1px solid; }
+        .gold-box { color: var(--gold-bright); background: rgba(212, 175, 55, 0.1); border-color: var(--gold); }
+        .potion-box { color: var(--potion-red); background: rgba(196, 30, 58, 0.1); border-color: var(--potion-red); cursor: pointer; transition: all 0.3s; }
+        .potion-box:hover { background: rgba(196, 30, 58, 0.25); box-shadow: 0 0 10px rgba(196, 30, 58, 0.3); }
+        .potion-box.disabled { opacity: 0.5; cursor: not-allowed; }
+        .rest-box { color: var(--health-green); background: rgba(74, 124, 78, 0.1); border-color: var(--health-green); cursor: pointer; transition: all 0.3s; }
+        .rest-box:hover { background: rgba(74, 124, 78, 0.25); box-shadow: 0 0 10px rgba(74, 124, 78, 0.3); }
+        .rest-box.disabled { opacity: 0.5; cursor: not-allowed; }
+        .resource-box span { font-size: 1.1rem; font-weight: bold; display: block; }
+        .character-card { background: linear-gradient(180deg, rgba(244, 228, 188, 0.08) 0%, rgba(244, 228, 188, 0.03) 100%); border: 2px solid var(--parchment-dark); border-radius: 8px; padding: 10px; position: relative; transition: all 0.3s ease; }
+        .character-card.dead { opacity: 0.5; filter: grayscale(70%); }
+        .char-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .char-name { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--parchment); font-weight: 700; }
+        .char-class { font-family: 'MedievalSharp', cursive; font-size: 0.8rem; color: var(--gold); background: rgba(212, 175, 55, 0.15); padding: 2px 6px; border-radius: 3px; }
+        .char-level { font-size: 0.75rem; color: var(--parchment-dark); }
+        .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin: 6px 0; }
+        .stat { text-align: center; font-size: 0.7rem; background: rgba(0,0,0,0.3); padding: 3px; border-radius: 3px; }
+        .stat-label { color: var(--parchment-dark); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { color: var(--parchment); font-weight: 600; font-size: 0.85rem; }
+        .stat-value.buffed { color: var(--magic-cyan); }
+        .bar-container { margin: 3px 0; }
+        .bar { height: 11px; background: rgba(0,0,0,0.5); border-radius: 5px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; transition: width 0.3s ease; }
+        .bar-fill.health { background: linear-gradient(90deg, #2d4a2f, var(--health-green)); }
+        .bar-fill.xp { background: linear-gradient(90deg, #3a3a6a, #6a5acd); }
+        .bar-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.6rem; color: white; text-shadow: 1px 1px 2px black; white-space: nowrap; }
+        .equipment-row { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+        .equipment-item { font-size: 0.65rem; padding: 2px 5px; background: rgba(0, 206, 209, 0.2); border: 1px solid var(--magic-cyan); border-radius: 3px; color: var(--magic-cyan); }
+        .dungeon-container { flex: 1; display: flex; flex-direction: column; padding: 20px; }
+        .dungeon-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: rgba(0,0,0,0.5); border-radius: 8px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .dungeon-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+        .dungeon-info { display: flex; gap: 20px; align-items: center; }
+        .dungeon-level { font-family: 'MedievalSharp', cursive; color: var(--blood); font-size: 1.1rem; }
+        .action-buttons { display: flex; gap: 10px; align-items: center; }
+        .toggle-container { display: flex; align-items: center; gap: 8px; font-family: 'MedievalSharp', cursive; font-size: 0.8rem; color: var(--parchment); }
+        .toggle-switch { position: relative; width: 44px; height: 22px; background: rgba(139, 0, 0, 0.4); border-radius: 11px; cursor: pointer; transition: all 0.3s; border: 1px solid var(--blood); }
+        .toggle-switch.active { background: rgba(74, 124, 78, 0.4); border-color: var(--health-green); }
+        .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--parchment); border-radius: 50%; transition: all 0.3s; }
+        .toggle-switch.active::after { left: 24px; }
+        .difficulty-select { font-family: 'MedievalSharp', cursive; font-size: 0.8rem; padding: 4px 8px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); color: var(--gold); border-radius: 4px; cursor: pointer; }
+        .difficulty-select option { background: #1a1a1a; color: var(--parchment); }
+        .btn { font-family: 'Cinzel', serif; padding: 8px 16px; border: 2px solid var(--gold); background: linear-gradient(180deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.05) 100%); color: var(--gold); cursor: pointer; border-radius: 5px; transition: all 0.3s ease; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .btn:hover { background: linear-gradient(180deg, rgba(212, 175, 55, 0.4) 0%, rgba(212, 175, 55, 0.2) 100%); box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn.danger { border-color: var(--blood); color: var(--blood); background: linear-gradient(180deg, rgba(139, 0, 0, 0.2) 0%, rgba(139, 0, 0, 0.05) 100%); }
+        .btn.danger:hover { background: linear-gradient(180deg, rgba(139, 0, 0, 0.4) 0%, rgba(139, 0, 0, 0.2) 100%); }
+        .dungeon-grid-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .dungeon-grid { display: grid; gap: 0; background: #000; padding: 0; border: 4px solid #1a1a1a; border-radius: 5px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 0 30px rgba(0,0,0,0.5); }
+        .cell { width: 46px; height: 46px; background: #0a0a0a; position: relative; transition: background 0.3s ease; }
+        .cell.explored, .cell.entrance { background: var(--dungeon-explored); }
+        .cell.wall-north { border-top: 3px solid #6a5a4a; }
+        .cell.wall-south { border-bottom: 3px solid #6a5a4a; }
+        .cell.wall-east { border-right: 3px solid #6a5a4a; }
+        .cell.wall-west { border-left: 3px solid #6a5a4a; }
+        .cell.entrance { background: linear-gradient(135deg, #2a4a2a 0%, #1a3a1a 100%); }
+        .cell.exit { background: linear-gradient(135deg, #4a2a4a 0%, #3a1a3a 100%); }
+        .cell.revealed:not(.explored):not(.entrance) { background: #1a1a1a; }
+        .cell.clickable { cursor: pointer; animation: pulse 2s infinite; }
+        .cell.clickable:hover { background: rgba(212, 175, 55, 0.3); box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.5); }
+        @keyframes pulse { 0%, 100% { box-shadow: inset 0 0 5px rgba(212, 175, 55, 0.3); } 50% { box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.6); } }
+        .cell.quicktravel { cursor: pointer; }
+        .cell.quicktravel:hover { background: rgba(74, 124, 78, 0.4); box-shadow: inset 0 0 10px rgba(74, 124, 78, 0.5); }
+        .cell-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.3rem; text-shadow: 0 0 5px rgba(0,0,0,0.8); z-index: 2; }
+        .cell-content.small { font-size: 1rem; opacity: 0.6; }
+        .party-marker { color: var(--gold); animation: partyGlow 1.5s infinite; font-size: 1.5rem; }
+        @keyframes partyGlow { 0%, 100% { text-shadow: 0 0 5px var(--gold); } 50% { text-shadow: 0 0 15px var(--gold), 0 0 25px var(--gold); } }
+        .combat-log { height: 160px; background: rgba(0,0,0,0.7); border: 2px solid var(--dungeon-wall); border-radius: 5px; padding: 10px; overflow-y: auto; font-family: 'Crimson Text', serif; font-size: 0.85rem; margin-top: 15px; }
+        .log-entry { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .log-entry.combat { color: var(--blood); }
+        .log-entry.treasure { color: var(--gold-bright); }
+        .log-entry.info { color: var(--parchment); }
+        .log-entry.success { color: var(--health-green); }
+        .log-entry.danger { color: #ff6b6b; }
+        .log-entry.loot { color: var(--magic-cyan); }
+        .log-entry.initiative { color: var(--initiative-purple); }
+        .dice-roll { display: inline-block; background: rgba(255,255,255,0.15); padding: 1px 5px; border-radius: 3px; font-weight: bold; margin: 0 2px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: linear-gradient(135deg, #2a1810 0%, #1a1410 100%); border: 3px solid var(--gold); border-radius: 10px; padding: 25px; max-width: 900px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 0 50px rgba(212, 175, 55, 0.2); }
+        .modal-title { font-family: 'Cinzel', serif; font-size: 1.6rem; color: var(--gold); text-align: center; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+        .class-selection { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
+        .class-option { background: rgba(244, 228, 188, 0.05); border: 2px solid var(--parchment-dark); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.3s ease; }
+        .class-option:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); }
+        .class-name { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); margin-bottom: 4px; }
+        .class-desc { font-size: 0.8rem; color: var(--parchment-dark); font-style: italic; }
+        .class-bonus { font-size: 0.75rem; color: var(--health-green); margin-top: 4px; }
+        .char-preview { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 15px; }
+        .char-preview-name { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--parchment); margin-bottom: 8px; }
+        .char-preview-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .preview-stat { text-align: center; padding: 6px; background: rgba(0,0,0,0.3); border-radius: 5px; }
+        .preview-stat-label { font-size: 0.65rem; color: var(--parchment-dark); text-transform: uppercase; }
+        .preview-stat-value { font-size: 1.1rem; color: var(--parchment); font-weight: bold; }
+        .initiative-order { background: rgba(139, 92, 246, 0.1); border: 1px solid var(--initiative-purple); border-radius: 8px; padding: 12px; margin-bottom: 15px; }
+        .initiative-title { font-family: 'Cinzel', serif; color: var(--initiative-purple); margin-bottom: 8px; font-size: 0.9rem; text-align: center; }
+        .initiative-list { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+        .initiative-token { display: flex; flex-direction: column; align-items: center; padding: 6px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; border: 2px solid transparent; min-width: 60px; }
+        .initiative-token.current { border-color: var(--gold); background: rgba(212, 175, 55, 0.2); animation: currentTurn 1s infinite; }
+        @keyframes currentTurn { 0%, 100% { box-shadow: 0 0 5px var(--gold); } 50% { box-shadow: 0 0 15px var(--gold); } }
+        .initiative-token.party { border-color: var(--health-green); }
+        .initiative-token.enemy { border-color: var(--blood); }
+        .initiative-token.dead { opacity: 0.3; }
+        .initiative-icon { font-size: 1.3rem; }
+        .initiative-name { font-size: 0.65rem; color: var(--parchment); margin-top: 3px; }
+        .initiative-roll { font-size: 0.6rem; color: var(--initiative-purple); }
+        .combat-area { display: flex; gap: 20px; margin: 15px 0; }
+        .combatants { flex: 1; }
+        .combatant { display: flex; align-items: center; gap: 12px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .combatant:hover:not(.dead) { background: rgba(139, 0, 0, 0.3); }
+        .combatant.dead { opacity: 0.4; cursor: not-allowed; }
+        .combatant.selectable { animation: selectablePulse 1.5s infinite; }
+        @keyframes selectablePulse { 0%, 100% { box-shadow: 0 0 5px var(--gold); } 50% { box-shadow: 0 0 15px var(--gold); } }
+        .combatant.targeted { background: rgba(255, 0, 0, 0.2); border: 1px solid var(--blood); }
+        .combatant-icon { font-size: 1.8rem; width: 45px; text-align: center; }
+        .combatant-info { flex: 1; }
+        .combatant-name { font-family: 'Cinzel', serif; color: var(--parchment); margin-bottom: 4px; font-size: 0.9rem; }
+        .enemy-section .combatant { border-left: 3px solid var(--blood); }
+        .party-section .combatant { border-left: 3px solid var(--health-green); }
+        .party-section .combatant.current-turn { border-left: 3px solid var(--gold); background: rgba(212, 175, 55, 0.15); }
+        .combat-actions { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        .turn-prompt { text-align: center; font-family: 'MedievalSharp', cursive; color: var(--gold); font-size: 1.1rem; margin: 12px 0; padding: 8px; background: rgba(212, 175, 55, 0.1); border-radius: 5px; }
+        .treasure-display { text-align: center; padding: 15px; }
+        .treasure-icon { font-size: 3.5rem; animation: treasureShine 2s infinite; }
+        @keyframes treasureShine { 0%, 100% { text-shadow: 0 0 20px var(--gold); } 50% { text-shadow: 0 0 40px var(--gold-bright); } }
+        .treasure-amount { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold-bright); margin: 12px 0; }
+        .loot-list { margin: 15px 0; text-align: left; }
+        .loot-item { padding: 8px; margin: 5px 0; background: rgba(0, 206, 209, 0.1); border: 1px solid var(--magic-cyan); border-radius: 5px; color: var(--magic-cyan); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .loot-item-name { font-weight: bold; }
+        .loot-char-buttons { display: flex; gap: 5px; flex-wrap: wrap; }
+        .loot-char-btn { padding: 4px 8px; font-size: 0.7rem; background: rgba(0,0,0,0.3); border: 1px solid var(--parchment-dark); color: var(--parchment); border-radius: 3px; cursor: pointer; transition: all 0.2s; }
+        .loot-char-btn:hover:not(.disabled) { background: rgba(212, 175, 55, 0.3); border-color: var(--gold); }
+        .loot-char-btn.disabled { opacity: 0.4; cursor: not-allowed; }
+        .fountain-choice { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+        .combat-sidebar { width: 200px; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px; max-height: 320px; overflow-y: auto; }
+        .combat-sidebar-title { font-family: 'Cinzel', serif; color: var(--gold); margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; }
+        .combat-log-mini .log-entry { padding: 2px 0; font-size: 0.65rem; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: var(--dungeon-wall); border-radius: 4px; }
+        .level-up-flash { animation: levelUp 1s ease; }
+        @keyframes levelUp { 0% { box-shadow: 0 0 0 rgba(212, 175, 55, 0); } 50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.8); } 100% { box-shadow: 0 0 0 rgba(212, 175, 55, 0); } }
+        .descend-prompt { text-align: center; padding: 20px; }
+        .descend-prompt p { margin: 10px 0; color: var(--parchment); }
+        .descend-prompt .level-num { font-size: 2rem; color: var(--blood); font-family: 'Cinzel', serif; }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="character-panel">
+            <div class="party-header">⚔ ADVENTURERS ⚔</div>
+            <div class="party-resources">
+                <div class="resource-box gold-box">💰 Gold<span id="party-gold">0</span></div>
+                <div class="resource-box potion-box" id="potion-box" onclick="usePotion()">🧪 Potions<span id="party-potions">0</span></div>
+                <div class="resource-box rest-box" id="rest-box" onclick="useRest()">⛺ Rests<span id="party-rests">2</span></div>
+            </div>
+            <div id="character-cards"></div>
+        </div>
+        <div class="dungeon-container">
+            <div class="dungeon-header">
+                <div class="dungeon-title">🏰 Forgotten Depths</div>
+                <div class="dungeon-info">
+                    <div class="dungeon-level">Floor: <span id="floor-level">1</span> 🪜</div>
+                </div>
+                <div class="action-buttons">
+                    <div class="toggle-container">
+                        <span>Turn Based</span>
+                        <div class="toggle-switch" id="turn-based-toggle" onclick="toggleTurnBased()"></div>
+                    </div>
+                    <select class="difficulty-select" id="difficulty-select" onchange="changeDifficulty()">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                        <option value="extreme">Extreme</option>
+                    </select>
+                    <button class="btn danger" id="new-game-btn">⚰ New Game</button>
+                </div>
+            </div>
+            <div class="dungeon-grid-wrapper">
+                <div class="dungeon-grid" id="dungeon-grid"></div>
+            </div>
+            <div class="combat-log" id="combat-log">
+                <div class="log-entry info">Welcome, brave adventurers. The dungeon awaits...</div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="class-modal" style="display: none;">
+        <div class="modal"><div class="modal-title">⚔ Choose Your Classes ⚔</div><div id="class-selection-content"></div></div>
+    </div>
+    <div class="modal-overlay" id="combat-modal" style="display: none;">
+        <div class="modal"><div class="modal-title" id="combat-title">⚔ COMBAT ⚔</div><div id="combat-content"></div></div>
+    </div>
+    <div class="modal-overlay" id="treasure-modal" style="display: none;">
+        <div class="modal"><div class="modal-title">💰 TREASURE FOUND 💰</div><div id="treasure-content"></div></div>
+    </div>
+    <div class="modal-overlay" id="fountain-modal" style="display: none;">
+        <div class="modal"><div class="modal-title">⛲ HEALING FOUNTAIN ⛲</div><div id="fountain-content"></div></div>
+    </div>
+    <div class="modal-overlay" id="descend-modal" style="display: none;">
+        <div class="modal"><div class="modal-title">🪜 STAIRS DESCEND 🪜</div><div id="descend-content"></div></div>
+    </div>
+    <div class="modal-overlay" id="gameover-modal" style="display: none;">
+        <div class="modal"><div class="modal-title" id="gameover-title">☠ GAME OVER ☠</div><div id="gameover-content"></div></div>
+    </div>
+    <script>
+const GRID_SIZE = 11;
+const CLASSES = {
+    warrior: { name: 'Warrior', desc: 'Master of arms and armor', bonus: '+2 ATK, +1 DEF, +5 HP', hpBonus: 5, attackBonus: 2, defenseBonus: 1, initiativeBonus: 0, icon: '⚔️' },
+    cleric: { name: 'Cleric', desc: 'Holy servant who mends wounds', bonus: '+1 ATK, +1 DEF, Heal', hpBonus: 2, attackBonus: 1, defenseBonus: 1, initiativeBonus: 0, canHeal: true, icon: '✝️' },
+    rogue: { name: 'Rogue', desc: 'Strikes from shadows', bonus: '+3 ATK, Backstab, +Gold', hpBonus: 0, attackBonus: 3, defenseBonus: 0, initiativeBonus: 2, backstab: true, goldBonus: 1.5, icon: '🗡️' },
+    mage: { name: 'Mage', desc: 'Wielder of arcane power', bonus: '+4 ATK (INT), -1 DEF', hpBonus: -2, attackBonus: 4, defenseBonus: -1, initiativeBonus: 0, magic: true, icon: '🔮' },
+    ranger: { name: 'Ranger', desc: 'Skilled hunter', bonus: '+2 ATK, +3 Initiative', hpBonus: 1, attackBonus: 2, defenseBonus: 0, initiativeBonus: 3, icon: '🏹' },
+    barbarian: { name: 'Barbarian', desc: 'Fierce berserker', bonus: '+3 ATK, +8 HP, -2 DEF', hpBonus: 8, attackBonus: 3, defenseBonus: -2, initiativeBonus: 1, icon: '🪓' }
+};
+const ENEMIES = [
+    { name: '"Will-o-the-wisp', icon: '💥', baseHp: 1, baseAttack: 1, baseDef: 0, baseGold: 3, floorMin: 1, baseInit: 0 },
+    { name: 'Bat', icon: '🦇', baseHp: 4, baseAttack: 1, baseDef: 0, baseGold: 3, floorMin: 1, baseInit: 3 },
+    { name: 'Goblin', icon: '😈', baseHp: 8, baseAttack: 2, baseDef: 0, baseGold: 5, floorMin: 1, baseInit: 2 },
+    { name: 'Skeleton', icon: '💀', baseHp: 10, baseAttack: 3, baseDef: 1, baseGold: 8, floorMin: 1, baseInit: 0 },
+    { name: 'Giant Rat', icon: '🐀', baseHp: 5, baseAttack: 2, baseDef: 0, baseGold: 3, floorMin: 1, baseInit: 3 },
+    { name: 'Orc', icon: '👹', baseHp: 15, baseAttack: 4, baseDef: 2, baseGold: 15, floorMin: 2, baseInit: 1 },
+    { name: 'Giant Lizard', icon: '🐊', baseHp: 10, baseAttack: 5, baseDef: 2, baseGold: 15, floorMin: 2, baseInit: 2 },
+    { name: 'Zombie', icon: '🧟', baseHp: 18, baseAttack: 3, baseDef: 1, baseGold: 10, floorMin: 2, baseInit: -2 },
+    { name: 'Spider', icon: '🕷️', baseHp: 12, baseAttack: 5, baseDef: 0, baseGold: 12, floorMin: 2, baseInit: 4 },
+    { name: 'Wraith', icon: '👻', baseHp: 20, baseAttack: 6, baseDef: 3, baseGold: 25, floorMin: 3, baseInit: 2 },
+    { name: 'Raptor', icon: '🦖', baseHp: 25, baseAttack: 7, baseDef: 2, baseGold: 25, floorMin: 3, baseInit: 3 },
+    { name: 'Vampire', icon: '🧛🏻‍♀️', baseHp: 25, baseAttack: 6, baseDef: 4, baseGold: 25, floorMin: 3, baseInit: 3 },
+    { name: 'Troll', icon: '🧌', baseHp: 30, baseAttack: 7, baseDef: 2, baseGold: 35, floorMin: 4, baseInit: 1 },
+    { name: 'Ghoul', icon: '😱', baseHp: 40, baseAttack: 6, baseDef: 1, baseGold: 35, floorMin: 4, baseInit: 0 },
+    { name: 'Water Elemental', icon: '🌊', baseHp: 30, baseAttack: 10, baseDef: 5, baseGold: 35, floorMin: 4, baseInit: 2 },
+    { name: 'Minotaur', icon: '🦬', baseHp: 35, baseAttack: 8, baseDef: 4, baseGold: 50, floorMin: 5, baseInit: 1 },
+    { name: 'Beholder', icon: '👁️', baseHp: 40, baseAttack: 10, baseDef: 2, baseGold: 50, floorMin: 5, baseInit: 0 },
+    { name: 'Thri-Kreen', icon: '👾', baseHp: 30, baseAttack: 10, baseDef: 4, baseGold: 50, floorMin: 5, baseInit: 3 },
+    { name: 'Wyvern', icon: '🐉', baseHp: 50, baseAttack: 12, baseDef: 6, baseGold: 100, floorMin: 6, baseInit: 3 },
+    { name: 'Stone Gollumn', icon: '🗿', baseHp: 60, baseAttack: 10, baseDef: 8, baseGold: 100, floorMin: 6, baseInit: 0 },
+    { name: 'Mindflayer', icon: '🦑', baseHp: 40, baseAttack: 14, baseDef: 6, baseGold: 100, floorMin: 6, baseInit: 4 },
+    { name: 'Phoenix', icon: '🐦‍🔥', baseHp: 50, baseAttack: 20, baseDef: 8, baseGold: 150, floorMin: 7, baseInit: 7 },
+    { name: 'Elder Brain', icon: '🧠', baseHp: 60, baseAttack: 25, baseDef: 5, baseGold: 150, floorMin: 7, baseInit: 0 },
+    { name: 'Dragon', icon: '🐲', baseHp: 55, baseAttack: 25, baseDef: 10, baseGold: 150, floorMin: 7, baseInit: 5 }
+];
+const LOOT_TYPES = [
+    { name: 'Sword', stat: 'attack', slots: ['warrior', 'barbarian', 'ranger'] },
+    { name: 'Staff', stat: 'attack', slots: ['mage', 'cleric'] },
+    { name: 'Dagger', stat: 'attack', slots: ['rogue'] },
+    { name: 'Shield', stat: 'defense', slots: ['warrior', 'cleric'] },
+    { name: 'Cloak', stat: 'defense', slots: ['rogue', 'ranger', 'mage'] },
+    { name: 'Amulet', stat: 'maxHp', slots: ['all'] },
+    { name: 'Ring', stat: 'initiative', slots: ['all'] }
+];
+const ROOM_TYPES = ['empty', 'enemy', 'enemy', 'enemy', 'treasure', 'trap', 'fountain', 'potion'];
+const NAMES = ['Aldric', 'Brynn', 'Cedric', 'Daria', 'Elric', 'Fiona', 'Gareth', 'Helena', 'Ivar', 'Jasmine', 'Kira', 'Lyra'];
+
+let gameState = {
+    characters: [], grid: [], partyPosition: { x: 5, y: 10 },
+    gold: 0, potions: 0, rests: 2, totalXP: 0, floor: 1,
+    roomsExplored: 0, gamePhase: 'class-selection', currentCharIndex: 0, currentCombat: null,
+    pendingLoot: [], exitFound: false, turnBased: false, difficulty: 'medium'
+};
+
+const DIFFICULTY_MULTIPLIERS = { easy: 3.0, medium: 5.0, hard: 8.0, extreme: 13.0 };
+
+function roll(s) { return Math.floor(Math.random() * s) + 1; }
+function rollD(s) { const r = roll(s); return { value: r, html: `<span class="dice-roll">d${s}:${r}</span>` }; }
+function rollStat() { const r = [roll(6), roll(6), roll(6), roll(6)].sort((a, b) => b - a); return r[0] + r[1] + r[2]; }
+function getMod(s) { return Math.floor((s - 10) / 2); }
+function shuffle(a) { const arr = [...a]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+function generateCharacter(idx) {
+    const usedNames = gameState.characters.map(c => c.name);
+    const name = NAMES.filter(n => !usedNames.includes(n))[Math.floor(Math.random() * (NAMES.length - idx))];
+    return { id: idx, name, class: null, level: 1, xp: 0, xpToLevel: 100, stats: { str: rollStat(), dex: rollStat(), con: rollStat(), int: rollStat(), wis: rollStat(), cha: rollStat() }, baseMaxHp: 0, maxHp: 0, hp: 0, baseAttack: 0, attack: 0, baseDefense: 0, defense: 0, baseInitiative: 0, initiative: 0, alive: true, isParty: true, equipment: [] };
+}
+
+function applyClass(char, className) {
+    const cls = CLASSES[className];
+    char.class = className; char.classData = cls;
+    const conMod = getMod(char.stats.con);
+    char.baseMaxHp = 10 + conMod + cls.hpBonus; char.maxHp = char.baseMaxHp; char.hp = char.maxHp;
+    char.baseAttack = Math.max(1, (cls.magic ? getMod(char.stats.int) : getMod(char.stats.str)) + cls.attackBonus);
+    char.attack = char.baseAttack;
+    char.baseDefense = Math.max(0, getMod(char.stats.dex) + cls.defenseBonus);
+    char.defense = char.baseDefense;
+    char.baseInitiative = getMod(char.stats.dex) + cls.initiativeBonus;
+    char.initiative = char.baseInitiative;
+}
+
+function recalcStats(char) {
+    char.maxHp = char.baseMaxHp; char.attack = char.baseAttack; char.defense = char.baseDefense; char.initiative = char.baseInitiative;
+    for (const eq of char.equipment) {
+        if (eq.stat === 'maxHp') char.maxHp += eq.bonus;
+        else if (eq.stat === 'attack') char.attack += eq.bonus;
+        else if (eq.stat === 'defense') char.defense += eq.bonus;
+        else if (eq.stat === 'initiative') char.initiative += eq.bonus;
+    }
+    if (char.hp > char.maxHp) char.hp = char.maxHp;
+}
+
+function generateMaze() {
+    const maze = [];
+    for (let y = 0; y < GRID_SIZE; y++) {
+        maze[y] = [];
+        for (let x = 0; x < GRID_SIZE; x++) {
+            maze[y][x] = { visited: false, walls: { n: true, s: true, e: true, w: true } };
+        }
+    }
+    const stack = [];
+    const startX = Math.floor(GRID_SIZE / 2), startY = GRID_SIZE - 1;
+    maze[startY][startX].visited = true;
+    stack.push({ x: startX, y: startY });
+    
+    while (stack.length > 0) {
+        const current = stack[stack.length - 1];
+        const neighbors = [];
+        const dirs = [{ dx: 0, dy: -1, w: 'n', o: 's' }, { dx: 0, dy: 1, w: 's', o: 'n' }, { dx: -1, dy: 0, w: 'w', o: 'e' }, { dx: 1, dy: 0, w: 'e', o: 'w' }];
+        for (const d of dirs) {
+            const nx = current.x + d.dx, ny = current.y + d.dy;
+            if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE && !maze[ny][nx].visited) {
+                neighbors.push({ x: nx, y: ny, wall: d.w, opposite: d.o });
+            }
+        }
+        if (neighbors.length > 0) {
+            const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+            maze[current.y][current.x].walls[next.wall] = false;
+            maze[next.y][next.x].walls[next.opposite] = false;
+            maze[next.y][next.x].visited = true;
+            stack.push({ x: next.x, y: next.y });
+        } else {
+            stack.pop();
+        }
+    }
+    
+    // Add extra passages for more branching (remove ~10% of remaining walls)
+    const extraPassages = Math.floor(GRID_SIZE * GRID_SIZE * 0.1);
+    let added = 0;
+    let attempts = 0;
+    while (added < extraPassages && attempts < 500) {
+        attempts++;
+        const x = Math.floor(Math.random() * GRID_SIZE);
+        const y = Math.floor(Math.random() * GRID_SIZE);
+        const dirs = shuffle([{ dx: 0, dy: -1, w: 'n', o: 's' }, { dx: 0, dy: 1, w: 's', o: 'n' }, { dx: -1, dy: 0, w: 'w', o: 'e' }, { dx: 1, dy: 0, w: 'e', o: 'w' }]);
+        for (const d of dirs) {
+            const nx = x + d.dx, ny = y + d.dy;
+            if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE && maze[y][x].walls[d.w]) {
+                maze[y][x].walls[d.w] = false;
+                maze[ny][nx].walls[d.o] = false;
+                added++;
+                break;
+            }
+        }
+    }
+    
+    return maze;
+}
+
+function initializeGrid() {
+    const maze = generateMaze();
+    gameState.grid = [];
+    gameState.exitFound = false;
+    for (let y = 0; y < GRID_SIZE; y++) {
+        gameState.grid[y] = [];
+        for (let x = 0; x < GRID_SIZE; x++) {
+            const isEntrance = (y === GRID_SIZE - 1 && x === Math.floor(GRID_SIZE / 2));
+            const roomType = isEntrance ? 'entrance' : ROOM_TYPES[Math.floor(Math.random() * ROOM_TYPES.length)];
+            gameState.grid[y][x] = {
+                type: isEntrance ? 'entrance' : 'room',
+                roomType: roomType,
+                explored: isEntrance,
+                content: isEntrance ? null : generateRoomContent(roomType),
+                revealed: isEntrance,
+                conn: { n: !maze[y][x].walls.n, s: !maze[y][x].walls.s, e: !maze[y][x].walls.e, w: !maze[y][x].walls.w },
+                deadMonster: null
+            };
+        }
+    }
+    const eX = Math.floor(GRID_SIZE / 2), eY = GRID_SIZE - 1;
+    gameState.partyPosition = { x: eX, y: eY };
+    placeExit();
+}
+
+function placeExit() {
+    let candidates = [];
+    for (let y = 0; y < Math.floor(GRID_SIZE / 2); y++) {
+        for (let x = 0; x < GRID_SIZE; x++) {
+            if (gameState.grid[y][x].type === 'room') candidates.push({ x, y });
+        }
+    }
+    if (candidates.length === 0) {
+        for (let y = 0; y < GRID_SIZE - 1; y++) {
+            for (let x = 0; x < GRID_SIZE; x++) {
+                if (gameState.grid[y][x].type === 'room') candidates.push({ x, y });
+            }
+        }
+    }
+    if (candidates.length > 0) {
+        const exit = candidates[Math.floor(Math.random() * candidates.length)];
+        gameState.grid[exit.y][exit.x].type = 'exit';
+        gameState.grid[exit.y][exit.x].content = { type: 'exit' };
+        gameState.grid[exit.y][exit.x].roomType = 'exit';
+    }
+}
+
+function generateRoomContent(roomType) {
+    const f = gameState.floor;
+    const diffMult = DIFFICULTY_MULTIPLIERS[gameState.difficulty] || 1.0;
+    switch (roomType) {
+        case 'enemy':
+            const avail = ENEMIES.filter(e => e.floorMin <= f);
+            const enemy = avail[Math.floor(Math.random() * avail.length)];
+            const count = Math.min(1 + Math.floor(f / 2), 4);
+            return { type: 'enemy', enemies: Array(count).fill(null).map((_, i) => {
+                const baseHp = enemy.baseHp + (f - 1) * 4;
+                const baseAtk = enemy.baseAttack + Math.floor((f - 1) * 1.5);
+                const baseDef = enemy.baseDef + Math.floor((f - 1) * 0.5);
+                return { 
+                    ...enemy, 
+                    id: `e-${Date.now()}-${i}-${Math.random()}`, 
+                    hp: Math.floor(baseHp * diffMult), 
+                    maxHp: Math.floor(baseHp * diffMult), 
+                    attack: Math.floor(baseAtk * diffMult), 
+                    defense: Math.floor(baseDef * diffMult), 
+                    gold: Math.floor(enemy.baseGold * (1 + (f - 1) * 0.5)), 
+                    initiative: enemy.baseInit, 
+                    alive: true, 
+                    isParty: false 
+                };
+            }) };
+        case 'treasure':
+            const loot = [];
+            if (roll(100) <= 15 + f * 10) {
+                const bonus = Math.min(3, 1 + Math.floor((f - 1) / 2));
+                const lootType = LOOT_TYPES[Math.floor(Math.random() * LOOT_TYPES.length)];
+                loot.push({ ...lootType, bonus, displayName: `+${bonus} ${lootType.name}` });
+            }
+            return { type: 'treasure', gold: roll(20) * f + 10 * f, loot };
+        case 'trap': return { type: 'trap', damage: roll(6) + f * 2 };
+        case 'fountain': return { type: 'fountain', heal: roll(10) + 5 + f * 2, used: false };
+        case 'potion': return { type: 'potion', count: 1 + Math.floor(f / 3) };
+        default: return { type: 'empty' };
+    }
+}
+
+function renderCharacterPanel() {
+    const cont = document.getElementById('character-cards'); cont.innerHTML = '';
+    for (const c of gameState.characters) {
+        const cls = c.classData, icon = cls ? cls.icon : '❓', clsName = cls ? cls.name : 'Unassigned';
+        const atkBuffed = c.attack > c.baseAttack, defBuffed = c.defense > c.baseDefense, initBuffed = c.initiative > c.baseInitiative, hpBuffed = c.maxHp > c.baseMaxHp;
+        let equipHtml = c.equipment.length > 0 ? `<div class="equipment-row">${c.equipment.map(e => `<span class="equipment-item">${e.displayName}</span>`).join('')}</div>` : '';
+        cont.innerHTML += `<div class="character-card ${c.alive ? '' : 'dead'}" id="char-${c.id}">
+            <div class="char-header"><div class="char-name">${icon} ${c.name}</div><div class="char-class">${clsName}</div></div>
+            <div class="char-level">Level ${c.level}</div>
+            <div class="stat-row">
+                <div class="stat"><div class="stat-label">STR</div><div class="stat-value">${c.stats.str}</div></div>
+                <div class="stat"><div class="stat-label">DEX</div><div class="stat-value">${c.stats.dex}</div></div>
+                <div class="stat"><div class="stat-label">CON</div><div class="stat-value">${c.stats.con}</div></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat"><div class="stat-label">INT</div><div class="stat-value">${c.stats.int}</div></div>
+                <div class="stat"><div class="stat-label">WIS</div><div class="stat-value">${c.stats.wis}</div></div>
+                <div class="stat"><div class="stat-label">CHA</div><div class="stat-value">${c.stats.cha}</div></div>
+            </div>
+            <div class="bar-container"><div class="bar"><div class="bar-fill health" style="width:${(c.hp / c.maxHp) * 100}%"></div><div class="bar-text">HP: ${c.hp}/${c.maxHp}${hpBuffed ? ' ★' : ''}</div></div></div>
+            <div class="bar-container"><div class="bar"><div class="bar-fill xp" style="width:${(c.xp / c.xpToLevel) * 100}%"></div><div class="bar-text">XP: ${c.xp}/${c.xpToLevel}</div></div></div>
+            <div class="stat-row"><div class="stat"><div class="stat-label">ATK</div><div class="stat-value ${atkBuffed ? 'buffed' : ''}">${c.attack}</div></div><div class="stat"><div class="stat-label">DEF</div><div class="stat-value ${defBuffed ? 'buffed' : ''}">${c.defense}</div></div><div class="stat"><div class="stat-label">INIT</div><div class="stat-value ${initBuffed ? 'buffed' : ''}">${c.initiative >= 0 ? '+' : ''}${c.initiative}</div></div></div>
+            ${equipHtml}
+        </div>`;
+    }
+    document.getElementById('party-gold').textContent = gameState.gold;
+    document.getElementById('party-potions').textContent = gameState.potions;
+    document.getElementById('party-rests').textContent = gameState.rests;
+    document.getElementById('potion-box').className = `resource-box potion-box ${gameState.potions <= 0 ? 'disabled' : ''}`;
+    document.getElementById('rest-box').className = `resource-box rest-box ${gameState.rests <= 0 ? 'disabled' : ''}`;
+}
+
+// Pathfinding for quick travel
+function canReach(fromX, fromY, toX, toY) {
+    if (!gameState.grid[toY][toX].explored) return false;
+    const visited = new Set();
+    const queue = [{ x: fromX, y: fromY }];
+    visited.add(`${fromX},${fromY}`);
+    while (queue.length > 0) {
+        const { x, y } = queue.shift();
+        if (x === toX && y === toY) return true;
+        const cell = gameState.grid[y][x];
+        if (!cell.explored) continue;
+        const dirs = [
+            { dx: 0, dy: -1, c: 'n' }, { dx: 0, dy: 1, c: 's' },
+            { dx: -1, dy: 0, c: 'w' }, { dx: 1, dy: 0, c: 'e' }
+        ];
+        for (const d of dirs) {
+            const nx = x + d.dx, ny = y + d.dy;
+            const key = `${nx},${ny}`;
+            if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE && 
+                !visited.has(key) && cell.conn[d.c] && gameState.grid[ny][nx].explored) {
+                visited.add(key);
+                queue.push({ x: nx, y: ny });
+            }
+        }
+    }
+    return false;
+}
+
+function quickTravel(toX, toY) {
+    if (gameState.gamePhase !== 'exploring') return;
+    const cell = gameState.grid[toY][toX];
+    if (!cell.explored) return;
+    
+    gameState.partyPosition = { x: toX, y: toY };
+    log(`Quick traveled to (${toX}, ${toY})`, 'info');
+    
+    if (cell.content && cell.content.type === 'fountain' && !cell.content.used) {
+        showFountain(cell);
+    } else if (cell.type === 'exit') {
+        showDescend();
+    } else {
+        renderDungeonGrid();
+    }
+}
+
+function renderDungeonGrid() {
+    const grid = document.getElementById('dungeon-grid');
+    grid.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 46px)`; grid.innerHTML = '';
+    const { x: px, y: py } = gameState.partyPosition;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const nx = px + dx, ny = py + dy; if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) gameState.grid[ny][nx].revealed = true; }
+    for (let y = 0; y < GRID_SIZE; y++) {
+        for (let x = 0; x < GRID_SIZE; x++) {
+            const cell = gameState.grid[y][x];
+            const isParty = px === x && py === y;
+            const isAdj = Math.abs(px - x) + Math.abs(py - y) === 1;
+            const isConn = isAdjConn(px, py, x, y);
+            const canMove = isAdj && isConn && gameState.gamePhase === 'exploring';
+            const canQuickTravel = !isParty && cell.explored && gameState.gamePhase === 'exploring' && canReach(px, py, x, y);
+            
+            let cls = 'cell';
+            if (cell.explored) cls += ' explored';
+            else if (cell.revealed) cls += ' revealed';
+            if (cell.type === 'entrance') cls += ' entrance';
+            if (cell.type === 'exit' && cell.explored) cls += ' exit';
+            if (cell.explored || cell.type === 'entrance') {
+                if (!cell.conn.n) cls += ' wall-north';
+                if (!cell.conn.s) cls += ' wall-south';
+                if (!cell.conn.e) cls += ' wall-east';
+                if (!cell.conn.w) cls += ' wall-west';
+            }
+            if (canMove) cls += ' clickable';
+            else if (canQuickTravel) cls += ' quicktravel';
+            
+            let content = '', small = false;
+            if (isParty) content = '<span class="party-marker">⚔️</span>';
+            else if (cell.type === 'entrance' && cell.explored) content = '🚪';
+            else if (cell.type === 'exit' && cell.explored) content = '🪜';
+            else if (cell.revealed && !cell.explored) content = '❓';
+            else if (cell.explored) {
+                if (cell.deadMonster) { content = cell.deadMonster; small = true; }
+                else if (cell.content) {
+                    if (cell.content.type === 'enemy' && cell.content.enemies.some(e => e.alive)) content = '💀';
+                    else if (cell.content.type === 'fountain' && !cell.content.used) content = '⛲';
+                }
+            }
+            const div = document.createElement('div'); div.className = cls;
+            if (content) div.innerHTML = `<div class="cell-content ${small ? 'small' : ''}">${content}</div>`;
+            if (canMove) div.onclick = () => moveParty(x, y);
+            else if (canQuickTravel) div.onclick = () => quickTravel(x, y);
+            grid.appendChild(div);
+        }
+    }
+    document.getElementById('floor-level').textContent = gameState.floor;
+}
+
+function isAdjConn(fx, fy, tx, ty) {
+    const from = gameState.grid[fy][fx];
+    if (tx === fx && ty === fy - 1) return from.conn.n;
+    if (tx === fx && ty === fy + 1) return from.conn.s;
+    if (tx === fx + 1 && ty === fy) return from.conn.e;
+    if (tx === fx - 1 && ty === fy) return from.conn.w;
+    return false;
+}
+
+function log(msg, type = 'info') { const l = document.getElementById('combat-log'); l.innerHTML += `<div class="log-entry ${type}">› ${msg}</div>`; l.scrollTop = l.scrollHeight; }
+function combatLog(msg, type = 'info') { if (gameState.currentCombat) gameState.currentCombat.log.push({ msg, type }); log(msg, type); }
+
+function moveParty(x, y) {
+    if (gameState.gamePhase !== 'exploring') return;
+    const fx = gameState.partyPosition.x, fy = gameState.partyPosition.y;
+    const to = gameState.grid[y][x];
+    if (!to.explored) {
+        if (x === fx && y === fy - 1) { gameState.grid[fy][fx].conn.n = true; to.conn.s = true; }
+        else if (x === fx && y === fy + 1) { gameState.grid[fy][fx].conn.s = true; to.conn.n = true; }
+        else if (x === fx + 1 && y === fy) { gameState.grid[fy][fx].conn.e = true; to.conn.w = true; }
+        else if (x === fx - 1 && y === fy) { gameState.grid[fy][fx].conn.w = true; to.conn.e = true; }
+    }
+    gameState.partyPosition = { x, y };
+    if (!to.explored) { to.explored = true; gameState.roomsExplored++; moveParty(x, y); handleRoom(to); }
+    else if (to.content && to.content.type === 'fountain' && !to.content.used) { showFountain(to); }
+    else if (to.type === 'exit') { showDescend(); }
+    else renderDungeonGrid();
+}
+
+function handleRoom(cell) {
+    if (!cell.content || cell.content.type === 'empty') { log('An empty chamber.'); renderDungeonGrid(); return; }
+    switch (cell.content.type) {
+        case 'enemy': startCombat(cell); break;
+        case 'treasure': showTreasure(cell.content.gold, cell.content.loot); cell.content = null; break;
+        case 'trap': handleTrap(cell.content.damage); cell.content = null; renderDungeonGrid(); break;
+        case 'fountain': showFountain(cell); break;
+        case 'potion': gameState.potions += cell.content.count; log(`Found ${cell.content.count} healing potion(s)!`, 'success'); cell.content = null; renderCharacterPanel(); renderDungeonGrid(); break;
+        case 'exit': showDescend(); break;
+    }
+}
+
+function showFountain(cell) {
+    const heal = cell.content.heal;
+    document.getElementById('fountain-content').innerHTML = `
+        <div class="treasure-display">
+            <div class="treasure-icon">⛲</div>
+            <p style="color:var(--parchment);margin:15px 0">A magical fountain bubbles with healing waters.</p>
+            <p style="color:var(--health-green);font-size:1.3rem">Heals ${heal} HP to all party members</p>
+            <div class="fountain-choice">
+                <button class="btn" onclick="useFountain(true)">🧪 Drink</button>
+                <button class="btn danger" onclick="useFountain(false)">🚶 Leave It</button>
+            </div>
+        </div>`;
+    document.getElementById('fountain-modal').style.display = 'flex';
+    gameState.currentFountainCell = cell;
+}
+
+function useFountain(drink) {
+    document.getElementById('fountain-modal').style.display = 'none';
+    const cell = gameState.currentFountainCell;
+    if (drink) {
+        const heal = cell.content.heal;
+        for (const c of gameState.characters.filter(ch => ch.alive)) c.hp = Math.min(c.maxHp, c.hp + heal);
+        cell.content.used = true;
+        log(`Party drinks from fountain! +${heal} HP each.`, 'success');
+    } else {
+        log('Party leaves the fountain for later.', 'info');
+    }
+    renderCharacterPanel(); renderDungeonGrid();
+}
+
+function showDescend() {
+    const nextFloor = gameState.floor + 1;
+    document.getElementById('descend-content').innerHTML = `
+        <div class="descend-prompt">
+            <p>You found stairs leading deeper into the dungeon!</p>
+            <p class="level-num">Floor ${nextFloor}</p>
+            <p style="color:var(--blood)">Monsters will be stronger, but treasures greater...</p>
+            <p style="color:var(--health-green)">Rests will be restored to 2.</p>
+            <div class="descend-choice">
+                <button class="btn" onclick="continueExploring()">🔍 Keep Exploring</button>
+                <button class="btn" onclick="descendFloor()">🪜 Descend</button>
+            </div>
+        </div>`;
+    document.getElementById('descend-modal').style.display = 'flex';
+}
+
+function continueExploring() {
+    document.getElementById('descend-modal').style.display = 'none';
+    renderDungeonGrid();
+}
+
+function descendFloor() {
+    document.getElementById('descend-modal').style.display = 'none';
+    gameState.floor++;
+    gameState.rests = 2;
+    log(`Descended to Floor ${gameState.floor}!`, 'info');
+    initializeGrid();
+    renderCharacterPanel(); renderDungeonGrid();
+}
+
+function usePotion() {
+    if (gameState.potions <= 0 || gameState.gamePhase !== 'exploring') return;
+    gameState.potions--;
+    const healRoll = rollD(10);
+    const healAmount = healRoll.value + 5;
+    for (const c of gameState.characters.filter(ch => ch.alive)) c.hp = Math.min(c.maxHp, c.hp + healAmount);
+    log(`Used potion! ${healRoll.html} + 5 = ${healAmount} HP to all!`, 'success');
+    renderCharacterPanel();
+}
+
+function useRest() {
+    if (gameState.rests <= 0 || gameState.gamePhase !== 'exploring') return;
+    gameState.rests--;
+    for (const c of gameState.characters.filter(ch => ch.alive)) c.hp = c.maxHp;
+    if (gameState.gold > 0) {
+        const xp = gameState.gold;
+        gameState.totalXP += xp;
+        const alive = gameState.characters.filter(c => c.alive);
+        for (const c of alive) {
+            c.xp += Math.floor(xp / alive.length);
+            while (c.xp >= c.xpToLevel) {
+                c.xp -= c.xpToLevel; c.level++; c.xpToLevel = Math.floor(c.xpToLevel * 1.5);
+                c.baseMaxHp += 5 + getMod(c.stats.con); c.baseAttack++; recalcStats(c); c.hp = c.maxHp;
+                log(`${c.name} reached level ${c.level}!`, 'success');
+            }
+        }
+        log(`Rested! Full HP restored. ${xp} gold converted to XP.`, 'success');
+        gameState.gold = 0;
+    } else {
+        log('Rested! Full HP restored.', 'success');
+    }
+    for (const c of gameState.characters.filter(ch => !ch.alive)) { c.alive = true; c.hp = Math.floor(c.maxHp / 2); log(`${c.name} revived!`, 'success'); }
+    renderCharacterPanel();
+}
+
+function startCombat(cell) {
+    gameState.gamePhase = 'combat';
+    const combatants = [];
+    for (const c of gameState.characters.filter(ch => ch.alive)) {
+        const r = roll(20), t = r + c.initiative;
+        combatants.push({ ...c, initRoll: r, totalInit: t, type: 'party' });
+        log(`${c.name} initiative: ${r} + ${c.initiative} = ${t}`, 'initiative');
+    }
+    for (const e of cell.content.enemies) {
+        const r = roll(20), t = r + e.initiative;
+        combatants.push({ ...e, initRoll: r, totalInit: t, type: 'enemy' });
+        log(`${e.name} initiative: ${r} + ${e.initiative} = ${t}`, 'initiative');
+    }
+    combatants.sort((a, b) => b.totalInit - a.totalInit);
+    gameState.currentCombat = { cell, enemies: cell.content.enemies, combatants, turnIdx: 0, round: 1, log: [], awaitTarget: false, roundDone: false };
+    log(`Combat! ${cell.content.enemies.map(e => e.name).join(', ')}!`, 'combat');
+    showCombatModal(); processNextTurn();
+}
+
+function processNextTurn() {
+    const c = gameState.currentCombat; if (!c) return;
+    const liveParty = gameState.characters.filter(ch => ch.alive);
+    const liveEnemy = c.enemies.filter(e => e.alive);
+    if (liveEnemy.length === 0) { endCombat(true); return; }
+    if (liveParty.length === 0) { endCombat(false); return; }
+    let curr = null, att = 0;
+    while (!curr && att < c.combatants.length) {
+        const comb = c.combatants[c.turnIdx];
+        if (comb.type === 'party') { const ch = gameState.characters.find(x => x.id === comb.id); if (ch && ch.alive) curr = { ...comb, ...ch }; }
+        else { const en = c.enemies.find(x => x.id === comb.id); if (en && en.alive) curr = { ...comb, ...en }; }
+        if (!curr) { c.turnIdx = (c.turnIdx + 1) % c.combatants.length; if (c.turnIdx === 0) { c.round++; c.roundDone = true; } }
+        att++;
+    }
+    if (!curr) { endCombat(liveEnemy.length === 0); return; }
+    c.currentCombatant = curr;
+    if (curr.type === 'party') { 
+        if (gameState.turnBased) {
+            // Turn-based mode: wait for player to click target
+            c.awaitTarget = true; 
+            showCombatModal(); 
+        } else {
+            // Auto-combat mode: automatically attack top enemy
+            c.awaitTarget = false;
+            showCombatModal();
+            setTimeout(() => autoPartyAttack(curr), 600);
+        }
+    }
+    else { c.awaitTarget = false; showCombatModal(); setTimeout(() => enemyTurn(curr), 700); }
+}
+
+function autoPartyAttack(combatant) {
+    const c = gameState.currentCombat;
+    if (!c) return;
+    const char = gameState.characters.find(ch => ch.id === combatant.id);
+    if (!char || !char.alive) { advanceTurn(); return; }
+    
+    const liveEnemies = c.enemies.filter(e => e.alive);
+    if (liveEnemies.length === 0) { endCombat(true); return; }
+    
+    // Target top-most (first) living enemy
+    const target = liveEnemies[0];
+    
+    const atk = rollD(20);
+    let total = atk.value + char.attack, ac = 10 + target.defense;
+    let backstab = char.classData && char.classData.backstab && roll(6) >= 5;
+    combatLog(`${char.name} attacks ${target.name}: ${atk.html}+${char.attack}=${total} vs AC ${ac}`, 'combat');
+    
+    if (atk.value === 20) {
+        const d1 = rollD(6), d2 = rollD(6), totalDmg = d1.value + d2.value + char.attack;
+        combatLog(`CRIT! ${d1.html}+${d2.html}+${char.attack}=${totalDmg}`, 'success');
+        target.hp -= totalDmg;
+    } else if (total >= ac) {
+        const dmg = rollD(6);
+        let totalDmg = Math.max(1, dmg.value + char.attack);
+        if (backstab) { totalDmg *= 2; combatLog(`BACKSTAB! (${dmg.html}+${char.attack})×2=${totalDmg}`, 'success'); }
+        else combatLog(`HIT! ${dmg.html}+${char.attack}=${totalDmg}`, 'success');
+        target.hp -= totalDmg;
+    } else combatLog('MISS!', 'info');
+    
+    if (target.hp <= 0) { target.alive = false; target.hp = 0; combatLog(`${target.name} slain!`, 'success'); }
+    
+    // Cleric heal check
+    if (char.classData && char.classData.canHeal) {
+        const wounded = gameState.characters.filter(ch => ch.alive && ch.hp < ch.maxHp);
+        if (wounded.length > 0 && roll(6) >= 4) {
+            const ht = wounded.reduce((a, b) => a.hp < b.hp ? a : b);
+            const hr = rollD(6), amt = hr.value + getMod(char.stats.wis);
+            ht.hp = Math.min(ht.maxHp, ht.hp + amt);
+            combatLog(`${char.name} heals ${ht.name}: ${hr.html}+${getMod(char.stats.wis)}=${amt}`, 'success');
+        }
+    }
+    
+    advanceTurn();
+}
+
+function enemyTurn(enemy) {
+    const c = gameState.currentCombat;
+    const targets = gameState.characters.filter(ch => ch.alive);
+    if (targets.length === 0) { endCombat(false); return; }
+    const target = targets[Math.floor(Math.random() * targets.length)];
+    const atk = rollD(20), total = atk.value + enemy.attack, ac = 10 + target.defense;
+    combatLog(`${enemy.name} attacks ${target.name}: ${atk.html}+${enemy.attack}=${total} vs AC ${ac}`, 'combat');
+    if (total >= ac) {
+        const dmg = rollD(8), totalDmg = Math.max(1, dmg.value + Math.floor(enemy.attack / 2));
+        target.hp -= totalDmg;
+        combatLog(`HIT! ${dmg.html}+${Math.floor(enemy.attack / 2)}=${totalDmg} dmg`, 'danger');
+        if (target.hp <= 0) { target.alive = false; target.hp = 0; combatLog(`${target.name} falls!`, 'danger'); }
+    } else combatLog('MISS!', 'info');
+    advanceTurn();
+}
+
+function executePlayerAttack(targetId) {
+    const c = gameState.currentCombat; if (!c || !c.awaitTarget) return;
+    const attacker = c.currentCombatant;
+    const char = gameState.characters.find(ch => ch.id === attacker.id);
+    const target = c.enemies.find(e => e.id === targetId);
+    if (!target || !target.alive) return;
+    c.awaitTarget = false;
+    const atk = rollD(20);
+    let total = atk.value + char.attack, ac = 10 + target.defense;
+    let backstab = char.classData && char.classData.backstab && roll(6) >= 5;
+    combatLog(`${char.name} attacks ${target.name}: ${atk.html}+${char.attack}=${total} vs AC ${ac}`, 'combat');
+    if (atk.value === 20) {
+        const d1 = rollD(6), d2 = rollD(6), totalDmg = d1.value + d2.value + char.attack;
+        combatLog(`CRIT! ${d1.html}+${d2.html}+${char.attack}=${totalDmg}`, 'success');
+        target.hp -= totalDmg;
+    } else if (total >= ac) {
+        const dmg = rollD(6);
+        let totalDmg = Math.max(1, dmg.value + char.attack);
+        if (backstab) { totalDmg *= 2; combatLog(`BACKSTAB! (${dmg.html}+${char.attack})×2=${totalDmg}`, 'success'); }
+        else combatLog(`HIT! ${dmg.html}+${char.attack}=${totalDmg}`, 'success');
+        target.hp -= totalDmg;
+    } else combatLog('MISS!', 'info');
+    if (target.hp <= 0) { target.alive = false; target.hp = 0; combatLog(`${target.name} slain!`, 'success'); }
+    if (char.classData && char.classData.canHeal) {
+        const wounded = gameState.characters.filter(ch => ch.alive && ch.hp < ch.maxHp);
+        if (wounded.length > 0 && roll(6) >= 4) {
+            const ht = wounded.reduce((a, b) => a.hp < b.hp ? a : b);
+            const hr = rollD(6), amt = hr.value + getMod(char.stats.wis);
+            ht.hp = Math.min(ht.maxHp, ht.hp + amt);
+            combatLog(`${char.name} heals ${ht.name}: ${hr.html}+${getMod(char.stats.wis)}=${amt}`, 'success');
+        }
+    }
+    advanceTurn();
+}
+
+function advanceTurn() {
+    const c = gameState.currentCombat;
+    c.turnIdx = (c.turnIdx + 1) % c.combatants.length;
+    if (c.turnIdx === 0) { c.round++; c.roundDone = true; showCombatModal(); }
+    else { renderCharacterPanel(); processNextTurn(); }
+}
+
+function showCombatModal() {
+    const modal = document.getElementById('combat-modal'), content = document.getElementById('combat-content');
+    const c = gameState.currentCombat, curr = c.currentCombatant;
+    const liveEnemies = c.enemies.filter(e => e.alive);
+    const autoTargetId = !gameState.turnBased && liveEnemies.length > 0 ? liveEnemies[0].id : null;
+    
+    const initHTML = c.combatants.map((cb, i) => {
+        let icon, name, dead, party;
+        if (cb.type === 'party') { const ch = gameState.characters.find(x => x.id === cb.id); icon = ch?.classData?.icon || '❓'; name = ch?.name || '?'; dead = !ch?.alive; party = true; }
+        else { const en = c.enemies.find(x => x.id === cb.id); icon = en?.icon || '👹'; name = en?.name || '?'; dead = !en?.alive; party = false; }
+        return `<div class="initiative-token ${i === c.turnIdx ? 'current' : ''} ${party ? 'party' : 'enemy'} ${dead ? 'dead' : ''}"><div class="initiative-icon">${icon}</div><div class="initiative-name">${name}</div><div class="initiative-roll">${cb.totalInit}</div></div>`;
+    }).join('');
+    let prompt = '';
+    if (c.roundDone) prompt = `<div class="turn-prompt">Round ${c.round} complete!</div>`;
+    else if (c.awaitTarget && curr) { const ch = gameState.characters.find(x => x.id === curr.id); prompt = `<div class="turn-prompt">${ch?.classData?.icon || ''} ${ch?.name}'s turn - Click enemy!</div>`; }
+    else if (curr && curr.type === 'party' && !gameState.turnBased) { const ch = gameState.characters.find(x => x.id === curr.id); prompt = `<div class="turn-prompt">${ch?.classData?.icon || ''} ${ch?.name} attacking...</div>`; }
+    else if (curr && curr.type === 'enemy') prompt = `<div class="turn-prompt">${curr.icon} ${curr.name} attacking...</div>`;
+    content.innerHTML = `
+        <div style="text-align:center;color:var(--parchment-dark);margin-bottom:10px">Round ${c.round}</div>
+        <div class="initiative-order"><div class="initiative-title">⚡ Initiative</div><div class="initiative-list">${initHTML}</div></div>
+        ${prompt}
+        <div style="display:flex;gap:15px;">
+            <div style="flex:1;">
+                <div class="combat-area">
+                    <div class="combatants party-section"><h4 style="color:var(--health-green);margin-bottom:8px;">Party</h4>
+                        ${gameState.characters.map(ch => `<div class="combatant ${!ch.alive ? 'dead' : ''} ${(c.awaitTarget || (!gameState.turnBased && curr && curr.type === 'party')) && curr && curr.id === ch.id ? 'current-turn' : ''}"><div class="combatant-icon">${ch.classData?.icon || '❓'}</div><div class="combatant-info"><div class="combatant-name">${ch.name}</div><div class="bar"><div class="bar-fill health" style="width:${(ch.hp / ch.maxHp) * 100}%"></div><div class="bar-text">${ch.hp}/${ch.maxHp}</div></div></div></div>`).join('')}
+                    </div>
+                    <div class="combatants enemy-section"><h4 style="color:var(--blood);margin-bottom:8px;">Enemies</h4>
+                        ${c.enemies.map(e => `<div class="combatant ${!e.alive ? 'dead' : ''} ${c.awaitTarget && e.alive ? 'selectable' : ''} ${autoTargetId === e.id ? 'targeted' : ''}" ${c.awaitTarget && e.alive ? `onclick="executePlayerAttack('${e.id}')"` : ''}><div class="combatant-icon">${e.icon}</div><div class="combatant-info"><div class="combatant-name">${e.name}${autoTargetId === e.id ? ' 🎯' : ''}</div><div class="bar"><div class="bar-fill health" style="width:${(e.hp / e.maxHp) * 100}%"></div><div class="bar-text">${e.hp}/${e.maxHp}</div></div></div></div>`).join('')}
+                    </div>
+                </div>
+                <div class="combat-actions">${c.roundDone ? `<button class="btn" onclick="continueCombat()">⚔️ Continue</button><button class="btn danger" onclick="attemptFlee()">🏃 Flee</button>` : ''}</div>
+            </div>
+            <div class="combat-sidebar"><div class="combat-sidebar-title">📜 Log</div><div class="combat-log-mini">${c.log.slice(-8).map(l => `<div class="log-entry ${l.type}">${l.msg}</div>`).join('')}</div></div>
+        </div>`;
+    modal.style.display = 'flex'; renderCharacterPanel();
+}
+
+function continueCombat() { const c = gameState.currentCombat; c.roundDone = false; processNextTurn(); }
+
+function attemptFlee() {
+    const c = gameState.currentCombat;
+    const bonus = Math.max(...gameState.characters.filter(ch => ch.alive).map(ch => getMod(ch.stats.dex)));
+    const r = rollD(20), total = r.value + bonus, dc = 12;
+    combatLog(`Flee: ${r.html}+${bonus}=${total} vs DC ${dc}`, 'info');
+    if (total >= dc) {
+        combatLog('Escaped!', 'success');
+        document.getElementById('combat-modal').style.display = 'none';
+        gameState.gamePhase = 'exploring';
+        gameState.partyPosition = { x: Math.floor(GRID_SIZE / 2), y: GRID_SIZE - 1 };
+        renderDungeonGrid(); renderCharacterPanel();
+    } else {
+        combatLog('Failed! Free attacks!', 'danger');
+        for (const e of c.enemies.filter(en => en.alive)) {
+            const targets = gameState.characters.filter(ch => ch.alive);
+            if (targets.length === 0) break;
+            const t = targets[Math.floor(Math.random() * targets.length)];
+            const atk = rollD(20), total = atk.value + e.attack, ac = 10 + t.defense;
+            combatLog(`${e.name} opp attack: ${atk.html}+${e.attack}=${total} vs AC ${ac}`, 'combat');
+            if (total >= ac) { const dmg = rollD(8), td = Math.max(1, dmg.value + Math.floor(e.attack / 2)); t.hp -= td; combatLog(`HIT! ${td} dmg`, 'danger'); if (t.hp <= 0) { t.alive = false; t.hp = 0; combatLog(`${t.name} falls!`, 'danger'); } }
+            else combatLog('MISS!', 'info');
+        }
+        if (gameState.characters.filter(ch => ch.alive).length === 0) { endCombat(false); return; }
+        c.roundDone = false; renderCharacterPanel(); processNextTurn();
+    }
+}
+
+function endCombat(victory) {
+    document.getElementById('combat-modal').style.display = 'none';
+    const c = gameState.currentCombat;
+    if (victory) {
+        // Mark dead monster on map
+        const deadIcon = c.enemies[0]?.icon || '💀';
+        c.cell.deadMonster = deadIcon;
+        let gold = c.enemies.reduce((s, e) => s + e.gold, 0);
+        const rogues = gameState.characters.filter(ch => ch.alive && ch.classData?.goldBonus);
+        if (rogues.length > 0) gold = Math.floor(gold * rogues[0].classData.goldBonus);
+        // Generate loot
+        const loot = [];
+        if (roll(100) <= 10 + gameState.floor * 8) {
+            const bonus = Math.min(3, 1 + Math.floor((gameState.floor - 1) / 2));
+            const lootType = LOOT_TYPES[Math.floor(Math.random() * LOOT_TYPES.length)];
+            loot.push({ ...lootType, bonus, displayName: `+${bonus} ${lootType.name}` });
+        }
+        c.cell.content = null;
+        showTreasure(gold, loot, true);
+    } else showGameOver(false);
+    gameState.currentCombat = null;
+}
+
+function showTreasure(gold, loot = [], fromCombat = false) {
+    gameState.gold += gold;
+    
+    if (loot.length > 0) {
+        gameState.pendingLoot = loot;
+        renderLootSelection(gold, fromCombat);
+    } else {
+        document.getElementById('treasure-content').innerHTML = `
+            <div class="treasure-display">
+                <div class="treasure-icon">💰</div>
+                <div class="treasure-amount">+${gold} Gold!</div>
+                <p style="color:var(--parchment-dark)">${fromCombat ? 'Victory!' : 'Treasure!'}</p>
+                <p style="color:var(--gold);margin-top:8px">Total: ${gameState.gold}</p>
+                <button class="btn" onclick="closeTreasure()" style="margin-top:12px">Continue</button>
+            </div>`;
+        document.getElementById('treasure-modal').style.display = 'flex';
+    }
+    log(`Found ${gold} gold!`, 'treasure');
+}
+
+function renderLootSelection(gold, fromCombat) {
+    const loot = gameState.pendingLoot;
+    let lootHtml = '<div class="loot-list"><h4 style="color:var(--magic-cyan);margin-bottom:8px;">🎁 Equipment Found!</h4>';
+    
+    let anyCanEquip = false;
+    for (let i = 0; i < loot.length; i++) {
+        const item = loot[i];
+        const validChars = gameState.characters.filter(c => c.alive && (item.slots.includes('all') || item.slots.includes(c.class)));
+        if (validChars.length > 0) anyCanEquip = true;
+        
+        lootHtml += `<div class="loot-item"><span class="loot-item-name">${item.displayName}</span><div class="loot-char-buttons">`;
+        for (const ch of gameState.characters) {
+            const canEquip = ch.alive && (item.slots.includes('all') || item.slots.includes(ch.class));
+            lootHtml += `<button class="loot-char-btn ${canEquip ? '' : 'disabled'}" ${canEquip ? `onclick="assignLoot(${i}, ${ch.id})"` : ''}>${ch.classData?.icon || '?'} ${ch.name}</button>`;
+        }
+        lootHtml += '</div></div>';
+    }
+    lootHtml += '</div>';
+    
+    // Add OK button if no one can equip any items
+    let closeBtn = '';
+    if (!anyCanEquip) {
+        closeBtn = `<p style="color:var(--parchment-dark);margin:10px 0;font-style:italic">No one in your party can use this equipment.</p><button class="btn" onclick="closeTreasure()" style="margin-top:8px">OK</button>`;
+    }
+    
+    document.getElementById('treasure-content').innerHTML = `
+        <div class="treasure-display">
+            <div class="treasure-icon">💰</div>
+            <div class="treasure-amount">+${gold} Gold!</div>
+            <p style="color:var(--parchment-dark)">${fromCombat ? 'Victory!' : 'Treasure!'}</p>
+            ${lootHtml}
+            <p style="color:var(--gold);margin-top:8px">Total: ${gameState.gold}</p>
+            ${closeBtn}
+        </div>`;
+    document.getElementById('treasure-modal').style.display = 'flex';
+}
+
+function assignLoot(lootIdx, charId) {
+    const item = gameState.pendingLoot[lootIdx];
+    const char = gameState.characters.find(c => c.id === charId);
+    if (!item || !char) return;
+    
+    char.equipment.push(item);
+    recalcStats(char);
+    log(`${char.name} equipped ${item.displayName}!`, 'loot');
+    
+    gameState.pendingLoot.splice(lootIdx, 1);
+    
+    if (gameState.pendingLoot.length === 0) {
+        document.getElementById('treasure-content').innerHTML = `
+            <div class="treasure-display">
+                <div class="treasure-icon">💰</div>
+                <p style="color:var(--health-green);margin:15px 0">All loot assigned!</p>
+                <p style="color:var(--gold)">Total Gold: ${gameState.gold}</p>
+                <button class="btn" onclick="closeTreasure()" style="margin-top:12px">Continue</button>
+            </div>`;
+    } else {
+        renderLootSelection(0, true);
+    }
+    renderCharacterPanel();
+}
+
+function closeTreasure() { 
+    document.getElementById('treasure-modal').style.display = 'none'; 
+    gameState.gamePhase = 'exploring'; 
+    gameState.pendingLoot = [];
+    renderCharacterPanel(); 
+    renderDungeonGrid(); 
+}
+
+function handleTrap(dmg) {
+    const r = rollD(20);
+    log(`Trap! Save: ${r.html}`, 'danger');
+    for (const c of gameState.characters.filter(ch => ch.alive)) {
+        const save = r.value + getMod(c.stats.dex);
+        if (save >= 12) { const half = Math.floor(dmg / 2); c.hp -= half; log(`${c.name} dodges! ${half} dmg`, 'info'); }
+        else { c.hp -= dmg; log(`${c.name} takes ${dmg} dmg!`, 'danger'); }
+        if (c.hp <= 0) { c.alive = false; c.hp = 0; log(`${c.name} falls!`, 'danger'); }
+    }
+    if (gameState.characters.filter(ch => ch.alive).length === 0) showGameOver(false);
+    renderCharacterPanel();
+}
+
+function showGameOver(victory) {
+    gameState.gamePhase = 'gameover';
+    const title = document.getElementById('gameover-title'), content = document.getElementById('gameover-content');
+    if (victory) { title.innerHTML = '🏆 VICTORY 🏆'; content.innerHTML = `<div style="text-align:center"><p>You conquered the depths!</p><p style="color:var(--gold);font-size:1.5rem;margin:15px 0">Total Gold: ${gameState.totalXP}</p><p>Floors: ${gameState.floor} | Rooms: ${gameState.roomsExplored}</p><button class="btn" onclick="startNewGame()" style="margin-top:15px">New Game</button></div>`; }
+    else { title.innerHTML = '☠ TOTAL PARTY KILL ☠'; content.innerHTML = `<div style="text-align:center"><p style="color:var(--blood)">The dungeon claims another party...</p><p style="margin:15px 0">Floor: ${gameState.floor} | Gold Lost: ${gameState.gold}</p><button class="btn" onclick="dismissGameOver()">View Map</button><button class="btn" onclick="startNewGame()" style="margin-top:15px">Try Again</button></div>`; }
+    document.getElementById('gameover-modal').style.display = 'flex';
+}
+
+function dismissGameOver() {
+    document.getElementById('gameover-modal').style.display = 'none';
+    // Allow viewing but not playing
+    gameState.gamePhase = 'viewing';
+    renderDungeonGrid();
+}
+
+function toggleTurnBased() {
+    gameState.turnBased = !gameState.turnBased;
+    const toggle = document.getElementById('turn-based-toggle');
+    if (gameState.turnBased) {
+        toggle.classList.add('active');
+    } else {
+        toggle.classList.remove('active');
+    }
+}
+
+function changeDifficulty() {
+    const select = document.getElementById('difficulty-select');
+    gameState.difficulty = select.value;
+}
+
+function updateUIFromState() {
+    const toggle = document.getElementById('turn-based-toggle');
+    if (gameState.turnBased) toggle.classList.add('active');
+    else toggle.classList.remove('active');
+    document.getElementById('difficulty-select').value = gameState.difficulty;
+}
+
+function showClassSelection() { gameState.currentCharIndex = 0; document.getElementById('class-modal').style.display = 'flex'; renderClassSelection(); }
+
+function renderClassSelection() {
+    const c = gameState.characters[gameState.currentCharIndex];
+    document.getElementById('class-selection-content').innerHTML = `
+        <div class="char-preview"><div class="char-preview-name">${c.name} (${gameState.currentCharIndex + 1}/4)</div>
+        <div class="char-preview-stats"><div class="preview-stat"><div class="preview-stat-label">STR</div><div class="preview-stat-value">${c.stats.str}</div></div><div class="preview-stat"><div class="preview-stat-label">DEX</div><div class="preview-stat-value">${c.stats.dex}</div></div><div class="preview-stat"><div class="preview-stat-label">CON</div><div class="preview-stat-value">${c.stats.con}</div></div><div class="preview-stat"><div class="preview-stat-label">INT</div><div class="preview-stat-value">${c.stats.int}</div></div><div class="preview-stat"><div class="preview-stat-label">WIS</div><div class="preview-stat-value">${c.stats.wis}</div></div><div class="preview-stat"><div class="preview-stat-label">CHA</div><div class="preview-stat-value">${c.stats.cha}</div></div></div></div>
+        <p style="text-align:center;color:var(--parchment-dark);margin-bottom:12px">Choose class for ${c.name}:</p>
+        <div class="class-selection">${Object.entries(CLASSES).map(([k, v]) => `<div class="class-option" onclick="selectClass('${k}')"><div class="class-name">${v.icon} ${v.name}</div><div class="class-desc">${v.desc}</div><div class="class-bonus">${v.bonus}</div></div>`).join('')}</div>`;
+}
+
+function selectClass(className) {
+    applyClass(gameState.characters[gameState.currentCharIndex], className);
+    gameState.currentCharIndex++;
+    if (gameState.currentCharIndex >= 4) { document.getElementById('class-modal').style.display = 'none'; gameState.gamePhase = 'exploring'; renderCharacterPanel(); renderDungeonGrid(); log('Your party enters the dungeon...', 'info'); }
+    else { renderClassSelection(); renderCharacterPanel(); }
+}
+
+function startNewGame() {
+    ['class-modal', 'combat-modal', 'treasure-modal', 'fountain-modal', 'descend-modal', 'gameover-modal'].forEach(id => document.getElementById(id).style.display = 'none');
+    // Preserve settings across new games
+    const turnBased = gameState.turnBased;
+    const difficulty = gameState.difficulty;
+    gameState = { characters: [], grid: [], partyPosition: { x: 5, y: 10 }, gold: 0, potions: 0, rests: 2, totalXP: 0, floor: 1, roomsExplored: 0, gamePhase: 'class-selection', currentCharIndex: 0, currentCombat: null, pendingLoot: [], exitFound: false, turnBased, difficulty };
+    for (let i = 0; i < 4; i++) gameState.characters.push(generateCharacter(i));
+    initializeGrid();
+    document.getElementById('combat-log').innerHTML = '<div class="log-entry info">Welcome, brave adventurers. The dungeon awaits...</div>';
+    updateUIFromState();
+    renderCharacterPanel(); showClassSelection();
+}
+
+document.getElementById('new-game-btn').addEventListener('click', startNewGame);
+startNewGame();
+    </script>
+</body>
+</html>

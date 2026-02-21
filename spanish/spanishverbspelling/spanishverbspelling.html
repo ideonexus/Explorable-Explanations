@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spanish Verb Trainer — Madrigal Ch. 29</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inconsolata:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1410;
+    --surface: #241c14;
+    --surface2: #2e2318;
+    --gold: #c9a84c;
+    --gold-dim: #7a6530;
+    --cream: #f0e6cc;
+    --cream-dim: #a89878;
+    --red: #c44;
+    --green: #5a9;
+    --border: #3d2e1a;
+    --glow: rgba(201, 168, 76, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(80, 50, 20, 0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(60, 40, 10, 0.2) 0%, transparent 50%);
+    color: var(--cream);
+    font-family: 'Inconsolata', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  header::before, header::after {
+    content: '✦';
+    color: var(--gold-dim);
+    font-size: 1rem;
+    margin: 0 1rem;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    color: var(--cream-dim);
+    font-size: 0.95rem;
+    margin-top: 0.4rem;
+    letter-spacing: 0.06em;
+  }
+
+  .ornament {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    margin: 0.8rem auto;
+  }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--cream-dim);
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover { border-color: var(--gold-dim); color: var(--cream); }
+  .filter-btn.active {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--cream);
+  }
+
+  /* MAIN CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 0 40px var(--glow), inset 0 1px 0 rgba(201,168,76,0.08);
+    width: 100%;
+    max-width: 760px;
+    padding: 2rem 2rem 1.5rem;
+    position: relative;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .verb-display {
+    display: flex;
+    align-items: baseline;
+    gap: 1.2rem;
+    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .infinitive {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    color: var(--gold);
+    line-height: 1;
+    font-style: italic;
+  }
+
+  .meaning {
+    font-size: 1rem;
+    color: var(--cream-dim);
+    font-style: italic;
+  }
+
+  .verb-type-badge {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    border: 1px solid var(--border);
+    padding: 0.15rem 0.5rem;
+    margin-left: auto;
+  }
+
+  /* TENSE SECTIONS */
+  .tenses-grid {
+    display: grid;
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+  }
+
+  .tense-section {
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    padding: 1rem 1.2rem;
+  }
+
+  .tense-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.9rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.4rem;
+  }
+
+  .conjugation-rows {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .conjugation-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .pronoun {
+    font-size: 0.78rem;
+    color: var(--cream-dim);
+    letter-spacing: 0.08em;
+    font-style: italic;
+    text-align: right;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--cream);
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.95rem;
+    padding: 0.35rem 0.65rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 2px var(--glow);
+  }
+
+  input.correct {
+    border-color: var(--green);
+    color: var(--green);
+    background: rgba(85,170,136,0.05);
+  }
+
+  input.incorrect {
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(204,68,68,0.05);
+  }
+
+  input.revealed {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    font-style: italic;
+    background: rgba(201,168,76,0.04);
+  }
+
+  .hint-text {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: transparent;
+    transition: color 0.3s;
+    pointer-events: none;
+  }
+
+  input.incorrect + .hint-text { color: var(--cream-dim); }
+
+  /* BUTTONS */
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  button {
+    font-family: 'Inconsolata', monospace;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.55rem 1.4rem;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.18s;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--bg);
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #dbb85a; }
+
+  .btn-secondary {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--cream-dim);
+  }
+  .btn-secondary:hover { border-color: var(--gold-dim); color: var(--cream); }
+
+  .btn-check {
+    background: transparent;
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+  .btn-check:hover { background: var(--glow); }
+
+  /* SCORE */
+  .score-bar {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+    padding: 0 0.2rem;
+  }
+
+  .score-item {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+  }
+
+  .score-item span {
+    color: var(--gold);
+    font-size: 1.1rem;
+    margin-left: 0.3rem;
+  }
+
+  /* RESULT POPUP */
+  .result-banner {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.6), 0 0 20px var(--glow);
+    padding: 0.7rem 2rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .result-banner.show { transform: translateX(-50%) translateY(0); }
+
+  /* PROGRESS RING */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .progress-track {
+    width: 120px;
+    height: 4px;
+    background: var(--border);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.4s ease;
+  }
+
+  .fade-in {
+    animation: fadeInDown 0.4s ease both;
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 500px) {
+    .conjugation-row { grid-template-columns: 90px 1fr; }
+    .card { padding: 1.2rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="result-banner" id="resultBanner">✓ All Correct!</div>
+
+<header>
+  <div style="color:var(--gold-dim); font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; margin-bottom:0.5rem;">Madrigal's Magic Key to Spanish · Chapter 29</div>
+  <h1>Verb Conjugation Trainer</h1>
+  <div class="subtitle">Master every tense. Master the language.</div>
+  <div class="ornament"></div>
+</header>
+
+<div class="score-bar">
+  <div class="score-item">Streak <span id="streak">0</span></div>
+  <div class="progress-wrap">
+    <div class="score-item" id="progressLabel">0 / 0</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+  <div class="score-item">Score <span id="scoreDisplay">0</span></div>
+</div>
+
+<div class="controls">
+  <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">All Verbs</button>
+  <button class="filter-btn" data-filter="ar" onclick="setFilter('ar', this)">-AR</button>
+  <button class="filter-btn" data-filter="er" onclick="setFilter('er', this)">-ER</button>
+  <button class="filter-btn" data-filter="ir" onclick="setFilter('ir', this)">-IR</button>
+</div>
+
+<div class="card" id="mainCard">
+  <div class="verb-display">
+    <div class="infinitive" id="infinitiveDisplay">—</div>
+    <div class="meaning" id="meaningDisplay"></div>
+    <div class="verb-type-badge" id="typeBadge">—</div>
+  </div>
+
+  <div class="tenses-grid" id="tensesGrid"></div>
+
+  <div class="btn-row">
+    <button class="btn-secondary" onclick="revealAll()">Reveal Answers</button>
+    <button class="btn-check" onclick="checkAnswers()">Check ✦</button>
+    <button class="btn-primary" onclick="newVerb()">Next Verb →</button>
+  </div>
+</div>
+
+<script>
+// ─── VERB DATABASE ──────────────────────────────────────────────────────────
+// All verbs from Chapter 29 of Madrigal's Magic Key to Spanish
+// Conjugation structure: present[yo, él/usted, nosotros, ellos]
+// Preterite, future (ir a + inf), present perfect (he/ha/hemos/han + pp),
+// present progressive (estoy/está/estamos/están + gerund)
+
+function makeArVerb(inf, meaning, stem, pp, ger) {
+  // stem = infinitive minus 'ar'
+  return {
+    inf, meaning, type: 'ar',
+    tenses: {
+      present:    [stem+'o', stem+'a', stem+'amos', stem+'an'],
+      preterite:  [stem+'é', stem+'ó', stem+'amos', stem+'aron'],
+      future:     ['voy a '+inf, 'va a '+inf, 'vamos a '+inf, 'van a '+inf],
+      presentPerf:['he '+pp, 'ha '+pp, 'hemos '+pp, 'han '+pp],
+      progressive:['estoy '+ger, 'está '+ger, 'estamos '+ger, 'están '+ger],
+    }
+  };
+}
+
+function makeErVerb(inf, meaning, stem, pp, ger) {
+  return {
+    inf, meaning, type: 'er',
+    tenses: {
+      present:    [stem+'o', stem+'e', stem+'emos', stem+'en'],
+      preterite:  [stem+'í', stem+'ió', stem+'imos', stem+'ieron'],
+      future:     ['voy a '+inf, 'va a '+inf, 'vamos a '+inf, 'van a '+inf],
+      presentPerf:['he '+pp, 'ha '+pp, 'hemos '+pp, 'han '+pp],
+      progressive:['estoy '+ger, 'está '+ger, 'estamos '+ger, 'están '+ger],
+    }
+  };
+}
+
+function makeIrVerb(inf, meaning, stem, pp, ger) {
+  return {
+    inf, meaning, type: 'ir',
+    tenses: {
+      present:    [stem+'o', stem+'e', stem+'imos', stem+'en'],
+      preterite:  [stem+'í', stem+'ió', stem+'imos', stem+'ieron'],
+      future:     ['voy a '+inf, 'va a '+inf, 'vamos a '+inf, 'van a '+inf],
+      presentPerf:['he '+pp, 'ha '+pp, 'hemos '+pp, 'han '+pp],
+      progressive:['estoy '+ger, 'está '+ger, 'estamos '+ger, 'están '+ger],
+    }
+  };
+}
+
+const VERBS = [
+  // ─── AR verbs (Chapter 29 list) ───
+  makeArVerb('ganar',    'to win, earn, gain',          'gan',    'ganado',    'ganando'),
+  makeArVerb('limpiar',  'to clean',                    'limp',   'limpiado',  'limpiando'),
+  makeArVerb('mandar',   'to send',                     'mand',   'mandado',   'mandando'),
+  makeArVerb('manejar',  'to drive',                    'manej',  'manejado',  'manejando'),
+  makeArVerb('pintar',   'to paint',                    'pint',   'pintado',   'pintando'),
+  makeArVerb('planchar', 'to iron',                     'planch', 'planchado', 'planchando'),
+  makeArVerb('lavar',    'to wash',                     'lav',    'lavado',    'lavando'),
+  makeArVerb('saltar',   'to jump',                     'salt',   'saltado',   'saltando'),
+  makeArVerb('cuidar',   'to take care of',             'cuid',   'cuidado',   'cuidando'),
+  makeArVerb('ayudar',   'to help',                     'ayud',   'ayudado',   'ayudando'),
+  makeArVerb('alquilar', 'to rent',                     'alquil', 'alquilado', 'alquilando'),
+  makeArVerb('dudar',    'to doubt',                    'dud',    'dudado',    'dudando'),
+  makeArVerb('cambiar',  'to change',                   'cambi',  'cambiado',  'cambiando'),
+  makeArVerb('pasar',    'to pass, spend time, happen', 'pas',    'pasado',    'pasando'),
+  makeArVerb('regresar', 'to return, come back',        'regres', 'regresado', 'regresando'),
+  makeArVerb('dejar',    'to let, allow, leave',        'dej',    'dejado',    'dejando'),
+  makeArVerb('llevar',   'to wear, carry, take',        'llev',   'llevado',   'llevando'),
+  makeArVerb('bajar',    'to go down, get off',         'baj',    'bajado',    'bajando'),
+  makeArVerb('llorar',   'to cry',                      'llor',   'llorado',   'llorando'),
+  makeArVerb('gritar',   'to shout, scream',            'grit',   'gritado',   'gritando'),
+  makeArVerb('tomar',    'to take',                     'tom',    'tomado',    'tomando'),
+  makeArVerb('cantar',   'to sing',                     'cant',   'cantado',   'cantando'),
+  makeArVerb('cocinar',  'to cook',                     'cocin',  'cocinado',  'cocinando'),
+  makeArVerb('terminar', 'to finish',                   'termin', 'terminado', 'terminando'),
+  makeArVerb('contestar','to answer',                   'contest','contestado','contestando'),
+  makeArVerb('arreglar', 'to arrange',                  'arregl', 'arreglado', 'arreglando'),
+  makeArVerb('nadar',    'to swim',                     'nad',    'nadado',    'nadando'),
+  makeArVerb('trabajar', 'to work',                     'trabaj', 'trabajado', 'trabajando'),
+  makeArVerb('hablar',   'to speak, talk',              'habl',   'hablado',   'hablando'),
+  makeArVerb('comprar',  'to buy',                      'compr',  'comprado',  'comprando'),
+
+  // ─── ER verbs (Chapter 29 list) ───
+  makeErVerb('vender',     'to sell',         'vend',    'vendido',     'vendiendo'),
+  makeErVerb('correr',     'to run',          'corr',    'corrido',     'corriendo'),
+  makeErVerb('comer',      'to eat',          'com',     'comido',      'comiendo'),
+  makeErVerb('beber',      'to drink',        'beb',     'bebido',      'bebiendo'),
+  makeErVerb('coser',      'to sew',          'cos',     'cosido',      'cosiendo'),
+  makeErVerb('comprender', 'to understand',   'comprend','comprendido', 'comprendiendo'),
+  makeErVerb('sorprender', 'to surprise',     'sorprend','sorprendido', 'sorprendiendo'),
+  makeErVerb('prometer',   'to promise',      'promet',  'prometido',   'prometiendo'),
+  makeErVerb('barrer',     'to sweep',        'barr',    'barrido',     'barriendo'),
+
+  // ─── IR verbs (Chapter 29 list) ───
+  makeIrVerb('vivir',      'to live',         'viv',     'vivido',      'viviendo'),
+  makeIrVerb('decidir',    'to decide',       'decid',   'decidido',    'decidiendo'),
+  makeIrVerb('dividir',    'to divide',       'divid',   'dividido',    'dividiendo'),
+  makeIrVerb('subir',      'to go up',        'sub',     'subido',      'subiendo'),
+  makeIrVerb('resistir',   'to resist',       'resist',  'resistido',   'resistiendo'),
+  makeIrVerb('recibir',    'to receive',      'recib',   'recibido',    'recibiendo'),
+  makeIrVerb('persuadir',  'to persuade',     'persud',  'persuadido',  'persuadiendo'),
+  makeIrVerb('asistir',    'to attend',       'asist',   'asistido',    'asistiendo'),
+  makeIrVerb('discutir',   'to discuss, argue','discut', 'discutido',   'discutiendo'),
+  makeIrVerb('interrumpir','to interrupt',    'interrump','interrumpido','interrumpiendo'),
+];
+
+// Fix persuadir stem issue
+VERBS.find(v=>v.inf==='persuadir').tenses.present = ['persuado','persuade','persuadimos','persuaden'];
+VERBS.find(v=>v.inf==='persuadir').tenses.preterite = ['persuadí','persuadió','persuadimos','persuadieron'];
+
+const TENSE_LABELS = {
+  present:     'Presente — Present Tense',
+  preterite:   'Pretérito — Past (Preterite)',
+  future:      'Futuro — Future (ir a + infinitive)',
+  presentPerf: 'Pretérito Perfecto — Present Perfect',
+  progressive: 'Progresivo Presente — Present Progressive',
+};
+
+const PRONOUNS = ['yo', 'usted / él / ella', 'nosotros', 'ellos / ellas / ustedes'];
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let currentVerb = null;
+let currentFilter = 'all';
+let score = 0;
+let streak = 0;
+let verbsSeen = new Set();
+let totalVerbs = VERBS.length;
+
+function filteredVerbs() {
+  if (currentFilter === 'all') return VERBS;
+  return VERBS.filter(v => v.type === currentFilter);
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  verbsSeen.clear();
+  updateProgress();
+  newVerb();
+}
+
+// ─── UI RENDERING ────────────────────────────────────────────────────────────
+function newVerb() {
+  const pool = filteredVerbs();
+  // prefer unseen verbs
+  const unseen = pool.filter(v => !verbsSeen.has(v.inf));
+  const pick = unseen.length > 0 ? unseen : pool;
+  currentVerb = pick[Math.floor(Math.random() * pick.length)];
+  verbsSeen.add(currentVerb.inf);
+
+  document.getElementById('infinitiveDisplay').textContent = currentVerb.inf;
+  document.getElementById('meaningDisplay').textContent = currentVerb.meaning;
+  document.getElementById('typeBadge').textContent = '-' + currentVerb.type.toUpperCase() + ' verb';
+
+  renderTenses();
+  updateProgress();
+
+  // Focus first input
+  setTimeout(() => {
+    const first = document.querySelector('.tense-section input');
+    if (first) first.focus();
+  }, 80);
+}
+
+function renderTenses() {
+  const grid = document.getElementById('tensesGrid');
+  grid.innerHTML = '';
+  grid.classList.add('fade-in');
+  setTimeout(() => grid.classList.remove('fade-in'), 500);
+
+  Object.entries(currentVerb.tenses).forEach(([key, forms]) => {
+    const section = document.createElement('div');
+    section.className = 'tense-section';
+    section.dataset.tense = key;
+
+    const title = document.createElement('div');
+    title.className = 'tense-title';
+    title.textContent = TENSE_LABELS[key];
+    section.appendChild(title);
+
+    const rows = document.createElement('div');
+    rows.className = 'conjugation-rows';
+
+    forms.forEach((answer, i) => {
+      const row = document.createElement('div');
+      row.className = 'conjugation-row';
+
+      const pronoun = document.createElement('div');
+      pronoun.className = 'pronoun';
+      pronoun.textContent = PRONOUNS[i];
+
+      const wrap = document.createElement('div');
+      wrap.className = 'input-wrap';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.dataset.answer = answer;
+      input.placeholder = '...';
+      input.autocomplete = 'off';
+      input.autocorrect = 'off';
+      input.autocapitalize = 'off';
+      input.spellcheck = false;
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          // advance to next input or check
+          const inputs = [...document.querySelectorAll('input[type="text"]')];
+          const idx = inputs.indexOf(input);
+          if (idx < inputs.length - 1) inputs[idx+1].focus();
+          else checkAnswers();
+        }
+      });
+
+      input.addEventListener('input', () => {
+        input.classList.remove('correct', 'incorrect', 'revealed');
+      });
+
+      const hint = document.createElement('div');
+      hint.className = 'hint-text';
+      hint.textContent = answer;
+
+      wrap.appendChild(input);
+      wrap.appendChild(hint);
+      row.appendChild(pronoun);
+      row.appendChild(wrap);
+      rows.appendChild(row);
+    });
+
+    section.appendChild(rows);
+    grid.appendChild(section);
+  });
+}
+
+// ─── CHECK & REVEAL ──────────────────────────────────────────────────────────
+function normalize(s) {
+  return s.trim().toLowerCase()
+    .normalize('NFC')
+    .replace(/\u0301/g, '') // strip combining accents for lenient check
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .normalize('NFC');
+}
+
+function checkAnswers() {
+  const inputs = document.querySelectorAll('input[type="text"]');
+  let allCorrect = true;
+  let anyFilled = false;
+
+  inputs.forEach(input => {
+    const val = input.value;
+    if (!val.trim()) { allCorrect = false; return; }
+    anyFilled = true;
+    const answer = input.dataset.answer;
+    if (normalize(val) === normalize(answer)) {
+      input.classList.remove('incorrect', 'revealed');
+      input.classList.add('correct');
+    } else {
+      input.classList.remove('correct', 'revealed');
+      input.classList.add('incorrect');
+      allCorrect = false;
+    }
+  });
+
+  if (!anyFilled) return;
+
+  if (allCorrect) {
+    score += 10;
+    streak++;
+    document.getElementById('scoreDisplay').textContent = score;
+    document.getElementById('streak').textContent = streak;
+    showBanner('✦ Perfect! +10 points ✦');
+  } else {
+    streak = 0;
+    document.getElementById('streak').textContent = '0';
+    showBanner('Some answers need work — check the hints');
+  }
+}
+
+function revealAll() {
+  const inputs = document.querySelectorAll('input[type="text"]');
+  inputs.forEach(input => {
+    input.value = input.dataset.answer;
+    input.classList.remove('correct', 'incorrect');
+    input.classList.add('revealed');
+  });
+  streak = 0;
+  document.getElementById('streak').textContent = '0';
+}
+
+function showBanner(msg) {
+  const banner = document.getElementById('resultBanner');
+  banner.textContent = msg;
+  banner.classList.add('show');
+  setTimeout(() => banner.classList.remove('show'), 2200);
+}
+
+function updateProgress() {
+  const pool = filteredVerbs();
+  totalVerbs = pool.length;
+  const seen = pool.filter(v => verbsSeen.has(v.inf)).length;
+  document.getElementById('progressLabel').textContent = `${seen} / ${totalVerbs}`;
+  document.getElementById('progressFill').style.width = totalVerbs ? `${(seen/totalVerbs)*100}%` : '0%';
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+newVerb();
+</script>
+</body>
+</html>

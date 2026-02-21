@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verbos — Spanish Verb Mastery</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#1a1510;--bg-warm:#221c14;--bg-card:#2a231a;--bg-card-hover:#342b20;
+  --surface:#3a3128;--border:#4a3f32;--border-light:#5a4d3e;
+  --text:#f0e6d6;--text-dim:#b8a88e;--text-muted:#8a7a64;
+  --accent:#e8a84c;--accent-glow:#e8a84c44;--accent-dim:#c48a30;
+  --correct:#6abf69;--correct-bg:#6abf6920;
+  --incorrect:#e06050;--incorrect-bg:#e0605020;
+  --t-present:#e8a84c;--t-preterite:#6ab0e8;--t-imperfect:#b07ae8;
+  --t-future:#6ae8a0;--t-conditional:#e86a8a;--t-subjunctive:#e8c86a;
+  --radius:12px;--radius-sm:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 0%,#3a2a1520 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,#2a1a0a30 0%,transparent 60%);pointer-events:none}
+.app{position:relative;z-index:1}
+header{padding:2rem 2rem 1rem;text-align:center;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--bg-warm),transparent)}
+header h1{font-family:'DM Serif Display',serif;font-size:2.8rem;color:var(--accent);letter-spacing:.02em;margin-bottom:.25rem;text-shadow:0 2px 20px var(--accent-glow)}
+header h1 span{font-style:italic;color:var(--text);font-size:.6em;opacity:.6;margin-left:.3em}
+header p{color:var(--text-muted);font-size:.95rem;max-width:500px;margin:0 auto}
+.nav-tabs{display:flex;justify-content:center;gap:.5rem;padding:1rem 1rem 0;flex-wrap:wrap}
+.nav-tab{background:var(--bg-card);border:1px solid var(--border);color:var(--text-dim);padding:.6rem 1.4rem;border-radius:99px;font-family:'Source Sans 3',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .25s}
+.nav-tab:hover{background:var(--bg-card-hover);color:var(--text)}
+.nav-tab.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.stats-bar{display:flex;justify-content:center;gap:2rem;padding:1rem 2rem;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--accent)}
+.stat-label{font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em}
+main{max-width:800px;margin:0 auto;padding:1.5rem}
+.settings-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem}
+.settings-panel h3{font-family:'DM Serif Display',serif;font-size:1.2rem;margin-bottom:1rem;color:var(--accent)}
+.setting-group{margin-bottom:1rem}
+.setting-group label{display:block;font-size:.85rem;color:var(--text-dim);margin-bottom:.5rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.chip-row{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:.4rem .9rem;border-radius:99px;font-size:.82rem;font-family:'Source Sans 3',sans-serif;cursor:pointer;transition:all .2s;user-select:none}
+.chip:hover{border-color:var(--accent);color:var(--text)}
+.chip.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.progress-track{height:6px;background:var(--surface);border-radius:99px;margin-bottom:1.5rem;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-dim),var(--accent));border-radius:99px;transition:width .4s ease;width:0%}
+.flashcard{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s;animation:slideIn .4s ease;margin-bottom:1.5rem}
+.flashcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent-dim),var(--accent));opacity:.6}
+.flashcard.correct{border-color:var(--correct);box-shadow:0 0 30px var(--correct-bg)}
+.flashcard.incorrect{border-color:var(--incorrect);box-shadow:0 0 30px var(--incorrect-bg)}
+.card-tense{font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;font-weight:700;padding:.3rem .8rem;border-radius:99px;margin-bottom:1rem;background:var(--surface)}
+.card-pronoun{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--text-muted);margin-bottom:.3rem}
+.card-sentence{font-family:'DM Serif Display',serif;font-size:1.6rem;line-height:1.4;margin-bottom:.5rem}
+.card-sentence .blank{display:inline-block;min-width:120px;border-bottom:3px dashed var(--accent);margin:0 .2rem;padding:0 .3rem;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.card-english{font-size:.95rem;color:var(--text-muted);font-style:italic;margin-top:.25rem}
+.card-infinitive{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent-dim);margin-top:.5rem;padding:.2rem .6rem;background:var(--accent-glow);border-radius:var(--radius-sm)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem}
+.choice-btn{background:var(--bg-card);border:2px solid var(--border);color:var(--text);padding:1rem;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:1.05rem;cursor:pointer;transition:all .2s;position:relative}
+.choice-btn:hover:not(:disabled){border-color:var(--accent);background:var(--bg-card-hover);transform:translateY(-2px);box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.choice-btn:active:not(:disabled){transform:translateY(0)}
+.choice-btn.correct-choice{border-color:var(--correct);background:var(--correct-bg);color:var(--correct)}
+.choice-btn.incorrect-choice{border-color:var(--incorrect);background:var(--incorrect-bg);color:var(--incorrect);opacity:.7}
+.choice-btn:disabled{cursor:default}
+.choice-btn .key-hint{position:absolute;top:4px;left:8px;font-size:.65rem;color:var(--text-muted);font-family:'Source Sans 3',sans-serif}
+.feedback{text-align:center;padding:1rem;border-radius:var(--radius);margin-bottom:1rem;font-weight:600;display:none}
+.feedback.show{display:block}
+.feedback.correct-fb{background:var(--correct-bg);color:var(--correct);border:1px solid #6abf6940}
+.feedback.incorrect-fb{background:var(--incorrect-bg);color:var(--incorrect);border:1px solid #e0605040}
+.feedback .explanation{font-weight:400;font-size:.9rem;margin-top:.3rem;opacity:.85}
+.next-btn{display:none;width:100%;padding:1rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius);font-family:'Source Sans 3',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.03em}
+.next-btn.show{display:block}
+.next-btn:hover{background:var(--accent-dim);transform:translateY(-1px)}
+.reference-view{display:none}.reference-view.active{display:block}
+.practice-view{display:none}.practice-view.active{display:block}
+.conjugation-view{display:none}.conjugation-view.active{display:block}
+.results-screen{display:none;text-align:center;padding:3rem 2rem}
+.results-screen.active{display:block}
+.search-box{width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:.8rem 1.2rem;border-radius:var(--radius);font-family:'Source Sans 3',sans-serif;font-size:1rem;margin-bottom:1rem;outline:none;transition:border-color .2s}
+.search-box:focus{border-color:var(--accent)}.search-box::placeholder{color:var(--text-muted)}
+.verb-count{text-align:center;padding:.5rem;color:var(--text-muted);font-size:.85rem}
+.table-scroll{max-height:65vh;overflow-y:auto;border-radius:var(--radius)}
+.table-scroll::-webkit-scrollbar{width:8px}
+.table-scroll::-webkit-scrollbar-track{background:var(--bg-card)}
+.table-scroll::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:99px}
+.verb-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.verb-table th{background:var(--surface);padding:.7rem 1rem;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:700;position:sticky;top:0}
+.verb-table td{padding:.6rem 1rem;border-top:1px solid var(--border);font-size:.9rem}
+.verb-table tr:hover td{background:var(--bg-card-hover)}
+.verb-es{font-weight:600;color:var(--accent)}.verb-en{color:var(--text-dim)}
+.verb-type{font-family:'JetBrains Mono',monospace;font-size:.75rem;padding:.15rem .5rem;border-radius:99px;background:var(--surface);color:var(--text-muted)}
+.verb-type.irregular{background:var(--incorrect-bg);color:var(--incorrect)}
+.conj-back-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:.4rem 1rem;border-radius:99px;font-family:'Source Sans 3',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s}
+.conj-back-btn:hover{color:var(--text);border-color:var(--accent)}
+.conj-header{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.conj-header h2{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--accent)}
+.conj-header .meaning{color:var(--text-dim);font-style:italic;font-size:1.1rem}
+.conj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}
+.conj-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem}
+.conj-card h4{font-family:'Source Sans 3',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:2px solid var(--border)}
+.conj-row{display:flex;justify-content:space-between;padding:.3rem 0;font-size:.9rem}
+.conj-row .pronoun{color:var(--text-muted)}
+.conj-row .form{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--text)}
+.results-score{font-family:'DM Serif Display',serif;font-size:4rem;color:var(--accent);margin-bottom:.5rem}
+.results-label{font-size:1.1rem;color:var(--text-dim);margin-bottom:2rem}
+.results-details{display:flex;justify-content:center;gap:3rem;margin-bottom:2rem}
+.rd-num{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:600}
+.rd-num.green{color:var(--correct)}.rd-num.red{color:var(--incorrect)}
+.rd-label{font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em}
+.restart-btn{display:inline-block;padding:1rem 3rem;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius);font-family:'Source Sans 3',sans-serif;font-size:1.05rem;font-weight:700;cursor:pointer;transition:all .2s}
+.restart-btn:hover{background:var(--accent-dim)}
+.tense-tooltip{position:fixed;bottom:1.5rem;right:1.5rem;max-width:340px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;z-index:200;opacity:0;transform:translateY(10px);transition:all .3s ease;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.tense-tooltip.visible{opacity:1;transform:translateY(0)}
+.tense-tooltip .tt-name{font-family:'DM Serif Display',serif;font-size:1.15rem;margin-bottom:.15rem}
+.tense-tooltip .tt-spanish{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text-muted);margin-bottom:.6rem}
+.tense-tooltip .tt-desc{font-size:.88rem;color:var(--text-dim);line-height:1.5;margin-bottom:.6rem}
+.tense-tooltip .tt-example{font-size:.85rem;padding:.5rem .7rem;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--accent)}
+.tense-tooltip .tt-example .ex-es{color:var(--accent);font-weight:600}
+.tense-tooltip .tt-example .ex-en{color:var(--text-muted);font-style:italic;font-size:.82rem}
+.streak-display{position:fixed;top:1rem;right:1rem;background:var(--bg-card);border:1px solid var(--border);padding:.5rem 1rem;border-radius:var(--radius-sm);font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent);opacity:0;transform:translateY(-10px);transition:all .3s;z-index:100}
+.streak-display.visible{opacity:1;transform:translateY(0)}
+@keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){header h1{font-size:2rem}.choices{grid-template-columns:1fr}.card-sentence{font-size:1.3rem}main{padding:1rem}.conj-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Verbos <span>español</span></h1>
+    <p>Master Spanish verb conjugations through practice — 75+ verbs across 6 tenses</p>
+  </header>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-value" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Attempted</div></div>
+    <div class="stat"><div class="stat-value" id="stat-pct">0%</div><div class="stat-label">Accuracy</div></div>
+    <div class="stat"><div class="stat-value" id="stat-streak">0</div><div class="stat-label">Streak</div></div>
+  </div>
+  <main>
+    <div class="practice-view active" id="practice-view">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="flashcard" id="flashcard">
+        <div class="card-tense" id="card-tense">Present</div>
+        <div class="card-pronoun" id="card-pronoun">yo</div>
+        <div class="card-sentence" id="card-sentence">Loading...</div>
+        <div class="card-english" id="card-english"></div>
+        <div class="card-infinitive" id="card-infinitive"></div>
+      </div>
+      <div class="choices" id="choices"></div>
+      <div class="feedback" id="feedback"><div id="feedback-text"></div><div class="explanation" id="feedback-explanation"></div></div>
+      <button class="next-btn" id="next-btn" onclick="nextCard()">Next Question →</button>
+    </div>
+    <div class="reference-view" id="reference-view">
+      <input type="text" class="search-box" placeholder="Search verbs (Spanish or English)..." id="verb-search" oninput="filterVerbs()">
+      <div class="verb-count" id="verb-count"></div>
+      <div class="table-scroll">
+        <table class="verb-table"><thead><tr><th>Spanish</th><th>English</th><th>Group</th><th>Type</th></tr></thead><tbody id="verb-tbody"></tbody></table>
+      </div>
+    </div>
+    <div class="conjugation-view" id="conjugation-view">
+      <div style="margin-bottom:1rem"><button class="conj-back-btn" onclick="switchView('reference')">← Back to list</button></div>
+      <div class="conj-header"><h2 id="conj-verb"></h2><span class="meaning" id="conj-meaning"></span></div>
+      <div class="conj-grid" id="conj-grid"></div>
+    </div>
+    <div class="results-screen" id="results-screen">
+      <div class="results-score" id="results-score">0%</div>
+      <div class="results-label">Session Accuracy</div>
+      <div class="results-details">
+        <div><div class="rd-num green" id="res-correct">0</div><div class="rd-label">Correct</div></div>
+        <div><div class="rd-num red" id="res-incorrect">0</div><div class="rd-label">Incorrect</div></div>
+      </div>
+      <button class="restart-btn" onclick="restartSession()">Practice Again</button>
+    </div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="switchView('practice')">Practice</button>
+    <button class="nav-tab" onclick="switchView('reference')">Verb Reference</button>
+  </nav><br/><br/>
+      <div class="settings-panel">
+        <h3>Configure Practice</h3>
+        <div class="setting-group"><label>Tenses</label><div class="chip-row" id="tense-chips"></div></div>
+        <div class="setting-group"><label>Verb Types</label><div class="chip-row" id="type-chips"></div></div>
+      </div>
+  </main>
+</div>
+<div class="tense-tooltip" id="tense-tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-spanish" id="tt-spanish"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+  <div class="tt-example"><span class="ex-es" id="tt-ex-es"></span><br><span class="ex-en" id="tt-ex-en"></span></div>
+</div>
+<div class="streak-display" id="streak-display"></div>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// COMPREHENSIVE SPANISH VERB DATABASE — 75+ verbs, 6 tenses each
+// ═══════════════════════════════════════════════════════════════
+const P=['yo','tú','él/ella/Ud.','nosotros','vosotros','ellos/ellas/Uds.'];
+const TENSES=['present','preterite','imperfect','future','conditional','subjunctive'];
+const TL={present:'Present',preterite:'Preterite',imperfect:'Imperfect',future:'Future',conditional:'Conditional',subjunctive:'Subjunctive'};
+
+// ═══════════════════════════════════════════════════════════════
+// TENSE DESCRIPTIONS (for hover tooltips)
+// ═══════════════════════════════════════════════════════════════
+const TENSE_INFO={
+  present:{
+    name:'Present (Presente)',spanish:'Presente de indicativo',
+    desc:'Describes actions happening now, habitual actions, or general truths. The most common tense in everyday conversation.',
+    exEs:'Yo hablo español.',exEn:'I speak Spanish.'},
+  preterite:{
+    name:'Preterite (Pretérito)',spanish:'Pretérito indefinido',
+    desc:'Describes completed actions in the past with a clear beginning and end. Used for specific events, sequences, and actions done a set number of times.',
+    exEs:'Ayer comí una pizza.',exEn:'Yesterday I ate a pizza.'},
+  imperfect:{
+    name:'Imperfect (Imperfecto)',spanish:'Pretérito imperfecto',
+    desc:'Describes ongoing, habitual, or repeated past actions without a defined endpoint. Used for background descriptions, age, time, weather, and "used to" situations.',
+    exEs:'Cuando era niño, jugaba mucho.',exEn:'When I was a child, I used to play a lot.'},
+  future:{
+    name:'Future (Futuro)',spanish:'Futuro simple',
+    desc:'Describes actions that will happen in the future. Also used for probability or conjecture about the present ("I wonder if...").',
+    exEs:'Mañana estudiaré más.',exEn:'Tomorrow I will study more.'},
+  conditional:{
+    name:'Conditional (Condicional)',spanish:'Condicional simple',
+    desc:'Describes hypothetical actions — what would happen under certain conditions. Used for polite requests, wishes, and "would" scenarios.',
+    exEs:'Yo comería más, pero estoy lleno.',exEn:'I would eat more, but I\'m full.'},
+  subjunctive:{
+    name:'Present Subjunctive (Subjuntivo)',spanish:'Presente de subjuntivo',
+    desc:'Expresses doubt, wishes, emotions, recommendations, or hypothetical situations. Triggered by phrases like "I hope that...", "I want you to...", "It\'s important that...".',
+    exEs:'Espero que tú hables con ella.',exEn:'I hope that you speak with her.'},
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ENGLISH VERB CONJUGATION ENGINE
+// Per-verb English forms for each tense × pronoun(I/You/He/We/YouAll/They)
+// ═══════════════════════════════════════════════════════════════
+// Format: {base, thirdPerson, past, pastPart, imperfect, gerund}
+// We build tense-appropriate English from these stems
+function enConj(base, third, past, imp) {
+  // imp = special imperfect phrasing if needed (e.g. "used to speak")
+  const impBase = imp || ('used to ' + base);
+  return {
+    // [I, You, He/She, We, You all, They]
+    present: [base, base, third, base, base, base],
+    preterite: [past, past, past, past, past, past],
+    imperfect: [impBase, impBase, impBase, impBase, impBase, impBase],
+    future: ['will '+base, 'will '+base, 'will '+base, 'will '+base, 'will '+base, 'will '+base],
+    conditional: ['would '+base, 'would '+base, 'would '+base, 'would '+base, 'would '+base, 'would '+base],
+    subjunctive: [base, base, base, base, base, base], // English subjunctive uses base form
+  };
+}
+const EN_VERBS = {
+  'hablar': enConj('speak','speaks','spoke'),
+  'trabajar': enConj('work','works','worked'),
+  'estudiar': enConj('study','studies','studied'),
+  'llamar': enConj('call','calls','called'),
+  'llevar': enConj('wear','wears','wore'),
+  'necesitar': enConj('need','needs','needed'),
+  'comprar': enConj('buy','buys','bought'),
+  'tomar': enConj('take','takes','took'),
+  'caminar': enConj('walk','walks','walked'),
+  'esperar': enConj('wait','waits','waited'),
+  'mirar': enConj('watch','watches','watched'),
+  'ayudar': enConj('help','helps','helped'),
+  'preguntar': enConj('ask','asks','asked'),
+  'cocinar': enConj('cook','cooks','cooked'),
+  'bailar': enConj('dance','dances','danced'),
+  'cantar': enConj('sing','sings','sang'),
+  'viajar': enConj('travel','travels','traveled'),
+  'ganar': enConj('win','wins','won'),
+  'descansar': enConj('rest','rests','rested'),
+  'nadar': enConj('swim','swims','swam'),
+  'enseñar': enConj('teach','teaches','taught'),
+  'lavar': enConj('wash','washes','washed'),
+  'preparar': enConj('prepare','prepares','prepared'),
+  'contestar': enConj('answer','answers','answered'),
+  'limpiar': enConj('clean','cleans','cleaned'),
+  'pintar': enConj('paint','paints','painted'),
+  'dibujar': enConj('draw','draws','drew'),
+  'comer': enConj('eat','eats','ate'),
+  'beber': enConj('drink','drinks','drank'),
+  'correr': enConj('run','runs','ran'),
+  'aprender': enConj('learn','learns','learned'),
+  'comprender': enConj('understand','understands','understood'),
+  'vender': enConj('sell','sells','sold'),
+  'deber': enConj('must','must','had to','used to have to'),
+  'responder': enConj('respond','responds','responded'),
+  'prometer': enConj('promise','promises','promised'),
+  'meter': enConj('put','puts','put'),
+  'barrer': enConj('sweep','sweeps','swept'),
+  'vivir': enConj('live','lives','lived'),
+  'escribir': enConj('write','writes','wrote'),
+  'recibir': enConj('receive','receives','received'),
+  'abrir': enConj('open','opens','opened'),
+  'subir': enConj('climb','climbs','climbed'),
+  'decidir': enConj('decide','decides','decided'),
+  'compartir': enConj('share','shares','shared'),
+  'sufrir': enConj('suffer','suffers','suffered'),
+  'permitir': enConj('allow','allows','allowed'),
+  'discutir': enConj('discuss','discusses','discussed'),
+  'existir': enConj('exist','exists','existed'),
+  'asistir': enConj('attend','attends','attended'),
+  'ser': enConj('am/are','is','was/were','used to be'),
+  'estar': enConj('am/are','is','was/were','used to be'),
+  'tener': enConj('have','has','had'),
+  'hacer': enConj('do','does','did'),
+  'ir': enConj('go','goes','went'),
+  'poder': enConj('can','can','could','used to be able to'),
+  'querer': enConj('want','wants','wanted'),
+  'decir': enConj('say','says','said'),
+  'venir': enConj('come','comes','came'),
+  'saber': enConj('know','knows','knew'),
+  'conocer': enConj('know','knows','knew'),
+  'dar': enConj('give','gives','gave'),
+  'ver': enConj('see','sees','saw'),
+  'poner': enConj('put','puts','put'),
+  'salir': enConj('leave','leaves','left'),
+  'dormir': enConj('sleep','sleeps','slept'),
+  'pedir': enConj('order','orders','ordered'),
+  'sentir': enConj('feel','feels','felt'),
+  'pensar': enConj('think','thinks','thought'),
+  'encontrar': enConj('find','finds','found'),
+  'volver': enConj('return','returns','returned'),
+  'seguir': enConj('follow','follows','followed'),
+  'empezar': enConj('start','starts','started'),
+  'jugar': enConj('play','plays','played'),
+  'entender': enConj('understand','understands','understood'),
+  'oír': enConj('hear','hears','heard'),
+  'traer': enConj('bring','brings','brought'),
+  'conducir': enConj('drive','drives','drove'),
+  'preferir': enConj('prefer','prefers','preferred'),
+  'recordar': enConj('remember','remembers','remembered'),
+  'perder': enConj('lose','loses','lost'),
+  'cerrar': enConj('close','closes','closed'),
+  'contar': enConj('tell','tells','told'),
+  'morir': enConj('die','dies','died'),
+  'haber': enConj('have','has','had'),
+  'servir': enConj('serve','serves','served'),
+  'construir': enConj('build','builds','built'),
+  'caer': enConj('fall','falls','fell'),
+  'parecer': enConj('seem','seems','seemed'),
+  'llegar': enConj('arrive','arrives','arrived'),
+  'pasar': enConj('spend','spends','spent'),
+  'quedar': enConj('stay','stays','stayed'),
+  'dejar': enConj('leave','leaves','left'),
+  'cambiar': enConj('change','changes','changed'),
+  'tocar': enConj('play','plays','played'),
+};
+
+function getEnglishVerb(inf, tense, pronounIdx) {
+  const ev = EN_VERBS[inf];
+  if (!ev) return '___';
+  const forms = ev[tense];
+  if (!forms) return '___';
+  return forms[pronounIdx] || '___';
+}
+
+// Helper to generate regular conjugations
+function regAR(stem){return{
+  present:[stem+'o',stem+'as',stem+'a',stem+'amos',stem+'áis',stem+'an'],
+  preterite:[stem+'é',stem+'aste',stem+'ó',stem+'amos',stem+'asteis',stem+'aron'],
+  imperfect:[stem+'aba',stem+'abas',stem+'aba',stem+'ábamos',stem+'abais',stem+'aban'],
+  future:[stem+'aré',stem+'arás',stem+'ará',stem+'aremos',stem+'aréis',stem+'arán'],
+  conditional:[stem+'aría',stem+'arías',stem+'aría',stem+'aríamos',stem+'aríais',stem+'arían'],
+  subjunctive:[stem+'e',stem+'es',stem+'e',stem+'emos',stem+'éis',stem+'en']
+}}
+function regER(stem){return{
+  present:[stem+'o',stem+'es',stem+'e',stem+'emos',stem+'éis',stem+'en'],
+  preterite:[stem+'í',stem+'iste',stem+'ió',stem+'imos',stem+'isteis',stem+'ieron'],
+  imperfect:[stem+'ía',stem+'ías',stem+'ía',stem+'íamos',stem+'íais',stem+'ían'],
+  future:[stem+'eré',stem+'erás',stem+'erá',stem+'eremos',stem+'eréis',stem+'erán'],
+  conditional:[stem+'ería',stem+'erías',stem+'ería',stem+'eríamos',stem+'eríais',stem+'erían'],
+  subjunctive:[stem+'a',stem+'as',stem+'a',stem+'amos',stem+'áis',stem+'an']
+}}
+function regIR(stem){return{
+  present:[stem+'o',stem+'es',stem+'e',stem+'imos',stem+'ís',stem+'en'],
+  preterite:[stem+'í',stem+'iste',stem+'ió',stem+'imos',stem+'isteis',stem+'ieron'],
+  imperfect:[stem+'ía',stem+'ías',stem+'ía',stem+'íamos',stem+'íais',stem+'ían'],
+  future:[stem+'iré',stem+'irás',stem+'irá',stem+'iremos',stem+'iréis',stem+'irán'],
+  conditional:[stem+'iría',stem+'irías',stem+'iría',stem+'iríamos',stem+'iríais',stem+'irían'],
+  subjunctive:[stem+'a',stem+'as',stem+'a',stem+'amos',stem+'áis',stem+'an']
+}}
+
+const VERBS=[
+// ── REGULAR -AR ──
+{inf:'hablar',en:'to speak/talk',group:'ar',irr:false,conj:regAR('habl'),sent:'{p} ___ español muy bien.',senEn:'{pe} ___ Spanish very well.'},
+{inf:'trabajar',en:'to work',group:'ar',irr:false,conj:regAR('trabaj'),sent:'{p} ___ en una oficina.',senEn:'{pe} ___ in an office.'},
+{inf:'estudiar',en:'to study',group:'ar',irr:false,conj:regAR('estudi'),sent:'{p} ___ para el examen.',senEn:'{pe} ___ for the exam.'},
+{inf:'llamar',en:'to call',group:'ar',irr:false,conj:regAR('llam'),sent:'{p} ___ a mi madre.',senEn:'{pe} ___ my mother.'},
+{inf:'llevar',en:'to carry/wear',group:'ar',irr:false,conj:regAR('llev'),sent:'{p} ___ una camisa azul.',senEn:'{pe} ___ a blue shirt.'},
+{inf:'necesitar',en:'to need',group:'ar',irr:false,conj:regAR('necesit'),sent:'{p} ___ más tiempo.',senEn:'{pe} ___ more time.'},
+{inf:'comprar',en:'to buy',group:'ar',irr:false,conj:regAR('compr'),sent:'{p} ___ frutas en el mercado.',senEn:'{pe} ___ fruit at the market.'},
+{inf:'tomar',en:'to take/drink',group:'ar',irr:false,conj:regAR('tom'),sent:'{p} ___ café por la mañana.',senEn:'{pe} ___ coffee in the morning.'},
+{inf:'caminar',en:'to walk',group:'ar',irr:false,conj:regAR('camin'),sent:'{p} ___ por el parque.',senEn:'{pe} ___ through the park.'},
+{inf:'esperar',en:'to wait/hope',group:'ar',irr:false,conj:regAR('esper'),sent:'{p} ___ el autobús.',senEn:'{pe} ___ for the bus.'},
+{inf:'mirar',en:'to look at/watch',group:'ar',irr:false,conj:regAR('mir'),sent:'{p} ___ la televisión.',senEn:'{pe} ___ television.'},
+{inf:'ayudar',en:'to help',group:'ar',irr:false,conj:regAR('ayud'),sent:'{p} ___ a mis amigos.',senEn:'{pe} ___ my friends.'},
+{inf:'preguntar',en:'to ask',group:'ar',irr:false,conj:regAR('pregunt'),sent:'{p} ___ al profesor.',senEn:'{pe} ___ the teacher.'},
+{inf:'cocinar',en:'to cook',group:'ar',irr:false,conj:regAR('cocin'),sent:'{p} ___ la cena.',senEn:'{pe} ___ dinner.'},
+{inf:'bailar',en:'to dance',group:'ar',irr:false,conj:regAR('bail'),sent:'{p} ___ en la fiesta.',senEn:'{pe} ___ at the party.'},
+{inf:'cantar',en:'to sing',group:'ar',irr:false,conj:regAR('cant'),sent:'{p} ___ una canción bonita.',senEn:'{pe} ___ a beautiful song.'},
+{inf:'viajar',en:'to travel',group:'ar',irr:false,conj:regAR('viaj'),sent:'{p} ___ a España.',senEn:'{pe} ___ to Spain.'},
+{inf:'ganar',en:'to win/earn',group:'ar',irr:false,conj:regAR('gan'),sent:'{p} ___ el partido.',senEn:'{pe} ___ the game.'},
+{inf:'descansar',en:'to rest',group:'ar',irr:false,conj:regAR('descans'),sent:'{p} ___ los domingos.',senEn:'{pe} ___ on Sundays.'},
+{inf:'nadar',en:'to swim',group:'ar',irr:false,conj:regAR('nad'),sent:'{p} ___ en la piscina.',senEn:'{pe} ___ in the pool.'},
+{inf:'enseñar',en:'to teach',group:'ar',irr:false,conj:regAR('enseñ'),sent:'{p} ___ matemáticas.',senEn:'{pe} ___ mathematics.'},
+{inf:'lavar',en:'to wash',group:'ar',irr:false,conj:regAR('lav'),sent:'{p} ___ la ropa.',senEn:'{pe} ___ the clothes.'},
+{inf:'preparar',en:'to prepare',group:'ar',irr:false,conj:regAR('prepar'),sent:'{p} ___ el desayuno.',senEn:'{pe} ___ breakfast.'},
+{inf:'contestar',en:'to answer',group:'ar',irr:false,conj:regAR('contest'),sent:'{p} ___ las preguntas.',senEn:'{pe} ___ the questions.'},
+{inf:'limpiar',en:'to clean',group:'ar',irr:false,conj:regAR('limpi'),sent:'{p} ___ la casa.',senEn:'{pe} ___ the house.'},
+{inf:'pintar',en:'to paint',group:'ar',irr:false,conj:regAR('pint'),sent:'{p} ___ un cuadro.',senEn:'{pe} ___ a painting.'},
+{inf:'dibujar',en:'to draw',group:'ar',irr:false,conj:regAR('dibuj'),sent:'{p} ___ un retrato.',senEn:'{pe} ___ a portrait.'},
+// ── REGULAR -ER ──
+{inf:'comer',en:'to eat',group:'er',irr:false,conj:regER('com'),sent:'{p} ___ en un restaurante.',senEn:'{pe} ___ at a restaurant.'},
+{inf:'beber',en:'to drink',group:'er',irr:false,conj:regER('beb'),sent:'{p} ___ agua todos los días.',senEn:'{pe} ___ water every day.'},
+{inf:'correr',en:'to run',group:'er',irr:false,conj:regER('corr'),sent:'{p} ___ por la mañana.',senEn:'{pe} ___ in the morning.'},
+{inf:'aprender',en:'to learn',group:'er',irr:false,conj:regER('aprend'),sent:'{p} ___ español rápidamente.',senEn:'{pe} ___ Spanish quickly.'},
+{inf:'comprender',en:'to understand',group:'er',irr:false,conj:regER('comprend'),sent:'{p} ___ la lección.',senEn:'{pe} ___ the lesson.'},
+{inf:'vender',en:'to sell',group:'er',irr:false,conj:regER('vend'),sent:'{p} ___ coches usados.',senEn:'{pe} ___ used cars.'},
+{inf:'deber',en:'to owe/must',group:'er',irr:false,conj:regER('deb'),sent:'{p} ___ estudiar más.',senEn:'{pe} ___ study more.'},
+{inf:'responder',en:'to respond',group:'er',irr:false,conj:regER('respond'),sent:'{p} ___ al mensaje.',senEn:'{pe} ___ to the message.'},
+{inf:'prometer',en:'to promise',group:'er',irr:false,conj:regER('promet'),sent:'{p} ___ ser mejor.',senEn:'{pe} ___ to be better.'},
+{inf:'meter',en:'to put in',group:'er',irr:false,conj:regER('met'),sent:'{p} ___ las llaves en el bolsillo.',senEn:'{pe} ___ the keys in the pocket.'},
+{inf:'barrer',en:'to sweep',group:'er',irr:false,conj:regER('barr'),sent:'{p} ___ el suelo.',senEn:'{pe} ___ the floor.'},
+// ── REGULAR -IR ──
+{inf:'vivir',en:'to live',group:'ir',irr:false,conj:regIR('viv'),sent:'{p} ___ en Madrid.',senEn:'{pe} ___ in Madrid.'},
+{inf:'escribir',en:'to write',group:'ir',irr:false,conj:regIR('escrib'),sent:'{p} ___ una carta.',senEn:'{pe} ___ a letter.'},
+{inf:'recibir',en:'to receive',group:'ir',irr:false,conj:regIR('recib'),sent:'{p} ___ un regalo.',senEn:'{pe} ___ a gift.'},
+{inf:'abrir',en:'to open',group:'ir',irr:false,conj:regIR('abr'),sent:'{p} ___ la puerta.',senEn:'{pe} ___ the door.'},
+{inf:'subir',en:'to go up/climb',group:'ir',irr:false,conj:regIR('sub'),sent:'{p} ___ las escaleras.',senEn:'{pe} ___ the stairs.'},
+{inf:'decidir',en:'to decide',group:'ir',irr:false,conj:regIR('decid'),sent:'{p} ___ ir al cine.',senEn:'{pe} ___ to go to the cinema.'},
+{inf:'compartir',en:'to share',group:'ir',irr:false,conj:regIR('compart'),sent:'{p} ___ la comida.',senEn:'{pe} ___ the food.'},
+{inf:'sufrir',en:'to suffer',group:'ir',irr:false,conj:regIR('sufr'),sent:'{p} ___ mucho dolor.',senEn:'{pe} ___ a lot of pain.'},
+{inf:'permitir',en:'to permit/allow',group:'ir',irr:false,conj:regIR('permit'),sent:'{p} no ___ eso aquí.',senEn:'{pe} do not ___ that here.'},
+{inf:'discutir',en:'to discuss/argue',group:'ir',irr:false,conj:regIR('discut'),sent:'{p} ___ el problema.',senEn:'{pe} ___ the problem.'},
+{inf:'existir',en:'to exist',group:'ir',irr:false,conj:regIR('exist'),sent:'{p} ___ en un mundo complejo.',senEn:'{pe} ___ in a complex world.'},
+{inf:'asistir',en:'to attend',group:'ir',irr:false,conj:regIR('asist'),sent:'{p} ___ a la reunión.',senEn:'{pe} ___ the meeting.'},
+// ── IRREGULAR VERBS (manually conjugated) ──
+{inf:'ser',en:'to be (permanent)',group:'er',irr:true,sent:'{p} ___ estudiante.',senEn:'{pe} ___ a student.',conj:{
+  present:['soy','eres','es','somos','sois','son'],preterite:['fui','fuiste','fue','fuimos','fuisteis','fueron'],
+  imperfect:['era','eras','era','éramos','erais','eran'],future:['seré','serás','será','seremos','seréis','serán'],
+  conditional:['sería','serías','sería','seríamos','seríais','serían'],subjunctive:['sea','seas','sea','seamos','seáis','sean']}},
+{inf:'estar',en:'to be (state/location)',group:'ar',irr:true,sent:'{p} ___ en casa.',senEn:'{pe} ___ at home.',conj:{
+  present:['estoy','estás','está','estamos','estáis','están'],preterite:['estuve','estuviste','estuvo','estuvimos','estuvisteis','estuvieron'],
+  imperfect:['estaba','estabas','estaba','estábamos','estabais','estaban'],future:['estaré','estarás','estará','estaremos','estaréis','estarán'],
+  conditional:['estaría','estarías','estaría','estaríamos','estaríais','estarían'],subjunctive:['esté','estés','esté','estemos','estéis','estén']}},
+{inf:'tener',en:'to have',group:'er',irr:true,sent:'{p} ___ dos hermanos.',senEn:'{pe} ___ two siblings.',conj:{
+  present:['tengo','tienes','tiene','tenemos','tenéis','tienen'],preterite:['tuve','tuviste','tuvo','tuvimos','tuvisteis','tuvieron'],
+  imperfect:['tenía','tenías','tenía','teníamos','teníais','tenían'],future:['tendré','tendrás','tendrá','tendremos','tendréis','tendrán'],
+  conditional:['tendría','tendrías','tendría','tendríamos','tendríais','tendrían'],subjunctive:['tenga','tengas','tenga','tengamos','tengáis','tengan']}},
+{inf:'hacer',en:'to do/make',group:'er',irr:true,sent:'{p} ___ la tarea.',senEn:'{pe} ___ the homework.',conj:{
+  present:['hago','haces','hace','hacemos','hacéis','hacen'],preterite:['hice','hiciste','hizo','hicimos','hicisteis','hicieron'],
+  imperfect:['hacía','hacías','hacía','hacíamos','hacíais','hacían'],future:['haré','harás','hará','haremos','haréis','harán'],
+  conditional:['haría','harías','haría','haríamos','haríais','harían'],subjunctive:['haga','hagas','haga','hagamos','hagáis','hagan']}},
+{inf:'ir',en:'to go',group:'ir',irr:true,sent:'{p} ___ al supermercado.',senEn:'{pe} ___ to the supermarket.',conj:{
+  present:['voy','vas','va','vamos','vais','van'],preterite:['fui','fuiste','fue','fuimos','fuisteis','fueron'],
+  imperfect:['iba','ibas','iba','íbamos','ibais','iban'],future:['iré','irás','irá','iremos','iréis','irán'],
+  conditional:['iría','irías','iría','iríamos','iríais','irían'],subjunctive:['vaya','vayas','vaya','vayamos','vayáis','vayan']}},
+{inf:'poder',en:'to be able/can',group:'er',irr:true,sent:'{p} ___ hablar tres idiomas.',senEn:'{pe} ___ speak three languages.',conj:{
+  present:['puedo','puedes','puede','podemos','podéis','pueden'],preterite:['pude','pudiste','pudo','pudimos','pudisteis','pudieron'],
+  imperfect:['podía','podías','podía','podíamos','podíais','podían'],future:['podré','podrás','podrá','podremos','podréis','podrán'],
+  conditional:['podría','podrías','podría','podríamos','podríais','podrían'],subjunctive:['pueda','puedas','pueda','podamos','podáis','puedan']}},
+{inf:'querer',en:'to want/love',group:'er',irr:true,sent:'{p} ___ viajar por el mundo.',senEn:'{pe} ___ to travel the world.',conj:{
+  present:['quiero','quieres','quiere','queremos','queréis','quieren'],preterite:['quise','quisiste','quiso','quisimos','quisisteis','quisieron'],
+  imperfect:['quería','querías','quería','queríamos','queríais','querían'],future:['querré','querrás','querrá','querremos','querréis','querrán'],
+  conditional:['querría','querrías','querría','querríamos','querríais','querrían'],subjunctive:['quiera','quieras','quiera','queramos','queráis','quieran']}},
+{inf:'decir',en:'to say/tell',group:'ir',irr:true,sent:'{p} ___ la verdad.',senEn:'{pe} ___ the truth.',conj:{
+  present:['digo','dices','dice','decimos','decís','dicen'],preterite:['dije','dijiste','dijo','dijimos','dijisteis','dijeron'],
+  imperfect:['decía','decías','decía','decíamos','decíais','decían'],future:['diré','dirás','dirá','diremos','diréis','dirán'],
+  conditional:['diría','dirías','diría','diríamos','diríais','dirían'],subjunctive:['diga','digas','diga','digamos','digáis','digan']}},
+{inf:'venir',en:'to come',group:'ir',irr:true,sent:'{p} ___ a la fiesta.',senEn:'{pe} ___ to the party.',conj:{
+  present:['vengo','vienes','viene','venimos','venís','vienen'],preterite:['vine','viniste','vino','vinimos','vinisteis','vinieron'],
+  imperfect:['venía','venías','venía','veníamos','veníais','venían'],future:['vendré','vendrás','vendrá','vendremos','vendréis','vendrán'],
+  conditional:['vendría','vendrías','vendría','vendríamos','vendríais','vendrían'],subjunctive:['venga','vengas','venga','vengamos','vengáis','vengan']}},
+{inf:'saber',en:'to know (facts)',group:'er',irr:true,sent:'{p} ___ la respuesta.',senEn:'{pe} ___ the answer.',conj:{
+  present:['sé','sabes','sabe','sabemos','sabéis','saben'],preterite:['supe','supiste','supo','supimos','supisteis','supieron'],
+  imperfect:['sabía','sabías','sabía','sabíamos','sabíais','sabían'],future:['sabré','sabrás','sabrá','sabremos','sabréis','sabrán'],
+  conditional:['sabría','sabrías','sabría','sabríamos','sabríais','sabrían'],subjunctive:['sepa','sepas','sepa','sepamos','sepáis','sepan']}},
+{inf:'conocer',en:'to know (people)',group:'er',irr:true,sent:'{p} ___ a María.',senEn:'{pe} ___ María.',conj:{
+  present:['conozco','conoces','conoce','conocemos','conocéis','conocen'],preterite:['conocí','conociste','conoció','conocimos','conocisteis','conocieron'],
+  imperfect:['conocía','conocías','conocía','conocíamos','conocíais','conocían'],future:['conoceré','conocerás','conocerá','conoceremos','conoceréis','conocerán'],
+  conditional:['conocería','conocerías','conocería','conoceríamos','conoceríais','conocerían'],subjunctive:['conozca','conozcas','conozca','conozcamos','conozcáis','conozcan']}},
+{inf:'dar',en:'to give',group:'ar',irr:true,sent:'{p} ___ un regalo.',senEn:'{pe} ___ a gift.',conj:{
+  present:['doy','das','da','damos','dais','dan'],preterite:['di','diste','dio','dimos','disteis','dieron'],
+  imperfect:['daba','dabas','daba','dábamos','dabais','daban'],future:['daré','darás','dará','daremos','daréis','darán'],
+  conditional:['daría','darías','daría','daríamos','daríais','darían'],subjunctive:['dé','des','dé','demos','deis','den']}},
+{inf:'ver',en:'to see',group:'er',irr:true,sent:'{p} ___ una película.',senEn:'{pe} ___ a movie.',conj:{
+  present:['veo','ves','ve','vemos','veis','ven'],preterite:['vi','viste','vio','vimos','visteis','vieron'],
+  imperfect:['veía','veías','veía','veíamos','veíais','veían'],future:['veré','verás','verá','veremos','veréis','verán'],
+  conditional:['vería','verías','vería','veríamos','veríais','verían'],subjunctive:['vea','veas','vea','veamos','veáis','vean']}},
+{inf:'poner',en:'to put/place',group:'er',irr:true,sent:'{p} ___ el libro en la mesa.',senEn:'{pe} ___ the book on the table.',conj:{
+  present:['pongo','pones','pone','ponemos','ponéis','ponen'],preterite:['puse','pusiste','puso','pusimos','pusisteis','pusieron'],
+  imperfect:['ponía','ponías','ponía','poníamos','poníais','ponían'],future:['pondré','pondrás','pondrá','pondremos','pondréis','pondrán'],
+  conditional:['pondría','pondrías','pondría','pondríamos','pondríais','pondrían'],subjunctive:['ponga','pongas','ponga','pongamos','pongáis','pongan']}},
+{inf:'salir',en:'to leave/go out',group:'ir',irr:true,sent:'{p} ___ de casa temprano.',senEn:'{pe} ___ the house early.',conj:{
+  present:['salgo','sales','sale','salimos','salís','salen'],preterite:['salí','saliste','salió','salimos','salisteis','salieron'],
+  imperfect:['salía','salías','salía','salíamos','salíais','salían'],future:['saldré','saldrás','saldrá','saldremos','saldréis','saldrán'],
+  conditional:['saldría','saldrías','saldría','saldríamos','saldríais','saldrían'],subjunctive:['salga','salgas','salga','salgamos','salgáis','salgan']}},
+{inf:'dormir',en:'to sleep',group:'ir',irr:true,sent:'{p} ___ ocho horas.',senEn:'{pe} ___ eight hours.',conj:{
+  present:['duermo','duermes','duerme','dormimos','dormís','duermen'],preterite:['dormí','dormiste','durmió','dormimos','dormisteis','durmieron'],
+  imperfect:['dormía','dormías','dormía','dormíamos','dormíais','dormían'],future:['dormiré','dormirás','dormirá','dormiremos','dormiréis','dormirán'],
+  conditional:['dormiría','dormirías','dormiría','dormiríamos','dormiríais','dormirían'],subjunctive:['duerma','duermas','duerma','durmamos','durmáis','duerman']}},
+{inf:'pedir',en:'to ask for/order',group:'ir',irr:true,sent:'{p} ___ la cuenta.',senEn:'{pe} ___ the check.',conj:{
+  present:['pido','pides','pide','pedimos','pedís','piden'],preterite:['pedí','pediste','pidió','pedimos','pedisteis','pidieron'],
+  imperfect:['pedía','pedías','pedía','pedíamos','pedíais','pedían'],future:['pediré','pedirás','pedirá','pediremos','pediréis','pedirán'],
+  conditional:['pediría','pedirías','pediría','pediríamos','pediríais','pedirían'],subjunctive:['pida','pidas','pida','pidamos','pidáis','pidan']}},
+{inf:'sentir',en:'to feel',group:'ir',irr:true,sent:'{p} ___ mucha alegría.',senEn:'{pe} ___ a lot of joy.',conj:{
+  present:['siento','sientes','siente','sentimos','sentís','sienten'],preterite:['sentí','sentiste','sintió','sentimos','sentisteis','sintieron'],
+  imperfect:['sentía','sentías','sentía','sentíamos','sentíais','sentían'],future:['sentiré','sentirás','sentirá','sentiremos','sentiréis','sentirán'],
+  conditional:['sentiría','sentirías','sentiría','sentiríamos','sentiríais','sentirían'],subjunctive:['sienta','sientas','sienta','sintamos','sintáis','sientan']}},
+{inf:'pensar',en:'to think',group:'ar',irr:true,sent:'{p} ___ en el futuro.',senEn:'{pe} ___ about the future.',conj:{
+  present:['pienso','piensas','piensa','pensamos','pensáis','piensan'],preterite:['pensé','pensaste','pensó','pensamos','pensasteis','pensaron'],
+  imperfect:['pensaba','pensabas','pensaba','pensábamos','pensabais','pensaban'],future:['pensaré','pensarás','pensará','pensaremos','pensaréis','pensarán'],
+  conditional:['pensaría','pensarías','pensaría','pensaríamos','pensaríais','pensarían'],subjunctive:['piense','pienses','piense','pensemos','penséis','piensen']}},
+{inf:'encontrar',en:'to find/meet',group:'ar',irr:true,sent:'{p} ___ las llaves.',senEn:'{pe} ___ the keys.',conj:{
+  present:['encuentro','encuentras','encuentra','encontramos','encontráis','encuentran'],preterite:['encontré','encontraste','encontró','encontramos','encontrasteis','encontraron'],
+  imperfect:['encontraba','encontrabas','encontraba','encontrábamos','encontrabais','encontraban'],future:['encontraré','encontrarás','encontrará','encontraremos','encontraréis','encontrarán'],
+  conditional:['encontraría','encontrarías','encontraría','encontraríamos','encontraríais','encontrarían'],subjunctive:['encuentre','encuentres','encuentre','encontremos','encontréis','encuentren']}},
+{inf:'volver',en:'to return',group:'er',irr:true,sent:'{p} ___ a casa.',senEn:'{pe} ___ home.',conj:{
+  present:['vuelvo','vuelves','vuelve','volvemos','volvéis','vuelven'],preterite:['volví','volviste','volvió','volvimos','volvisteis','volvieron'],
+  imperfect:['volvía','volvías','volvía','volvíamos','volvíais','volvían'],future:['volveré','volverás','volverá','volveremos','volveréis','volverán'],
+  conditional:['volvería','volverías','volvería','volveríamos','volveríais','volverían'],subjunctive:['vuelva','vuelvas','vuelva','volvamos','volváis','vuelvan']}},
+{inf:'seguir',en:'to follow/continue',group:'ir',irr:true,sent:'{p} ___ las instrucciones.',senEn:'{pe} ___ the instructions.',conj:{
+  present:['sigo','sigues','sigue','seguimos','seguís','siguen'],preterite:['seguí','seguiste','siguió','seguimos','seguisteis','siguieron'],
+  imperfect:['seguía','seguías','seguía','seguíamos','seguíais','seguían'],future:['seguiré','seguirás','seguirá','seguiremos','seguiréis','seguirán'],
+  conditional:['seguiría','seguirías','seguiría','seguiríamos','seguiríais','seguirían'],subjunctive:['siga','sigas','siga','sigamos','sigáis','sigan']}},
+{inf:'empezar',en:'to begin/start',group:'ar',irr:true,sent:'{p} ___ a las ocho.',senEn:'{pe} ___ at eight.',conj:{
+  present:['empiezo','empiezas','empieza','empezamos','empezáis','empiezan'],preterite:['empecé','empezaste','empezó','empezamos','empezasteis','empezaron'],
+  imperfect:['empezaba','empezabas','empezaba','empezábamos','empezabais','empezaban'],future:['empezaré','empezarás','empezará','empezaremos','empezaréis','empezarán'],
+  conditional:['empezaría','empezarías','empezaría','empezaríamos','empezaríais','empezarían'],subjunctive:['empiece','empieces','empiece','empecemos','empecéis','empiecen']}},
+{inf:'jugar',en:'to play (games)',group:'ar',irr:true,sent:'{p} ___ al fútbol.',senEn:'{pe} ___ soccer.',conj:{
+  present:['juego','juegas','juega','jugamos','jugáis','juegan'],preterite:['jugué','jugaste','jugó','jugamos','jugasteis','jugaron'],
+  imperfect:['jugaba','jugabas','jugaba','jugábamos','jugabais','jugaban'],future:['jugaré','jugarás','jugará','jugaremos','jugaréis','jugarán'],
+  conditional:['jugaría','jugarías','jugaría','jugaríamos','jugaríais','jugarían'],subjunctive:['juegue','juegues','juegue','juguemos','juguéis','jueguen']}},
+{inf:'entender',en:'to understand',group:'er',irr:true,sent:'{p} ___ el problema.',senEn:'{pe} ___ the problem.',conj:{
+  present:['entiendo','entiendes','entiende','entendemos','entendéis','entienden'],preterite:['entendí','entendiste','entendió','entendimos','entendisteis','entendieron'],
+  imperfect:['entendía','entendías','entendía','entendíamos','entendíais','entendían'],future:['entenderé','entenderás','entenderá','entenderemos','entenderéis','entenderán'],
+  conditional:['entendería','entenderías','entendería','entenderíamos','entenderíais','entenderían'],subjunctive:['entienda','entiendas','entienda','entendamos','entendáis','entiendan']}},
+{inf:'oír',en:'to hear',group:'ir',irr:true,sent:'{p} ___ música.',senEn:'{pe} ___ music.',conj:{
+  present:['oigo','oyes','oye','oímos','oís','oyen'],preterite:['oí','oíste','oyó','oímos','oísteis','oyeron'],
+  imperfect:['oía','oías','oía','oíamos','oíais','oían'],future:['oiré','oirás','oirá','oiremos','oiréis','oirán'],
+  conditional:['oiría','oirías','oiría','oiríamos','oiríais','oirían'],subjunctive:['oiga','oigas','oiga','oigamos','oigáis','oigan']}},
+{inf:'traer',en:'to bring',group:'er',irr:true,sent:'{p} ___ la comida.',senEn:'{pe} ___ the food.',conj:{
+  present:['traigo','traes','trae','traemos','traéis','traen'],preterite:['traje','trajiste','trajo','trajimos','trajisteis','trajeron'],
+  imperfect:['traía','traías','traía','traíamos','traíais','traían'],future:['traeré','traerás','traerá','traeremos','traeréis','traerán'],
+  conditional:['traería','traerías','traería','traeríamos','traeríais','traerían'],subjunctive:['traiga','traigas','traiga','traigamos','traigáis','traigan']}},
+{inf:'conducir',en:'to drive',group:'ir',irr:true,sent:'{p} ___ un coche nuevo.',senEn:'{pe} ___ a new car.',conj:{
+  present:['conduzco','conduces','conduce','conducimos','conducís','conducen'],preterite:['conduje','condujiste','condujo','condujimos','condujisteis','condujeron'],
+  imperfect:['conducía','conducías','conducía','conducíamos','conducíais','conducían'],future:['conduciré','conducirás','conducirá','conduciremos','conduciréis','conducirán'],
+  conditional:['conduciría','conducirías','conduciría','conduciríamos','conduciríais','conducirían'],subjunctive:['conduzca','conduzcas','conduzca','conduzcamos','conduzcáis','conduzcan']}},
+{inf:'preferir',en:'to prefer',group:'ir',irr:true,sent:'{p} ___ el café al té.',senEn:'{pe} ___ coffee over tea.',conj:{
+  present:['prefiero','prefieres','prefiere','preferimos','preferís','prefieren'],preterite:['preferí','preferiste','prefirió','preferimos','preferisteis','prefirieron'],
+  imperfect:['prefería','preferías','prefería','preferíamos','preferíais','preferían'],future:['preferiré','preferirás','preferirá','preferiremos','preferiréis','preferirán'],
+  conditional:['preferiría','preferirías','preferiría','preferiríamos','preferiríais','preferirían'],subjunctive:['prefiera','prefieras','prefiera','prefiramos','prefiráis','prefieran']}},
+{inf:'recordar',en:'to remember',group:'ar',irr:true,sent:'{p} ___ mi infancia.',senEn:'{pe} ___ my childhood.',conj:{
+  present:['recuerdo','recuerdas','recuerda','recordamos','recordáis','recuerdan'],preterite:['recordé','recordaste','recordó','recordamos','recordasteis','recordaron'],
+  imperfect:['recordaba','recordabas','recordaba','recordábamos','recordabais','recordaban'],future:['recordaré','recordarás','recordará','recordaremos','recordaréis','recordarán'],
+  conditional:['recordaría','recordarías','recordaría','recordaríamos','recordaríais','recordarían'],subjunctive:['recuerde','recuerdes','recuerde','recordemos','recordéis','recuerden']}},
+{inf:'perder',en:'to lose',group:'er',irr:true,sent:'{p} ___ las llaves.',senEn:'{pe} ___ the keys.',conj:{
+  present:['pierdo','pierdes','pierde','perdemos','perdéis','pierden'],preterite:['perdí','perdiste','perdió','perdimos','perdisteis','perdieron'],
+  imperfect:['perdía','perdías','perdía','perdíamos','perdíais','perdían'],future:['perderé','perderás','perderá','perderemos','perderéis','perderán'],
+  conditional:['perdería','perderías','perdería','perderíamos','perderíais','perderían'],subjunctive:['pierda','pierdas','pierda','perdamos','perdáis','pierdan']}},
+{inf:'cerrar',en:'to close',group:'ar',irr:true,sent:'{p} ___ la ventana.',senEn:'{pe} ___ the window.',conj:{
+  present:['cierro','cierras','cierra','cerramos','cerráis','cierran'],preterite:['cerré','cerraste','cerró','cerramos','cerrasteis','cerraron'],
+  imperfect:['cerraba','cerrabas','cerraba','cerrábamos','cerrabais','cerraban'],future:['cerraré','cerrarás','cerrará','cerraremos','cerraréis','cerrarán'],
+  conditional:['cerraría','cerrarías','cerraría','cerraríamos','cerraríais','cerrarían'],subjunctive:['cierre','cierres','cierre','cerremos','cerréis','cierren']}},
+{inf:'contar',en:'to count/tell',group:'ar',irr:true,sent:'{p} ___ una historia.',senEn:'{pe} ___ a story.',conj:{
+  present:['cuento','cuentas','cuenta','contamos','contáis','cuentan'],preterite:['conté','contaste','contó','contamos','contasteis','contaron'],
+  imperfect:['contaba','contabas','contaba','contábamos','contabais','contaban'],future:['contaré','contarás','contará','contaremos','contaréis','contarán'],
+  conditional:['contaría','contarías','contaría','contaríamos','contaríais','contarían'],subjunctive:['cuente','cuentes','cuente','contemos','contéis','cuenten']}},
+{inf:'morir',en:'to die',group:'ir',irr:true,sent:'Las flores ___ sin agua.',senEn:'The flowers ___ without water.',conj:{
+  present:['muero','mueres','muere','morimos','morís','mueren'],preterite:['morí','moriste','murió','morimos','moristeis','murieron'],
+  imperfect:['moría','morías','moría','moríamos','moríais','morían'],future:['moriré','morirás','morirá','moriremos','moriréis','morirán'],
+  conditional:['moriría','morirías','moriría','moriríamos','moriríais','morirían'],subjunctive:['muera','mueras','muera','muramos','muráis','mueran']}},
+{inf:'haber',en:'to have (auxiliary)',group:'er',irr:true,sent:'{p} ___ estudiado mucho.',senEn:'{pe} ___ studied a lot.',conj:{
+  present:['he','has','ha','hemos','habéis','han'],preterite:['hube','hubiste','hubo','hubimos','hubisteis','hubieron'],
+  imperfect:['había','habías','había','habíamos','habíais','habían'],future:['habré','habrás','habrá','habremos','habréis','habrán'],
+  conditional:['habría','habrías','habría','habríamos','habríais','habrían'],subjunctive:['haya','hayas','haya','hayamos','hayáis','hayan']}},
+{inf:'servir',en:'to serve',group:'ir',irr:true,sent:'{p} ___ la cena.',senEn:'{pe} ___ dinner.',conj:{
+  present:['sirvo','sirves','sirve','servimos','servís','sirven'],preterite:['serví','serviste','sirvió','servimos','servisteis','sirvieron'],
+  imperfect:['servía','servías','servía','servíamos','servíais','servían'],future:['serviré','servirás','servirá','serviremos','serviréis','servirán'],
+  conditional:['serviría','servirías','serviría','serviríamos','serviríais','servirían'],subjunctive:['sirva','sirvas','sirva','sirvamos','sirváis','sirvan']}},
+{inf:'construir',en:'to build',group:'ir',irr:true,sent:'{p} ___ una casa nueva.',senEn:'{pe} ___ a new house.',conj:{
+  present:['construyo','construyes','construye','construimos','construís','construyen'],preterite:['construí','construiste','construyó','construimos','construisteis','construyeron'],
+  imperfect:['construía','construías','construía','construíamos','construíais','construían'],future:['construiré','construirás','construirá','construiremos','construiréis','construirán'],
+  conditional:['construiría','construirías','construiría','construiríamos','construiríais','construirían'],subjunctive:['construya','construyas','construya','construyamos','construyáis','construyan']}},
+{inf:'caer',en:'to fall',group:'er',irr:true,sent:'Las hojas ___ en otoño.',senEn:'The leaves ___ in autumn.',conj:{
+  present:['caigo','caes','cae','caemos','caéis','caen'],preterite:['caí','caíste','cayó','caímos','caísteis','cayeron'],
+  imperfect:['caía','caías','caía','caíamos','caíais','caían'],future:['caeré','caerás','caerá','caeremos','caeréis','caerán'],
+  conditional:['caería','caerías','caería','caeríamos','caeríais','caerían'],subjunctive:['caiga','caigas','caiga','caigamos','caigáis','caigan']}},
+{inf:'parecer',en:'to seem/appear',group:'er',irr:true,sent:'{p} ___ cansado.',senEn:'{pe} ___ tired.',conj:{
+  present:['parezco','pareces','parece','parecemos','parecéis','parecen'],preterite:['parecí','pareciste','pareció','parecimos','parecisteis','parecieron'],
+  imperfect:['parecía','parecías','parecía','parecíamos','parecíais','parecían'],future:['pareceré','parecerás','parecerá','pareceremos','pareceréis','parecerán'],
+  conditional:['parecería','parecerías','parecería','pareceríamos','pareceríais','parecerían'],subjunctive:['parezca','parezcas','parezca','parezcamos','parezcáis','parezcan']}},
+{inf:'llegar',en:'to arrive',group:'ar',irr:false,sent:'{p} ___ tarde al trabajo.',senEn:'{pe} ___ late to work.',conj:{
+  present:['llego','llegas','llega','llegamos','llegáis','llegan'],preterite:['llegué','llegaste','llegó','llegamos','llegasteis','llegaron'],
+  imperfect:['llegaba','llegabas','llegaba','llegábamos','llegabais','llegaban'],future:['llegaré','llegarás','llegará','llegaremos','llegaréis','llegarán'],
+  conditional:['llegaría','llegarías','llegaría','llegaríamos','llegaríais','llegarían'],subjunctive:['llegue','llegues','llegue','lleguemos','lleguéis','lleguen']}},
+{inf:'pasar',en:'to pass/happen',group:'ar',irr:false,sent:'{p} ___ mucho tiempo aquí.',senEn:'{pe} ___ a lot of time here.',conj:regAR('pas')},
+{inf:'quedar',en:'to stay/remain',group:'ar',irr:false,sent:'{p} ___ en casa hoy.',senEn:'{pe} ___ at home today.',conj:regAR('qued')},
+{inf:'dejar',en:'to leave/let',group:'ar',irr:false,sent:'{p} ___ el trabajo temprano.',senEn:'{pe} ___ work early.',conj:regAR('dej')},
+{inf:'cambiar',en:'to change',group:'ar',irr:false,sent:'{p} ___ de opinión.',senEn:'{pe} ___ their mind.',conj:regAR('cambi')},
+{inf:'tocar',en:'to touch/play (instrument)',group:'ar',irr:false,sent:'{p} ___ la guitarra.',senEn:'{pe} ___ the guitar.',conj:regAR('toc')},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// GAME STATE & ENGINE
+// ═══════════════════════════════════════════════════════════════
+let state = {
+  activeTenses: ['present'],
+  activeTypes: ['regular','irregular'],
+  correct: 0, total: 0, streak: 0, bestStreak: 0,
+  currentQuestion: null, answered: false,
+  sessionLength: 20, sessionIndex: 0,
+};
+
+const PE = ['I','You','He/She','We','You all','They'];
+
+function init() {
+  renderChips();
+  generateQuestion();
+  updateStats();
+}
+
+function renderChips() {
+  document.getElementById('tense-chips').innerHTML = TENSES.map(t =>
+    `<button class="chip ${state.activeTenses.includes(t)?'active':''}" onmouseenter="showTenseTooltip('${t}')" onmouseleave="hideTenseTooltip()" onclick="toggleTense('${t}',this)">${TL[t]}</button>`
+  ).join('');
+  document.getElementById('type-chips').innerHTML = ['regular','irregular'].map(t =>
+    `<button class="chip ${state.activeTypes.includes(t)?'active':''}" onclick="toggleType('${t}',this)">${t[0].toUpperCase()+t.slice(1)}</button>`
+  ).join('');
+}
+
+function toggleTense(t,el){
+  const i=state.activeTenses.indexOf(t);
+  if(i>=0&&state.activeTenses.length>1){state.activeTenses.splice(i,1);el.classList.remove('active')}
+  else if(i<0){state.activeTenses.push(t);el.classList.add('active')}
+  if(!state.answered)generateQuestion();
+}
+function toggleType(t,el){
+  const i=state.activeTypes.indexOf(t);
+  if(i>=0&&state.activeTypes.length>1){state.activeTypes.splice(i,1);el.classList.remove('active')}
+  else if(i<0){state.activeTypes.push(t);el.classList.add('active')}
+  if(!state.answered)generateQuestion();
+}
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+function getFiltered(){
+  return VERBS.filter(v=>(state.activeTypes.includes('regular')&&!v.irr)||(state.activeTypes.includes('irregular')&&v.irr));
+}
+
+function generateQuestion(){
+  const verbs=getFiltered();
+  if(!verbs.length)return;
+  const verb=verbs[Math.floor(Math.random()*verbs.length)];
+  const tense=state.activeTenses[Math.floor(Math.random()*state.activeTenses.length)];
+  const pi=Math.floor(Math.random()*6);
+  const correct=verb.conj[tense][pi];
+
+  // Generate 4 unique choices including the correct one
+  const opts=new Set([correct]);
+  // Same verb, other pronouns
+  for(const i of shuffle([0,1,2,3,4,5].filter(i=>i!==pi))){if(opts.size>=4)break;opts.add(verb.conj[tense][i])}
+  // Same verb, other tenses
+  for(const t of shuffle(TENSES.filter(t2=>t2!==tense))){if(opts.size>=4)break;opts.add(verb.conj[t][pi])}
+  // Other verbs same tense/pronoun
+  const sg=VERBS.filter(v=>v.group===verb.group&&v.inf!==verb.inf);
+  for(const v of shuffle(sg)){if(opts.size>=4)break;opts.add(v.conj[tense][pi])}
+  while(opts.size<4){const rv=VERBS[Math.floor(Math.random()*VERBS.length)];opts.add(rv.conj[tense][Math.floor(Math.random()*6)])}
+
+  const sent=(verb.sent||'{p} ___ ...').replace('{p}','');
+  const enVerb=getEnglishVerb(verb.inf, tense, pi);
+  const senEn=(verb.senEn||'{pe} ___ ...').replace('{pe}',PE[pi]).replace('___',enVerb);
+
+  state.currentQuestion={verb,tense,pi,correct,choices:shuffle([...opts].slice(0,4)),sent,senEn};
+  state.answered=false;
+  renderCard();
+}
+
+function renderCard(){
+  const q=state.currentQuestion;if(!q)return;
+  const card=document.getElementById('flashcard');
+  card.className='flashcard';card.style.animation='none';card.offsetHeight;card.style.animation='';
+  document.getElementById('card-tense').textContent=TL[q.tense];
+  document.getElementById('card-tense').style.color=`var(--t-${q.tense})`;
+  document.getElementById('card-pronoun').textContent=P[q.pi];
+  document.getElementById('card-sentence').innerHTML=q.sent.replace('___','<span class="blank">?</span>');
+  document.getElementById('card-english').textContent=q.senEn;
+  document.getElementById('card-infinitive').textContent=`${q.verb.inf} — ${q.verb.en}`;
+  document.getElementById('choices').innerHTML=q.choices.map((c,i)=>
+    `<button class="choice-btn" onclick="selectAnswer(${i})"><span class="key-hint">${i+1}</span>${c}</button>`
+  ).join('');
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('next-btn').className='next-btn';
+  document.getElementById('progress-fill').style.width=(state.sessionIndex/state.sessionLength*100)+'%';
+}
+
+function selectAnswer(idx){
+  if(state.answered)return;
+  state.answered=true;state.total++;state.sessionIndex++;
+  const q=state.currentQuestion;
+  const sel=q.choices[idx];
+  const ok=sel===q.correct;
+  const card=document.getElementById('flashcard');
+  const btns=document.querySelectorAll('.choice-btn');
+  const fb=document.getElementById('feedback');
+
+  btns.forEach((b,i)=>{
+    b.disabled=true;
+    if(q.choices[i]===q.correct)b.classList.add('correct-choice');
+    else if(i===idx&&!ok)b.classList.add('incorrect-choice');
+  });
+
+  const blank=document.querySelector('.blank');
+  if(blank){blank.textContent=q.correct;blank.style.borderBottom='none'}
+
+  if(ok){
+    state.correct++;state.streak++;
+    if(state.streak>state.bestStreak)state.bestStreak=state.streak;
+    card.classList.add('correct');
+    fb.className='feedback correct-fb show';
+    document.getElementById('feedback-text').textContent='✓ Correct!';
+    document.getElementById('feedback-explanation').textContent=`${P[q.pi]} → ${q.correct} (${TL[q.tense]})`;
+    if(state.streak>=3){
+      const s=document.getElementById('streak-display');
+      s.textContent=`🔥 ${state.streak} streak!`;s.classList.add('visible');
+      setTimeout(()=>s.classList.remove('visible'),2000);
+    }
+  }else{
+    state.streak=0;card.classList.add('incorrect');
+    fb.className='feedback incorrect-fb show';
+    document.getElementById('feedback-text').textContent=`✗ The correct answer is: ${q.correct}`;
+    document.getElementById('feedback-explanation').textContent=`${P[q.pi]} → ${q.correct} (${TL[q.tense]} of ${q.verb.inf})`;
+  }
+  document.getElementById('next-btn').className='next-btn show';
+  updateStats();
+}
+
+function nextCard(){
+  if(state.sessionIndex>=state.sessionLength){showResults();return}
+  generateQuestion();
+}
+
+function showResults(){
+  document.getElementById('practice-view').classList.remove('active');
+  document.getElementById('results-screen').classList.add('active');
+  const pct=state.total>0?Math.round(state.correct/state.total*100):0;
+  document.getElementById('results-score').textContent=pct+'%';
+  document.getElementById('res-correct').textContent=state.correct;
+  document.getElementById('res-incorrect').textContent=state.total-state.correct;
+}
+
+function restartSession(){
+  state.correct=0;state.total=0;state.streak=0;state.sessionIndex=0;
+  document.getElementById('results-screen').classList.remove('active');
+  document.getElementById('practice-view').classList.add('active');
+  updateStats();generateQuestion();
+}
+
+function updateStats(){
+  document.getElementById('stat-correct').textContent=state.correct;
+  document.getElementById('stat-total').textContent=state.total;
+  document.getElementById('stat-pct').textContent=(state.total>0?Math.round(state.correct/state.total*100):0)+'%';
+  document.getElementById('stat-streak').textContent=state.streak;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VIEW SWITCHING & REFERENCE
+// ═══════════════════════════════════════════════════════════════
+function switchView(v){
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',['practice','reference','conjugation'][i]===v));
+  document.getElementById('practice-view').classList.toggle('active',v==='practice');
+  document.getElementById('reference-view').classList.toggle('active',v==='reference');
+  document.getElementById('conjugation-view').classList.toggle('active',v==='conjugation');
+  document.getElementById('results-screen').classList.remove('active');
+  if(v==='reference')renderVerbTable();
+}
+
+function renderVerbTable(f=''){
+  const fl=VERBS.filter(v=>v.inf.includes(f.toLowerCase())||v.en.includes(f.toLowerCase()));
+  document.getElementById('verb-tbody').innerHTML=fl.map(v=>`
+    <tr onclick="showConjugation('${v.inf}')" style="cursor:pointer">
+      <td class="verb-es">${v.inf}</td><td class="verb-en">${v.en}</td>
+      <td>-${v.group}</td><td><span class="verb-type ${v.irr?'irregular':''}">${v.irr?'irregular':'regular'}</span></td>
+    </tr>`).join('');
+  document.getElementById('verb-count').textContent=`${fl.length} of ${VERBS.length} verbs`;
+}
+function filterVerbs(){renderVerbTable(document.getElementById('verb-search').value)}
+
+function showConjugation(inf){
+  const v=VERBS.find(x=>x.inf===inf);if(!v)return;
+  switchView('conjugation');
+  document.getElementById('conj-verb').textContent=v.inf;
+  document.getElementById('conj-meaning').textContent=v.en;
+  document.getElementById('conj-grid').innerHTML=TENSES.map(t=>{
+    const forms=v.conj[t];
+    return `<div class="conj-card"><h4 style="color:var(--t-${t})">${TL[t]}</h4>
+      ${P.map((p,i)=>`<div class="conj-row"><span class="pronoun">${p}</span><span class="form">${forms[i]}</span></div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TENSE TOOLTIP HOVER
+// ═══════════════════════════════════════════════════════════════
+let tooltipTimeout = null;
+function showTenseTooltip(tense) {
+  const info = TENSE_INFO[tense];
+  if (!info) return;
+  const tt = document.getElementById('tense-tooltip');
+  document.getElementById('tt-name').textContent = info.name;
+  document.getElementById('tt-name').style.color = `var(--t-${tense})`;
+  document.getElementById('tt-spanish').textContent = info.spanish;
+  document.getElementById('tt-desc').textContent = info.desc;
+  document.getElementById('tt-ex-es').textContent = info.exEs;
+  document.getElementById('tt-ex-en').textContent = info.exEn;
+  clearTimeout(tooltipTimeout);
+  tt.classList.add('visible');
+}
+function hideTenseTooltip() {
+  tooltipTimeout = setTimeout(() => {
+    document.getElementById('tense-tooltip').classList.remove('visible');
+  }, 200);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.key>='1'&&e.key<='4'){const i=parseInt(e.key)-1;const b=document.querySelectorAll('.choice-btn');if(b[i]&&!state.answered)selectAnswer(i)}
+  if((e.key==='Enter'||e.key===' ')&&state.answered){e.preventDefault();nextCard()}
+});
+
+init();
+</script>
+</body>
+</html>
