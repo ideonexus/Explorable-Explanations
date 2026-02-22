@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgotten Depths</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏰</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -11,6 +12,7 @@
             --parchment-dark: #d4c4a0;
             --ink: #2a1810;
             --blood: #8b0000;
+            --combat: #ff4f4f;
             --gold: #d4af37;
             --gold-bright: #ffd700;
             --dungeon-bg: #1a1a1a;
@@ -95,10 +97,10 @@
         .cell-content.small { font-size: 1rem; opacity: 0.6; }
         .party-marker { color: var(--gold); animation: partyGlow 1.5s infinite; font-size: 1.5rem; }
         @keyframes partyGlow { 0%, 100% { text-shadow: 0 0 5px var(--gold); } 50% { text-shadow: 0 0 15px var(--gold), 0 0 25px var(--gold); } }
-        .combat-log { height: 160px; background: rgba(0,0,0,0.7); border: 2px solid var(--dungeon-wall); border-radius: 5px; padding: 10px; overflow-y: auto; font-family: 'Crimson Text', serif; font-size: 0.85rem; margin-top: 15px; }
-        .log-entry { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.3s ease; }
+        .combat-log { height: 250px; background: rgba(0,0,0,0.7); border: 2px solid var(--dungeon-wall); border-radius: 5px; padding: 10px; overflow-y: auto; font-family: 'Crimson Text', serif; font-size: 0.85rem; margin-top: 15px; }
+        .log-entry { font-size: 1.5em; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-        .log-entry.combat { color: var(--blood); }
+        .log-entry.combat { color: var(--combat); }
         .log-entry.treasure { color: var(--gold-bright); }
         .log-entry.info { color: var(--parchment); }
         .log-entry.success { color: var(--health-green); }
@@ -112,6 +114,9 @@
         .class-selection { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
         .class-option { background: rgba(244, 228, 188, 0.05); border: 2px solid var(--parchment-dark); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.3s ease; }
         .class-option:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); }
+        .char-reroll { font-family: 'MedievalSharp', cursive; font-size: 0.8rem; color: var(--gold); background: rgba(212, 175, 55, 0.15); padding: 2px 6px; border-radius: 3px; display: inline-block; }
+        .char-reroll { font-family: 'MedievalSharp', cursive; font-size: 0.8rem; color: var(--gold); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.3s ease; }
+        .char-reroll:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); }
         .class-name { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); margin-bottom: 4px; }
         .class-desc { font-size: 0.8rem; color: var(--parchment-dark); font-style: italic; }
         .class-bonus { font-size: 0.75rem; color: var(--health-green); margin-top: 4px; }
@@ -163,7 +168,7 @@
         .fountain-choice { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
         .combat-sidebar { width: 200px; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px; max-height: 320px; overflow-y: auto; }
         .combat-sidebar-title { font-family: 'Cinzel', serif; color: var(--gold); margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; }
-        .combat-log-mini .log-entry { padding: 2px 0; font-size: 0.65rem; }
+        .combat-log-mini .log-entry { font-size: 0.9rem; padding: 2px 0; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
         ::-webkit-scrollbar-thumb { background: var(--dungeon-wall); border-radius: 4px; }
@@ -201,6 +206,7 @@
                         <option value="medium" selected>Medium</option>
                         <option value="hard">Hard</option>
                         <option value="extreme">Extreme</option>
+                        <option value="nightmare">Nightmare</option>
                     </select>
                     <button class="btn danger" id="new-game-btn">⚰ New Game</button>
                 </div>
@@ -234,21 +240,26 @@
     <script>
 const GRID_SIZE = 11;
 const CLASSES = {
-    warrior: { name: 'Warrior', desc: 'Master of arms and armor', bonus: '+2 ATK, +1 DEF, +5 HP', hpBonus: 5, attackBonus: 2, defenseBonus: 1, initiativeBonus: 0, icon: '⚔️' },
-    cleric: { name: 'Cleric', desc: 'Holy servant who mends wounds', bonus: '+1 ATK, +1 DEF, Heal', hpBonus: 2, attackBonus: 1, defenseBonus: 1, initiativeBonus: 0, canHeal: true, icon: '✝️' },
-    rogue: { name: 'Rogue', desc: 'Strikes from shadows', bonus: '+3 ATK, Backstab, +Gold', hpBonus: 0, attackBonus: 3, defenseBonus: 0, initiativeBonus: 2, backstab: true, goldBonus: 1.5, icon: '🗡️' },
-    mage: { name: 'Mage', desc: 'Wielder of arcane power', bonus: '+4 ATK (INT), -1 DEF', hpBonus: -2, attackBonus: 4, defenseBonus: -1, initiativeBonus: 0, magic: true, icon: '🔮' },
-    ranger: { name: 'Ranger', desc: 'Skilled hunter', bonus: '+2 ATK, +3 Initiative', hpBonus: 1, attackBonus: 2, defenseBonus: 0, initiativeBonus: 3, icon: '🏹' },
-    barbarian: { name: 'Barbarian', desc: 'Fierce berserker', bonus: '+3 ATK, +8 HP, -2 DEF', hpBonus: 8, attackBonus: 3, defenseBonus: -2, initiativeBonus: 1, icon: '🪓' }
+    fighter: { name: 'Fighter', desc: 'Master of arms and armor', bonus: 'd8 DMG, +3 ATK, +1 DEF, +5 HP, Multi-Attack', damagedie: 8, hpBonus: 5, attackBonus: 3, defenseBonus: 1, initiativeBonus: 0, numAttacks: 1, multiatk: true, icon: '⚔️' },
+    cleric: { name: 'Cleric', desc: 'Holy servant', bonus: 'd8 DMG, +1 ATK, +1 DEF, Heal (WIS)', damagedie: 8, hpBonus: 2, attackBonus: 1, defenseBonus: 1, initiativeBonus: 0, numAttacks: 1, canHeal: true, icon: '✝️' },
+    rogue: { name: 'Rogue', desc: 'Strikes from shadows', bonus: 'd6 DMG, +3 ATK (DEX), Backstab, Disarm Trap, x2 Gold', damagedie: 6, hpBonus: 0, attackBonus: 3, defenseBonus: 0, initiativeBonus: 2, numAttacks: 1, backstab: true, disarmtrap: true, dexatk: true, goldBonus: 2, icon: '🗡️' },
+    mage: { name: 'Mage', desc: 'Wielder of arcane power', bonus: 'd4 DMG + INT, Auto Hits, -2 DEF, Multi-Attack', damagedie: 4, hpBonus: -2, attackBonus: 0, defenseBonus: -2, initiativeBonus: 0, numAttacks: 1, magic: true, icon: '🔮' },
+    ranger: { name: 'Ranger', desc: 'Skilled hunter', bonus: 'd6 DMG, +2 ATK (DEX), +3 Init, Disarm Trap, Dual Wield, Multi-Attack', damagedie: 6, hpBonus: 0, attackBonus: 2, defenseBonus: 0, initiativeBonus: 3, numAttacks: 2, disarmtrap: true, dexatk: true, dualwield: true, multiatk: true, icon: '🏹' },
+    barbarian: { name: 'Barbarian', desc: 'Fierce berserker', bonus: 'd10 DMG, +3 ATK, +8 HP, -3 DEF, Rage, Multi-Attack, Tank', damagedie: 10, hpBonus: 8, attackBonus: 3, defenseBonus: -3, initiativeBonus: 1, numAttacks: 1, rage: true, multiatk: true, tank: true, icon: '🪓' },
+    paladin: { name: 'Paladin', desc: 'Valorous knight', bonus: 'd8 DMG, +6 HP, +3 DEF, -2 Init, Heal (CHA), Tank', damagedie: 8, hpBonus: 6, attackBonus: 0, defenseBonus: 3, initiativeBonus: -2, numAttacks: 1, canHeal: true, tank: true, icon: '🛡️' },
+    druid: { name: 'Druid', desc: 'One with nature', bonus: 'd6 DMG, +4 HP, +4 DEF, Entangle (WIS)', damagedie: 6, hpBonus: 4, attackBonus: 0, defenseBonus: 4, initiativeBonus: 0, numAttacks: 1, entangle: true, icon: '🍃' }
 };
 const ENEMIES = [
-    { name: '"Will-o-the-wisp', icon: '💥', baseHp: 1, baseAttack: 1, baseDef: 0, baseGold: 3, floorMin: 1, baseInit: 0 },
+    { name: 'Will-o-the-wisp', icon: '💥', baseHp: 1, baseAttack: 1, baseDef: 0, baseGold: 3, floorMin: 1, baseInit: 0 },
+    { name: 'Fairy', icon: '🧚', baseHp: 1, baseAttack: 1, baseDef: 2, baseGold: 3, floorMin: 1, baseInit: 4 },
     { name: 'Bat', icon: '🦇', baseHp: 4, baseAttack: 1, baseDef: 0, baseGold: 3, floorMin: 1, baseInit: 3 },
     { name: 'Goblin', icon: '😈', baseHp: 8, baseAttack: 2, baseDef: 0, baseGold: 5, floorMin: 1, baseInit: 2 },
     { name: 'Skeleton', icon: '💀', baseHp: 10, baseAttack: 3, baseDef: 1, baseGold: 8, floorMin: 1, baseInit: 0 },
     { name: 'Giant Rat', icon: '🐀', baseHp: 5, baseAttack: 2, baseDef: 0, baseGold: 3, floorMin: 1, baseInit: 3 },
+    { name: 'Giant Beetle', icon: '🪳', baseHp: 10, baseAttack: 2, baseDef: 4, baseGold: 15, floorMin: 2, baseInit: -1 },
     { name: 'Orc', icon: '👹', baseHp: 15, baseAttack: 4, baseDef: 2, baseGold: 15, floorMin: 2, baseInit: 1 },
     { name: 'Giant Lizard', icon: '🐊', baseHp: 10, baseAttack: 5, baseDef: 2, baseGold: 15, floorMin: 2, baseInit: 2 },
+    { name: 'Stirge', icon: '🦟', baseHp: 2, baseAttack: 3, baseDef: 2, baseGold: 10, floorMin: 2, baseInit: 3 },
     { name: 'Zombie', icon: '🧟', baseHp: 18, baseAttack: 3, baseDef: 1, baseGold: 10, floorMin: 2, baseInit: -2 },
     { name: 'Spider', icon: '🕷️', baseHp: 12, baseAttack: 5, baseDef: 0, baseGold: 12, floorMin: 2, baseInit: 4 },
     { name: 'Wraith', icon: '👻', baseHp: 20, baseAttack: 6, baseDef: 3, baseGold: 25, floorMin: 3, baseInit: 2 },
@@ -256,6 +267,7 @@ const ENEMIES = [
     { name: 'Vampire', icon: '🧛🏻‍♀️', baseHp: 25, baseAttack: 6, baseDef: 4, baseGold: 25, floorMin: 3, baseInit: 3 },
     { name: 'Troll', icon: '🧌', baseHp: 30, baseAttack: 7, baseDef: 2, baseGold: 35, floorMin: 4, baseInit: 1 },
     { name: 'Ghoul', icon: '😱', baseHp: 40, baseAttack: 6, baseDef: 1, baseGold: 35, floorMin: 4, baseInit: 0 },
+    { name: 'Owlbear', icon: '🦉', baseHp: 60, baseAttack: 10, baseDef: 3, baseGold: 45, floorMin: 4, baseInit: 1 },
     { name: 'Water Elemental', icon: '🌊', baseHp: 30, baseAttack: 10, baseDef: 5, baseGold: 35, floorMin: 4, baseInit: 2 },
     { name: 'Minotaur', icon: '🦬', baseHp: 35, baseAttack: 8, baseDef: 4, baseGold: 50, floorMin: 5, baseInit: 1 },
     { name: 'Beholder', icon: '👁️', baseHp: 40, baseAttack: 10, baseDef: 2, baseGold: 50, floorMin: 5, baseInit: 0 },
@@ -268,58 +280,90 @@ const ENEMIES = [
     { name: 'Dragon', icon: '🐲', baseHp: 55, baseAttack: 25, baseDef: 10, baseGold: 150, floorMin: 7, baseInit: 5 }
 ];
 const LOOT_TYPES = [
-    { name: 'Sword', stat: 'attack', slots: ['warrior', 'barbarian', 'ranger'] },
-    { name: 'Staff', stat: 'attack', slots: ['mage', 'cleric'] },
+    { name: 'Sword', stat: 'attack', slots: ['fighter', 'barbarian', 'ranger'] },
+    { name: 'Warhammer', stat: 'attack', slots: ['cleric','paladin'] },
+    { name: 'Staff', stat: 'attack', slots: ['mage', 'druid'] },
     { name: 'Dagger', stat: 'attack', slots: ['rogue'] },
-    { name: 'Shield', stat: 'defense', slots: ['warrior', 'cleric'] },
-    { name: 'Cloak', stat: 'defense', slots: ['rogue', 'ranger', 'mage'] },
-    { name: 'Amulet', stat: 'maxHp', slots: ['all'] },
-    { name: 'Ring', stat: 'initiative', slots: ['all'] }
+    { name: 'Shield', stat: 'defense', slots: ['fighter', 'cleric','paladin'] },
+    { name: 'Cloak', stat: 'defense', slots: ['rogue', 'ranger', 'mage','druid','paladin'] },
+    { name: 'Amulet (HP)', stat: 'maxHp', slots: ['all'] },
+    { name: 'Ring (Init)', stat: 'initiative', slots: ['all'] },
+    { name: 'Ring (STR)', stat: 'STR', slots: ['all'] },
+    { name: 'Ring (DEX)', stat: 'DEX', slots: ['all'] },
+    { name: 'Ring (INT)', stat: 'INT', slots: ['all'] },
+    { name: 'Ring (WIS)', stat: 'WIS', slots: ['all'] },
+    { name: 'Ring (CON)', stat: 'CON', slots: ['all'] },
+    { name: 'Ring (CHA)', stat: 'CHA', slots: ['all'] }
 ];
-const ROOM_TYPES = ['empty', 'enemy', 'enemy', 'enemy', 'treasure', 'trap', 'fountain', 'potion'];
+const ROOM_TYPES = ['empty', 'enemy', 'enemy', 'enemy', 'treasure', 'treasure', 'trap', 'fountain', 'potion', 'potion'];
 const NAMES = ['Aldric', 'Brynn', 'Cedric', 'Daria', 'Elric', 'Fiona', 'Gareth', 'Helena', 'Ivar', 'Jasmine', 'Kira', 'Lyra'];
 
 let gameState = {
     characters: [], grid: [], partyPosition: { x: 5, y: 10 },
     gold: 0, potions: 0, rests: 2, totalXP: 0, floor: 1,
     roomsExplored: 0, gamePhase: 'class-selection', currentCharIndex: 0, currentCombat: null,
-    pendingLoot: [], exitFound: false, turnBased: false, difficulty: 'medium'
+    pendingLoot: [], exitFound: false, turnBased: false, difficulty: 'medium', combatRound: 1
 };
 
-const DIFFICULTY_MULTIPLIERS = { easy: 3.0, medium: 5.0, hard: 8.0, extreme: 13.0 };
+const DIFFICULTY_MULTIPLIERS = { easy: 1.0, medium: 2.0, hard: 3.0, extreme: 5.0, nightmare: 8.0 };
 
 function roll(s) { return Math.floor(Math.random() * s) + 1; }
 function rollD(s) { const r = roll(s); return { value: r, html: `<span class="dice-roll">d${s}:${r}</span>` }; }
 function rollStat() { const r = [roll(6), roll(6), roll(6), roll(6)].sort((a, b) => b - a); return r[0] + r[1] + r[2]; }
-function getMod(s) { return Math.floor((s - 10) / 2); }
+function getMod(s) { 
+    return Math.floor((s - 10) / 2); }
+function getModDisplay(s) { 
+    let mod = Math.floor((s - 10) / 2);
+    return (mod == 0) ? '' : (mod > 0) ? '(+' + mod + ')' : '(' + mod + ')';
+}
 function shuffle(a) { const arr = [...a]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
-function generateCharacter(idx) {
+function generateCharacter(idx, overideIdx = false) {
+    let nameIdx = (overideIdx) ? 4 : idx;
     const usedNames = gameState.characters.map(c => c.name);
-    const name = NAMES.filter(n => !usedNames.includes(n))[Math.floor(Math.random() * (NAMES.length - idx))];
-    return { id: idx, name, class: null, level: 1, xp: 0, xpToLevel: 100, stats: { str: rollStat(), dex: rollStat(), con: rollStat(), int: rollStat(), wis: rollStat(), cha: rollStat() }, baseMaxHp: 0, maxHp: 0, hp: 0, baseAttack: 0, attack: 0, baseDefense: 0, defense: 0, baseInitiative: 0, initiative: 0, alive: true, isParty: true, equipment: [] };
+    const name = NAMES.filter(n => !usedNames.includes(n))[Math.floor(Math.random() * (NAMES.length - nameIdx))];
+    const baseStats = { str: rollStat(), dex: rollStat(), con: rollStat(), int: rollStat(), wis: rollStat(), cha: rollStat() }
+    return { id: idx, name, baseStats, class: null, level: 1, xp: 0, xpToLevel: 100, stats: { str: baseStats.str, dex: baseStats.dex, con: baseStats.con, int: baseStats.int, wis: baseStats.wis, cha: baseStats.cha }, baseMaxHp: 0, maxHp: 0, hp: 0, baseAttack: 0, attack: 0, baseDefense: 0, defense: 0, baseInitiative: 0, initiative: 0, numAttacks: 0, alive: true, isParty: true, equipment: [] };
 }
 
 function applyClass(char, className) {
     const cls = CLASSES[className];
-    char.class = className; char.classData = cls;
+    char.class = className; 
+    char.classData = cls;
     const conMod = getMod(char.stats.con);
-    char.baseMaxHp = 10 + conMod + cls.hpBonus; char.maxHp = char.baseMaxHp; char.hp = char.maxHp;
-    char.baseAttack = Math.max(1, (cls.magic ? getMod(char.stats.int) : getMod(char.stats.str)) + cls.attackBonus);
+    char.baseMaxHp = 10 + conMod + cls.hpBonus; char.maxHp = char.baseMaxHp; 
+    char.hp = char.maxHp;
+    char.baseAttack = (cls.magic ? getMod(char.stats.int) : (cls.dexatk ? getMod(char.stats.dex) : getMod(char.stats.str))) + cls.attackBonus;
     char.attack = char.baseAttack;
     char.baseDefense = Math.max(0, getMod(char.stats.dex) + cls.defenseBonus);
     char.defense = char.baseDefense;
     char.baseInitiative = getMod(char.stats.dex) + cls.initiativeBonus;
     char.initiative = char.baseInitiative;
+    char.numAttacks = cls.numAttacks;
 }
 
 function recalcStats(char) {
-    char.maxHp = char.baseMaxHp; char.attack = char.baseAttack; char.defense = char.baseDefense; char.initiative = char.baseInitiative;
+    char.maxHp = char.baseMaxHp; 
+    char.attack = char.baseAttack; 
+    char.defense = char.baseDefense; 
+    char.initiative = char.baseInitiative;
+    char.stats.str = char.baseStats.str;
+    char.stats.dex = char.baseStats.dex;
+    char.stats.int = char.baseStats.int;
+    char.stats.wis = char.baseStats.wis;
+    char.stats.con = char.baseStats.con;
+    char.stats.cha = char.baseStats.cha;
     for (const eq of char.equipment) {
         if (eq.stat === 'maxHp') char.maxHp += eq.bonus;
         else if (eq.stat === 'attack') char.attack += eq.bonus;
         else if (eq.stat === 'defense') char.defense += eq.bonus;
         else if (eq.stat === 'initiative') char.initiative += eq.bonus;
+        else if (eq.stat === 'STR') char.stats.str += eq.bonus;
+        else if (eq.stat === 'DEX') char.stats.dex += eq.bonus;
+        else if (eq.stat === 'INT') char.stats.int += eq.bonus;
+        else if (eq.stat === 'WIS') char.stats.wis += eq.bonus;
+        else if (eq.stat === 'CON') char.stats.con += eq.bonus;
+        else if (eq.stat === 'CHA') char.stats.cha += eq.bonus;
     }
     if (char.hp > char.maxHp) char.hp = char.maxHp;
 }
@@ -435,10 +479,10 @@ function generateRoomContent(roomType) {
         case 'enemy':
             const avail = ENEMIES.filter(e => e.floorMin <= f);
             const enemy = avail[Math.floor(Math.random() * avail.length)];
-            const count = Math.min(1 + Math.floor(f / 2), 4);
+            const count = Math.min(1+Math.floor(Math.random() * Math.floor(f)),3);
             return { type: 'enemy', enemies: Array(count).fill(null).map((_, i) => {
-                const baseHp = enemy.baseHp + (f - 1) * 4;
-                const baseAtk = enemy.baseAttack + Math.floor((f - 1) * 1.5);
+                const baseHp = enemy.baseHp + Math.floor((f - 1) * 0.5);
+                const baseAtk = enemy.baseAttack + Math.floor((f - 1) * 0.5);
                 const baseDef = enemy.baseDef + Math.floor((f - 1) * 0.5);
                 return { 
                     ...enemy, 
@@ -447,10 +491,11 @@ function generateRoomContent(roomType) {
                     maxHp: Math.floor(baseHp * diffMult), 
                     attack: Math.floor(baseAtk * diffMult), 
                     defense: Math.floor(baseDef * diffMult), 
-                    gold: Math.floor(enemy.baseGold * (1 + (f - 1) * 0.5)), 
+                    gold: Math.floor(enemy.baseGold * f), //(enemy.baseGold * (1 + (f - 1) * 0.5)), 
                     initiative: enemy.baseInit, 
                     alive: true, 
-                    isParty: false 
+                    isParty: false,
+                    status: "ready"
                 };
             }) };
         case 'treasure':
@@ -478,18 +523,18 @@ function renderCharacterPanel() {
             <div class="char-header"><div class="char-name">${icon} ${c.name}</div><div class="char-class">${clsName}</div></div>
             <div class="char-level">Level ${c.level}</div>
             <div class="stat-row">
-                <div class="stat"><div class="stat-label">STR</div><div class="stat-value">${c.stats.str}</div></div>
-                <div class="stat"><div class="stat-label">DEX</div><div class="stat-value">${c.stats.dex}</div></div>
-                <div class="stat"><div class="stat-label">CON</div><div class="stat-value">${c.stats.con}</div></div>
+                <div class="stat"><div class="stat-label">STR</div><div class="stat-value">${c.stats.str}  ${getModDisplay(c.stats.str)}</div></div>
+                <div class="stat"><div class="stat-label">DEX</div><div class="stat-value">${c.stats.dex}  ${getModDisplay(c.stats.dex)}</div></div>
+                <div class="stat"><div class="stat-label">CON</div><div class="stat-value">${c.stats.con}  ${getModDisplay(c.stats.con)}</div></div>
             </div>
             <div class="stat-row">
-                <div class="stat"><div class="stat-label">INT</div><div class="stat-value">${c.stats.int}</div></div>
-                <div class="stat"><div class="stat-label">WIS</div><div class="stat-value">${c.stats.wis}</div></div>
-                <div class="stat"><div class="stat-label">CHA</div><div class="stat-value">${c.stats.cha}</div></div>
+                <div class="stat"><div class="stat-label">INT</div><div class="stat-value">${c.stats.int}  ${getModDisplay(c.stats.int)}</div></div>
+                <div class="stat"><div class="stat-label">WIS</div><div class="stat-value">${c.stats.wis}  ${getModDisplay(c.stats.wis)}</div></div>
+                <div class="stat"><div class="stat-label">CHA</div><div class="stat-value">${c.stats.cha}  ${getModDisplay(c.stats.cha)}</div></div>
             </div>
             <div class="bar-container"><div class="bar"><div class="bar-fill health" style="width:${(c.hp / c.maxHp) * 100}%"></div><div class="bar-text">HP: ${c.hp}/${c.maxHp}${hpBuffed ? ' ★' : ''}</div></div></div>
             <div class="bar-container"><div class="bar"><div class="bar-fill xp" style="width:${(c.xp / c.xpToLevel) * 100}%"></div><div class="bar-text">XP: ${c.xp}/${c.xpToLevel}</div></div></div>
-            <div class="stat-row"><div class="stat"><div class="stat-label">ATK</div><div class="stat-value ${atkBuffed ? 'buffed' : ''}">${c.attack}</div></div><div class="stat"><div class="stat-label">DEF</div><div class="stat-value ${defBuffed ? 'buffed' : ''}">${c.defense}</div></div><div class="stat"><div class="stat-label">INIT</div><div class="stat-value ${initBuffed ? 'buffed' : ''}">${c.initiative >= 0 ? '+' : ''}${c.initiative}</div></div></div>
+            <div class="stat-row"><div class="stat"><div class="stat-label">ATK</div><div class="stat-value ${atkBuffed ? 'buffed' : ''}">${c.attack}*${c.numAttacks}</div></div><div class="stat"><div class="stat-label">DEF</div><div class="stat-value ${defBuffed ? 'buffed' : ''}">${c.defense}</div></div><div class="stat"><div class="stat-label">INIT</div><div class="stat-value ${initBuffed ? 'buffed' : ''}">${c.initiative >= 0 ? '+' : ''}${c.initiative}</div></div></div>
             ${equipHtml}
         </div>`;
     }
@@ -712,16 +757,7 @@ function useRest() {
     for (const c of gameState.characters.filter(ch => ch.alive)) c.hp = c.maxHp;
     if (gameState.gold > 0) {
         const xp = gameState.gold;
-        gameState.totalXP += xp;
-        const alive = gameState.characters.filter(c => c.alive);
-        for (const c of alive) {
-            c.xp += Math.floor(xp / alive.length);
-            while (c.xp >= c.xpToLevel) {
-                c.xp -= c.xpToLevel; c.level++; c.xpToLevel = Math.floor(c.xpToLevel * 1.5);
-                c.baseMaxHp += 5 + getMod(c.stats.con); c.baseAttack++; recalcStats(c); c.hp = c.maxHp;
-                log(`${c.name} reached level ${c.level}!`, 'success');
-            }
-        }
+        awardXP(xp);
         log(`Rested! Full HP restored. ${xp} gold converted to XP.`, 'success');
         gameState.gold = 0;
     } else {
@@ -733,6 +769,7 @@ function useRest() {
 
 function startCombat(cell) {
     gameState.gamePhase = 'combat';
+    gameState.combatRound = 1;
     const combatants = [];
     for (const c of gameState.characters.filter(ch => ch.alive)) {
         const r = roll(20), t = r + c.initiative;
@@ -747,6 +784,7 @@ function startCombat(cell) {
     combatants.sort((a, b) => b.totalInit - a.totalInit);
     gameState.currentCombat = { cell, enemies: cell.content.enemies, combatants, turnIdx: 0, round: 1, log: [], awaitTarget: false, roundDone: false };
     log(`Combat! ${cell.content.enemies.map(e => e.name).join(', ')}!`, 'combat');
+    log(`*** ROUND ${gameState.combatRound} ***`, 'info');
     showCombatModal(); processNextTurn();
 }
 
@@ -761,7 +799,10 @@ function processNextTurn() {
         const comb = c.combatants[c.turnIdx];
         if (comb.type === 'party') { const ch = gameState.characters.find(x => x.id === comb.id); if (ch && ch.alive) curr = { ...comb, ...ch }; }
         else { const en = c.enemies.find(x => x.id === comb.id); if (en && en.alive) curr = { ...comb, ...en }; }
-        if (!curr) { c.turnIdx = (c.turnIdx + 1) % c.combatants.length; if (c.turnIdx === 0) { c.round++; c.roundDone = true; } }
+        if (!curr) { c.turnIdx = (c.turnIdx + 1) % c.combatants.length; if (c.turnIdx === 0) { 
+            c.round++; c.roundDone = true; gameState.combatRound++;
+            log(`*** ROUND ${gameState.combatRound} ***`, 'info');
+         } }
         att++;
     }
     if (!curr) { endCombat(liveEnemy.length === 0); return; }
@@ -781,48 +822,105 @@ function processNextTurn() {
     else { c.awaitTarget = false; showCombatModal(); setTimeout(() => enemyTurn(curr), 700); }
 }
 
+function executeAttack(char) {
+    const c = gameState.currentCombat;
+    for (let i=0; i<char.numAttacks;i++)
+    {
+        let liveEnemies = c.enemies.filter(e => e.alive);
+        if (liveEnemies.length === 0) { endCombat(true); return; }
+        
+        // Target top-most (first) living enemy
+        let target = liveEnemies[0];
+        let unRestrainedEnemies = liveEnemies.filter(e => e.status !== 'restrained');
+
+        let ac = 10 + target.defense;
+        if (target.status === 'restrained') ac = ac/2;
+
+        if (char.classData && char.classData.entangle && unRestrainedEnemies.length > 0) {
+            const ent = rollD(20);
+            const entTot = ent.value + getMod(char.stats.wis) + char.level;
+            combatLog(`${char.name} attempts to entangle ${target.name}: (${ent.html}+${getMod(char.stats.wis)}+${char.level})*2=${entTot} vs AC ${ac}`, 'combat');
+            if (entTot >= ac) {
+                unRestrainedEnemies[0].status = 'restrained';
+                combatLog(`ENTANGLED!`, 'success');}
+            else {combatLog('FAILED!', 'info');}
+        } else {
+            let atk = rollD(20);
+            let total = atk.value + char.attack;
+            let backstab = char.classData && char.classData.backstab && roll(6) >= 5;
+            let backstabMultiplier = char.level >= 13 ? 5 : Math.max(2, Math.floor((char.level - 1) / 4) + 2); 
+            
+            combatLog(`${char.name} attacks ${target.name}: ${atk.html}+${char.attack}=${total} vs AC ${ac}`, 'combat');
+            
+            const wounded = gameState.characters.filter(ch => ch.alive && ch.hp < ch.maxHp);
+            const dead = gameState.characters.filter(ch => !ch.alive);
+            let dmgMultiplier = 1;
+            if (char.classData.rage && (char.hp < char.maxHp || dead.length !== 0)) {
+                if (dead.length > 0)
+                    dmgMultiplier = 3;
+                else
+                    dmgMultiplier = 2;
+            }
+
+            if (atk.value === 20) {
+                const d1 = rollD(char.classData.damagedie);
+                let totalDmg = (d1.value + char.attack)*2;
+                if (char.classData && char.classData.rage) {
+                    totalDmg *= dmgMultiplier;
+                    combatLog(`CRIT! ((${d1.html}+${char.attack})*2)*${dmgMultiplier}=${totalDmg}`, 'success');
+                }
+                else
+                    combatLog(`CRIT! (${d1.html}+${char.attack})*2=${totalDmg}`, 'success');
+                target.hp -= totalDmg;
+            // Magic Missile Always Hits
+            } else if (total >= ac || (char.classData && char.classData.magic)) {
+                const dmg = rollD(char.classData.damagedie);
+                let totalDmg = Math.max(1, dmg.value + char.attack);
+                if (backstab) { 
+                    totalDmg *= backstabMultiplier; 
+                    combatLog(`BACKSTAB! (${dmg.html}+${char.attack})×2=${totalDmg}`, 'success'); }
+                else if (char.classData && char.classData.magic) {
+                    combatLog(`MAGIC MISSILE! (${dmg.html}+${char.attack})*${char.level}=${totalDmg}`, 'success'); 
+                }
+                else if (char.classData && char.classData.rage && dmgMultiplier > 1) {
+                    totalDmg *= dmgMultiplier;
+                    combatLog(`RAGE! (${dmg.html}+${char.attack})*${dmgMultiplier}=${totalDmg}`, 'danger');
+                }
+                else 
+                    combatLog(`HIT! ${dmg.html}+${char.attack}=${totalDmg}`, 'success');
+                target.hp -= totalDmg;
+            } else combatLog('MISS!', 'info');
+            
+            if (target.hp <= 0) { target.alive = false; target.hp = 0; combatLog(`${target.name} slain!`, 'success'); }
+            
+            // Cleric/Paladin heal check
+            if (char.classData && char.classData.canHeal) {
+                if (wounded.length > 0 && roll(6) >= 4) {
+                    let healMod = ((char.class == "cleric") ? getMod(char.stats.wis) : getMod(char.stats.cha)) + char.level;
+                    const ht = wounded.reduce((a, b) => a.hp < b.hp ? a : b);
+                    
+                    if (char.class == "cleric") {
+                        var hr = rollD(6);
+                        var amt = (hr.value + healMod) * char.level;
+                        ht.hp = Math.min(ht.maxHp, ht.hp + amt);
+                        combatLog(`${char.name} heals (${ht.name}: ${hr.html}+${healMod})*${char.level}=${amt}`, 'success');
+                    } else { //Paladin
+                        var amt = (2 + healMod) * char.level;
+                        ht.hp = Math.min(ht.maxHp, ht.hp + amt);
+                        combatLog(`${char.name} heals ${ht.name}: (2+${healMod})*${char.level}=${amt}`, 'success');
+                    }
+                }
+            }
+        }
+    }
+}
+
 function autoPartyAttack(combatant) {
     const c = gameState.currentCombat;
     if (!c) return;
     const char = gameState.characters.find(ch => ch.id === combatant.id);
     if (!char || !char.alive) { advanceTurn(); return; }
-    
-    const liveEnemies = c.enemies.filter(e => e.alive);
-    if (liveEnemies.length === 0) { endCombat(true); return; }
-    
-    // Target top-most (first) living enemy
-    const target = liveEnemies[0];
-    
-    const atk = rollD(20);
-    let total = atk.value + char.attack, ac = 10 + target.defense;
-    let backstab = char.classData && char.classData.backstab && roll(6) >= 5;
-    combatLog(`${char.name} attacks ${target.name}: ${atk.html}+${char.attack}=${total} vs AC ${ac}`, 'combat');
-    
-    if (atk.value === 20) {
-        const d1 = rollD(6), d2 = rollD(6), totalDmg = d1.value + d2.value + char.attack;
-        combatLog(`CRIT! ${d1.html}+${d2.html}+${char.attack}=${totalDmg}`, 'success');
-        target.hp -= totalDmg;
-    } else if (total >= ac) {
-        const dmg = rollD(6);
-        let totalDmg = Math.max(1, dmg.value + char.attack);
-        if (backstab) { totalDmg *= 2; combatLog(`BACKSTAB! (${dmg.html}+${char.attack})×2=${totalDmg}`, 'success'); }
-        else combatLog(`HIT! ${dmg.html}+${char.attack}=${totalDmg}`, 'success');
-        target.hp -= totalDmg;
-    } else combatLog('MISS!', 'info');
-    
-    if (target.hp <= 0) { target.alive = false; target.hp = 0; combatLog(`${target.name} slain!`, 'success'); }
-    
-    // Cleric heal check
-    if (char.classData && char.classData.canHeal) {
-        const wounded = gameState.characters.filter(ch => ch.alive && ch.hp < ch.maxHp);
-        if (wounded.length > 0 && roll(6) >= 4) {
-            const ht = wounded.reduce((a, b) => a.hp < b.hp ? a : b);
-            const hr = rollD(6), amt = hr.value + getMod(char.stats.wis);
-            ht.hp = Math.min(ht.maxHp, ht.hp + amt);
-            combatLog(`${char.name} heals ${ht.name}: ${hr.html}+${getMod(char.stats.wis)}=${amt}`, 'success');
-        }
-    }
-    
+    executeAttack(char);
     advanceTurn();
 }
 
@@ -830,15 +928,21 @@ function enemyTurn(enemy) {
     const c = gameState.currentCombat;
     const targets = gameState.characters.filter(ch => ch.alive);
     if (targets.length === 0) { endCombat(false); return; }
-    const target = targets[Math.floor(Math.random() * targets.length)];
-    const atk = rollD(20), total = atk.value + enemy.attack, ac = 10 + target.defense;
-    combatLog(`${enemy.name} attacks ${target.name}: ${atk.html}+${enemy.attack}=${total} vs AC ${ac}`, 'combat');
-    if (total >= ac) {
-        const dmg = rollD(8), totalDmg = Math.max(1, dmg.value + Math.floor(enemy.attack / 2));
-        target.hp -= totalDmg;
-        combatLog(`HIT! ${dmg.html}+${Math.floor(enemy.attack / 2)}=${totalDmg} dmg`, 'danger');
-        if (target.hp <= 0) { target.alive = false; target.hp = 0; combatLog(`${target.name} falls!`, 'danger'); }
-    } else combatLog('MISS!', 'info');
+    if (enemy.status === 'ready') {
+        const tanks = targets.filter(ch => ch.classData.tank);
+        const target = (tanks.length > 0) ? tanks[Math.floor(Math.random() * tanks.length)] : targets[Math.floor(Math.random() * targets.length)];
+        const atk = rollD(20), total = atk.value + enemy.attack, ac = 10 + target.defense;
+        combatLog(`${enemy.name} attacks ${target.name}: ${atk.html}+${enemy.attack}=${total} vs AC ${ac}`, 'combat');
+        if (total >= ac) {
+            const dmg = rollD(8), totalDmg = Math.max(1, dmg.value + Math.floor(enemy.attack / 2));
+            target.hp -= totalDmg;
+            combatLog(`HIT! ${dmg.html}+${Math.floor(enemy.attack / 2)}=${totalDmg} dmg`, 'danger');
+            if (target.hp <= 0) { target.alive = false; target.hp = 0; combatLog(`${target.name} falls!`, 'danger'); }
+        } else combatLog('MISS!', 'info');
+    } else if (enemy.status === 'restrained') {
+        combatLog(`${enemy.name} loses turn due to being restrained.`, 'success');
+        enemy.status = 'ready';
+    }
     advanceTurn();
 }
 
@@ -849,39 +953,23 @@ function executePlayerAttack(targetId) {
     const target = c.enemies.find(e => e.id === targetId);
     if (!target || !target.alive) return;
     c.awaitTarget = false;
-    const atk = rollD(20);
-    let total = atk.value + char.attack, ac = 10 + target.defense;
-    let backstab = char.classData && char.classData.backstab && roll(6) >= 5;
-    combatLog(`${char.name} attacks ${target.name}: ${atk.html}+${char.attack}=${total} vs AC ${ac}`, 'combat');
-    if (atk.value === 20) {
-        const d1 = rollD(6), d2 = rollD(6), totalDmg = d1.value + d2.value + char.attack;
-        combatLog(`CRIT! ${d1.html}+${d2.html}+${char.attack}=${totalDmg}`, 'success');
-        target.hp -= totalDmg;
-    } else if (total >= ac) {
-        const dmg = rollD(6);
-        let totalDmg = Math.max(1, dmg.value + char.attack);
-        if (backstab) { totalDmg *= 2; combatLog(`BACKSTAB! (${dmg.html}+${char.attack})×2=${totalDmg}`, 'success'); }
-        else combatLog(`HIT! ${dmg.html}+${char.attack}=${totalDmg}`, 'success');
-        target.hp -= totalDmg;
-    } else combatLog('MISS!', 'info');
-    if (target.hp <= 0) { target.alive = false; target.hp = 0; combatLog(`${target.name} slain!`, 'success'); }
-    if (char.classData && char.classData.canHeal) {
-        const wounded = gameState.characters.filter(ch => ch.alive && ch.hp < ch.maxHp);
-        if (wounded.length > 0 && roll(6) >= 4) {
-            const ht = wounded.reduce((a, b) => a.hp < b.hp ? a : b);
-            const hr = rollD(6), amt = hr.value + getMod(char.stats.wis);
-            ht.hp = Math.min(ht.maxHp, ht.hp + amt);
-            combatLog(`${char.name} heals ${ht.name}: ${hr.html}+${getMod(char.stats.wis)}=${amt}`, 'success');
-        }
-    }
+    executeAttack(char);
     advanceTurn();
 }
 
 function advanceTurn() {
     const c = gameState.currentCombat;
-    c.turnIdx = (c.turnIdx + 1) % c.combatants.length;
-    if (c.turnIdx === 0) { c.round++; c.roundDone = true; showCombatModal(); }
-    else { renderCharacterPanel(); processNextTurn(); }
+    if (c !== null) {
+        c.turnIdx = (c.turnIdx + 1) % c.combatants.length;
+        if (c.turnIdx === 0) { 
+            c.round++; 
+            c.roundDone = true;
+            gameState.combatRound++;
+            log(`*** ROUND ${gameState.combatRound} ***`, 'info');
+            showCombatModal(); 
+        }
+        else { renderCharacterPanel(); processNextTurn(); }
+    }
 }
 
 function showCombatModal() {
@@ -951,6 +1039,28 @@ function attemptFlee() {
     }
 }
 
+function awardXP(xp) {
+    gameState.totalXP += xp;
+    const alive = gameState.characters.filter(c => c.alive);
+    for (const c of alive) {
+        c.xp += Math.ceil(xp / alive.length);
+        while (c.xp >= c.xpToLevel) {
+            c.xp -= c.xpToLevel; 
+            c.level++; 
+            c.xpToLevel = Math.floor(c.xpToLevel * 2);
+            c.baseMaxHp += 5 + getMod(c.stats.con); 
+            if (!c.classData.magic) c.baseAttack++;
+            if (c.classData.multiatk && c.level % 4 == 0) c.numAttacks++;
+            if (c.classData.dualwield && c.level % 4 == 0) c.numAttacks++;
+            if (c.classData.magic) c.numAttacks++;
+            recalcStats(c); 
+            c.hp = c.maxHp;
+
+            log(`${c.name} reached level ${c.level}!`, 'success');
+        }
+    }
+}
+
 function endCombat(victory) {
     document.getElementById('combat-modal').style.display = 'none';
     const c = gameState.currentCombat;
@@ -959,8 +1069,12 @@ function endCombat(victory) {
         const deadIcon = c.enemies[0]?.icon || '💀';
         c.cell.deadMonster = deadIcon;
         let gold = c.enemies.reduce((s, e) => s + e.gold, 0);
+        // Apply XP
+        let xp = c.enemies.reduce((s, e) => s + ((e.maxHp + e.baseHp)/2), 0);
+        awardXP(xp);
+        // Rogue's Increase Gold
         const rogues = gameState.characters.filter(ch => ch.alive && ch.classData?.goldBonus);
-        if (rogues.length > 0) gold = Math.floor(gold * rogues[0].classData.goldBonus);
+        if (rogues.length > 0) gold = Math.floor(gold * (rogues.length * rogues[0].classData.goldBonus));
         // Generate loot
         const loot = [];
         if (roll(100) <= 10 + gameState.floor * 8) {
@@ -1036,7 +1150,14 @@ function assignLoot(lootIdx, charId) {
     const char = gameState.characters.find(c => c.id === charId);
     if (!item || !char) return;
     
-    char.equipment.push(item);
+    let existingEquipment = char.equipment.filter(e => e.name === item.name);
+    if (existingEquipment.length === 0) {
+        char.equipment.push(item);
+    } else {
+        for (let i=0; i<item.bonus;i++) existingEquipment[0].bonus++;
+        existingEquipment[0].displayName = `+${existingEquipment[0].bonus} ${item.name}`;
+    }
+
     recalcStats(char);
     log(`${char.name} equipped ${item.displayName}!`, 'loot');
     
@@ -1065,13 +1186,28 @@ function closeTreasure() {
 }
 
 function handleTrap(dmg) {
-    const r = rollD(20);
-    log(`Trap! Save: ${r.html}`, 'danger');
-    for (const c of gameState.characters.filter(ch => ch.alive)) {
-        const save = r.value + getMod(c.stats.dex);
-        if (save >= 12) { const half = Math.floor(dmg / 2); c.hp -= half; log(`${c.name} dodges! ${half} dmg`, 'info'); }
-        else { c.hp -= dmg; log(`${c.name} takes ${dmg} dmg!`, 'danger'); }
-        if (c.hp <= 0) { c.alive = false; c.hp = 0; log(`${c.name} falls!`, 'danger'); }
+    let trapActive = true;
+    const d = rollD(20);
+    const dif = d.value + gameState.floor;
+    // Check for disarm traps
+    for (const c of gameState.characters.filter(ch => ch.alive && ch.classData.disarmtrap)) {
+        if (trapActive) {
+            const t = rollD(20);
+            const save = t.value + getMod(c.stats.dex) + c.level;
+            log(`${c.name} attempts to disarm: ${t.html}+${getMod(c.stats.dex)} + ${c.level} vs ${d.html} + ${gameState.floor}`, 'danger');
+            if (save >= dif) { trapActive = false; log(`${c.name} disarms the trap!`, 'success'); 
+            }
+        }
+    }
+    if (trapActive) {
+        const r = rollD(20);
+        log(`Trap! Save: ${r.html}`, 'danger');
+        for (const c of gameState.characters.filter(ch => ch.alive)) {
+            const save = r.value + getMod(c.stats.dex);
+            if (save >= 12) { const half = Math.floor(dmg / 2); c.hp -= half; log(`${c.name} dodges! ${half} dmg`, 'info'); }
+            else { c.hp -= dmg; log(`${c.name} takes ${dmg} dmg!`, 'danger'); }
+            if (c.hp <= 0) { c.alive = false; c.hp = 0; log(`${c.name} falls!`, 'danger'); }
+        }
     }
     if (gameState.characters.filter(ch => ch.alive).length === 0) showGameOver(false);
     renderCharacterPanel();
@@ -1120,9 +1256,15 @@ function renderClassSelection() {
     const c = gameState.characters[gameState.currentCharIndex];
     document.getElementById('class-selection-content').innerHTML = `
         <div class="char-preview"><div class="char-preview-name">${c.name} (${gameState.currentCharIndex + 1}/4)</div>
-        <div class="char-preview-stats"><div class="preview-stat"><div class="preview-stat-label">STR</div><div class="preview-stat-value">${c.stats.str}</div></div><div class="preview-stat"><div class="preview-stat-label">DEX</div><div class="preview-stat-value">${c.stats.dex}</div></div><div class="preview-stat"><div class="preview-stat-label">CON</div><div class="preview-stat-value">${c.stats.con}</div></div><div class="preview-stat"><div class="preview-stat-label">INT</div><div class="preview-stat-value">${c.stats.int}</div></div><div class="preview-stat"><div class="preview-stat-label">WIS</div><div class="preview-stat-value">${c.stats.wis}</div></div><div class="preview-stat"><div class="preview-stat-label">CHA</div><div class="preview-stat-value">${c.stats.cha}</div></div></div></div>
-        <p style="text-align:center;color:var(--parchment-dark);margin-bottom:12px">Choose class for ${c.name}:</p>
+
+        <div class="char-preview-stats"><div class="preview-stat"><div class="preview-stat-label">STR</div><div class="preview-stat-value">${c.stats.str} ${getModDisplay(c.stats.str)}</div></div><div class="preview-stat"><div class="preview-stat-label">DEX</div><div class="preview-stat-value">${c.stats.dex} ${getModDisplay(c.stats.dex)}</div></div><div class="preview-stat"><div class="preview-stat-label">CON</div><div class="preview-stat-value">${c.stats.con} ${getModDisplay(c.stats.con)}</div></div><div class="preview-stat"><div class="preview-stat-label">INT</div><div class="preview-stat-value">${c.stats.int} ${getModDisplay(c.stats.int)}</div></div><div class="preview-stat"><div class="preview-stat-label">WIS</div><div class="preview-stat-value">${c.stats.wis} ${getModDisplay(c.stats.wis)}</div></div><div class="preview-stat"><div class="preview-stat-label">CHA</div><div class="preview-stat-value">${c.stats.cha} ${getModDisplay(c.stats.cha)}</div></div></div></div>
+        <p style="text-align:center;color:var(--parchment-dark);margin-bottom:12px">Choose class for ${c.name} or <span class="char-reroll" onclick="reRollChar()">Reroll</span></p>
         <div class="class-selection">${Object.entries(CLASSES).map(([k, v]) => `<div class="class-option" onclick="selectClass('${k}')"><div class="class-name">${v.icon} ${v.name}</div><div class="class-desc">${v.desc}</div><div class="class-bonus">${v.bonus}</div></div>`).join('')}</div>`;
+}
+
+function reRollChar() {
+    gameState.characters[gameState.currentCharIndex] = generateCharacter(gameState.currentCharIndex, true);
+    renderClassSelection();
 }
 
 function selectClass(className) {

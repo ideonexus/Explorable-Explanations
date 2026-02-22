@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conway's Game of Life</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020a0f;
+    --panel: #040d14;
+    --border: #0a3a4a;
+    --cell-dead: #020a0f;
+    --cell-alive: #00e5ff;
+    --cell-glow: #00e5ff;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --text: #7ecfdf;
+    --text-bright: #c8f0f7;
+    --dim: #1a4a5a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* CRT vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+    pointer-events: none;
+    z-index: 99;
+  }
+
+  header {
+    width: 100%;
+    padding: 16px 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-shadow: 0 0 20px var(--accent), 0 0 40px rgba(0,229,255,0.3);
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    font-size: 0.65rem;
+    color: var(--dim);
+    letter-spacing: 0.15em;
+  }
+
+  .stats {
+    margin-left: auto;
+    display: flex;
+    gap: 32px;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .stat-label { color: var(--dim); font-size: 0.6rem; letter-spacing: 0.15em; }
+  .stat-value { color: var(--text-bright); font-size: 0.9rem; }
+
+  .main {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .canvas-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+  }
+
+  canvas {
+    border: 1px solid var(--border);
+    cursor: crosshair;
+    image-rendering: pixelated;
+    box-shadow:
+      0 0 0 1px rgba(0,229,255,0.1),
+      0 0 40px rgba(0,229,255,0.05),
+      inset 0 0 60px rgba(0,0,0,0.5);
+  }
+
+  .sidebar {
+    width: 200px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+  }
+
+  .section-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 9px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,229,255,0.04);
+    text-shadow: 0 0 8px var(--accent);
+  }
+
+  .btn.primary {
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .btn.primary:hover {
+    background: rgba(0,229,255,0.1);
+    box-shadow: 0 0 12px rgba(0,229,255,0.2);
+  }
+
+  .btn.active {
+    background: rgba(0,229,255,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 8px rgba(0,229,255,0.15);
+  }
+
+  .btn .icon {
+    width: 12px;
+    text-align: center;
+  }
+
+  .slider-group { display: flex; flex-direction: column; gap: 6px; }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: var(--text);
+    letter-spacing: 0.1em;
+  }
+  .slider-val { color: var(--accent); }
+
+  input[type="range"] {
+    width: 100%;
+    appearance: none;
+    height: 2px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 0;
+    cursor: pointer;
+    box-shadow: 0 0 6px var(--accent);
+  }
+
+  .pattern-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .pattern-btn {
+    padding: 6px 4px;
+    font-size: 0.58rem;
+    letter-spacing: 0.05em;
+    text-align: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--dim);
+    font-family: 'Share Tech Mono', monospace;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .pattern-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(255,107,53,0.05);
+  }
+
+  .kbd {
+    display: inline-block;
+    font-size: 0.55rem;
+    color: var(--dim);
+    border: 1px solid var(--dim);
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+
+  .shortcuts { display: flex; flex-direction: column; gap: 4px; }
+  .shortcut-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.62rem;
+    color: var(--dim);
+  }
+
+  .corner-decoration {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: var(--border);
+    border-style: solid;
+  }
+  .corner-tl { top: 12px; left: 12px; border-width: 1px 0 0 1px; }
+  .corner-tr { top: 12px; right: 12px; border-width: 1px 1px 0 0; }
+  .corner-bl { bottom: 12px; left: 12px; border-width: 0 0 1px 1px; }
+  .corner-br { bottom: 12px; right: 12px; border-width: 0 1px 1px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Game of Life</h1>
+  <span class="subtitle">// Conway's Cellular Automaton, 1970</span>
+  <div class="stats">
+    <div class="stat-item">
+      <span class="stat-label">Generation</span>
+      <span class="stat-value" id="gen-display">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Population</span>
+      <span class="stat-value" id="pop-display">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">FPS</span>
+      <span class="stat-value" id="fps-display">--</span>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="canvas-area">
+    <div class="corner-decoration corner-tl"></div>
+    <div class="corner-decoration corner-tr"></div>
+    <div class="corner-decoration corner-bl"></div>
+    <div class="corner-decoration corner-br"></div>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div class="sidebar">
+    <div>
+      <div class="section-label">Control</div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <button class="btn primary" id="btn-play">
+          <span class="icon">▶</span> Play
+        </button>
+        <button class="btn" id="btn-step">
+          <span class="icon">⏭</span> Step
+        </button>
+        <button class="btn" id="btn-clear">
+          <span class="icon">✕</span> Clear
+        </button>
+        <button class="btn" id="btn-random">
+          <span class="icon">⟳</span> Randomize
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Speed</div>
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Interval</span>
+          <span class="slider-val" id="speed-label">80ms</span>
+        </div>
+        <input type="range" id="speed-slider" min="16" max="500" value="80" step="8">
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">View</div>
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Zoom</span>
+          <span class="slider-val" id="zoom-label">10px</span>
+        </div>
+        <input type="range" id="zoom-slider" min="4" max="24" value="10" step="1">
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Patterns</div>
+      <div class="pattern-grid">
+        <button class="pattern-btn" data-pattern="glider">Glider</button>
+        <button class="pattern-btn" data-pattern="blinker">Blinker</button>
+        <button class="pattern-btn" data-pattern="pulsar">Pulsar</button>
+        <button class="pattern-btn" data-pattern="lwss">LWSS</button>
+        <button class="pattern-btn" data-pattern="gosper">Gosper</button>
+        <button class="pattern-btn" data-pattern="pentomino">R-Pento</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Mode</div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <button class="btn active" id="btn-draw">
+          <span class="icon">✎</span> Draw
+        </button>
+        <button class="btn" id="btn-erase">
+          <span class="icon">◻</span> Erase
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Keys</div>
+      <div class="shortcuts">
+        <div class="shortcut-row"><span class="kbd">Space</span><span>Play/Pause</span></div>
+        <div class="shortcut-row"><span class="kbd">.</span><span>Step</span></div>
+        <div class="shortcut-row"><span class="kbd">C</span><span>Clear</span></div>
+        <div class="shortcut-row"><span class="kbd">R</span><span>Random</span></div>
+        <div class="shortcut-row"><span class="kbd">+/-</span><span>Zoom</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let cellSize = 10;
+let cols, rows;
+let grid, nextGrid;
+let running = false;
+let intervalId = null;
+let intervalMs = 80;
+let drawMode = 'draw'; // 'draw' | 'erase'
+let generation = 0;
+let lastFpsTime = performance.now();
+let frameCount = 0;
+
+// Colors
+const COLOR_DEAD = '#020a0f';
+const COLOR_ALIVE = '#00e5ff';
+const COLOR_GLOW = 'rgba(0,229,255,0.18)';
+const COLOR_GRID = 'rgba(0,60,80,0.25)';
+
+function initGrid() {
+  const parent = canvas.parentElement;
+  const w = parent.clientWidth - 40;
+  const h = parent.clientHeight - 40;
+  cols = Math.floor(w / cellSize);
+  rows = Math.floor(h / cellSize);
+  canvas.width = cols * cellSize;
+  canvas.height = rows * cellSize;
+  grid = new Uint8Array(cols * rows);
+  nextGrid = new Uint8Array(cols * rows);
+  drawGrid();
+}
+
+function idx(x, y) {
+  return ((y + rows) % rows) * cols + ((x + cols) % cols);
+}
+
+function step() {
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      let n = 0;
+      for (let dy = -1; dy <= 1; dy++)
+        for (let dx = -1; dx <= 1; dx++)
+          if (dx || dy) n += grid[idx(x + dx, y + dy)];
+      const cell = grid[idx(x, y)];
+      nextGrid[idx(x, y)] = cell ? (n === 2 || n === 3 ? 1 : 0) : (n === 3 ? 1 : 0);
+    }
+  }
+  grid.set(nextGrid);
+  generation++;
+  drawGrid();
+  updateStats();
+  frameCount++;
+  const now = performance.now();
+  if (now - lastFpsTime > 500) {
+    document.getElementById('fps-display').textContent = Math.round(frameCount * 1000 / (now - lastFpsTime));
+    frameCount = 0;
+    lastFpsTime = now;
+  }
+}
+
+function drawGrid() {
+  ctx.fillStyle = COLOR_DEAD;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid lines
+  ctx.strokeStyle = COLOR_GRID;
+  ctx.lineWidth = 0.5;
+  if (cellSize >= 6) {
+    for (let x = 0; x <= cols; x++) {
+      ctx.beginPath(); ctx.moveTo(x * cellSize, 0); ctx.lineTo(x * cellSize, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y <= rows; y++) {
+      ctx.beginPath(); ctx.moveTo(0, y * cellSize); ctx.lineTo(canvas.width, y * cellSize); ctx.stroke();
+    }
+  }
+
+  // Cells
+  for (let i = 0; i < grid.length; i++) {
+    if (grid[i]) {
+      const x = (i % cols) * cellSize;
+      const y = Math.floor(i / cols) * cellSize;
+      // Glow
+      if (cellSize >= 6) {
+        ctx.fillStyle = COLOR_GLOW;
+        ctx.fillRect(x - 1, y - 1, cellSize + 2, cellSize + 2);
+      }
+      ctx.fillStyle = COLOR_ALIVE;
+      ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+    }
+  }
+}
+
+function updateStats() {
+  let pop = 0;
+  for (let i = 0; i < grid.length; i++) pop += grid[i];
+  document.getElementById('gen-display').textContent = generation;
+  document.getElementById('pop-display').textContent = pop;
+}
+
+function setRunning(val) {
+  running = val;
+  clearInterval(intervalId);
+  if (running) {
+    intervalId = setInterval(step, intervalMs);
+    document.getElementById('btn-play').innerHTML = '<span class="icon">⏸</span> Pause';
+    document.getElementById('btn-play').classList.add('active');
+  } else {
+    document.getElementById('btn-play').innerHTML = '<span class="icon">▶</span> Play';
+    document.getElementById('btn-play').classList.remove('active');
+  }
+}
+
+// Controls
+document.getElementById('btn-play').onclick = () => setRunning(!running);
+document.getElementById('btn-step').onclick = () => { setRunning(false); step(); };
+document.getElementById('btn-clear').onclick = () => {
+  setRunning(false);
+  grid.fill(0);
+  generation = 0;
+  drawGrid();
+  updateStats();
+};
+document.getElementById('btn-random').onclick = () => {
+  setRunning(false);
+  generation = 0;
+  for (let i = 0; i < grid.length; i++) grid[i] = Math.random() < 0.22 ? 1 : 0;
+  drawGrid();
+  updateStats();
+};
+
+document.getElementById('btn-draw').onclick = () => {
+  drawMode = 'draw';
+  document.getElementById('btn-draw').classList.add('active');
+  document.getElementById('btn-erase').classList.remove('active');
+};
+document.getElementById('btn-erase').onclick = () => {
+  drawMode = 'erase';
+  document.getElementById('btn-erase').classList.add('active');
+  document.getElementById('btn-draw').classList.remove('active');
+};
+
+const speedSlider = document.getElementById('speed-slider');
+speedSlider.oninput = () => {
+  intervalMs = parseInt(speedSlider.value);
+  document.getElementById('speed-label').textContent = intervalMs + 'ms';
+  if (running) setRunning(true);
+};
+
+const zoomSlider = document.getElementById('zoom-slider');
+zoomSlider.oninput = () => {
+  cellSize = parseInt(zoomSlider.value);
+  document.getElementById('zoom-label').textContent = cellSize + 'px';
+  initGrid();
+};
+
+// Mouse drawing
+let painting = false;
+canvas.addEventListener('mousedown', e => { painting = true; paint(e); });
+canvas.addEventListener('mousemove', e => { if (painting) paint(e); });
+canvas.addEventListener('mouseup', () => painting = false);
+canvas.addEventListener('mouseleave', () => painting = false);
+
+function paint(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) / cellSize);
+  const y = Math.floor((e.clientY - rect.top) / cellSize);
+  if (x >= 0 && x < cols && y >= 0 && y < rows) {
+    grid[idx(x, y)] = drawMode === 'draw' ? 1 : 0;
+    drawGrid();
+    updateStats();
+  }
+}
+
+// Patterns
+const PATTERNS = {
+  glider: [[1,0],[2,1],[0,2],[1,2],[2,2]],
+  blinker: [[0,1],[1,1],[2,1]],
+  pulsar: [
+    [2,0],[3,0],[4,0],[8,0],[9,0],[10,0],
+    [0,2],[5,2],[7,2],[12,2],[0,3],[5,3],[7,3],[12,3],[0,4],[5,4],[7,4],[12,4],
+    [2,5],[3,5],[4,5],[8,5],[9,5],[10,5],
+    [2,7],[3,7],[4,7],[8,7],[9,7],[10,7],
+    [0,8],[5,8],[7,8],[12,8],[0,9],[5,9],[7,9],[12,9],[0,10],[5,10],[7,10],[12,10],
+    [2,12],[3,12],[4,12],[8,12],[9,12],[10,12]
+  ],
+  lwss: [[1,0],[4,0],[0,1],[0,2],[4,2],[0,3],[1,3],[2,3],[3,3]],
+  gosper: [
+    [24,0],[22,1],[24,1],[12,2],[13,2],[20,2],[21,2],[34,2],[35,2],
+    [11,3],[15,3],[20,3],[21,3],[34,3],[35,3],[0,4],[1,4],[10,4],[16,4],[20,4],[21,4],
+    [0,5],[1,5],[10,5],[14,5],[16,5],[17,5],[22,5],[24,5],[10,6],[16,6],[24,6],
+    [11,7],[15,7],[12,8],[13,8]
+  ],
+  pentomino: [[1,0],[2,0],[0,1],[1,1],[1,2]]
+};
+
+document.querySelectorAll('.pattern-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const name = btn.dataset.pattern;
+    const cells = PATTERNS[name];
+    if (!cells) return;
+    const cx = Math.floor(cols / 2);
+    const cy = Math.floor(rows / 2);
+    const xs = cells.map(c => c[0]);
+    const ys = cells.map(c => c[1]);
+    const pw = Math.max(...xs);
+    const ph = Math.max(...ys);
+    cells.forEach(([dx, dy]) => {
+      const x = cx - Math.floor(pw/2) + dx;
+      const y = cy - Math.floor(ph/2) + dy;
+      if (x >= 0 && x < cols && y >= 0 && y < rows) grid[idx(x, y)] = 1;
+    });
+    drawGrid();
+    updateStats();
+  });
+});
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  switch(e.key) {
+    case ' ': e.preventDefault(); setRunning(!running); break;
+    case '.': setRunning(false); step(); break;
+    case 'c': case 'C':
+      setRunning(false); grid.fill(0); generation = 0; drawGrid(); updateStats(); break;
+    case 'r': case 'R':
+      setRunning(false); generation = 0;
+      for (let i = 0; i < grid.length; i++) grid[i] = Math.random() < 0.22 ? 1 : 0;
+      drawGrid(); updateStats(); break;
+    case '+': case '=':
+      cellSize = Math.min(24, cellSize + 1);
+      zoomSlider.value = cellSize;
+      document.getElementById('zoom-label').textContent = cellSize + 'px';
+      initGrid(); break;
+    case '-':
+      cellSize = Math.max(4, cellSize - 1);
+      zoomSlider.value = cellSize;
+      document.getElementById('zoom-label').textContent = cellSize + 'px';
+      initGrid(); break;
+  }
+});
+
+window.addEventListener('resize', () => initGrid());
+
+initGrid();
+updateStats();
+</script>
+</body>
+</html>
