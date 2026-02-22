@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cubeo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #1a1610;
+    --surface: #221e17;
+    --border: #3d3525;
+    --p1: #c8a84b;
+    --p1-light: #e8c96b;
+    --p1-dark: #8a6f28;
+    --p2: #4b7fc8;
+    --p2-light: #6b9fe8;
+    --p2-dark: #2a508a;
+    --text: #e8dcc8;
+    --text-dim: #8a7d65;
+    --highlight: #4caf50;
+    --highlight-merge: #e67e22;
+    --cell: #2a251c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-image: radial-gradient(ellipse at 20% 20%, #2a2010 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 80%, #101820 0%, transparent 60%);
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    letter-spacing: 0.15em;
+    color: var(--p1);
+    text-shadow: 0 0 30px rgba(200,168,75,0.3);
+    margin-bottom: 6px;
+  }
+  .tagline {
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+  .layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #board-wrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 440px; }
+  #board {
+    display: grid;
+    gap: 2px;
+    background: var(--border);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  }
+  .cell {
+    width: 44px; height: 44px;
+    background: var(--cell);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .cell:hover { background: #322d22; }
+  .die {
+    width: 34px; height: 34px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .die.p1 { background: linear-gradient(135deg, var(--p1-light), var(--p1-dark)); color: #1a1610; border: 2px solid var(--p1); }
+  .die.p2 { background: linear-gradient(135deg, var(--p2-light), var(--p2-dark)); color: #fff; border: 2px solid var(--p2); }
+  .cell.selected .die { transform: scale(1.1); box-shadow: 0 0 0 3px #fff, 0 0 12px rgba(255,255,255,0.6), 0 2px 6px rgba(0,0,0,0.5); }
+  .cell.highlight-move { background: rgba(76,175,80,0.18) !important; }
+  .cell.highlight-move::after { content:''; position:absolute; width:14px; height:14px; border-radius:50%; background:var(--highlight); opacity:0.7; box-shadow:0 0 8px var(--highlight); }
+  .cell.highlight-merge { background: rgba(230,126,34,0.18) !important; }
+  .cell.highlight-merge::after { content:''; position:absolute; width:14px; height:14px; border-radius:50%; background:var(--highlight-merge); opacity:0.7; box-shadow:0 0 8px var(--highlight-merge); }
+  .cell.highlight-place { background: rgba(100,200,255,0.12) !important; }
+  .cell.highlight-place::after { content:''; position:absolute; width:12px; height:12px; border-radius:50%; background:#64c8ff; opacity:0.6; box-shadow:0 0 8px #64c8ff; }
+  .cell.pinned .die::before { content:'🔒'; position:absolute; font-size:0.45rem; top:1px; right:1px; opacity:0.8; }
+
+  /* ── Side Panel ── */
+  .panel { width: 220px; display: flex; flex-direction: column; gap: 14px; }
+  .player-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .player-card.active { border-color: var(--p1); box-shadow: 0 0 16px rgba(200,168,75,0.2); }
+  .player-card.p2.active { border-color: var(--p2); box-shadow: 0 0 16px rgba(75,127,200,0.2); }
+  .player-card h3 { font-family: 'Playfair Display', serif; font-size: 1rem; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .player-card.p1 h3 { color: var(--p1); }
+  .player-card.p2 h3 { color: var(--p2); }
+  .pool-dice { display:flex; gap:4px; flex-wrap:wrap; min-height:24px; }
+  .pool-pip {
+    width:22px; height:22px; border-radius:4px; border:1px solid;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.75rem; font-family:'Playfair Display',serif; font-weight:700;
+  }
+  .pool-pip.p1 { background:var(--p1-dark); border-color:var(--p1); color:#1a1610; }
+  .pool-pip.p2 { background:var(--p2-dark); border-color:var(--p2); color:#fff; }
+  .player-type-label { margin-top:6px; font-size:0.78rem; color:var(--text-dim); font-style:italic; }
+
+  .status-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+    min-height: 70px;
+  }
+  .status-box .status-title { font-family:'Playfair Display',serif; color:var(--text); font-size:0.85rem; letter-spacing:0.06em; margin-bottom:4px; }
+
+  /* ── Controls ── */
+  .controls {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .controls > .ctrl-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 9px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .player-row.p1 { border-color: rgba(200,168,75,0.35); }
+  .player-row.p2 { border-color: rgba(75,127,200,0.35); }
+  .player-row .pr-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    min-width: 38px;
+  }
+  .player-row.p1 .pr-name { color: var(--p1); }
+  .player-row.p2 .pr-name { color: var(--p2); }
+
+  select, button {
+    background: #2a251c;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    width: 100%;
+  }
+  select:hover, button:hover { border-color: var(--text-dim); }
+  button.primary {
+    background: var(--p1-dark);
+    border-color: var(--p1);
+    color: #1a1610;
+    font-family: 'Playfair Display', serif;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 8px;
+    transition: background 0.2s;
+  }
+  button.primary:hover { background: var(--p1); }
+
+  .legend { display:flex; flex-direction:column; gap:5px; font-size:0.78rem; color:var(--text-dim); }
+  .legend-row { display:flex; align-items:center; gap:6px; }
+  .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+  /* ── Modal ── */
+  #modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  #modal.show { display: flex; }
+  .modal-inner {
+    background: var(--surface);
+    border: 2px solid var(--p1);
+    border-radius: 12px;
+    padding: 28px 36px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 0 60px rgba(200,168,75,0.2);
+  }
+  .modal-inner h2 { font-family:'Playfair Display',serif; font-size:2rem; margin-bottom:8px; }
+  .modal-inner .modal-reason { color:var(--text-dim); margin-bottom:20px; font-style:italic; }
+  .modal-buttons { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .modal-buttons button { width:auto; padding:8px 16px; font-size:0.88rem; }
+
+  /* ── Replay bar (always above board, fixed height) ── */
+  #replay-bar {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    justify-content: center;
+    width: 100%;
+    opacity: 0.38;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    user-select: none;
+  }
+  #replay-bar.active {
+    opacity: 1;
+    pointer-events: all;
+    border-color: rgba(200,168,75,0.5);
+    box-shadow: 0 0 14px rgba(200,168,75,0.12);
+  }
+  #replay-bar .replay-desc {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    font-style: italic;
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .replay-nav { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .replay-nav button { width:auto; min-width:32px; padding:4px 9px; font-size:0.9rem; }
+  .replay-nav button:disabled { opacity:0.3; cursor:default; }
+  .replay-counter { font-family:'Playfair Display',serif; font-size:0.82rem; color:var(--text-dim); min-width:64px; text-align:center; flex-shrink:0; }
+
+  /* ── Thinking indicator ── */
+  #thinking {
+    display: none;
+    position: fixed;
+    bottom: 20px; right: 20px;
+    background: var(--surface);
+    border: 1px solid var(--p2);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    color: var(--p2-light);
+    box-shadow: 0 0 16px rgba(75,127,200,0.3);
+    z-index: 50;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  #thinking.show { display:block; animation: pulse 1.2s infinite; }
+
+  @media (max-width: 680px) {
+    .cell { width:34px; height:34px; }
+    .die { width:26px; height:26px; font-size:0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1>CUBEO</h1>
+<p class="tagline">Abstract Strategy · Two Players · Six Dice Each</p>
+
+<div class="layout">
+
+  <!-- Left panel: P1 -->
+  <div class="panel">
+    <div class="player-card p1 active" id="card-p1">
+      <h3>◆ GOLD</h3>
+      <div class="pool-dice" id="pool-p1"></div>
+      <div class="player-type-label" id="typelabel-p1">Human</div>
+    </div>
+
+    <div class="status-box">
+      <div class="status-title">STATUS</div>
+      <div id="status-text">Gold places first.</div>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-title">Players</div>
+      <div class="player-row p1">
+        <span class="pr-name">Gold</span>
+        <select id="mode-p1" onchange="onModeChange()">
+          <option value="human" selected>Human</option>
+          <option value="easy">AI — Easy</option>
+          <option value="medium">AI — Medium</option>
+          <option value="hard">AI — Hard</option>
+        </select>
+      </div>
+      <div class="player-row p2">
+        <span class="pr-name">Blue</span>
+        <select id="mode-p2" onchange="onModeChange()">
+          <option value="human">Human</option>
+          <option value="easy">AI — Easy</option>
+          <option value="medium" selected>AI — Medium</option>
+          <option value="hard">AI — Hard</option>
+        </select>
+      </div>
+      <button class="primary" onclick="newGame()">New Game</button>
+    </div>
+
+    <div class="legend">
+      <div class="legend-row"><div class="legend-dot" style="background:var(--highlight)"></div> Valid move</div>
+      <div class="legend-row"><div class="legend-dot" style="background:var(--highlight-merge)"></div> Merge target</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#64c8ff"></div> Place here</div>
+    </div>
+  </div>
+
+  <!-- Board + replay bar -->
+  <div id="board-wrap">
+    <div id="replay-bar">
+      <div class="replay-nav">
+        <button id="btn-first" title="First move" onclick="replayGoto(0)">⏮</button>
+        <button id="btn-prev"  title="Previous"   onclick="replayStep(-1)">◀</button>
+        <span class="replay-counter" id="replay-counter">— / —</span>
+        <button id="btn-next"  title="Next"        onclick="replayStep(1)">▶</button>
+        <button id="btn-last"  title="Last move"   onclick="replayGoto(gameHistory.length-1)">⏭</button>
+      </div>
+      <span class="replay-desc" id="replay-desc">Step Through Game</span>
+      <button onclick="exitReplay()" style="width:auto;padding:4px 12px;font-size:0.8rem;flex-shrink:0;">✕ Exit</button>
+    </div>
+
+    <div id="board"></div>
+  </div>
+
+  <!-- Right panel: P2 -->
+  <div class="panel">
+    <div class="player-card p2" id="card-p2">
+      <h3>◆ BLUE</h3>
+      <div class="pool-dice" id="pool-p2"></div>
+      <div class="player-type-label" id="typelabel-p2">AI — Medium</div>
+    </div>
+
+    <div class="status-box">
+      <div class="status-title">RULES</div>
+      <div style="font-size:0.78rem;line-height:1.6;">
+        <b>Place</b>: Touch own dice, not enemy.<br/>
+        <b>Move</b>: Exact die-value steps along formation.<br/>
+        <b>Merge</b>: Combine adjacent dice (need 3+ on board).<br/>
+        <b>Win</b>: Block opponent · or merge &gt; 6.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Win Modal -->
+<div id="modal">
+  <div class="modal-inner">
+    <h2 id="modal-title">Gold Wins!</h2>
+    <p class="modal-reason" id="modal-reason">Opponent has no valid moves.</p>
+    <div class="modal-buttons">
+      <button class="primary" onclick="newGame()">Play Again</button>
+      <button onclick="startReplay()">Step Through Game</button>
+      <button onclick="viewBoard()">View Final Board</button>
+    </div>
+  </div>
+</div>
+
+<div id="thinking">Thinking…</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CUBEO — full implementation
+// ═══════════════════════════════════════════════════════════
+
+const SIZE = 15;
+
+// Live game state
+let state, currentPlayer, selected, pool, gameOver;
+
+// Replay
+let gameHistory = [];   // array of {state, pool, currentPlayer, desc}
+let replayIndex = -1;   // -1 = live game
+let isReplaying = false;
+
+// ─── Helpers ──────────────────────────────────────────────
+
+function allDice(st) {
+  const d = [];
+  for (let y=0;y<SIZE;y++) for (let x=0;x<SIZE;x++) if (st[y][x]) d.push({x,y});
+  return d;
+}
+
+function cloneState(st) {
+  return st.map(r => r.map(c => c ? {...c} : null));
+}
+
+// ─── Connectivity / Pinning ───────────────────────────────
+
+function isConnected(st) {
+  const dice = allDice(st);
+  if (dice.length === 0) return true;
+  const visited = new Set();
+  const queue = [dice[0]];
+  visited.add(`${dice[0].x},${dice[0].y}`);
+  while (queue.length) {
+    const {x,y} = queue.shift();
+    for (const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]) {
+      const key=`${nx},${ny}`;
+      if (!visited.has(key) && nx>=0&&ny>=0&&nx<SIZE&&ny<SIZE && st[ny][nx]) {
+        visited.add(key); queue.push({x:nx,y:ny});
+      }
+    }
+  }
+  return visited.size === dice.length;
+}
+
+function isPinned(st, x, y) {
+  if (!st[y][x]) return false;
+  const copy = cloneState(st);
+  copy[y][x] = null;
+  return !isConnected(copy);
+}
+
+// ─── Slide Rules ──────────────────────────────────────────
+
+function canSlideStep(st, x, y, nx, ny) {
+  const dx=nx-x, dy=ny-y;
+  if (dx!==0 && dy!==0) {
+    // diagonal: flanking cells are (x+dx,y) and (x,y+dy)
+    const f1 = (x+dx>=0&&y>=0&&x+dx<SIZE&&y<SIZE)   ? !!st[y][x+dx]   : false;
+    const f2 = (x>=0&&y+dy>=0&&x<SIZE&&y+dy<SIZE) ? !!st[y+dy][x] : false;
+    return !(f1 && f2);
+  }
+  // orthogonal: perpendicular gate cells
+  const px=dy, py=dx;
+  const g1x=x+px,g1y=y+py, g2x=x-px,g2y=y-py;
+  const g1 = (g1x>=0&&g1y>=0&&g1x<SIZE&&g1y<SIZE) ? !!st[g1y][g1x] : false;
+  const g2 = (g2x>=0&&g2y>=0&&g2x<SIZE&&g2y<SIZE) ? !!st[g2y][g2x] : false;
+  return !(g1 && g2);
+}
+
+function canSlideIn(st, tx, ty, ignoreSrc) {
+  const allDirs = [[tx+1,ty],[tx-1,ty],[tx,ty+1],[tx,ty-1],
+                   [tx+1,ty+1],[tx+1,ty-1],[tx-1,ty+1],[tx-1,ty-1]];
+  for (const [fx,fy] of allDirs) {
+    if (fx<0||fy<0||fx>=SIZE||fy>=SIZE) continue;
+    const fromFree = (fx===ignoreSrc?.x && fy===ignoreSrc?.y) || !st[fy][fx];
+    if (!fromFree) continue;
+    if (canSlideStep(st, fx, fy, tx, ty)) return true;
+  }
+  return false;
+}
+
+function touchesFormation(st, x, y) {
+  for (let dy=-1;dy<=1;dy++) for (let dx=-1;dx<=1;dx++) {
+    if (!dx&&!dy) continue;
+    const nx=x+dx, ny=y+dy;
+    if (nx>=0&&ny>=0&&nx<SIZE&&ny<SIZE && st[ny][nx]) return true;
+  }
+  return false;
+}
+
+// ─── Valid Placements ─────────────────────────────────────
+
+function validPlacements(st, player, poolCount) {
+  if (poolCount <= 0) return [];
+  const positions = [], used = new Set();
+  const myDice = allDice(st).filter(d => st[d.y][d.x].player === player);
+  for (const {x,y} of myDice) {
+    for (const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1],
+                            [x+1,y+1],[x+1,y-1],[x-1,y+1],[x-1,y-1]]) {
+      if (nx<0||ny<0||nx>=SIZE||ny>=SIZE||st[ny][nx]) continue;
+      const key=`${nx},${ny}`;
+      if (used.has(key)) continue;
+      // Must not touch enemy orthogonally
+      let enemyAdj=false;
+      for (const [ex,ey] of [[nx+1,ny],[nx-1,ny],[nx,ny+1],[nx,ny-1]]) {
+        if (ex>=0&&ey>=0&&ex<SIZE&&ey<SIZE && st[ey][ex]?.player !== player && st[ey][ex]) { enemyAdj=true; break; }
+      }
+      if (enemyAdj) continue;
+      // Must touch own die orthogonally
+      let ownAdj=false;
+      for (const [ex,ey] of [[nx+1,ny],[nx-1,ny],[nx,ny+1],[nx,ny-1]]) {
+        if (ex>=0&&ey>=0&&ex<SIZE&&ey<SIZE && st[ey][ex]?.player === player) { ownAdj=true; break; }
+      }
+      if (!ownAdj) continue;
+      if (!canSlideIn(st, nx, ny, null)) continue;
+      used.add(key);
+      positions.push({x:nx, y:ny});
+    }
+  }
+  return positions;
+}
+
+// ─── Movement ─────────────────────────────────────────────
+
+function validMoves(st, sx, sy) {
+  const die = st[sy][sx];
+  if (!die || isPinned(st, sx, sy)) return [];
+  const steps = die.value;
+  const tempSt = cloneState(st);
+  tempSt[sy][sx] = null;
+  const reachable = new Set();
+  const visited = new Set();
+  const queue = [{x:sx, y:sy, left:steps}];
+  visited.add(`${sx},${sy},${steps}`);
+  while (queue.length) {
+    const {x,y,left} = queue.shift();
+    if (left === 0) {
+      if ((x!==sx||y!==sy) && touchesFormation(tempSt,x,y) && canSlideIn(tempSt,x,y,{x:sx,y:sy})) {
+        const testSt = cloneState(tempSt);
+        testSt[y][x] = die;
+        if (isConnected(testSt)) reachable.add(`${x},${y}`);
+      }
+      continue;
+    }
+    for (const [nx,ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1],
+                             [x+1,y+1],[x+1,y-1],[x-1,y+1],[x-1,y-1]]) {
+      if (nx<0||ny<0||nx>=SIZE||ny>=SIZE||tempSt[ny][nx]) continue;
+      if (!canSlideStep(tempSt,x,y,nx,ny)) continue;
+      const key=`${nx},${ny},${left-1}`;
+      if (!visited.has(key)) { visited.add(key); queue.push({x:nx,y:ny,left:left-1}); }
+    }
+  }
+  return [...reachable].map(k=>{ const [x,y]=k.split(',').map(Number); return {x,y}; });
+}
+
+// ─── Valid Merges ──────────────────────────────────────────
+
+function validMergeTargets(st, sx, sy) {
+  const die = st[sy][sx];
+  if (!die) return [];
+  const myDice = allDice(st).filter(d=>st[d.y][d.x].player===die.player);
+  if (myDice.length < 3) return [];
+  const targets = [];
+  for (const [nx,ny] of [[sx+1,sy],[sx-1,sy],[sx,sy+1],[sx,sy-1]]) {
+    if (nx<0||ny<0||nx>=SIZE||ny>=SIZE) continue;
+    const nb = st[ny][nx];
+    if (nb?.player===die.player && !isPinned(st,nx,ny)) targets.push({x:nx,y:ny});
+  }
+  return targets;
+}
+
+// ─── Apply Actions ────────────────────────────────────────
+
+function applyPlace(st, pl, x, y) {
+  const n=cloneState(st); n[y][x]={player:pl,value:1}; return n;
+}
+function applyMove(st, sx, sy, tx, ty) {
+  const n=cloneState(st); n[ty][tx]=n[sy][sx]; n[sy][sx]=null; return n;
+}
+function applyMerge(st, sx, sy, tx, ty) {
+  const n=cloneState(st);
+  n[sy][sx]={player:n[sy][sx].player, value:n[sy][sx].value+n[ty][tx].value};
+  n[ty][tx]=null; return n;
+}
+
+// ─── Win Check ────────────────────────────────────────────
+
+function checkWin(st, movedPlayer, lastAction, pools) {
+  if (lastAction?.type==='merge') {
+    const die = st[lastAction.sy][lastAction.sx];
+    if (die?.value > 6) return {winner:movedPlayer, reason:'Merged dice to a value greater than 6!'};
+  }
+  const opp = movedPlayer===1?2:1;
+  if (!hasAnyMove(st,opp,pools[opp])) return {winner:movedPlayer, reason:`${opp===1?'Gold':'Blue'} has no valid move!`};
+  return null;
+}
+
+function hasAnyMove(st, player, poolCount) {
+  if (validPlacements(st,player,poolCount).length>0) return true;
+  for (const {x,y} of allDice(st).filter(d=>st[d.y][d.x].player===player)) {
+    if (validMoves(st,x,y).length>0 || validMergeTargets(st,x,y).length>0) return true;
+  }
+  return false;
+}
+
+// ─── All Moves (AI) ───────────────────────────────────────
+
+function getAllMoves(st, pl, poolCount) {
+  const moves = [];
+  for (const {x,y} of validPlacements(st,pl,poolCount)) moves.push({type:'place',x,y});
+  for (const {x:sx,y:sy} of allDice(st).filter(d=>st[d.y][d.x].player===pl)) {
+    for (const {x:tx,y:ty} of validMoves(st,sx,sy)) moves.push({type:'move',sx,sy,tx,ty});
+    for (const {x:tx,y:ty} of validMergeTargets(st,sx,sy)) moves.push({type:'merge',sx,sy,tx,ty});
+  }
+  return moves;
+}
+
+// ─── AI ───────────────────────────────────────────────────
+
+function evaluate(st, aiPlayer, pools) {
+  const opp = aiPlayer===1?2:1;
+  const myDice = allDice(st).filter(d=>st[d.y][d.x].player===aiPlayer);
+  const oppDice = allDice(st).filter(d=>st[d.y][d.x].player===opp);
+  let score = 0;
+  for (const {x,y} of myDice) score += st[y][x].value * 2;
+  for (const {x,y} of oppDice) score -= st[y][x].value;
+  score += getAllMoves(st,aiPlayer,pools[aiPlayer]).length * 0.5;
+  score -= getAllMoves(st,opp,pools[opp]).length * 1.5;
+  for (const {x,y} of oppDice) if (isPinned(st,x,y)) score += 4;
+  if (myDice.length>=6) score -= 5;
+  if (oppDice.length>=6) score += 3;
+  return score;
+}
+
+function applyMoveAI(st, move, pl, p1pool, p2pool) {
+  let newSt, np1=p1pool, np2=p2pool;
+  if (move.type==='place')      { newSt=applyPlace(st,pl,move.x,move.y); if(pl===1)np1--;else np2--; }
+  else if (move.type==='move')  { newSt=applyMove(st,move.sx,move.sy,move.tx,move.ty); }
+  else                          { newSt=applyMerge(st,move.sx,move.sy,move.tx,move.ty); if(pl===1)np1++;else np2++; }
+  return {newSt, np1, np2};
+}
+
+function minimax(st, depth, alpha, beta, maximizing, aiPlayer, p1pool, p2pool) {
+  const curPlayer = maximizing ? aiPlayer : (aiPlayer===1?2:1);
+  const pools = {1:p1pool,2:p2pool};
+  const moves = getAllMoves(st,curPlayer,pools[curPlayer]);
+  if (depth===0 || moves.length===0) {
+    if (moves.length===0) return maximizing ? -10000 : 10000;
+    return evaluate(st,aiPlayer,pools);
+  }
+  if (maximizing) {
+    let best=-Infinity;
+    for (const m of moves) {
+      const {newSt,np1,np2}=applyMoveAI(st,m,curPlayer,p1pool,p2pool);
+      best=Math.max(best,minimax(newSt,depth-1,alpha,beta,false,aiPlayer,np1,np2));
+      alpha=Math.max(alpha,best); if(beta<=alpha) break;
+    }
+    return best;
+  } else {
+    let best=Infinity;
+    for (const m of moves) {
+      const {newSt,np1,np2}=applyMoveAI(st,m,curPlayer,p1pool,p2pool);
+      best=Math.min(best,minimax(newSt,depth-1,alpha,beta,true,aiPlayer,np1,np2));
+      beta=Math.min(beta,best); if(beta<=alpha) break;
+    }
+    return best;
+  }
+}
+
+function chooseAiMove(aiPlayer) {
+  const aiMode = document.getElementById(`mode-p${aiPlayer}`).value;
+  const moves = getAllMoves(state, aiPlayer, pool[aiPlayer]);
+  if (!moves.length) return null;
+
+  if (aiMode==='easy') {
+    const w=[]; for(const m of moves){w.push(m);if(m.type==='merge')w.push(m);}
+    return w[Math.floor(Math.random()*w.length)];
+  }
+  if (aiMode==='medium') {
+    let best=-Infinity, bestMove=moves[0];
+    for(const m of moves){
+      const {newSt,np1,np2}=applyMoveAI(state,m,aiPlayer,pool[1],pool[2]);
+      const val=minimax(newSt,1,-Infinity,Infinity,false,aiPlayer,np1,np2);
+      if(val>best){best=val;bestMove=m;}
+    }
+    return bestMove;
+  }
+  if (aiMode==='hard') {
+    const sorted=[...moves].sort((a,b)=>{const r=m=>m.type==='merge'?0:m.type==='move'?1:2;return r(a)-r(b);});
+    let best=-Infinity, bestMove=sorted[0];
+    for(const m of sorted){
+      const {newSt,np1,np2}=applyMoveAI(state,m,aiPlayer,pool[1],pool[2]);
+      const val=minimax(newSt,2,-Infinity,Infinity,false,aiPlayer,np1,np2);
+      if(val>best){best=val;bestMove=m;}
+    }
+    return bestMove;
+  }
+  return moves[0];
+}
+
+// ─── Game init ────────────────────────────────────────────
+
+function isAi(player) {
+  return document.getElementById(`mode-p${player}`).value !== 'human';
+}
+
+function onModeChange() {
+  updateTypeLabels();
+}
+
+function updateTypeLabels() {
+  const labels = {human:'Human', easy:'AI — Easy', medium:'AI — Medium', hard:'AI — Hard'};
+  for (const pl of [1,2]) {
+    const mode = document.getElementById(`mode-p${pl}`).value;
+    document.getElementById(`typelabel-p${pl}`).textContent = labels[mode]||mode;
+  }
+}
+
+function newGame() {
+  // Reset live state
+  state = Array.from({length:SIZE}, ()=>Array(SIZE).fill(null));
+  currentPlayer = 1;
+  selected = null;
+  pool = {1:5, 2:5};
+  gameOver = false;
+  isReplaying = false;
+  replayIndex = -1;
+  gameHistory = [];
+
+  // Starting formation
+  const cx=Math.floor(SIZE/2), cy=Math.floor(SIZE/2);
+  state[cy][cx]   = {player:1, value:1};
+  state[cy][cx+1] = {player:2, value:1};
+
+  // Save initial snapshot
+  pushSnapshot('Game start');
+
+  document.getElementById('modal').classList.remove('show');
+  document.getElementById('replay-bar').classList.remove('active');
+  updateTypeLabels();
+  renderAll();
+  scheduleAi();
+}
+
+// ─── History ──────────────────────────────────────────────
+
+function pushSnapshot(desc) {
+  gameHistory.push({
+    state: cloneState(state),
+    pool: {...pool},
+    currentPlayer,
+    desc
+  });
+}
+
+// ─── AI Turn ──────────────────────────────────────────────
+
+function scheduleAi() {
+  if (gameOver || isReplaying) return;
+  if (!isAi(currentPlayer)) return;
+  const name = currentPlayer===1?'Gold':'Blue';
+  updateStatus(`${name} is thinking…`);
+  document.getElementById('thinking').classList.add('show');
+  setTimeout(doAiTurn, 1000);
+}
+
+function doAiTurn() {
+  document.getElementById('thinking').classList.remove('show');
+  if (gameOver || isReplaying || !isAi(currentPlayer)) return;
+
+  const aiPlayer = currentPlayer;
+  const move = chooseAiMove(aiPlayer);
+
+  if (!move) {
+    endGame(aiPlayer===1?2:1, `${aiPlayer===1?'Gold':'Blue'} has no valid move!`);
+    return;
+  }
+
+  let lastAction = null;
+  let desc = aiPlayer===1?'Gold':'Blue';
+
+  if (move.type==='place') {
+    state = applyPlace(state, aiPlayer, move.x, move.y);
+    pool[aiPlayer]--;
+    desc += ' placed';
+  } else if (move.type==='move') {
+    state = applyMove(state, move.sx, move.sy, move.tx, move.ty);
+    desc += ' moved';
+  } else {
+    state = applyMerge(state, move.sx, move.sy, move.tx, move.ty);
+    lastAction = {type:'merge', sx:move.sx, sy:move.sy};
+    pool[aiPlayer]++;
+    desc += ' merged';
+  }
+
+  currentPlayer = aiPlayer===1?2:1;
+  const win = checkWin(state, aiPlayer, lastAction, pool);
+  pushSnapshot(desc);
+
+  if (win) { endGame(win.winner, win.reason); return; }
+
+  renderAll();
+  scheduleAi();
+}
+
+// ─── Human Click ──────────────────────────────────────────
+
+function handleClick(x, y) {
+  if (gameOver || isReplaying || isAi(currentPlayer)) return;
+  const die = state[y][x];
+
+  if (selected) {
+    const {x:sx, y:sy} = selected;
+
+    if (die?.player === currentPlayer) {
+      const mergeKeys = validMergeTargets(state,sx,sy).map(t=>`${t.x},${t.y}`);
+      if (mergeKeys.includes(`${x},${y}`)) {
+        state = applyMerge(state,sx,sy,x,y);
+        pool[currentPlayer]++;
+        const lastAction={type:'merge',sx,sy};
+        const win=checkWin(state,currentPlayer,lastAction,pool);
+        currentPlayer=currentPlayer===1?2:1;
+        selected=null;
+        pushSnapshot(`${currentPlayer===2?'Gold':'Blue'} merged`);
+        if (win){endGame(win.winner,win.reason);return;}
+        renderAll(); scheduleAi(); return;
+      }
+      selected={x,y,mode:'move'}; renderBoard(); return;
+    }
+
+    if (!die) {
+      const moveKeys=validMoves(state,sx,sy).map(t=>`${t.x},${t.y}`);
+      if (moveKeys.includes(`${x},${y}`)) {
+        state=applyMove(state,sx,sy,x,y);
+        const win=checkWin(state,currentPlayer,null,pool);
+        currentPlayer=currentPlayer===1?2:1;
+        selected=null;
+        pushSnapshot(`${currentPlayer===2?'Gold':'Blue'} moved`);
+        if(win){endGame(win.winner,win.reason);return;}
+        renderAll(); scheduleAi(); return;
+      }
+      const placeKeys=validPlacements(state,currentPlayer,pool[currentPlayer]).map(t=>`${t.x},${t.y}`);
+      if (placeKeys.includes(`${x},${y}`)) {
+        state=applyPlace(state,currentPlayer,x,y);
+        pool[currentPlayer]--;
+        const win=checkWin(state,currentPlayer,null,pool);
+        currentPlayer=currentPlayer===1?2:1;
+        selected=null;
+        pushSnapshot(`${currentPlayer===2?'Gold':'Blue'} placed`);
+        if(win){endGame(win.winner,win.reason);return;}
+        renderAll(); scheduleAi(); return;
+      }
+    }
+    selected=null; renderBoard(); return;
+  }
+
+  if (die?.player === currentPlayer) {
+    selected={x,y,mode:'move'};
+    // Give context-aware hint about what actions are available
+    const myOnBoard = allDice(state).filter(d=>state[d.y][d.x].player===currentPlayer).length;
+    const canMerge = myOnBoard >= 3;
+    const moveCount = validMoves(state,x,y).length;
+    const mergeCount = validMergeTargets(state,x,y).length;
+    if (!canMerge && mergeCount === 0) {
+      updateStatus('Click a highlighted cell to move. (Need 3+ dice on board to merge.)');
+    } else if (mergeCount > 0) {
+      updateStatus('Click a highlighted cell to move, or an orange dot to merge.');
+    } else {
+      updateStatus('Click a highlighted cell to move.');
+    }
+    renderBoard(); return;
+  }
+
+  if (!die) {
+    const placeKeys=validPlacements(state,currentPlayer,pool[currentPlayer]).map(t=>`${t.x},${t.y}`);
+    if (placeKeys.includes(`${x},${y}`)) {
+      state=applyPlace(state,currentPlayer,x,y);
+      pool[currentPlayer]--;
+      const win=checkWin(state,currentPlayer,null,pool);
+      currentPlayer=currentPlayer===1?2:1;
+      pushSnapshot(`${currentPlayer===2?'Gold':'Blue'} placed`);
+      if(win){endGame(win.winner,win.reason);return;}
+      renderAll(); scheduleAi();
+    } else {
+      updateStatus('Invalid placement. Must touch your own dice, not enemy dice.');
+    }
+  }
+}
+
+// ─── End / Replay ─────────────────────────────────────────
+
+function viewBoard() {
+  document.getElementById('modal').classList.remove('show');
+  renderAll();
+}
+
+function endGame(winner, reason) {
+  gameOver = true;
+  renderAll();
+  document.getElementById('modal-title').textContent = `${winner===1?'Gold':'Blue'} Wins!`;
+  document.getElementById('modal-reason').textContent = reason;
+  document.getElementById('modal').classList.add('show');
+}
+
+function startReplay() {
+  document.getElementById('modal').classList.remove('show');
+  isReplaying = true;
+  replayIndex = 0;
+  document.getElementById('replay-bar').classList.add('active');
+  renderReplayFrame(0);
+}
+
+function exitReplay() {
+  isReplaying = false;
+  replayIndex = -1;
+  document.getElementById('replay-bar').classList.remove('active');
+  renderAll();
+  if (!gameOver) {
+    updateStatus(`${currentPlayer===1?'Gold':'Blue'}'s turn.`);
+    scheduleAi();
+  } else {
+    updateStatus('Game over.');
+  }
+}
+
+function replayStep(delta) {
+  if (!isReplaying) return;
+  const ni = Math.max(0, Math.min(gameHistory.length-1, replayIndex+delta));
+  if (ni !== replayIndex) { replayIndex=ni; renderReplayFrame(ni); }
+}
+
+function replayGoto(idx) {
+  if (!isReplaying) return;
+  replayIndex = Math.max(0, Math.min(gameHistory.length-1, idx));
+  renderReplayFrame(replayIndex);
+}
+
+function renderReplayFrame(idx) {
+  const snap = gameHistory[idx];
+  if (!snap) return;
+
+  renderPoolFromData(snap.pool);
+  renderBoardFromState(snap.state, null);  // no selection in replay
+
+  // Update active card
+  document.getElementById('card-p1').classList.toggle('active', snap.currentPlayer===1);
+  document.getElementById('card-p2').classList.toggle('active', snap.currentPlayer===2);
+
+  // Update status & replay bar
+  const total = gameHistory.length - 1;
+  updateStatus(idx===0 ? 'Game start' : snap.desc);
+  document.getElementById('replay-counter').textContent = `${idx} / ${total}`;
+  document.getElementById('replay-desc').textContent = idx===0 ? 'Game start' : snap.desc;
+
+  document.getElementById('btn-first').disabled = idx <= 0;
+  document.getElementById('btn-prev').disabled  = idx <= 0;
+  document.getElementById('btn-next').disabled  = idx >= gameHistory.length-1;
+  document.getElementById('btn-last').disabled  = idx >= gameHistory.length-1;
+}
+
+// ─── Render ───────────────────────────────────────────────
+
+function renderAll() {
+  if (isReplaying) return;
+  renderPoolFromData(pool);
+  renderBoard();
+  updateActiveCard();
+}
+
+function renderPoolFromData(p) {
+  for (const pl of [1,2]) {
+    const el = document.getElementById(`pool-p${pl}`);
+    el.innerHTML='';
+    for (let i=0;i<p[pl];i++) {
+      const pip=document.createElement('div');
+      pip.className=`pool-pip p${pl}`;
+      pip.textContent='1';
+      el.appendChild(pip);
+    }
+  }
+}
+
+function updateActiveCard() {
+  document.getElementById('card-p1').classList.toggle('active', currentPlayer===1);
+  document.getElementById('card-p2').classList.toggle('active', currentPlayer===2);
+}
+
+function updateStatus(msg) {
+  document.getElementById('status-text').textContent = msg;
+}
+
+function renderBoard() {
+  renderBoardFromState(state, selected);
+}
+
+function renderBoardFromState(st, sel) {
+  const board = document.getElementById('board');
+  const dice = allDice(st);
+  if (!dice.length) return;
+
+  let minX=SIZE,maxX=0,minY=SIZE,maxY=0;
+  for(const {x,y} of dice){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);}
+  const margin=4;
+  const x0=Math.max(0,minX-margin), y0=Math.max(0,minY-margin);
+  const x1=Math.min(SIZE-1,maxX+margin), y1=Math.min(SIZE-1,maxY+margin);
+
+  board.style.gridTemplateColumns = `repeat(${x1-x0+1}, 44px)`;
+  board.innerHTML='';
+
+  // Compute highlights only for live human turn
+  const hi = {moves:new Set(), merges:new Set(), places:new Set()};
+  if (st===state && !isReplaying && !isAi(currentPlayer) && !gameOver) {
+    if (!sel) {
+      for(const {x,y} of validPlacements(st,currentPlayer,pool[currentPlayer])) hi.places.add(`${x},${y}`);
+    } else {
+      for(const {x,y} of validMoves(st,sel.x,sel.y)) hi.moves.add(`${x},${y}`);
+      for(const {x,y} of validMergeTargets(st,sel.x,sel.y)) hi.merges.add(`${x},${y}`);
+    }
+  }
+
+  for (let y=y0;y<=y1;y++) {
+    for (let x=x0;x<=x1;x++) {
+      const cell=document.createElement('div');
+      cell.className='cell';
+      const key=`${x},${y}`;
+      const die=st[y][x];
+
+      if (die) {
+        cell.classList.add('has-die');
+        const d=document.createElement('div');
+        d.className=`die p${die.player}`;
+        d.textContent=die.value;
+        if (sel?.x===x && sel?.y===y) cell.classList.add('selected');
+        if (st===state && !isReplaying && isPinned(st,x,y)) cell.classList.add('pinned');
+        cell.appendChild(d);
+      } else {
+        if (hi.moves.has(key))  cell.classList.add('highlight-move');
+        else if (hi.merges.has(key)) cell.classList.add('highlight-merge');
+        else if (hi.places.has(key)) cell.classList.add('highlight-place');
+      }
+
+      cell.onclick=()=>handleClick(x,y);
+      board.appendChild(cell);
+    }
+  }
+}
+
+// ─── Boot ──────────────────────────────────────────────────
+newGame();
+</script>
+</body>
+</html>

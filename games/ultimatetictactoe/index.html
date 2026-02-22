@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Tic Tac Toe</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a28;
+    --border: #2a2a40;
+    --x-color: #00d4ff;
+    --o-color: #ff6b35;
+    --x-glow: rgba(0,212,255,0.3);
+    --o-glow: rgba(255,107,53,0.3);
+    --win-bg: rgba(255,255,255,0.04);
+    --text: #e0e0f0;
+    --muted: #6060a0;
+    --accent: #7c4dff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(124,77,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(0,212,255,0.06) 0%, transparent 50%);
+  }
+
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--x-color), var(--accent), var(--o-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .control-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .btn-group {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .btn-group button {
+    padding: 8px 14px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-right: 1px solid var(--border);
+  }
+  .btn-group button:last-child { border-right: none; }
+  .btn-group button:hover { color: var(--text); background: var(--surface2); }
+  .btn-group button.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-reset {
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    height: 32px;
+  }
+
+  .turn-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+
+  .player-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+  .player-badge.x { color: var(--x-color); border-color: var(--x-color); text-shadow: 0 0 8px var(--x-color); }
+  .player-badge.o { color: var(--o-color); border-color: var(--o-color); text-shadow: 0 0 8px var(--o-color); }
+
+  .game-result {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .game-result.x { color: var(--x-color); text-shadow: 0 0 20px var(--x-color); }
+  .game-result.o { color: var(--o-color); text-shadow: 0 0 20px var(--o-color); }
+  .game-result.draw { color: var(--muted); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* MACRO BOARD */
+  .macro-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    background: var(--surface);
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(124,77,255,0.1);
+    max-width: 600px;
+    width: 100%;
+  }
+
+  /* MICRO BOARD */
+  .micro-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 4px;
+    position: relative;
+    transition: background 0.3s;
+    aspect-ratio: 1;
+  }
+
+  .micro-board.active {
+    background: rgba(124,77,255,0.25);
+    box-shadow: 0 0 0 2px var(--accent), 0 0 12px var(--accent);
+  }
+
+  .micro-board.won-x {
+    background: var(--x-glow);
+  }
+  .micro-board.won-o {
+    background: var(--o-glow);
+  }
+  .micro-board.drawn {
+    background: rgba(60,60,80,0.4);
+  }
+
+  .micro-board-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(2rem, 8vw, 4rem);
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .micro-board.won-x .micro-board-overlay,
+  .micro-board.won-o .micro-board-overlay,
+  .micro-board.drawn .micro-board-overlay {
+    opacity: 1;
+    background: rgba(10,10,15,0.6);
+    backdrop-filter: blur(2px);
+  }
+  .micro-board.won-x .micro-board-overlay { color: var(--x-color); text-shadow: 0 0 20px var(--x-color); }
+  .micro-board.won-o .micro-board-overlay { color: var(--o-color); text-shadow: 0 0 20px var(--o-color); }
+  .micro-board.drawn .micro-board-overlay { color: var(--muted); font-size: 1.5rem; letter-spacing: 0.1em; }
+
+  /* CELLS */
+  .cell {
+    aspect-ratio: 1;
+    background: var(--surface2);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: clamp(0.8rem, 2.5vw, 1.4rem);
+    color: transparent;
+    transition: background 0.15s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cell:hover:not(.filled):not(.inactive) {
+    background: var(--surface);
+    transform: scale(0.95);
+  }
+
+  .cell.inactive {
+    cursor: default;
+  }
+
+  .cell.filled-x {
+    color: var(--x-color);
+    text-shadow: 0 0 8px var(--x-color);
+    background: rgba(0,212,255,0.06);
+  }
+  .cell.filled-o {
+    color: var(--o-color);
+    text-shadow: 0 0 8px var(--o-color);
+    background: rgba(255,107,53,0.06);
+  }
+
+  .cell.just-placed {
+    animation: cellPop 0.3s ease-out;
+  }
+
+  @keyframes cellPop {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+  .score-display {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+  .score-box {
+    text-align: center;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    min-width: 80px;
+  }
+  .score-box .score-label { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
+  .score-box .score-val { font-family: 'Orbitron', monospace; font-size: 1.6rem; font-weight: 700; }
+  .score-box.x .score-val { color: var(--x-color); text-shadow: 0 0 10px var(--x-color); }
+  .score-box.o .score-val { color: var(--o-color); text-shadow: 0 0 10px var(--o-color); }
+  .score-box.d .score-val { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<h1>Ultimate Tic Tac Toe</h1>
+<p class="subtitle">Strategic grid domination</p>
+
+<div class="controls">
+  <div class="control-group">
+    <span class="control-label">You Play As</span>
+    <div class="btn-group">
+      <button id="play-x" class="active" onclick="setPlayerSide('X')">X</button>
+      <button id="play-o" onclick="setPlayerSide('O')">O</button>
+    </div>
+  </div>
+  <div class="control-group">
+    <span class="control-label">AI Difficulty</span>
+    <div class="btn-group">
+      <button id="diff-easy" onclick="setDifficulty('easy')">Easy</button>
+      <button id="diff-med" class="active" onclick="setDifficulty('medium')">Medium</button>
+      <button id="diff-hard" onclick="setDifficulty('hard')">Hard</button>
+    </div>
+  </div>
+  <div class="control-group">
+    <span class="control-label">&nbsp;</span>
+    <button class="btn-reset" onclick="resetGame()">New Game</button>
+  </div>
+</div>
+
+<div class="score-display">
+  <div class="score-box x">
+    <div class="score-label">You (X)</div>
+    <div class="score-val" id="score-x">0</div>
+  </div>
+  <div class="score-box d">
+    <div class="score-label">Draw</div>
+    <div class="score-val" id="score-d">0</div>
+  </div>
+  <div class="score-box o">
+    <div class="score-label" id="o-label">AI (O)</div>
+    <div class="score-val" id="score-o">0</div>
+  </div>
+</div>
+
+<div class="status-bar" id="status-bar">
+  <div class="turn-indicator">Turn: <span class="player-badge x" id="turn-badge">X</span></div>
+</div>
+
+<div class="macro-board" id="macro-board"></div>
+
+<div class="legend">
+  <span><div class="legend-dot" style="background: rgba(124,77,255,0.5); box-shadow: 0 0 6px var(--accent)"></div> Active board</span>
+  <span><div class="legend-dot" style="background: var(--x-glow)"></div> Claimed by X</span>
+  <span><div class="legend-dot" style="background: var(--o-glow)"></div> Claimed by O</span>
+</div>
+
+<script>
+// ---- GAME STATE ----
+let playerSide = 'X';
+let aiSide = 'O';
+let difficulty = 'medium';
+let scores = { X: 0, O: 0, D: 0 };
+
+// macroBoard[b] = null | 'X' | 'O' | 'D'
+// microBoards[b][c] = null | 'X' | 'O'
+let macroBoard, microBoards, currentPlayer, activeBoard, gameOver;
+
+const WIN_LINES = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+
+function checkWin(board) {
+  for (const [a,b,c] of WIN_LINES)
+    if (board[a] && board[a] === board[b] && board[a] === board[c])
+      return board[a];
+  return null;
+}
+
+function checkDraw(board) {
+  return board.every(v => v !== null);
+}
+
+function initGame() {
+  macroBoard = Array(9).fill(null);
+  microBoards = Array.from({length:9}, () => Array(9).fill(null));
+  currentPlayer = 'X';
+  activeBoard = null; // null = any free board
+  gameOver = false;
+  render();
+  updateStatus();
+  if (currentPlayer === aiSide && !gameOver) scheduleAI();
+}
+
+function setPlayerSide(side) {
+  playerSide = side;
+  aiSide = side === 'X' ? 'O' : 'X';
+  document.getElementById('play-x').classList.toggle('active', side==='X');
+  document.getElementById('play-o').classList.toggle('active', side==='O');
+  document.getElementById('o-label').textContent = `AI (${aiSide})`;
+  // Update score labels
+  document.querySelector('.score-box.x .score-label').textContent = `You (${playerSide})`;
+  resetGame();
+}
+
+function setDifficulty(d) {
+  difficulty = d;
+  ['easy','medium','hard'].forEach(x => {
+    document.getElementById('diff-'+x).classList.toggle('active', x===d);
+  });
+  resetGame();
+}
+
+function resetGame() {
+  initGame();
+}
+
+// ---- RENDER ----
+function render() {
+  const macro = document.getElementById('macro-board');
+  macro.innerHTML = '';
+
+  for (let b = 0; b < 9; b++) {
+    const microDiv = document.createElement('div');
+    microDiv.className = 'micro-board';
+    const mStatus = macroBoard[b];
+
+    if (mStatus === 'X') microDiv.classList.add('won-x');
+    else if (mStatus === 'O') microDiv.classList.add('won-o');
+    else if (mStatus === 'D') microDiv.classList.add('drawn');
+    else if (!gameOver && isActiveBoard(b)) microDiv.classList.add('active');
+
+    // Overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'micro-board-overlay';
+    overlay.textContent = mStatus === 'D' ? 'DRAW' : (mStatus || '');
+    microDiv.appendChild(overlay);
+
+    // Cells
+    for (let c = 0; c < 9; c++) {
+      const cell = document.createElement('button');
+      cell.className = 'cell';
+      const val = microBoards[b][c];
+      if (val) {
+        cell.textContent = val;
+        cell.classList.add('filled', `filled-${val.toLowerCase()}`);
+        cell.classList.add('inactive');
+      } else if (gameOver || mStatus || !isActiveBoard(b)) {
+        cell.classList.add('inactive');
+      } else {
+        cell.onclick = () => handleClick(b, c);
+      }
+      microDiv.appendChild(cell);
+    }
+
+    macro.appendChild(microDiv);
+  }
+}
+
+function isActiveBoard(b) {
+  if (macroBoard[b]) return false;
+  if (activeBoard === null) return true;
+  return activeBoard === b;
+}
+
+function updateStatus() {
+  const bar = document.getElementById('status-bar');
+  if (gameOver) {
+    const winner = checkWin(macroBoard);
+    if (winner) {
+      bar.innerHTML = `<span class="game-result ${winner.toLowerCase()}">
+        ${winner === playerSide ? '🏆 You Win!' : `AI Wins!`} — Player ${winner}
+      </span>`;
+    } else {
+      bar.innerHTML = `<span class="game-result draw">It's a Draw!</span>`;
+    }
+  } else {
+    const isAI = currentPlayer === aiSide;
+    bar.innerHTML = `<div class="turn-indicator">
+      ${isAI ? 'AI thinking...' : 'Your turn:'}
+      <span class="player-badge ${currentPlayer.toLowerCase()}">${currentPlayer}</span>
+    </div>`;
+  }
+}
+
+// ---- HUMAN MOVE ----
+function handleClick(b, c) {
+  if (gameOver || currentPlayer !== playerSide) return;
+  if (!isActiveBoard(b)) return;
+  if (microBoards[b][c]) return;
+  makeMove(b, c);
+}
+
+function makeMove(b, c) {
+  microBoards[b][c] = currentPlayer;
+
+  // Check micro win
+  const microWin = checkWin(microBoards[b]);
+  if (microWin) macroBoard[b] = microWin;
+  else if (checkDraw(microBoards[b])) macroBoard[b] = 'D';
+
+  // Determine next active board
+  if (macroBoard[c]) activeBoard = null; // board already claimed, pick any
+  else activeBoard = c;
+
+  // Check macro win
+  const macroWin = checkWin(macroBoard);
+  if (macroWin || checkDraw(macroBoard)) {
+    gameOver = true;
+    const winner = macroWin || null;
+    if (winner === playerSide) scores[playerSide]++;
+    else if (winner === aiSide) scores[aiSide]++;
+    else scores['D']++;
+    updateScores();
+    render();
+    updateStatus();
+    return;
+  }
+
+  currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+  render();
+  updateStatus();
+  if (currentPlayer === aiSide) scheduleAI();
+}
+
+function updateScores() {
+  document.getElementById('score-x').textContent = scores[playerSide];
+  document.getElementById('score-o').textContent = scores[aiSide];
+  document.getElementById('score-d').textContent = scores['D'];
+}
+
+// ---- AI ----
+function scheduleAI() {
+  setTimeout(() => {
+    if (!gameOver && currentPlayer === aiSide) {
+      const move = getAIMove();
+      if (move) {
+        const cell = document.querySelector(`.macro-board .micro-board:nth-child(${move.b+1}) .cell:nth-child(${move.c+2})`);
+        if (cell) cell.classList.add('just-placed');
+        makeMove(move.b, move.c);
+      }
+    }
+  }, difficulty === 'easy' ? 300 : difficulty === 'medium' ? 500 : 700);
+}
+
+function getAIMove() {
+  const boards = getAvailableBoards();
+  if (boards.length === 0) return null;
+
+  if (difficulty === 'easy') {
+    return randomMove(boards);
+  } else if (difficulty === 'medium') {
+    return mediumMove(boards);
+  } else {
+    return hardMove(boards);
+  }
+}
+
+function getAvailableBoards() {
+  if (activeBoard !== null && !macroBoard[activeBoard]) return [activeBoard];
+  return [0,1,2,3,4,5,6,7,8].filter(b => !macroBoard[b]);
+}
+
+function getAvailableCells(b) {
+  return [0,1,2,3,4,5,6,7,8].filter(c => !microBoards[b][c]);
+}
+
+function randomMove(boards) {
+  const b = boards[Math.floor(Math.random()*boards.length)];
+  const cells = getAvailableCells(b);
+  const c = cells[Math.floor(Math.random()*cells.length)];
+  return {b, c};
+}
+
+function mediumMove(boards) {
+  // Try to win a micro-board, block opponent, else random
+  const ai = aiSide, human = playerSide;
+
+  // Win macro board if possible
+  for (const b of boards) {
+    const m = findWinningMove(microBoards[b], ai);
+    if (m !== null) {
+      // Check if this would win macro
+      const tempMicro = [...microBoards[b]]; tempMicro[m] = ai;
+      if (checkWin(tempMicro)) {
+        const tempMacro = [...macroBoard]; tempMacro[b] = ai;
+        if (checkWin(tempMacro)) return {b, c: m};
+      }
+    }
+  }
+
+  // Win a micro-board
+  for (const b of boards) {
+    const m = findWinningMove(microBoards[b], ai);
+    if (m !== null) return {b, c: m};
+  }
+
+  // Block human from winning a micro-board
+  for (const b of boards) {
+    const m = findWinningMove(microBoards[b], human);
+    if (m !== null) return {b, c: m};
+  }
+
+  // Prefer center cells
+  for (const b of boards) {
+    if (!microBoards[b][4]) return {b, c: 4};
+  }
+
+  return randomMove(boards);
+}
+
+function hardMove(boards) {
+  // Deeper strategy: minimax-lite with macro awareness
+  const ai = aiSide, human = playerSide;
+
+  // Win macro if one move away
+  for (const [a2,b2,c2] of WIN_LINES) {
+    const line = [macroBoard[a2], macroBoard[b2], macroBoard[c2]];
+    if (line.filter(v=>v===ai).length===2 && line.includes(null)) {
+      const targetMacro = [a2,b2,c2][line.indexOf(null)];
+      if (boards.includes(targetMacro)) {
+        const m = findWinningMove(microBoards[targetMacro], ai);
+        if (m !== null) return {b: targetMacro, c: m};
+        // Play any cell in target macro to set up
+        const cells = getAvailableCells(targetMacro);
+        if (cells.length) return {b: targetMacro, c: cells[Math.floor(Math.random()*cells.length)]};
+      }
+    }
+  }
+
+  // Block human from winning macro
+  for (const [a2,b2,c2] of WIN_LINES) {
+    const line = [macroBoard[a2], macroBoard[b2], macroBoard[c2]];
+    if (line.filter(v=>v===human).length===2 && line.includes(null)) {
+      const targetMacro = [a2,b2,c2][line.indexOf(null)];
+      if (boards.includes(targetMacro)) {
+        const m = findWinningMove(microBoards[targetMacro], ai);
+        if (m !== null) return {b: targetMacro, c: m};
+        const block = findWinningMove(microBoards[targetMacro], human);
+        if (block !== null) return {b: targetMacro, c: block};
+      }
+    }
+  }
+
+  // Win a micro-board and send opponent to a bad board
+  for (const b of boards) {
+    const m = findWinningMove(microBoards[b], ai);
+    if (m !== null) {
+      // Prefer sending to center or a board we can use
+      return {b, c: m};
+    }
+  }
+
+  // Block micro-board win
+  for (const b of boards) {
+    const m = findWinningMove(microBoards[b], human);
+    if (m !== null) return {b, c: m};
+  }
+
+  // Strategic: prefer center boards and center cells, 
+  // send opponent to already-won or bad boards
+  const centerBoards = [4];
+  const cornerBoards = [0,2,6,8];
+  
+  for (const b of centerBoards) {
+    if (boards.includes(b) && !microBoards[b][4]) {
+      return {b, c: 4};
+    }
+  }
+
+  // Try to send opponent to a board we've already won or draw
+  for (const b of boards) {
+    const cells = getAvailableCells(b);
+    for (const c of cells) {
+      if (macroBoard[c]) return {b, c}; // sends to finished board = free choice
+    }
+  }
+
+  // Try corner cells in strategic boards
+  for (const b of cornerBoards) {
+    if (boards.includes(b)) {
+      const corners = [0,2,6,8].filter(c => !microBoards[b][c]);
+      if (corners.length) return {b, c: corners[0]};
+    }
+  }
+
+  return mediumMove(boards);
+}
+
+function findWinningMove(board, player) {
+  for (const [a,b,c] of WIN_LINES) {
+    const line = [board[a], board[b], board[c]];
+    if (line.filter(v=>v===player).length===2 && line.includes(null)) {
+      return [a,b,c][line.indexOf(null)];
+    }
+  }
+  return null;
+}
+
+// ---- INIT ----
+initGame();
+</script>
+</body>
+</html>

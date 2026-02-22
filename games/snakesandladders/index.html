@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snakes & Ladders: Solitaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --panel: #161616;
+    --border: #2a2a2a;
+    --gold: #c9a84c;
+    --gold-light: #e8c96e;
+    --red: #c0392b;
+    --green: #27ae60;
+    --blue: #3a9fd8;
+    --text: #e8e0d0;
+    --muted: #555;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Courier Prime', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 16px 32px;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.05) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 90%, rgba(192,57,43,0.05) 0%, transparent 55%);
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 40px rgba(201,168,76,0.3);
+    line-height: 1.1;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 0.72rem;
+    margin-top: 4px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ── CONTROLS BAR ── */
+  .controls-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 3px;
+  }
+  .control-group label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 3px 7px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 8px 16px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-radius: 2px;
+  }
+  .btn-primary { background: var(--gold); color: #0d0d0d; border-color: var(--gold); font-weight: 700; }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-secondary { background: transparent; color: var(--gold); border-color: var(--gold); }
+  .btn-secondary:hover { background: rgba(201,168,76,0.1); }
+  .btn-undo { background: transparent; color: var(--red); border-color: var(--red); }
+  .btn-undo:hover:not(:disabled) { background: rgba(192,57,43,0.12); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+  /* ── MAIN LAYOUT ── */
+  .main-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 780px;
+    gap: 0;
+  }
+
+  /* ── DICE POOL (above board) ── */
+  .dice-pool-wrap {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+    padding: 10px 14px;
+  }
+  .dice-pool-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .dice-pool-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .dice-count-info {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .dice-pool-header .spacer { flex: 1; }
+  .dice-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: center;
+  }
+
+  .die {
+    width: 46px;
+    height: 46px;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    cursor: default;
+    transition: all 0.15s;
+    user-select: none;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .die.available {
+    cursor: pointer;
+    border-color: #3a3a3a;
+    color: var(--text);
+  }
+  .die.available:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px rgba(201,168,76,0.25);
+  }
+  .die.selected {
+    border-color: var(--gold);
+    color: var(--gold);
+    cursor: pointer;
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.3), 0 0 20px rgba(201,168,76,0.35);
+    animation: pulse-gold 1.8s ease-in-out infinite;
+  }
+  .die.selected:hover {
+    transform: translateY(-3px);
+  }
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(201,168,76,0.25), 0 0 16px rgba(201,168,76,0.2); }
+    50% { box-shadow: 0 0 0 3px rgba(201,168,76,0.5), 0 0 24px rgba(201,168,76,0.4); }
+  }
+  .die.used {
+    opacity: 0.2;
+  }
+  .die-order {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--gold);
+    color: #0d0d0d;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.55rem;
+    font-weight: 700;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── BOARD ── */
+  .board-wrap {
+    width: 100%;
+    position: relative;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-bottom: none;
+    background: #111;
+    display: flex;
+    justify-content: center;
+  }
+  canvas#boardCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* ── SCORE BAR (below board) ── */
+  .score-bar {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 3px 3px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .score-item {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .score-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+  }
+  .score-bar .spacer { flex: 1; }
+  .score-bar .action-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* ── LEGEND POPOVER ── */
+  .legend-btn-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .legend-popover {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 50;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  }
+  .legend-btn-wrap:hover .legend-popover {
+    display: block;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.78rem;
+    margin-bottom: 7px;
+    color: var(--text);
+  }
+  .legend-item:last-child { margin-bottom: 0; }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--gold);
+    padding: 36px 40px;
+    max-width: 440px;
+    text-align: center;
+    border-radius: 4px;
+    transform: scale(0.9);
+    transition: transform 0.3s;
+  }
+  .modal-overlay.show .modal { transform: scale(1); }
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .modal p { color: var(--muted); font-size: 0.85rem; line-height: 1.7; margin-bottom: 20px; }
+  .modal .stars { font-size: 2.2rem; margin-bottom: 14px; }
+  .modal-score-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .modal-score-cell {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 10px 6px;
+    border-radius: 3px;
+  }
+  .modal-score-cell .n {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+    display: block;
+  }
+  .modal-score-cell .l {
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── EVENT TOAST ── */
+  .toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: var(--panel);
+    border: 2px solid var(--gold);
+    padding: 14px 28px;
+    border-radius: 4px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+    z-index: 200;
+    text-align: center;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .toast.snake { border-color: var(--red); color: var(--red); }
+  .toast.ladder { border-color: var(--green); color: var(--green); }
+
+
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Snakes & Ladders</h1>
+  <p>Solitaire — Think Ahead. Play Sharp.</p>
+</header>
+
+<div class="controls-bar">
+  <div class="control-group">
+    <label>Board</label>
+    <select id="boardSize">
+      <option value="6">6×6</option>
+      <option value="8">8×8</option>
+      <option value="10" selected>10×10</option>
+      <option value="12">12×12</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <label>Dice</label>
+    <select id="diceCount">
+      <option value="auto" selected>Auto</option>
+      <option value="4">4</option>
+      <option value="6">6</option>
+      <option value="8">8</option>
+      <option value="10">10</option>
+      <option value="12">12</option>
+      <option value="14">14</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <label>Snakes</label>
+    <select id="snakeDensity">
+      <option value="low">Few</option>
+      <option value="med" selected>Normal</option>
+      <option value="high">Many</option>
+    </select>
+  </div>
+  <button class="btn btn-primary" id="newGameBtn">New Game</button>
+</div>
+
+<div class="main-col">
+
+  <!-- DICE POOL -->
+  <div class="dice-pool-wrap">
+    <div class="dice-pool-header">
+      <span class="dice-pool-label">Dice — hover to preview, click to move</span>
+      <div class="spacer"></div>
+      <span class="dice-count-info" id="diceCountInfo"></span>
+      <button class="btn btn-undo" id="undoBtn" disabled>↩ Undo</button>
+    </div>
+    <div class="dice-pool" id="dicePool"></div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="board-wrap">
+    <canvas id="boardCanvas"></canvas>
+  </div>
+
+  <!-- SCORE BAR -->
+  <div class="score-bar">
+    <div class="score-item">
+      <span class="score-num" id="scoreDiceUsed">0</span>
+      <span class="score-label">Dice Used</span>
+    </div>
+    <div class="score-divider"></div>
+    <div class="score-item">
+      <span class="score-num" id="scorePos">1</span>
+      <span class="score-label">Square</span>
+    </div>
+    <div class="score-divider"></div>
+    <div class="score-item">
+      <span class="score-num" id="scoreLadders">0</span>
+      <span class="score-label">Ladders</span>
+    </div>
+    <div class="score-divider"></div>
+    <div class="score-item">
+      <span class="score-num" id="scoreSnakes">0</span>
+      <span class="score-label">Snakes</span>
+    </div>
+    <div class="score-divider"></div>
+    <div class="score-item">
+      <span class="score-num" id="scoreEfficiency">—</span>
+      <span class="score-label">Efficiency</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="action-row">
+      <div class="legend-btn-wrap">
+        <button class="btn btn-secondary">Legend</button>
+        <div class="legend-popover">
+          <div class="legend-item"><div class="legend-dot" style="background:#27ae60"></div> Ladder — climb up</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#c0392b"></div> Snake — slide down</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#e8c96e"></div> Your current position</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#3a9fd8"></div> Projected landing (next die)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#555"></div> Your trail so far</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- WIN MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="stars" id="modalStars">⭐⭐⭐</div>
+    <h2 id="modalTitle">Finished!</h2>
+    <div class="modal-score-grid">
+      <div class="modal-score-cell">
+        <span class="n" id="mDiceUsed">—</span>
+        <span class="l">Dice Used</span>
+      </div>
+      <div class="modal-score-cell">
+        <span class="n" id="mDiceTotal">—</span>
+        <span class="l">Total Dice</span>
+      </div>
+      <div class="modal-score-cell">
+        <span class="n" id="mEff">—</span>
+        <span class="l">Efficiency</span>
+      </div>
+      <div class="modal-score-cell">
+        <span class="n" id="mLadders">—</span>
+        <span class="l">Ladders Hit</span>
+      </div>
+      <div class="modal-score-cell">
+        <span class="n" id="mSnakes">—</span>
+        <span class="l">Snakes Hit</span>
+      </div>
+      <div class="modal-score-cell">
+        <span class="n" id="mWasted">—</span>
+        <span class="l">Dice Saved</span>
+      </div>
+    </div>
+    <p id="modalMsg"></p>
+    <button class="btn btn-primary" onclick="newGame()">Play Again</button>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let G = {
+  size: 10,
+  cells: 0,
+  snakes: {},
+  ladders: {},
+  dice: [],
+  diceIdx: 0,         // how many dice have been played so far
+  selectedDieIdx: null, // which die is currently selected (null = none)
+  hoveredDieIdx: null,  // which die is being hovered (for projection)
+  playerPos: 0,
+  history: [],
+  ladderCount: 0,
+  snakeCount: 0,
+  finished: false,
+  cs: 60,
+  canvasW: 600,
+  canvasH: 600,
+};
+
+// ─── Board Gen ────────────────────────────────────────────────────────────────
+function newGame() {
+  hideModal();
+  G.size = parseInt(document.getElementById('boardSize').value);
+  G.cells = G.size * G.size;
+  G.dice = [];
+  G.diceIdx = 0;
+  G.selectedDieIdx = null;
+  G.hoveredDieIdx = null;
+  G.usedDice = new Set();
+  G.playerPos = 0;
+  G.history = [];
+  G.ladderCount = 0;
+  G.snakeCount = 0;
+  G.finished = false;
+
+  generateBoard();
+  generateDice();
+  computeCanvasSize();
+  renderBoard();
+  renderDicePool();
+  updateScoreBar();
+  document.getElementById('undoBtn').disabled = true;
+}
+
+function getDiceCount() {
+  const sel = document.getElementById('diceCount').value;
+  if (sel === 'auto') return { 6: 5, 8: 7, 10: 10, 12: 13 }[G.size] || 10;
+  return parseInt(sel);
+}
+
+function generateDice() {
+  const n = getDiceCount();
+  G.dice = Array.from({ length: n }, () => Math.floor(Math.random() * 6) + 1);
+}
+
+function generateBoard() {
+  G.snakes = {};
+  G.ladders = {};
+  const cells = G.cells;
+  const density = document.getElementById('snakeDensity').value;
+  const pairCount = Math.max(3, Math.round(cells * { low: 0.04, med: 0.07, high: 0.11 }[density]));
+  const occupied = new Set([0, cells - 1]);
+
+  function rnd(min, max) {
+    let c, tries = 0;
+    do { c = min + Math.floor(Math.random() * (max - min + 1)); tries++; }
+    while (occupied.has(c) && tries < 200);
+    return c;
+  }
+
+  for (let i = 0; i < pairCount; i++) {
+    const b = rnd(1, cells - 2);
+    const t = rnd(b + G.size, cells - 1);
+    if (!occupied.has(b) && !occupied.has(t) && t > b + G.size) {
+      G.ladders[b] = t; occupied.add(b); occupied.add(t);
+    }
+  }
+  for (let i = 0; i < pairCount; i++) {
+    const h = rnd(G.size, cells - 2);
+    const ta = rnd(1, h - G.size);
+    if (!occupied.has(h) && !occupied.has(ta) && h > ta + G.size) {
+      G.snakes[h] = ta; occupied.add(h); occupied.add(ta);
+    }
+  }
+}
+
+function computeCanvasSize() {
+  const maxW = Math.min(window.innerWidth - 40, 780);
+  G.cs = Math.floor(maxW / G.size);
+  G.canvasW = G.cs * G.size;
+  G.canvasH = G.cs * G.size;
+  const canvas = document.getElementById('boardCanvas');
+  canvas.width = G.canvasW;
+  canvas.height = G.canvasH;
+}
+
+// ─── Game Logic ───────────────────────────────────────────────────────────────
+function applyMove(pos, roll) {
+  let next = pos + roll;
+  if (next >= G.cells - 1) return { pos: G.cells - 1, event: 'win', raw: Math.min(next, G.cells - 1) };
+  if (G.ladders[next] !== undefined) return { pos: G.ladders[next], event: 'ladder', raw: next };
+  if (G.snakes[next] !== undefined) return { pos: G.snakes[next], event: 'snake', raw: next };
+  return { pos: next, event: 'normal', raw: next };
+}
+
+function playDie(dieIndex) {
+  if (G.finished) return;
+  if (G.usedDice.has(dieIndex)) return;
+  const roll = G.dice[dieIndex];
+  const result = applyMove(G.playerPos, roll);
+
+  G.history.push({
+    fromPos: G.playerPos,
+    toPos: result.pos,
+    rawPos: result.raw,
+    dieVal: roll,
+    event: result.event,
+    dieIndex,
+  });
+
+  G.usedDice.add(dieIndex);
+  G.diceIdx++;
+  G.selectedDieIdx = null;
+  G.hoveredDieIdx = null;
+  G.playerPos = result.pos;
+
+  if (result.event === 'ladder') { G.ladderCount++; showToast('🪜 Ladder! Climbing up!', 'ladder'); }
+  if (result.event === 'snake') { G.snakeCount++; showToast('🐍 Snake! Sliding down!', 'snake'); }
+  if (result.event === 'win') G.finished = true;
+
+  document.getElementById('undoBtn').disabled = false;
+  renderBoard();
+  renderDicePool();
+  updateScoreBar();
+
+  if (G.finished) {
+    setTimeout(() => showWinModal(), 500);
+  }
+}
+
+function selectOrPlayDie(dieIndex) {
+  if (G.finished) return;
+  if (G.usedDice.has(dieIndex)) return;
+  playDie(dieIndex);
+}
+
+function undo() {
+  if (G.history.length === 0) return;
+  const step = G.history.pop();
+  G.playerPos = step.fromPos;
+  G.diceIdx--;
+  G.usedDice.delete(step.dieIndex);
+  G.finished = false;
+  G.selectedDieIdx = null;
+  G.hoveredDieIdx = null;
+  if (step.event === 'ladder') G.ladderCount--;
+  if (step.event === 'snake') G.snakeCount--;
+
+  document.getElementById('undoBtn').disabled = G.history.length === 0;
+  renderBoard();
+  renderDicePool();
+  updateScoreBar();
+}
+
+// Returns the projected path for a given die index (defaults to selected, then hovered)
+function getProjectedPath(overrideDieIdx) {
+  if (G.finished) return null;
+  const dieIdx = overrideDieIdx !== undefined ? overrideDieIdx
+    : (G.selectedDieIdx !== null ? G.selectedDieIdx : G.hoveredDieIdx);
+  if (dieIdx === null || dieIdx === undefined) return null;
+  if (G.usedDice.has(dieIdx)) return null;
+  const roll = G.dice[dieIdx];
+  const result = applyMove(G.playerPos, roll);
+  const walkEnd = Math.min(G.playerPos + roll, G.cells - 1);
+  return {
+    roll,
+    walkEnd,
+    landing: result.raw,
+    dest: result.pos,
+    event: result.event,
+  };
+}
+
+// ─── Canvas Helpers ───────────────────────────────────────────────────────────
+function cellToRowCol(cell) {
+  const row = Math.floor(cell / G.size);
+  let col = cell % G.size;
+  if (row % 2 === 1) col = G.size - 1 - col;
+  return { row, col };
+}
+
+function cellToXY(cell) {
+  const cs = G.cs;
+  const { row, col } = cellToRowCol(cell);
+  return { x: col * cs + cs / 2, y: (G.size - 1 - row) * cs + cs / 2 };
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+function drawArrowHead(ctx, from, to, size) {
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  if (len < 1) return;
+  const ux = dx / len, uy = dy / len;
+  const ax = to.x - ux * size, ay = to.y - uy * size;
+  const px = -uy * size * 0.45, py = ux * size * 0.45;
+  ctx.beginPath();
+  ctx.moveTo(to.x, to.y);
+  ctx.lineTo(ax + px, ay + py);
+  ctx.lineTo(ax - px, ay - py);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ─── Board Rendering ─────────────────────────────────────────────────────────
+function renderBoard() {
+  const canvas = document.getElementById('boardCanvas');
+  const cs = G.cs;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const proj = getProjectedPath();
+
+  // Build projected walk set
+  const projWalkSet = new Set();
+  if (proj) {
+    for (let s = G.playerPos; s <= proj.walkEnd; s++) projWalkSet.add(s);
+    if (proj.event !== 'normal' && proj.event !== 'win') projWalkSet.add(proj.dest);
+  }
+
+  // Build trail set
+  const trailSet = new Set();
+  for (const h of G.history) {
+    for (let s = h.fromPos; s <= h.rawPos; s++) trailSet.add(s);
+    if (h.rawPos !== h.toPos) trailSet.add(h.toPos);
+  }
+
+  // ── Draw cells ──
+  for (let cell = 0; cell < G.cells; cell++) {
+    const { row, col } = cellToRowCol(cell);
+    const x = col * cs, y = (G.size - 1 - row) * cs;
+    const checker = (row + col) % 2 === 0;
+
+    let fill = checker ? '#1c1c1c' : '#161616';
+    if (trailSet.has(cell) && cell !== G.playerPos) fill = checker ? '#1e1e1e' : '#191919';
+    if (projWalkSet.has(cell) && cell !== G.playerPos) fill = 'rgba(58,159,216,0.14)';
+    if (G.ladders[cell] !== undefined) fill = checker ? 'rgba(39,174,96,0.13)' : 'rgba(39,174,96,0.10)';
+    if (G.snakes[cell] !== undefined) fill = checker ? 'rgba(192,57,43,0.13)' : 'rgba(192,57,43,0.10)';
+
+    ctx.fillStyle = fill;
+    ctx.fillRect(x, y, cs, cs);
+    ctx.strokeStyle = '#1f1f1f';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(x, y, cs, cs);
+
+    ctx.fillStyle = '#2d2d2d';
+    ctx.font = `${Math.max(8, cs * 0.17)}px Courier Prime`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(cell + 1, x + 3, y + 2);
+  }
+
+  // ── END marker ──
+  const fxy = cellToXY(G.cells - 1);
+  ctx.save();
+  ctx.fillStyle = 'rgba(201,168,76,0.15)';
+  roundRect(ctx, fxy.x - cs*0.36, fxy.y - cs*0.36, cs*0.72, cs*0.72, 4);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(201,168,76,0.55)';
+  ctx.lineWidth = 2;
+  roundRect(ctx, fxy.x - cs*0.36, fxy.y - cs*0.36, cs*0.72, cs*0.72, 4);
+  ctx.stroke();
+  ctx.fillStyle = '#c9a84c';
+  ctx.font = `bold ${cs * 0.19}px Courier Prime`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('END', fxy.x, fxy.y);
+  ctx.restore();
+
+  // ── Snakes ──
+  for (const [head, tail] of Object.entries(G.snakes)) {
+    drawSnake(ctx, parseInt(head), parseInt(tail), cs);
+  }
+
+  // ── Ladders ──
+  for (const [bottom, top] of Object.entries(G.ladders)) {
+    drawLadder(ctx, parseInt(bottom), parseInt(top), cs);
+  }
+
+  // ── Trail dashes ──
+  if (G.history.length > 0) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(100,100,100,0.4)';
+    ctx.lineWidth = cs * 0.06;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.setLineDash([cs * 0.07, cs * 0.11]);
+    ctx.beginPath();
+    let trailPos = 0;
+    const p0 = cellToXY(0);
+    ctx.moveTo(p0.x, p0.y);
+    for (const step of G.history) {
+      for (let s = step.fromPos + 1; s <= step.rawPos; s++) {
+        const p = cellToXY(s); ctx.lineTo(p.x, p.y);
+      }
+      if (step.rawPos !== step.toPos) {
+        ctx.moveTo(cellToXY(step.toPos).x, cellToXY(step.toPos).y);
+      }
+      trailPos = step.toPos;
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  // ── Projected path ──
+  if (proj) {
+    ctx.save();
+
+    // Walk line
+    ctx.strokeStyle = 'rgba(58,159,216,0.85)';
+    ctx.lineWidth = cs * 0.11;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.setLineDash([cs * 0.09, cs * 0.07]);
+    ctx.shadowColor = 'rgba(58,159,216,0.55)';
+    ctx.shadowBlur = cs * 0.35;
+    ctx.beginPath();
+    const startXY = cellToXY(G.playerPos);
+    ctx.moveTo(startXY.x, startXY.y);
+    for (let s = G.playerPos + 1; s <= proj.walkEnd; s++) {
+      const p = cellToXY(s); ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
+
+    // Snake/ladder teleport line
+    if (proj.event === 'ladder' || proj.event === 'snake') {
+      const col = proj.event === 'ladder' ? 'rgba(39,174,96,0.9)' : 'rgba(192,57,43,0.9)';
+      const fromXY = cellToXY(proj.landing);
+      const toXY = cellToXY(proj.dest);
+      ctx.strokeStyle = col;
+      ctx.fillStyle = col;
+      ctx.lineWidth = cs * 0.1;
+      ctx.shadowColor = col;
+      ctx.shadowBlur = cs * 0.28;
+      ctx.beginPath();
+      ctx.moveTo(fromXY.x, fromXY.y);
+      ctx.lineTo(toXY.x, toXY.y);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      drawArrowHead(ctx, fromXY, toXY, cs * 0.2);
+    }
+
+    // Destination glow circle
+    const destColor = proj.event === 'ladder' ? '#27ae60' : proj.event === 'snake' ? '#c0392b' : '#3a9fd8';
+    const destXY = cellToXY(proj.dest);
+    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.arc(destXY.x, destXY.y, cs * 0.28, 0, Math.PI * 2);
+    ctx.fillStyle = destColor + '28';
+    ctx.fill();
+    ctx.strokeStyle = destColor;
+    ctx.lineWidth = cs * 0.08;
+    ctx.setLineDash([cs * 0.07, cs * 0.05]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.restore();
+  }
+
+  // ── Player token ──
+  const pxy = cellToXY(G.playerPos);
+  ctx.save();
+  ctx.shadowColor = 'rgba(232,201,110,0.65)';
+  ctx.shadowBlur = cs * 0.45;
+  ctx.beginPath();
+  ctx.arc(pxy.x, pxy.y, cs * 0.3, 0, Math.PI * 2);
+  ctx.fillStyle = '#e8c96e';
+  ctx.fill();
+  ctx.strokeStyle = '#0d0d0d';
+  ctx.lineWidth = cs * 0.07;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawSnake(ctx, head, tail, cs) {
+  const a = cellToXY(head), b = cellToXY(tail);
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const nx = -dy * 0.38, ny = dx * 0.38;
+
+  ctx.save();
+  ctx.strokeStyle = '#c0392b';
+  ctx.lineWidth = cs * 0.09;
+  ctx.lineCap = 'round';
+  ctx.shadowColor = 'rgba(192,57,43,0.4)';
+  ctx.shadowBlur = cs * 0.18;
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.bezierCurveTo(mx + nx, my + ny, mx - nx, my - ny, b.x, b.y);
+  ctx.stroke();
+
+  // Head
+  ctx.shadowBlur = 0;
+  ctx.beginPath();
+  ctx.arc(a.x, a.y, cs * 0.14, 0, Math.PI * 2);
+  ctx.fillStyle = '#e74c3c';
+  ctx.fill();
+
+  // Tongue
+  const angle = Math.atan2(b.y - a.y, b.x - a.x);
+  const tx = a.x + Math.cos(angle) * cs * 0.2;
+  const ty = a.y + Math.sin(angle) * cs * 0.2;
+  ctx.strokeStyle = '#e74c3c';
+  ctx.lineWidth = cs * 0.035;
+  ctx.beginPath();
+  ctx.moveTo(a.x + Math.cos(angle)*cs*0.14, a.y + Math.sin(angle)*cs*0.14);
+  ctx.lineTo(tx + Math.cos(angle - 0.5)*cs*0.1, ty + Math.sin(angle - 0.5)*cs*0.1);
+  ctx.moveTo(a.x + Math.cos(angle)*cs*0.14, a.y + Math.sin(angle)*cs*0.14);
+  ctx.lineTo(tx + Math.cos(angle + 0.5)*cs*0.1, ty + Math.sin(angle + 0.5)*cs*0.1);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawLadder(ctx, bottom, top, cs) {
+  const a = cellToXY(bottom), b = cellToXY(top);
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const len = Math.sqrt(dx*dx + dy*dy);
+  const nx = (-dy/len)*cs*0.07, ny = (dx/len)*cs*0.07;
+
+  ctx.save();
+  ctx.strokeStyle = '#27ae60';
+  ctx.lineCap = 'round';
+  ctx.shadowColor = 'rgba(39,174,96,0.35)';
+  ctx.shadowBlur = cs * 0.18;
+
+  ctx.lineWidth = cs * 0.06;
+  ctx.beginPath();
+  ctx.moveTo(a.x+nx, a.y+ny); ctx.lineTo(b.x+nx, b.y+ny);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(a.x-nx, a.y-ny); ctx.lineTo(b.x-nx, b.y-ny);
+  ctx.stroke();
+
+  ctx.lineWidth = cs * 0.035;
+  ctx.shadowBlur = 0;
+  const rungs = Math.max(2, Math.floor(len / (cs * 0.5)));
+  for (let r = 1; r <= rungs; r++) {
+    const t = r / (rungs + 1);
+    const rx = a.x + dx*t, ry = a.y + dy*t;
+    ctx.beginPath();
+    ctx.moveTo(rx + nx*1.3, ry + ny*1.3);
+    ctx.lineTo(rx - nx*1.3, ry - ny*1.3);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ─── Dice Pool UI ─────────────────────────────────────────────────────────────
+function renderDicePool() {
+  const pool = document.getElementById('dicePool');
+  pool.innerHTML = '';
+  const remaining = G.dice.length - G.usedDice.size;
+  document.getElementById('diceCountInfo').textContent =
+    G.finished ? 'Finished!' : `${remaining} of ${G.dice.length} remaining`;
+
+  G.dice.forEach((val, i) => {
+    const d = document.createElement('div');
+    const used = G.usedDice.has(i);
+
+    let cls = 'die';
+    if (used) cls += ' used';
+    else cls += ' available';
+
+    d.className = cls;
+    d.textContent = val;
+
+    if (used) {
+      // Show play order badge
+      const playOrder = G.history.findIndex(h => h.dieIndex === i) + 1;
+      const badge = document.createElement('span');
+      badge.className = 'die-order';
+      badge.textContent = playOrder;
+      d.appendChild(badge);
+    } else {
+      d.title = `Click to move ${val} square${val !== 1 ? 's' : ''}`;
+
+      d.onclick = () => selectOrPlayDie(i);
+
+      d.onmouseenter = () => {
+        G.hoveredDieIdx = i;
+        renderBoard();
+      };
+      d.onmouseleave = () => {
+        if (G.hoveredDieIdx === i) {
+          G.hoveredDieIdx = null;
+          renderBoard();
+        }
+      };
+    }
+    pool.appendChild(d);
+  });
+}
+
+function updateScoreBar() {
+  document.getElementById('scoreDiceUsed').textContent = G.usedDice.size;
+  document.getElementById('scorePos').textContent = G.playerPos + 1;
+  document.getElementById('scoreLadders').textContent = G.ladderCount;
+  document.getElementById('scoreSnakes').textContent = G.snakeCount;
+  const eff = G.usedDice.size > 0
+    ? Math.round((G.usedDice.size / G.dice.length) * 100) + '%'
+    : '—';
+  document.getElementById('scoreEfficiency').textContent = eff;
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, cls) {
+  const t = document.getElementById('toast');
+  clearTimeout(toastTimer);
+  t.textContent = msg;
+  t.className = 'toast ' + (cls || '');
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1400);
+}
+
+// ─── Win Modal ────────────────────────────────────────────────────────────────
+function showWinModal() {
+  const used = G.usedDice.size;
+  const total = G.dice.length;
+  const wasted = total - used;
+  const effPct = Math.round((used / total) * 100);
+
+  let stars, title, msg;
+  if (effPct <= 50) {
+    stars = '⭐⭐⭐'; title = 'Masterful!';
+    msg = 'Blazing efficiency — you read the board beautifully.';
+  } else if (effPct <= 72) {
+    stars = '⭐⭐'; title = 'Well Played!';
+    msg = 'Solid path. Think you could shave off another move?';
+  } else {
+    stars = '⭐'; title = 'You Made It!';
+    msg = 'Finished, but there may be a faster route — try again!';
+  }
+
+  document.getElementById('modalStars').textContent = stars;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalMsg').textContent = msg;
+  document.getElementById('mDiceUsed').textContent = used;
+  document.getElementById('mDiceTotal').textContent = total;
+  document.getElementById('mEff').textContent = effPct + '%';
+  document.getElementById('mLadders').textContent = G.ladderCount;
+  document.getElementById('mSnakes').textContent = G.snakeCount;
+  document.getElementById('mWasted').textContent = wasted;
+
+  document.getElementById('modal').classList.add('show');
+}
+
+function hideModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+// ─── Wiring ───────────────────────────────────────────────────────────────────
+document.getElementById('newGameBtn').onclick = newGame;
+document.getElementById('undoBtn').onclick = undo;
+
+document.addEventListener('keydown', e => {
+  if ((e.key === 'z' && (e.ctrlKey || e.metaKey)) || e.key === 'u') { e.preventDefault(); undo(); }
+  if (e.key === 'Escape') { G.selectedDieIdx = null; G.hoveredDieIdx = null; renderDicePool(); renderBoard(); }
+  if (e.key === 'n') newGame();
+});
+
+window.addEventListener('resize', () => {
+  if (!G.cells) return;
+  computeCanvasSize();
+  renderBoard();
+});
+
+newGame();
+</script>
+</body>
+</html>
